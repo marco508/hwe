@@ -1,0 +1,100 @@
+# Ports par defaut : API 4005, landing 3006, owner 3005, tenant 3004, postgres 5435.
+# Surchargeables avant de lancer start.bat :
+#   set HWE_API_PORT=4001
+#   set HWE_LANDING_PORT=3010
+#   set HWE_OWNER_PORT=3011
+#   set HWE_TENANT_PORT=3012
+#   set HWE_PG_PORT=5432
+# (ou exporte-les dans un .env a la racine, lu automatiquement par compose)
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: hwe-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hwe
+      POSTGRES_PASSWORD: hwe
+      POSTGRES_DB: hwe
+    ports:
+      - "${HWE_PG_PORT:-5435}:5432"
+    volumes:
+      - hwe-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hwe -d hwe"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: hwe-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://hwe:hwe@postgres:5432/hwe?schema=public
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGINS: http://localhost:${HWE_LANDING_PORT:-3006},http://localhost:${HWE_OWNER_PORT:-3005},http://localhost:${HWE_TENANT_PORT:-3004}
+      API_PORT: 4000
+    ports:
+      - "${HWE_API_PORT:-4005}:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  landing:
+    build:
+      context: .
+      dockerfile: apps/landing/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${HWE_API_PORT:-4005}
+        NEXT_PUBLIC_TENANT_URL: http://localhost:${HWE_TENANT_PORT:-3004}
+        NEXT_PUBLIC_OWNER_URL: http://localhost:${HWE_OWNER_PORT:-3005}
+    container_name: hwe-landing
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${HWE_API_PORT:-4005}
+      NEXT_PUBLIC_TENANT_URL: http://localhost:${HWE_TENANT_PORT:-3004}
+      NEXT_PUBLIC_OWNER_URL: http://localhost:${HWE_OWNER_PORT:-3005}
+      PORT: 3006
+    ports:
+      - "${HWE_LANDING_PORT:-3006}:3006"
+    depends_on:
+      - api
+
+  owner-web:
+    build:
+      context: .
+      dockerfile: apps/owner-web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${HWE_API_PORT:-4005}
+    container_name: hwe-owner-web
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${HWE_API_PORT:-4005}
+      PORT: 3005
+    ports:
+      - "${HWE_OWNER_PORT:-3005}:3005"
+    depends_on:
+      - api
+
+  tenant-web:
+    build:
+      context: .
+      dockerfile: apps/tenant-web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${HWE_API_PORT:-4005}
+    container_name: hwe-tenant-web
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${HWE_API_PORT:-4005}
+      PORT: 3001
+    ports:
+      - "${HWE_TENANT_PORT:-3004}:3001"
+    depends_on:
+      - api
+
+volumes:
+  hwe-pgdata:

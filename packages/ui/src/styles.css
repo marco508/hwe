@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: theme("fontFamily.sans");
+    color: theme("colors.ink.DEFAULT");
+    background: theme("colors.background");
+  }
+  body {
+    @apply antialiased;
+  }
+  h1, h2, h3 {
+    font-family: theme("fontFamily.display");
+    letter-spacing: -0.01em;
+  }
+  a {
+    @apply text-brand-600 hover:text-brand-700;
+  }
+
+  /* ── Dark mode overrides ── */
+  html.dark {
+    color-scheme: dark;
+  }
+  .dark body {
+    background: #111310;
+    color: #e8e6df;
+  }
+  /* Map semantic tokens to dark values via CSS custom properties */
+  .dark {
+    --color-background: #111310;
+    --color-surface: #1c1f1b;
+    --color-border: #2e3330;
+    --color-ink: #e8e6df;
+    --color-ink-muted: #9a9e97;
+    --color-ink-subtle: #666b63;
+  }
+  /* Brand green is too dark on dark backgrounds — use a lighter shade */
+  .dark a {
+    color: #8eb6a0; /* brand-300 */
+  }
+  .dark a:hover {
+    color: #bbd1c4; /* brand-200 */
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply max-w-6xl mx-auto px-6;
+  }
+}

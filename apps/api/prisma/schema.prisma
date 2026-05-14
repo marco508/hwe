@@ -1,0 +1,298 @@
+// HWE — Real estate platform
+// Prisma schema. PostGIS-ready (lat/lng kept as Float, can be backed by a
+// geography(Point) column via raw SQL when scale demands it).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  TENANT
+  ADMIN
+}
+
+enum ListingType {
+  SALE
+  RENT
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  STUDIO
+  LAND
+  COMMERCIAL
+  OTHER
+}
+
+enum PropertyStatus {
+  DRAFT
+  PUBLISHED
+  RENTED
+  SOLD
+  ARCHIVED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  avatarUrl String?  @db.Text
+  role      Role     @default(TENANT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  properties     Property[] @relation("OwnerProperties")
+  inquiries      Inquiry[]  @relation("SenderInquiries")
+  favorites      Favorite[]
+  userDocuments  UserDocument[]
+
+  @@index([role])
+}
+
+enum IdentityDocumentType {
+  NATIONAL_ID       // Carte nationale d'identité
+  PASSPORT          // Passeport
+  DRIVERS_LICENSE   // Permis de conduire
+  RESIDENCE_PERMIT  // Titre de séjour
+  OTHER
+}
+
+model UserDocument {
+  id           String               @id @default(cuid())
+  userId       String
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  documentType IdentityDocumentType
+  fileUrl      String               @db.Text
+  fileSize     Int?
+  mimeType     String?
+  notes        String?              @db.Text
+  verifiedAt   DateTime?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([userId])
+}
+
+model Property {
+  id          String         @id @default(cuid())
+  title       String
+  description String         @db.Text
+  listingType ListingType
+  propertyType PropertyType
+  status      PropertyStatus @default(PUBLISHED)
+
+  price    Float
+  currency String @default("EUR")
+
+  surface   Float
+  rooms     Int
+  bedrooms  Int
+  bathrooms Int
+  floor     Int?
+  yearBuilt Int?
+
+  furnished   Boolean @default(false)
+  hasParking  Boolean @default(false)
+  hasBalcony  Boolean @default(false)
+  hasGarden   Boolean @default(false)
+  hasElevator Boolean @default(false)
+
+  // Localisation
+  addressLine String
+  city        String
+  postalCode  String
+  country     String  @default("FR")
+  latitude    Float?
+  longitude   Float?
+
+  ownerId String
+  owner   User   @relation("OwnerProperties", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  media        PropertyMedia[]
+  inquiries    Inquiry[]
+  documents    PropertyDocument[]
+  leases       LeaseContract[]
+  favorites    Favorite[]
+  pricingRates PricingRate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([listingType])
+  @@index([propertyType])
+  @@index([city])
+  @@index([country])
+  @@index([status])
+  @@index([price])
+}
+
+model PropertyMedia {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String   @db.Text
+  alt        String?
+  position   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId])
+}
+
+/// Grille tarifaire définie par le propriétaire pour une annonce de location.
+/// Une seule entrée par unité (DAYS / WEEKS / MONTHS / YEARS) est autorisée.
+model PricingRate {
+  id         String            @id @default(cuid())
+  propertyId String
+  property   Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  unit       LeaseDurationUnit
+  /// Montant pour 1 unité (ex : 45 pour 45 €/jour)
+  amount     Float
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@unique([propertyId, unit])
+  @@index([propertyId])
+}
+
+enum InquiryStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum LeaseDurationUnit {
+  DAYS
+  WEEKS
+  MONTHS
+  YEARS
+}
+
+model Inquiry {
+  id           String        @id @default(cuid())
+  propertyId   String
+  property     Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  senderId     String
+  sender       User          @relation("SenderInquiries", fields: [senderId], references: [id], onDelete: Cascade)
+  message      String        @db.Text
+  contactEmail String
+  contactPhone String?
+  /// Date de début souhaitée par le locataire
+  desiredStartDate DateTime?
+  /// Valeur numérique de la durée souhaitée
+  leaseDuration    Int?
+  /// Unité de la durée souhaitée
+  leaseDurationUnit LeaseDurationUnit?
+  status       InquiryStatus @default(PENDING)
+  resolvedAt   DateTime?
+  cancelledAt  DateTime?
+  // If accepted, the generated lease contract
+  leaseId      String?       @unique
+  lease        LeaseContract? @relation(fields: [leaseId], references: [id])
+  createdAt    DateTime      @default(now())
+
+  @@index([propertyId])
+  @@index([senderId])
+  @@index([status])
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+}
+
+enum DocumentType {
+  TITLE_DEED          // Acte de propriété
+  PROPERTY_TAX        // Taxe foncière
+  CO_OWNERSHIP_RULES  // Règlement de copropriété
+  DIAGNOSTICS         // Dossier de diagnostics techniques (DDT)
+  INSURANCE           // Assurance
+  WORK_PERMIT         // Permis de construire / déclaration travaux
+  ENERGY_AUDIT        // Audit énergétique
+  OTHER
+}
+
+model PropertyDocument {
+  id           String       @id @default(cuid())
+  propertyId   String
+  property     Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  name         String
+  documentType DocumentType
+  fileUrl      String       @db.Text
+  fileSize     Int?         // bytes
+  mimeType     String?
+  notes        String?      @db.Text
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([propertyId])
+}
+
+enum LeaseStatus {
+  DRAFT
+  SIGNED
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+model LeaseContract {
+  id           String      @id @default(cuid())
+  propertyId   String
+  property     Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  status       LeaseStatus @default(DRAFT)
+
+  // Tenant info
+  tenantFirstName  String
+  tenantLastName   String
+  tenantEmail      String
+  tenantPhone      String?
+  tenantAddress    String?
+
+  // Contract details
+  monthlyRent      Float
+  charges          Float   @default(0)
+  deposit          Float
+  startDate        DateTime
+  endDate          DateTime?
+  noticePeriod     Int     @default(1) // months
+  rentPaymentDay   Int     @default(1) // day of month
+  furnished        Boolean @default(false)
+
+  // Special clauses
+  specialClauses   String? @db.Text
+
+  // Generated PDF URL (optional)
+  pdfUrl           String? @db.Text
+
+  // Signatures (electronic — timestamped acceptance)
+  ownerSignedAt    DateTime?
+  tenantSignedAt   DateTime?
+
+  // Back-relation: the inquiry that generated this lease
+  inquiry          Inquiry?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([propertyId])
+  @@index([status])
+}
