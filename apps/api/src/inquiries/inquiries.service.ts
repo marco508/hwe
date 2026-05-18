@@ -6,10 +6,14 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateInquiryDto } from "./dto/create-inquiry.dto";
+import { ConversationsService } from "../conversations/conversations.service";
 
 @Injectable()
 export class InquiriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly conversations: ConversationsService,
+  ) {}
 
   async create(senderId: string, dto: CreateInquiryDto) {
     const property = await this.prisma.property.findUnique({
@@ -17,7 +21,35 @@ export class InquiriesService {
     });
     if (!property) throw new NotFoundException("Bien introuvable");
 
-    return this.prisma.inquiry.create({
+    // Un propriétaire ne peut pas envoyer de demande sur son propre bien.
+    if (property.ownerId === senderId) {
+      throw new BadRequestException(
+        "Vous ne pouvez pas envoyer de demande sur votre propre bien.",
+      );
+    }
+
+    // Un bien doit être publié pour recevoir des demandes.
+    if (property.status !== "PUBLISHED") {
+      throw new BadRequestException(
+        "Ce bien n'accepte pas de nouvelles demandes pour le moment.",
+      );
+    }
+
+    // Évite les doublons : une seule demande en attente par locataire+bien.
+    const existing = await this.prisma.inquiry.findFirst({
+      where: {
+        propertyId: dto.propertyId,
+        senderId,
+        status: "PENDING",
+      },
+    });
+    if (existing) {
+      throw new BadRequestException(
+        "Vous avez déjà une demande en attente pour ce bien.",
+      );
+    }
+
+    const created = await this.prisma.inquiry.create({
       data: {
         propertyId: dto.propertyId,
         senderId,
@@ -29,6 +61,16 @@ export class InquiriesService {
         leaseDurationUnit: dto.leaseDurationUnit,
       },
     });
+
+    // Crée automatiquement le fil de discussion avec le message initial.
+    try {
+      await this.conversations.getOrCreateForInquiry(created.id);
+    } catch {
+      /* la création de l'inquiry reste valide même si la conversation
+         ne se crée pas (cas limite : utilisateur supprimé entre temps) */
+    }
+
+    return created;
   }
 
   // Tenant cancels their own PENDING inquiry
@@ -77,7 +119,22 @@ export class InquiriesService {
       });
     }
 
-    // ACCEPTED → auto-generate a DRAFT lease contract + passer le bien en RENTED
+    // ── ACCEPTED — Vente ──────────────────────────────────────────────────
+    // Pour une vente : pas de bail. On marque juste l'inquiry comme acceptée
+    // et on laisse le bien en PUBLISHED (le compromis se fait hors plateforme
+    // chez le notaire). Le propriétaire peut ensuite passer manuellement
+    // l'annonce en SOLD depuis son tableau de bord lorsque la vente est
+    // finalisée.
+    if (inquiry.property.listingType === "SALE") {
+      return this.prisma.inquiry.update({
+        where: { id: inquiryId },
+        data: { status: "ACCEPTED", resolvedAt: new Date() },
+        include: this.fullInclude(),
+      });
+    }
+
+    // ── ACCEPTED — Location ───────────────────────────────────────────────
+    // Auto-génère un brouillon de bail et passe le bien en RENTED.
     return this.prisma.$transaction(async (tx) => {
       const property = inquiry.property;
       const tenant = inquiry.sender;

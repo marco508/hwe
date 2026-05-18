@@ -93,10 +93,20 @@ Prérequis : Node 20+, pnpm 9, Docker (juste pour Postgres).
    pnpm dev
    ```
 
-## Comptes de démo (après seed)
+## Compte administrateur (après seed)
 
-- Propriétaire : `owner@hwe.test` / `owner1234`
-- Locataire : `tenant@hwe.test` / `tenant1234`
+Le seed ne crée **aucun bien fictif** : il prépare uniquement un compte administrateur
+pour piloter la plateforme. Le catalogue démarre **totalement vide** — connectez-vous
+à l'espace propriétaire (`/register` puis `/login`) pour publier vos premiers biens.
+
+- Admin : `admin@hwe.local` / `ChangeMe!2026`
+
+Vous pouvez surcharger les identifiants via les variables d'environnement
+`ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_FIRST_NAME`, `ADMIN_LAST_NAME` avant
+de lancer `prisma:seed`.
+
+Pour créer un compte propriétaire de test : utilisez le formulaire d'inscription
+de l'espace owner — c'est exactement le même parcours qu'un vrai utilisateur.
 
 ## API REST
 

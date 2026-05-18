@@ -336,10 +336,14 @@ function InquiryCard({
             {i.cancelledAt && <span> · Annulée le {new Date(i.cancelledAt).toLocaleString("fr-FR")}</span>}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Always show details */}
             <Button size="sm" variant="secondary" onClick={() => onViewDetails(i)}>
               🔍 Détails
             </Button>
+            <Link href="/messages">
+              <Button size="sm" variant="gradient">
+                💬 Discuter
+              </Button>
+            </Link>
             {i.status === "PENDING" && (
               <Button
                 size="sm"

@@ -31,6 +31,23 @@ enum PropertyType {
   OTHER
 }
 
+enum EnergyClass {
+  A
+  B
+  C
+  D
+  E
+  F
+  G
+}
+
+enum RentalKind {
+  BARE         // Location nue
+  FURNISHED    // Location meublée
+  SEASONAL     // Location saisonnière / courte durée
+  STUDENT      // Bail étudiant
+}
+
 enum PropertyStatus {
   DRAFT
   PUBLISHED
@@ -55,6 +72,11 @@ model User {
   inquiries      Inquiry[]  @relation("SenderInquiries")
   favorites      Favorite[]
   userDocuments  UserDocument[]
+
+  // Messagerie
+  ownerConversations Conversation[] @relation("OwnerConversations")
+  otherConversations Conversation[] @relation("OtherConversations")
+  sentMessages       Message[]
 
   @@index([role])
 }
@@ -108,6 +130,32 @@ model Property {
   hasGarden   Boolean @default(false)
   hasElevator Boolean @default(false)
 
+  // ── Champs spécifiques VENTE ─────────────────────────────────────────
+  /// Charges mensuelles de copropriété (vente d'appartement)
+  coOwnershipFees Float?
+  /// Taxe foncière annuelle (vente)
+  propertyTax     Float?
+  /// Classe énergétique (Diagnostic de Performance Énergétique)
+  energyClass     EnergyClass?
+  /// Frais de notaire estimés (pourcentage du prix de vente, ex: 7.5)
+  notaryFeesRate  Float?
+  /// Bien neuf ou en VEFA (Vente en l'État Futur d'Achèvement)
+  isNew           Boolean @default(false)
+
+  // ── Champs spécifiques LOCATION ──────────────────────────────────────
+  /// Type de bail (nu / meublé / saisonnier / étudiant)
+  rentalKind      RentalKind?
+  /// Charges incluses dans le loyer ?
+  chargesIncluded Boolean?
+  /// Montant mensuel des charges (si non incluses)
+  chargesAmount   Float?
+  /// Dépôt de garantie demandé
+  deposit         Float?
+  /// Préavis en mois exigé par le bailleur
+  noticeMonths    Int?
+  /// Animaux acceptés ?
+  petsAllowed     Boolean?
+
   // Localisation
   addressLine String
   city        String
@@ -119,12 +167,13 @@ model Property {
   ownerId String
   owner   User   @relation("OwnerProperties", fields: [ownerId], references: [id], onDelete: Cascade)
 
-  media        PropertyMedia[]
-  inquiries    Inquiry[]
-  documents    PropertyDocument[]
-  leases       LeaseContract[]
-  favorites    Favorite[]
-  pricingRates PricingRate[]
+  media         PropertyMedia[]
+  inquiries     Inquiry[]
+  documents     PropertyDocument[]
+  leases        LeaseContract[]
+  favorites     Favorite[]
+  pricingRates  PricingRate[]
+  conversations Conversation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -200,11 +249,61 @@ model Inquiry {
   // If accepted, the generated lease contract
   leaseId      String?       @unique
   lease        LeaseContract? @relation(fields: [leaseId], references: [id])
+  // Conversation associée (créée automatiquement à l'envoi de la demande)
+  conversation Conversation?
   createdAt    DateTime      @default(now())
 
   @@index([propertyId])
   @@index([senderId])
   @@index([status])
+}
+
+/// Conversation entre un propriétaire et un locataire/acheteur, attachée
+/// à un bien et à la demande initiale. Une conversation par couple
+/// (propriétaire, autre utilisateur, bien).
+model Conversation {
+  id          String   @id @default(cuid())
+
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  inquiryId   String?  @unique
+  inquiry     Inquiry? @relation(fields: [inquiryId], references: [id], onDelete: SetNull)
+
+  /// Propriétaire du bien
+  ownerId     String
+  owner       User     @relation("OwnerConversations", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  /// L'autre partie (acheteur ou locataire potentiel)
+  otherUserId String
+  otherUser   User     @relation("OtherConversations", fields: [otherUserId], references: [id], onDelete: Cascade)
+
+  /// Timestamp du dernier message pour tri rapide
+  lastMessageAt DateTime?
+
+  messages    Message[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([ownerId, otherUserId, propertyId])
+  @@index([ownerId, lastMessageAt])
+  @@index([otherUserId, lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String       @db.Text
+  /// Marqué lu quand l'autre partie consulte la conversation
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
 }
 
 model Favorite {

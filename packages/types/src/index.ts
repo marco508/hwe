@@ -60,6 +60,26 @@ export interface PropertyMedia {
   position: number;
 }
 
+export type EnergyClass = "A" | "B" | "C" | "D" | "E" | "F" | "G";
+export type RentalKind = "BARE" | "FURNISHED" | "SEASONAL" | "STUDENT";
+
+export const RENTAL_KIND_LABELS: Record<RentalKind, string> = {
+  BARE: "Location nue",
+  FURNISHED: "Location meublée",
+  SEASONAL: "Location saisonnière",
+  STUDENT: "Bail étudiant",
+};
+
+export const ENERGY_CLASS_COLORS: Record<EnergyClass, string> = {
+  A: "#00a651",
+  B: "#5bc049",
+  C: "#c8d100",
+  D: "#fce200",
+  E: "#f8a005",
+  F: "#e95e0f",
+  G: "#d31f23",
+};
+
 export interface Property {
   id: string;
   title: string;
@@ -80,6 +100,22 @@ export interface Property {
   hasBalcony: boolean;
   hasGarden: boolean;
   hasElevator: boolean;
+
+  // ── Spécifique VENTE ─────────────────────────────────────────────────
+  coOwnershipFees?: number | null;
+  propertyTax?: number | null;
+  energyClass?: EnergyClass | null;
+  notaryFeesRate?: number | null;
+  isNew?: boolean;
+
+  // ── Spécifique LOCATION ──────────────────────────────────────────────
+  rentalKind?: RentalKind | null;
+  chargesIncluded?: boolean | null;
+  chargesAmount?: number | null;
+  deposit?: number | null;
+  noticeMonths?: number | null;
+  petsAllowed?: boolean | null;
+
   // Localisation
   addressLine: string;
   city: string;
@@ -190,6 +226,47 @@ export interface Inquiry {
 export interface AuthResponse {
   accessToken: string;
   user: User;
+}
+
+// ─── Messagerie ──────────────────────────────────────────────────────────────
+export type ConversationUser = Pick<
+  User,
+  "id" | "firstName" | "lastName" | "email" | "avatarUrl"
+>;
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  sender?: ConversationUser;
+  content: string;
+  readAt?: string | null;
+  createdAt: string;
+}
+
+export interface Conversation {
+  id: string;
+  propertyId: string;
+  inquiryId?: string | null;
+  ownerId: string;
+  otherUserId: string;
+  owner?: ConversationUser;
+  otherUser?: ConversationUser;
+  lastMessageAt?: string | null;
+  messages?: Message[];
+  property?: {
+    id: string;
+    title: string;
+    city: string;
+    listingType: ListingType;
+    price: number;
+    currency: string;
+    media?: { url: string }[];
+  };
+  /** Nombre de messages non-lus pour le user courant (rempli côté list). */
+  _count?: { messages: number };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PropertyQuery {

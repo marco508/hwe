@@ -11,6 +11,8 @@ import type {
   LeaseStatus,
   UserDocument,
   IdentityDocumentType,
+  Conversation,
+  Message,
 } from "@hwe/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -257,6 +259,32 @@ export const api = {
     request<{ id: string; unit: string; amount: number }[]>(
       `/properties/${propertyId}/pricing`,
       { method: "PUT", body: JSON.stringify({ rates }) },
+      true,
+    ),
+
+  // ── Messagerie ────────────────────────────────────────────────────────
+  listConversations: () =>
+    request<Conversation[]>("/conversations", {}, true),
+  unreadMessagesCount: () =>
+    request<{ count: number }>("/conversations/unread-count", {}, true),
+  startConversation: (propertyId: string) =>
+    request<Conversation>(
+      "/conversations/start",
+      { method: "POST", body: JSON.stringify({ propertyId }) },
+      true,
+    ),
+  getConversation: (id: string) =>
+    request<Conversation>(`/conversations/${id}`, {}, true),
+  sendMessage: (conversationId: string, content: string) =>
+    request<Message>(
+      `/conversations/${conversationId}/messages`,
+      { method: "POST", body: JSON.stringify({ content }) },
+      true,
+    ),
+  markConversationRead: (conversationId: string) =>
+    request<{ marked: number }>(
+      `/conversations/${conversationId}/read`,
+      { method: "POST" },
       true,
     ),
 };

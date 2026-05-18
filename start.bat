@@ -138,19 +138,22 @@ echo   Espace owner   http://localhost:%HWE_OWNER_PORT%
 echo   Espace tenant  http://localhost:%HWE_TENANT_PORT%
 echo ============================================
 echo.
-echo Comptes de demo (apres seed) :
-echo   owner@hwe.test  / owner1234
-echo   tenant@hwe.test / tenant1234
+echo Compte administrateur (cree au seed) :
+echo   admin@hwe.local / ChangeMe!2026
+echo   (surchargez via ADMIN_EMAIL / ADMIN_PASSWORD avant le seed)
 echo.
 echo Commandes utiles :
-echo   Seeder des donnees de demo :   %COMPOSE% exec api pnpm prisma:seed
+echo   Creer le compte admin :        %COMPOSE% exec api pnpm prisma:seed
 echo   Voir les logs :                %COMPOSE% logs -f
 echo   Arreter :                      %COMPOSE% down
 echo   Tout reset (donnees incluses): %COMPOSE% down -v
 echo.
+echo La plateforme demarre avec un catalogue VIDE.
+echo Connectez-vous a l'espace proprietaire pour publier vos biens.
+echo.
 
-REM --- Optional auto-seed ----------------------------------------------------
-choice /c YN /m "Voulez-vous seeder des donnees de demo maintenant"
+REM --- Optional admin seed ---------------------------------------------------
+choice /c YN /m "Voulez-vous creer le compte administrateur maintenant"
 if errorlevel 2 goto end
 goto do_seed
 

@@ -17,22 +17,47 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
-        {/* Anti-flash: apply saved theme before first paint */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||(t===null&&d))document.documentElement.classList.add('dark');}catch(e){}})();`,
           }}
         />
       </head>
-      <body>
+      <body className="min-h-screen flex flex-col">
         <AuthProvider>
           <CurrencyProvider>
-          <AppNavbar />
-          <main className="container-app py-10">{children}</main>
-          <footer className="container-app py-10 text-xs text-ink-muted">
-            © {new Date().getFullYear()} hwe — Espace propriétaire
-          </footer>
-        </CurrencyProvider>
+            {/* Decorative blob (single, static) */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+            >
+              <span className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-brand-300/15 dark:bg-brand-800/20 blur-3xl" />
+              <span className="absolute bottom-[-200px] right-[-100px] w-[500px] h-[500px] rounded-full bg-accent-300/12 dark:bg-accent-700/15 blur-3xl" />
+            </div>
+
+            <AppNavbar />
+            <main className="container-app py-10 flex-1 relative">
+              {children}
+            </main>
+            <footer className="container-app py-10 text-xs text-ink-muted flex items-center justify-between border-t border-border/50">
+              <span>
+                © {new Date().getFullYear()} hwe — Espace propriétaire
+              </span>
+              <span className="hidden sm:inline text-ink-subtle">
+                Habiter avec élégance ✦
+              </span>
+            </footer>
+          </CurrencyProvider>
         </AuthProvider>
       </body>
     </html>
