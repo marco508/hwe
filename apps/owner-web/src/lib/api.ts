@@ -46,6 +46,44 @@ async function request<T>(
   return res.json();
 }
 
+// ── Loyers ──────────────────────────────────────────────────────────────
+export type RentStatus = "DUE" | "DECLARED" | "PAID" | "LATE";
+
+export interface OwnerPaymentMethod {
+  id: string;
+  label: string;
+  value: string;
+  holder: string | null;
+  instructions: string | null;
+  active: boolean;
+  position: number;
+}
+
+export interface OwnerRentPeriod {
+  id: string;
+  leaseId: string;
+  periodYear: number;
+  periodMonth: number;
+  periodLabel: string;
+  dueDate: string;
+  amount: number;
+  status: RentStatus;
+  declaredAt: string | null;
+  declaredMethod: string | null;
+  declaredRef: string | null;
+  proofDataUrl: string | null;
+  tenantNote: string | null;
+  paidAt: string | null;
+  receiptNo: string | null;
+  rejectReason: string | null;
+  lease: {
+    id: string;
+    tenantName: string;
+    tenantEmail: string;
+    property: { id: string; title: string; addressLine: string; city: string };
+  };
+}
+
 type ListingType = "SALE" | "RENT";
 type PropertyType = "APARTMENT" | "HOUSE" | "LAND" | "COMMERCIAL" | "OTHER";
 type PropertyStatus = "ACTIVE" | "INACTIVE" | "RENTED" | "SOLD";
@@ -261,6 +299,53 @@ export const api = {
       { method: "PUT", body: JSON.stringify({ rates }) },
       true,
     ),
+
+  // ── Loyers ────────────────────────────────────────────────────────────
+  listPaymentMethods: () =>
+    request<OwnerPaymentMethod[]>("/rents/payment-methods", {}, true),
+  addPaymentMethod: (body: {
+    label: string;
+    value: string;
+    holder?: string;
+    instructions?: string;
+  }) =>
+    request<OwnerPaymentMethod>("/rents/payment-methods", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+  updatePaymentMethod: (
+    id: string,
+    body: { label: string; value: string; holder?: string; instructions?: string; active?: boolean },
+  ) =>
+    request<OwnerPaymentMethod>(`/rents/payment-methods/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }, true),
+  removePaymentMethod: (id: string) =>
+    request<{ ok: true }>(`/rents/payment-methods/${id}`, { method: "DELETE" }, true),
+  ownerRents: (status?: RentStatus) =>
+    request<OwnerRentPeriod[]>(`/rents/owner${status ? `?status=${status}` : ""}`, {}, true),
+  reviewRent: (periodId: string, accept: boolean, reason?: string) =>
+    request<OwnerRentPeriod>(`/rents/${periodId}/review`, {
+      method: "POST",
+      body: JSON.stringify({ accept, reason }),
+    }, true),
+  downloadReceipt: async (periodId: string) => {
+    const t = tokenStore.get();
+    const res = await fetch(`${API_URL}/api/rents/${periodId}/receipt`, {
+      headers: t ? { Authorization: `Bearer ${t}` } : undefined,
+    });
+    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+    const blob = await res.blob();
+    const cd = res.headers.get("Content-Disposition") ?? "";
+    const name = /filename="([^"]+)"/.exec(cd)?.[1] ?? "quittance.pdf";
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
 
   // ── Messagerie ────────────────────────────────────────────────────────
   listConversations: () =>

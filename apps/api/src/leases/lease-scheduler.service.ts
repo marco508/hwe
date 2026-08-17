@@ -1,5 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { Cron } from "@nestjs/schedule";
 import { PrismaService } from "../prisma/prisma.service";
+import { MailerService } from "../mail/mailer.service";
 
 /**
  * LeaseSchedulerService
@@ -7,16 +9,6 @@ import { PrismaService } from "../prisma/prisma.service";
  * Tâches planifiées liées aux baux :
  *  - Notification d'approche de fin (J-7 et J-1) → propriétaire + locataire
  *  - Remise en libre du bien quand la date de fin est dépassée
- *
- * NestJS @nestjs/schedule n'est pas encore ajouté aux dépendances ;
- * ce service expose une méthode `runChecks()` qui doit être appelée
- * depuis un cron externe (ex. setInterval dans main.ts, ou après
- * l'ajout de @nestjs/schedule).
- *
- * Pour activer le scheduler NestJS natif, installer le package :
- *   pnpm add @nestjs/schedule
- * puis décommenter les décorateurs @Cron ci-dessous et enregistrer
- * ScheduleModule.forRoot() dans AppModule.
  */
 @Injectable()
 export class LeaseSchedulerService {
@@ -25,13 +17,13 @@ export class LeaseSchedulerService {
   // Nombre de jours avant la fin pour envoyer les alertes
   private readonly ALERT_DAYS = [7, 1];
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailer: MailerService,
+  ) {}
 
-  /**
-   * Vérification quotidienne des baux actifs.
-   * À appeler via @Cron("0 8 * * *") ou depuis un setInterval.
-   */
-  // @Cron("0 8 * * *")  // ← décommenter avec @nestjs/schedule
+  /** Vérification quotidienne des baux actifs. */
+  @Cron("0 8 * * *")
   async runChecks(): Promise<void> {
     await Promise.all([
       this.notifyUpcomingExpiries(),
@@ -72,20 +64,25 @@ export class LeaseSchedulerService {
           year: "numeric",
         });
 
-        // ── Notification propriétaire ──────────────────────────────────────
         this.logger.log(
-          `[NOTIF PROPRIÉTAIRE] ${lease.property.owner.email} — ` +
-          `Bail du bien « ${lease.property.title } » se termine dans ${daysLeft} jour(s) (${endLabel}). ` +
-          `Locataire : ${lease.tenantFirstName} ${lease.tenantLastName} <${lease.tenantEmail}>`,
+          `[FIN DE BAIL J-${daysLeft}] « ${lease.property.title} » (${endLabel}) — ` +
+          `propriétaire ${lease.property.owner.email}, locataire ${lease.tenantEmail}`,
         );
-        // TODO: await this.mailer.send({ to: lease.property.owner.email, template: "lease-expiry-owner", ... })
 
-        // ── Notification locataire ─────────────────────────────────────────
-        this.logger.log(
-          `[NOTIF LOCATAIRE] ${lease.tenantEmail} — ` +
-          `Votre bail pour « ${lease.property.title} » se termine dans ${daysLeft} jour(s) (${endLabel}).`,
+        await this.mailer.leaseExpiry(
+          lease.property.owner.email,
+          `${lease.property.owner.firstName} ${lease.property.owner.lastName}`.trim(),
+          lease.property.title,
+          daysLeft,
+          true,
         );
-        // TODO: await this.mailer.send({ to: lease.tenantEmail, template: "lease-expiry-tenant", ... })
+        await this.mailer.leaseExpiry(
+          lease.tenantEmail,
+          `${lease.tenantFirstName} ${lease.tenantLastName}`.trim(),
+          lease.property.title,
+          daysLeft,
+          false,
+        );
       }
     }
   }
@@ -106,7 +103,7 @@ export class LeaseSchedulerService {
       },
       include: {
         property: {
-          include: { owner: { select: { email: true, firstName: true } } },
+          include: { owner: { select: { email: true, firstName: true, lastName: true } } },
         },
       },
     });
@@ -135,19 +132,18 @@ export class LeaseSchedulerService {
         `Bien « ${lease.property.title} » (${lease.propertyId}) repassé en PUBLISHED.`,
       );
 
-      // ── Notification finale propriétaire ──────────────────────────────
-      this.logger.log(
-        `[NOTIF PROPRIÉTAIRE] ${lease.property.owner.email} — ` +
-        `Le bail de « ${lease.property.title} » a expiré. Le bien est de nouveau disponible à la location.`,
+      await this.mailer.leaseExpired(
+        lease.property.owner.email,
+        `${lease.property.owner.firstName} ${lease.property.owner.lastName}`.trim(),
+        lease.property.title,
+        true,
       );
-      // TODO: await this.mailer.send({ to: lease.property.owner.email, template: "lease-expired-owner", ... })
-
-      // ── Notification finale locataire ──────────────────────────────────
-      this.logger.log(
-        `[NOTIF LOCATAIRE] ${lease.tenantEmail} — ` +
-        `Votre bail pour « ${lease.property.title} » a pris fin.`,
+      await this.mailer.leaseExpired(
+        lease.tenantEmail,
+        `${lease.tenantFirstName} ${lease.tenantLastName}`.trim(),
+        lease.property.title,
+        false,
       );
-      // TODO: await this.mailer.send({ to: lease.tenantEmail, template: "lease-expired-tenant", ... })
     }
 
     if (expiredLeases.length > 0) {

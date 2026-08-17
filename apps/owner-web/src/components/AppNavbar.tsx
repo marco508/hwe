@@ -101,6 +101,7 @@ export function AppNavbar() {
     >
       <Link href="/" className="hidden md:inline">Marché</Link>
       {user && <Link href="/dashboard" className="hidden md:inline">Mes biens</Link>}
+      {user && <Link href="/dashboard/loyers" className="hidden md:inline">Loyers</Link>}
       {user && (
         <Link href="/dashboard/inquiries" className="hidden md:inline">
           Demandes

@@ -7,6 +7,7 @@ import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { AvatarUploader } from "../../components/AvatarUploader";
 import { IdentityDocuments } from "../../components/IdentityDocuments";
+import { PaymentMethodsManager } from "../../components/PaymentMethodsManager";
 import type { UserDocument, IdentityDocumentType } from "@hwe/types";
 
 export default function ProfilePage() {
@@ -112,6 +113,9 @@ export default function ProfilePage() {
           </form>
         </CardBody>
       </Card>
+
+      {/* Coordonnées de paiement des loyers */}
+      <PaymentMethodsManager />
 
       {/* Identity documents */}
       <IdentityDocuments

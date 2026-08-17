@@ -17,6 +17,49 @@ import type {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const TOKEN_KEY = "hwe.token";
 
+// ── Loyers ──────────────────────────────────────────────────────────────
+export type RentStatus = "DUE" | "DECLARED" | "PAID" | "LATE";
+
+export interface RentPeriod {
+  id: string;
+  leaseId: string;
+  periodYear: number;
+  periodMonth: number;
+  periodLabel: string;
+  dueDate: string;
+  amount: number;
+  status: RentStatus;
+  declaredAt: string | null;
+  declaredMethod: string | null;
+  declaredRef: string | null;
+  proofDataUrl: string | null;
+  tenantNote: string | null;
+  paidAt: string | null;
+  receiptNo: string | null;
+  rejectReason: string | null;
+}
+
+export interface OwnerPaymentMethod {
+  id: string;
+  label: string;
+  value: string;
+  holder: string | null;
+  instructions: string | null;
+}
+
+export interface TenantRentBundle {
+  lease: {
+    id: string;
+    monthlyRent: number;
+    charges: number;
+    rentPaymentDay: number;
+    status: string;
+    property: { id: string; title: string; addressLine: string; city: string };
+  };
+  paymentMethods: OwnerPaymentMethod[];
+  periods: RentPeriod[];
+}
+
 export const tokenStore = {
   get: () =>
     typeof window === "undefined" ? null : window.localStorage.getItem(TOKEN_KEY),
@@ -127,6 +170,33 @@ export const api = {
   myLeases: () => request<LeaseContract[]>("/leases/my", {}, true),
   signLease: (leaseId: string) =>
     request<LeaseContract>(`/leases/${leaseId}/sign`, { method: "POST" }, true),
+
+  // ── Loyers ────────────────────────────────────────────────────────────
+  myRents: () => request<TenantRentBundle[]>("/rents/my", {}, true),
+  declareRent: (
+    periodId: string,
+    body: { method: string; reference: string; proofDataUrl?: string; note?: string },
+  ) =>
+    request<RentPeriod>(`/rents/${periodId}/declare`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+  downloadReceipt: async (periodId: string) => {
+    const t = tokenStore.get();
+    const res = await fetch(`${API_URL}/api/rents/${periodId}/receipt`, {
+      headers: t ? { Authorization: `Bearer ${t}` } : undefined,
+    });
+    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+    const blob = await res.blob();
+    const cd = res.headers.get("Content-Disposition") ?? "";
+    const name = /filename="([^"]+)"/.exec(cd)?.[1] ?? "quittance.pdf";
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
 
   // ── Messagerie ────────────────────────────────────────────────────────
   listConversations: () =>

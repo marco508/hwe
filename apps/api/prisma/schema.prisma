@@ -72,6 +72,7 @@ model User {
   inquiries      Inquiry[]  @relation("SenderInquiries")
   favorites      Favorite[]
   userDocuments  UserDocument[]
+  paymentMethods OwnerPaymentMethod[] @relation("OwnerPaymentMethods")
 
   // Messagerie
   ownerConversations Conversation[] @relation("OwnerConversations")
@@ -392,6 +393,81 @@ model LeaseContract {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  rentPeriods RentPeriod[]
+
   @@index([propertyId])
   @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOYERS — paiement direct au propriétaire, déclaré puis validé.
+//
+// Le locataire verse le loyer directement au propriétaire (mobile money,
+// virement…), sur les coordonnées que celui-ci publie. Il déclare ensuite son
+// versement (identifiant de transaction de l'opérateur — UNIQUE : une même
+// preuve ne peut pas couvrir deux échéances) ; le propriétaire, seul à voir
+// son compte, valide — ce qui émet la quittance. La plateforme ne détient
+// jamais les fonds : elle trace qui a déclaré quoi, qui a validé, et quand.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Coordonnées de versement d'un propriétaire, montrées au locataire.
+model OwnerPaymentMethod {
+  id           String   @id @default(cuid())
+  ownerId      String
+  owner        User     @relation("OwnerPaymentMethods", fields: [ownerId], references: [id], onDelete: Cascade)
+  // Ce que voit le locataire : « MTN MoMo », « Virement UBA »…
+  label        String
+  // Numéro ou compte, format libre.
+  value        String
+  // Nom du titulaire : le locataire doit vérifier à qui il envoie.
+  holder       String?
+  instructions String?
+  active       Boolean  @default(true)
+  position     Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([ownerId, active])
+}
+
+enum RentStatus {
+  DUE       // échéance à payer
+  DECLARED  // versement déclaré par le locataire, à vérifier
+  PAID      // validé par le propriétaire — quittance émise
+  LATE      // échue sans paiement (posée par le planificateur)
+}
+
+// Une échéance mensuelle d'un bail actif. Générée à l'activation du bail puis
+// chaque mois par le planificateur ; le montant est figé à la génération pour
+// que la quittance reste juste même si le bail est modifié ensuite.
+model RentPeriod {
+  id          String        @id @default(cuid())
+  leaseId     String
+  lease       LeaseContract @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  periodYear  Int
+  periodMonth Int // 1..12
+  dueDate     DateTime
+  amount      Float
+  status      RentStatus    @default(DUE)
+
+  // Déclaration du locataire
+  declaredAt     DateTime?
+  declaredMethod String?
+  // Identifiant de transaction de l'opérateur — unique : anti-réutilisation.
+  declaredRef    String?   @unique
+  proofDataUrl   String?   @db.Text
+  tenantNote     String?
+
+  // Validation du propriétaire
+  paidAt       DateTime?
+  receiptNo    String?   @unique
+  rejectReason String?
+  // Dernier rappel envoyé (anti-spam : un seul par échéance et par retard)
+  remindedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([leaseId, periodYear, periodMonth])
+  @@index([status, dueDate])
 }

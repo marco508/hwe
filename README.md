@@ -128,6 +128,12 @@ Préfixe : `/api`.
 | POST | `/inquiries` | JWT | Envoyer une demande au propriétaire |
 | GET | `/inquiries/sent` | JWT | Mes demandes envoyées (locataire) |
 | GET | `/inquiries/received` | OWNER | Demandes reçues sur mes biens |
+| GET/POST/PATCH/DELETE | `/rents/payment-methods` | OWNER | Coordonnées de paiement affichées aux locataires |
+| GET | `/rents/my` | JWT | Échéances de loyer du locataire + coordonnées du propriétaire |
+| POST | `/rents/:periodId/declare` | JWT | Déclarer un versement (identifiant de transaction unique, capture optionnelle) |
+| GET | `/rents/owner` | OWNER | Échéances de tous mes baux (filtre `?status=`) |
+| POST | `/rents/:periodId/review` | OWNER | Valider (`accept: true` → quittance) ou refuser une déclaration |
+| GET | `/rents/:periodId/receipt` | JWT | Quittance PDF (propriétaire, locataire ou admin) |
 
 Filtres `/properties` : `listingType`, `propertyType`, `city`, `minPrice`,
 `maxPrice`, `minSurface`, `maxSurface`, `minRooms`, `page`, `pageSize`.
@@ -139,6 +145,31 @@ Filtres `/properties` : `listingType`, `propertyType`, `city`, `minPrice`,
 - `Property { …détails…, addressLine, city, postalCode, country, latitude?, longitude?, ownerId }`
 - `PropertyMedia { url, alt?, position, propertyId }`
 - `Inquiry { propertyId, senderId, message, contactEmail, contactPhone? }`
+- `OwnerPaymentMethod { ownerId, label, value, holder?, instructions?, active, position }`
+- `RentPeriod { leaseId, periodYear, periodMonth, dueDate, amount, status, declaredRef? (unique), proofDataUrl?, receiptNo? (unique) }`
+  statuts : `DUE | DECLARED | PAID | LATE`
+
+### Paiement des loyers (sans détention de fonds)
+
+Le loyer est versé **directement au propriétaire** sur les coordonnées qu'il
+publie (IBAN, mobile money…) — la plateforme ne détient jamais d'argent :
+
+1. Chaque mois, une échéance `RentPeriod` est générée par bail actif (cron
+   quotidien à 7 h + rattrapage paresseux à l'ouverture des pages), montant
+   figé loyer + charges.
+2. Le locataire paie hors plateforme puis **déclare** son versement :
+   identifiant de transaction (unique en base — une même preuve ne peut pas
+   couvrir deux loyers), capture du reçu optionnelle.
+3. Le propriétaire, seul à voir son compte, **valide ou refuse** après
+   vérification sur son relevé. La validation émet une **quittance PDF**
+   numérotée (`HWE-AAAA-NNNNN`) téléchargeable par les deux parties ; le
+   refus libère la référence et repasse l'échéance à payer.
+4. Rappels e-mail au locataire (J-3 puis retard, au plus une fois par
+   semaine) et alertes de fin de bail (J-7 / J-1) via SMTP — sans
+   `SMTP_HOST` configuré, les messages sont simplement journalisés.
+
+Variables d'environnement e-mail : `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
+`SMTP_PASS`, `SMTP_FROM`.
 
 PostGIS est activé via l'image `postgis/postgis:16-3.4`. La géolocalisation
 est stockée en `Float` pour la simplicité. Pour passer à de la vraie
