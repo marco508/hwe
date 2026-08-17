@@ -190,7 +190,17 @@ export default function HomePage() {
       </Card>
 
       {loading ? (
-        <p className="text-ink-muted">Chargement…</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i}>
+              <div className="aspect-[4/5] rounded-2xl skeleton" />
+              <div className="pt-3 px-1 space-y-2">
+                <div className="h-4 w-3/4 rounded skeleton" />
+                <div className="h-3 w-1/2 rounded skeleton" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : items.length === 0 ? (
         <EmptyState
           title="Aucun bien ne correspond"

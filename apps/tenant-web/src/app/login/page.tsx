@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardBody, Input, Label } from "@hwe/ui";
+import { AnimatedBackground, Button, Card, CardBody, Input, Label } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 
 export default function LoginPage() {
@@ -29,7 +29,14 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="font-display text-3xl mb-6">Connexion</h1>
+      <AnimatedBackground variant="soft" className="rounded-2xl border border-border/60 px-6 py-7 mb-6 text-center">
+        <h1 className="font-display text-3xl mb-1">
+          Bon retour sur <span className="gradient-text">hwe</span>
+        </h1>
+        <p className="text-sm text-ink-muted">
+          Retrouvez vos favoris, vos demandes, votre bail et vos loyers.
+        </p>
+      </AnimatedBackground>
       <Card>
         <CardBody>
           <form onSubmit={onSubmit} className="space-y-4">

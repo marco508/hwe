@@ -568,6 +568,12 @@ export default function LeasePage() {
           <p className="text-ink-muted">
             {property?.title} — {property?.addressLine}, {property?.city}
           </p>
+          <Link
+            href="/dashboard/loyers"
+            className="inline-block mt-1 text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
+          >
+            💶 Suivre les loyers de ce bail →
+          </Link>
         </div>
         <Button onClick={() => setView("create")}>+ Nouveau contrat</Button>
       </div>

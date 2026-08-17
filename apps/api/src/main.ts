@@ -45,7 +45,8 @@ async function bootstrap() {
   );
 
   const origins = (
-    process.env.CORS_ORIGINS ?? "http://localhost:3005,http://localhost:3004"
+    process.env.CORS_ORIGINS ??
+    "http://localhost:3005,http://localhost:3004,http://localhost:3001,http://localhost:3006"
   )
     .split(",")
     .map((o) => o.trim());

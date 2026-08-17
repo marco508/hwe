@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardBody, Input, Label } from "@hwe/ui";
+import { AnimatedBackground, Button, Card, CardBody, Input, Label } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 
 export default function RegisterPage() {
@@ -38,10 +38,15 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <h1 className="font-display text-3xl mb-2">Créer un compte</h1>
-      <p className="text-ink-muted mb-6">
-        Pour contacter les propriétaires des biens qui vous intéressent.
-      </p>
+      <AnimatedBackground variant="soft" className="rounded-2xl border border-border/60 px-6 py-7 mb-6 text-center">
+        <h1 className="font-display text-3xl mb-1">
+          Bienvenue sur <span className="gradient-text">hwe</span>
+        </h1>
+        <p className="text-sm text-ink-muted">
+          Créez votre compte pour contacter les propriétaires, suivre vos demandes
+          et gérer votre location.
+        </p>
+      </AnimatedBackground>
       <Card>
         <CardBody>
           <form onSubmit={onSubmit} className="space-y-4">

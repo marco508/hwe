@@ -3,13 +3,25 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Badge, Card, CardBody, CardHeader, EmptyState } from "@hwe/ui";
+import {
+  AnimatedBackground,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  EmptyState,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import type { OwnerPaymentMethod, RentPeriod, RentStatus, TenantRentBundle } from "../../lib/api";
 
 function fmtEUR(n: number) {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(n);
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
 
 function fmtDate(d: string) {
@@ -30,6 +42,70 @@ const STATUS_TONE: Record<RentStatus, "neutral" | "success" | "brand" | "accent"
   LATE: "neutral",
 };
 
+const STATUS_DOT: Record<RentStatus, string> = {
+  DUE: "bg-accent-500",
+  DECLARED: "bg-ocean-400",
+  PAID: "bg-brand-500",
+  LATE: "bg-danger",
+};
+
+/** Devine une icône selon le libellé du moyen de paiement. */
+function methodIcon(label: string) {
+  const l = label.toLowerCase();
+  if (/(iban|virement|sepa|banque|bank)/.test(l)) return "🏦";
+  if (/(momo|mobile|orange|mtn|wave|moov|m-pesa)/.test(l)) return "📱";
+  if (/(paypal|lydia|revolut|wise|paylib)/.test(l)) return "💳";
+  if (/(espèce|especes|cash|liquide)/.test(l)) return "💶";
+  if (/(chèque|cheque)/.test(l)) return "🖋️";
+  return "💰";
+}
+
+// ── Squelette de chargement ─────────────────────────────────────────────────
+
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="h-36 rounded-2xl skeleton" />
+      <div className="rounded-xl border border-border bg-surface p-6 space-y-4">
+        <div className="h-5 w-1/3 rounded skeleton" />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="h-20 rounded-xl skeleton" />
+          <div className="h-20 rounded-xl skeleton" />
+        </div>
+        <div className="h-4 w-1/4 rounded skeleton" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-12 rounded-lg skeleton" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Parcours en 3 étapes (repère visuel, toujours visible) ──────────────────
+
+function HowItWorks() {
+  const steps = [
+    { icon: "1", title: "Payez votre propriétaire", text: "directement sur ses coordonnées ci-dessous" },
+    { icon: "2", title: "Déclarez le versement", text: "avec l'identifiant de la transaction" },
+    { icon: "3", title: "Recevez votre quittance", text: "dès qu'il confirme la réception" },
+  ];
+  return (
+    <ol className="grid sm:grid-cols-3 gap-3">
+      {steps.map((s) => (
+        <li key={s.icon} className="flex items-start gap-3 rounded-xl border border-border/70 bg-surface px-4 py-3">
+          <span className="mt-0.5 h-6 w-6 shrink-0 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center">
+            {s.icon}
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-ink leading-tight">{s.title}</p>
+            <p className="text-xs text-ink-muted mt-0.5">{s.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 // ── Coordonnées de paiement du propriétaire ─────────────────────────────────
 
 function PaymentMethods({ methods }: { methods: OwnerPaymentMethod[] }) {
@@ -37,10 +113,10 @@ function PaymentMethods({ methods }: { methods: OwnerPaymentMethod[] }) {
 
   if (methods.length === 0) {
     return (
-      <p className="text-sm text-ink-muted">
+      <div className="rounded-xl border border-dashed border-border bg-cream-50 dark:bg-white/[0.03] px-4 py-4 text-sm text-ink-muted">
         Votre propriétaire n&apos;a pas encore renseigné ses coordonnées de paiement.
-        Contactez-le via la messagerie.
-      </p>
+        Demandez-les-lui via la <Link href="/messages" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">messagerie</Link>.
+      </div>
     );
   }
 
@@ -50,26 +126,41 @@ function PaymentMethods({ methods }: { methods: OwnerPaymentMethod[] }) {
       setCopied(m.id);
       setTimeout(() => setCopied(null), 2000);
     } catch {
-      /* clipboard indisponible */
+      /* presse-papiers indisponible */
     }
   };
 
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {methods.map((m) => (
-        <div key={m.id} className="rounded-lg border border-border bg-white dark:bg-ink/5 p-4 space-y-1">
-          <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide">{m.label}</p>
-          <div className="flex items-center justify-between gap-2">
+        <div
+          key={m.id}
+          className="group rounded-xl border border-border bg-surface p-4 hover:shadow-card transition-shadow"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg" aria-hidden="true">{methodIcon(m.label)}</span>
+            <p className="text-sm font-semibold text-ink">{m.label}</p>
+          </div>
+          <div className="flex items-center justify-between gap-2 rounded-lg bg-cream-100 dark:bg-white/[0.05] px-3 py-2">
             <p className="text-sm font-mono font-medium text-ink break-all">{m.value}</p>
             <button
               onClick={() => copy(m)}
-              className="shrink-0 text-xs font-medium text-brand-600 dark:text-brand-300 hover:underline"
+              className={
+                "shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors " +
+                (copied === m.id
+                  ? "bg-brand-600 text-white"
+                  : "bg-surface border border-border text-brand-600 dark:text-brand-300 hover:border-brand-400")
+              }
             >
               {copied === m.id ? "✓ Copié" : "Copier"}
             </button>
           </div>
-          {m.holder && <p className="text-xs text-ink-muted">Titulaire : {m.holder}</p>}
-          {m.instructions && <p className="text-xs text-ink-muted">{m.instructions}</p>}
+          {(m.holder || m.instructions) && (
+            <div className="mt-2 space-y-0.5">
+              {m.holder && <p className="text-xs text-ink-muted">Titulaire : {m.holder}</p>}
+              {m.instructions && <p className="text-xs text-ink-muted">{m.instructions}</p>}
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -103,6 +194,7 @@ function DeclareForm({
       setError("La capture ne doit pas dépasser 4 Mo.");
       return;
     }
+    setError(null);
     const reader = new FileReader();
     reader.onload = () => setProof(reader.result as string);
     reader.readAsDataURL(f);
@@ -133,85 +225,78 @@ function DeclareForm({
   };
 
   return (
-    <form onSubmit={submit} className="mt-3 space-y-3 rounded-lg border border-brand-200 dark:border-brand-800 bg-brand-50/50 dark:bg-brand-900/20 p-4">
-      <p className="text-sm font-semibold text-ink">
-        Déclarer le versement de {fmtEUR(period.amount)} — {period.periodLabel}
-      </p>
+    <form
+      onSubmit={submit}
+      className="mt-3 space-y-4 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50/60 dark:bg-brand-900/20 p-5"
+    >
+      <div>
+        <p className="text-sm font-semibold text-ink">
+          Déclarer le versement de {fmtEUR(period.amount)} — {period.periodLabel}
+        </p>
+        <p className="text-xs text-ink-muted mt-0.5">
+          Votre propriétaire vérifiera la réception avant de valider et d&apos;émettre la quittance.
+        </p>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-sm">
-          <span className="text-xs font-medium text-ink-muted">Moyen utilisé</span>
+        <div className="space-y-1">
+          <Label>Moyen utilisé</Label>
           {methods.length > 0 ? (
-            <select
-              value={method}
-              onChange={(e) => setMethod(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-white dark:bg-ink/10 px-3 py-2 text-sm"
-            >
+            <Select value={method} onChange={(e) => setMethod(e.target.value)}>
               {methods.map((m) => (
                 <option key={m.id} value={m.label}>{m.label}</option>
               ))}
               <option value="Autre">Autre</option>
-            </select>
+            </Select>
           ) : (
-            <input
+            <Input
               value={method}
               onChange={(e) => setMethod(e.target.value)}
               placeholder="Virement, espèces…"
-              className="mt-1 w-full rounded-lg border border-border bg-white dark:bg-ink/10 px-3 py-2 text-sm"
             />
           )}
-        </label>
-
-        <label className="block text-sm">
-          <span className="text-xs font-medium text-ink-muted">Identifiant de transaction *</span>
-          <input
+        </div>
+        <div className="space-y-1">
+          <Label>Identifiant de transaction *</Label>
+          <Input
             value={reference}
             onChange={(e) => setReference(e.target.value)}
             placeholder="Référence du virement / reçu"
             required
             minLength={4}
-            className="mt-1 w-full rounded-lg border border-border bg-white dark:bg-ink/10 px-3 py-2 text-sm font-mono"
+            className="font-mono"
           />
-        </label>
+        </div>
       </div>
 
-      <label className="block text-sm">
-        <span className="text-xs font-medium text-ink-muted">Capture du reçu (optionnel, image ≤ 4 Mo)</span>
-        <input type="file" accept="image/*" onChange={onFile} className="mt-1 block w-full text-xs text-ink-muted" />
-      </label>
-      {proof && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={proof} alt="Aperçu du reçu" className="max-h-40 rounded-lg border border-border" />
-      )}
-
-      <label className="block text-sm">
-        <span className="text-xs font-medium text-ink-muted">Note pour le propriétaire (optionnel)</span>
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={2}
-          maxLength={500}
-          className="mt-1 w-full rounded-lg border border-border bg-white dark:bg-ink/10 px-3 py-2 text-sm"
+      <div className="space-y-1">
+        <Label>Capture du reçu <span className="font-normal text-ink-subtle">(optionnel, image ≤ 4 Mo)</span></Label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={onFile}
+          className="block w-full text-xs text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-semibold hover:file:bg-brand-700 file:cursor-pointer"
         />
-      </label>
+        {proof && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={proof} alt="Aperçu du reçu" className="mt-2 max-h-40 rounded-lg border border-border" />
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <Label>Note pour le propriétaire <span className="font-normal text-ink-subtle">(optionnel)</span></Label>
+        <Textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} maxLength={500} />
+      </div>
 
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex gap-2">
-        <button
-          type="submit"
-          disabled={sending}
-          className="rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold px-4 py-2 transition-colors"
-        >
+        <Button type="submit" disabled={sending}>
           {sending ? "Envoi…" : "Déclarer le versement"}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg border border-border text-sm font-medium px-4 py-2 text-ink-muted hover:text-ink"
-        >
+        </Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>
           Annuler
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -243,45 +328,44 @@ function PeriodRow({
   };
 
   return (
-    <li className="py-3 border-b border-border last:border-0">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="min-w-40">
-          <p className="text-sm font-semibold text-ink capitalize">{period.periodLabel}</p>
-          <p className="text-xs text-ink-muted">Échéance le {fmtDate(period.dueDate)}</p>
+    <li className="py-3.5 border-b border-border/70 last:border-0">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${STATUS_DOT[period.status]}`} aria-hidden="true" />
+        <div className="min-w-36">
+          <p className="text-sm font-semibold text-ink capitalize leading-tight">{period.periodLabel}</p>
+          <p className="text-xs text-ink-muted">échéance le {fmtDate(period.dueDate)}</p>
         </div>
-        <p className="text-sm font-medium text-ink tabular-nums">{fmtEUR(period.amount)}</p>
+        <p className="display-serif text-base text-ink tabular-nums">{fmtEUR(period.amount)}</p>
         <Badge tone={STATUS_TONE[period.status]}>{STATUS_LABEL[period.status]}</Badge>
 
         <div className="ml-auto flex gap-2">
           {(period.status === "DUE" || period.status === "LATE") && (
-            <button
-              onClick={() => setDeclaring((v) => !v)}
-              className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
-            >
+            <Button size="sm" variant={declaring ? "ghost" : "primary"} onClick={() => setDeclaring((v) => !v)}>
               {declaring ? "Fermer" : "J'ai payé — déclarer"}
-            </button>
+            </Button>
           )}
           {period.status === "PAID" && period.receiptNo && (
-            <button
-              onClick={download}
-              disabled={downloading}
-              className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline disabled:opacity-60"
-            >
-              {downloading ? "…" : `📄 Quittance ${period.receiptNo}`}
-            </button>
+            <Button size="sm" variant="secondary" onClick={download} disabled={downloading}>
+              {downloading ? "…" : "📄 Quittance"}
+            </Button>
           )}
         </div>
       </div>
 
       {period.status === "DECLARED" && (
-        <p className="mt-1 text-xs text-ink-muted">
+        <p className="mt-1.5 ml-6 text-xs text-ink-muted">
           Déclaré le {period.declaredAt ? fmtDate(period.declaredAt) : "—"}
-          {period.declaredMethod ? ` via ${period.declaredMethod}` : ""} — en attente de confirmation
-          par votre propriétaire.
+          {period.declaredMethod ? ` via ${period.declaredMethod}` : ""} · en attente de confirmation du propriétaire.
+        </p>
+      )}
+      {period.status === "PAID" && period.receiptNo && (
+        <p className="mt-1.5 ml-6 text-xs text-ink-muted">
+          Quittance n° {period.receiptNo}
+          {period.paidAt ? ` · confirmé le ${fmtDate(period.paidAt)}` : ""}
         </p>
       )}
       {period.rejectReason && period.status !== "PAID" && period.status !== "DECLARED" && (
-        <p className="mt-1 text-xs text-danger">
+        <p className="mt-1.5 ml-6 text-xs text-danger">
           Déclaration précédente refusée : {period.rejectReason}
         </p>
       )}
@@ -330,25 +414,63 @@ export default function MesLoyersPage() {
     );
   };
 
-  if (loading || working) return <p className="text-ink-muted">Chargement…</p>;
+  // Prochaine échéance à régler, tous baux confondus (pour le bandeau).
+  const nextDue = React.useMemo(() => {
+    const open = bundles
+      .flatMap((b) => b.periods)
+      .filter((p) => p.status === "DUE" || p.status === "LATE")
+      .sort((a, b) => +new Date(a.dueDate) - +new Date(b.dueDate));
+    return open[0] ?? null;
+  }, [bundles]);
+
+  if (loading || working) return <LoadingSkeleton />;
   if (error) return <p className="text-danger">Erreur lors du chargement de vos loyers : {error}</p>;
 
   return (
-    <section>
-      <h1 className="font-display text-3xl mb-2">Mes loyers</h1>
-      <p className="text-ink-muted mb-8">
-        Payez votre loyer directement à votre propriétaire avec les coordonnées ci-dessous,
-        puis déclarez le versement : il le confirme et votre quittance est générée automatiquement.
-      </p>
+    <section className="space-y-6">
+      {/* Bandeau */}
+      <AnimatedBackground variant="soft" className="rounded-2xl border border-border/60 px-6 sm:px-8 py-7">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="font-display text-3xl sm:text-4xl mb-1">
+              Mes <span className="gradient-text">loyers</span>
+            </h1>
+            <p className="text-ink-muted max-w-xl">
+              Suivez vos échéances, déclarez vos versements et retrouvez toutes vos quittances.
+            </p>
+          </div>
+          {nextDue ? (
+            <div className="glass rounded-xl px-4 py-3">
+              <p className="text-[11px] text-ink-muted uppercase tracking-wide">Prochaine échéance</p>
+              <p className="font-display text-lg leading-tight capitalize">
+                {nextDue.periodLabel} · {fmtEUR(nextDue.amount)}
+              </p>
+              <p className="text-xs text-ink-muted mt-0.5">
+                {nextDue.status === "LATE" || +new Date(nextDue.dueDate) < Date.now()
+                  ? "⚠️ échéance dépassée depuis le"
+                  : "à régler avant le"}{" "}
+                {fmtDate(nextDue.dueDate)}
+              </p>
+            </div>
+          ) : bundles.length > 0 ? (
+            <div className="glass rounded-xl px-4 py-3">
+              <p className="font-display text-lg leading-tight">✓ Vous êtes à jour</p>
+              <p className="text-xs text-ink-muted mt-0.5">Aucun loyer en attente</p>
+            </div>
+          ) : null}
+        </div>
+      </AnimatedBackground>
 
       {bundles.length === 0 ? (
         <EmptyState
           title="Aucun loyer à afficher"
-          description="Vous n'avez pas de bail actif enregistré à votre adresse email."
+          description="Vous n'avez pas de bail actif enregistré à votre adresse email. Si vous venez de signer un bail, contactez votre propriétaire."
           action={<Link href="/" className="text-sm">Parcourir les annonces</Link>}
         />
       ) : (
-        <div className="space-y-8">
+        <>
+          <HowItWorks />
+
           {bundles.map((b) => (
             <Card key={b.lease.id}>
               <CardHeader>
@@ -358,9 +480,13 @@ export default function MesLoyersPage() {
                       {b.lease.property.title}
                     </h2>
                     <p className="text-sm text-ink-muted mt-0.5">
-                      {b.lease.property.addressLine}, {b.lease.property.city} —{" "}
-                      {fmtEUR(b.lease.monthlyRent + b.lease.charges)}/mois, payable le{" "}
-                      {b.lease.rentPaymentDay}
+                      {b.lease.property.addressLine}, {b.lease.property.city}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="display-serif text-lg text-ink">{fmtEUR(b.lease.monthlyRent + b.lease.charges)}<span className="text-xs text-ink-muted font-sans"> /mois</span></p>
+                    <p className="text-xs text-ink-muted">
+                      payable le {b.lease.rentPaymentDay}
                       {b.lease.rentPaymentDay === 1 ? "er" : ""} du mois
                     </p>
                   </div>
@@ -392,7 +518,7 @@ export default function MesLoyersPage() {
               </CardBody>
             </Card>
           ))}
-        </div>
+        </>
       )}
     </section>
   );

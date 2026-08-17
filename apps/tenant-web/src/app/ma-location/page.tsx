@@ -371,6 +371,22 @@ function LeaseCard({
           )}
         </section>
 
+        {/* Accès direct aux loyers du bail */}
+        {isActive && (
+          <Link
+            href="/mes-loyers"
+            className="flex items-center justify-between gap-3 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50/60 dark:bg-brand-900/20 px-4 py-3 hover:shadow-card transition-shadow"
+          >
+            <div>
+              <p className="text-sm font-semibold text-ink">💶 Mes loyers et quittances</p>
+              <p className="text-xs text-ink-muted mt-0.5">
+                Payer, déclarer un versement et télécharger vos quittances
+              </p>
+            </div>
+            <span className="text-brand-600 dark:text-brand-300" aria-hidden="true">→</span>
+          </Link>
+        )}
+
         {/* Minuteur + barre de progression si durée limitée */}
         {hasTimer && isActive && lease.status !== "DRAFT" && (
           <section className="space-y-4 p-4 rounded-lg border border-brand-200 dark:border-brand-800 bg-brand-50/50 dark:bg-brand-900/20">
