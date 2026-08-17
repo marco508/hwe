@@ -10,3 +10,7 @@ coverage
 .DS_Store
 .vscode
 .idea
+
+# Dumps de base (sauvegardes serveur)
+backup_*.sql
+backup_*.sql.gz
