@@ -22,7 +22,7 @@ x-logging: &logging
 services:
   postgres:
     <<: *logging
-    ports:
+    ports: !override
       - "127.0.0.1:5435:5432"
 
   api:
@@ -38,7 +38,7 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
-    ports:
+    ports: !override
       - "127.0.0.1:4005:4000"
     labels:
       traefik.enable: "true"
@@ -59,7 +59,7 @@ services:
       NEXT_PUBLIC_TENANT_URL: https://tenant.hwe.dkpsolution.tech
       NEXT_PUBLIC_OWNER_URL: https://owner.hwe.dkpsolution.tech
       NODE_ENV: production
-    ports:
+    ports: !override
       - "127.0.0.1:3006:3006"
     labels:
       traefik.enable: "true"
@@ -76,7 +76,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
       NODE_ENV: production
-    ports:
+    ports: !override
       - "127.0.0.1:3005:3005"
     labels:
       traefik.enable: "true"
@@ -93,7 +93,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
       NODE_ENV: production
-    ports:
+    ports: !override
       - "127.0.0.1:3004:3001"
     labels:
       traefik.enable: "true"
