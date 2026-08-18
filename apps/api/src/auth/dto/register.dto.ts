@@ -1,11 +1,16 @@
 import {
   IsEmail,
-  IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   MinLength,
 } from "class-validator";
 import { Role } from "@prisma/client";
+
+// Rôles autorisés à l'inscription publique : JAMAIS ADMIN.
+// (Sans cette restriction, n'importe qui pouvait se créer un compte
+// administrateur via POST /api/auth/register.)
+export type PublicRole = Extract<Role, "OWNER" | "TENANT">;
 
 export class RegisterDto {
   @IsEmail()
@@ -25,6 +30,6 @@ export class RegisterDto {
   @IsString()
   phone?: string;
 
-  @IsEnum(Role)
-  role!: Role;
+  @IsIn(["OWNER", "TENANT"])
+  role!: PublicRole;
 }

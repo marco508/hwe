@@ -23,8 +23,11 @@ export class AuthService {
     if (existing) throw new ConflictException("Email déjà utilisé");
 
     const password = await bcrypt.hash(dto.password, 10);
+    // Défense en profondeur : le rôle est re-restreint ici même si le DTO
+    // était contourné — l'inscription publique ne crée JAMAIS d'ADMIN.
+    const role = dto.role === "OWNER" ? "OWNER" : "TENANT";
     const user = await this.prisma.user.create({
-      data: { ...dto, password },
+      data: { ...dto, role, password },
     });
     return this.signToken(user);
   }
