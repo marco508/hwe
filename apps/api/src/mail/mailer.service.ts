@@ -125,4 +125,16 @@ export class MailerService {
         `\nhwe`,
     );
   }
+
+  // ─────────────────────── Réinitialisation de mot de passe ───────────────────────
+
+  passwordReset(to: string, name: string, url: string) {
+    return this.send(
+      to,
+      "hwe — réinitialisation de votre mot de passe",
+      `Bonjour ${name},\n\nVous avez demandé à réinitialiser votre mot de passe. ` +
+        `Ouvrez ce lien (valable 30 minutes, utilisable une seule fois) pour définir un nouveau mot de passe :\n\n${url}\n\n` +
+        `Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail — votre mot de passe reste inchangé.\n\nhwe`,
+    );
+  }
 }
