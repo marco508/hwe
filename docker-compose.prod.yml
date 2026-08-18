@@ -3,7 +3,7 @@
 #
 # Accès via Traefik (HTTPS automatique) :
 #   https://hwe.dkpsolution.tech         → landing
-#   https://hwe.dkpsolution.tech/api     → API
+#   https://hwe.dkpsolution.tech     → API
 #   https://owner.hwe.dkpsolution.tech   → espace propriétaire
 #   https://tenant.hwe.dkpsolution.tech  → espace locataire
 # Les ports bruts ne sont exposés qu'en local (127.0.0.1).
@@ -27,9 +27,12 @@ services:
 
   api:
     <<: *logging
+    networks: [default, traefik-proxy]
     environment:
       JWT_SECRET: ${JWT_SECRET:?definir JWT_SECRET dans .env}
       CORS_ORIGINS: https://hwe.dkpsolution.tech,https://owner.hwe.dkpsolution.tech,https://tenant.hwe.dkpsolution.tech
+      OWNER_WEB_URL: https://owner.hwe.dkpsolution.tech
+      TENANT_WEB_URL: https://tenant.hwe.dkpsolution.tech
       NODE_ENV: production
       # E-mails (rappels de loyers, quittances, fins de bail). Sans SMTP_HOST,
       # les messages sont journalisés au lieu d'être envoyés.
@@ -42,6 +45,7 @@ services:
       - "127.0.0.1:4005:4000"
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik-proxy
       traefik.http.routers.hwe-api.rule: Host(`hwe.dkpsolution.tech`) && PathPrefix(`/api`)
       traefik.http.routers.hwe-api.entrypoints: websecure
       traefik.http.routers.hwe-api.tls.certresolver: letsencrypt
@@ -49,13 +53,14 @@ services:
 
   landing:
     <<: *logging
+    networks: [default, traefik-proxy]
     build:
       args:
-        NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
+        NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
         NEXT_PUBLIC_TENANT_URL: https://tenant.hwe.dkpsolution.tech
         NEXT_PUBLIC_OWNER_URL: https://owner.hwe.dkpsolution.tech
     environment:
-      NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
+      NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
       NEXT_PUBLIC_TENANT_URL: https://tenant.hwe.dkpsolution.tech
       NEXT_PUBLIC_OWNER_URL: https://owner.hwe.dkpsolution.tech
       NODE_ENV: production
@@ -63,6 +68,7 @@ services:
       - "127.0.0.1:3006:3006"
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik-proxy
       traefik.http.routers.hwe-landing.rule: Host(`hwe.dkpsolution.tech`)
       traefik.http.routers.hwe-landing.entrypoints: websecure
       traefik.http.routers.hwe-landing.tls.certresolver: letsencrypt
@@ -70,16 +76,18 @@ services:
 
   owner-web:
     <<: *logging
+    networks: [default, traefik-proxy]
     build:
       args:
-        NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
+        NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
     environment:
-      NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
+      NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
       NODE_ENV: production
     ports: !override
       - "127.0.0.1:3005:3005"
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik-proxy
       traefik.http.routers.hwe-owner.rule: Host(`owner.hwe.dkpsolution.tech`)
       traefik.http.routers.hwe-owner.entrypoints: websecure
       traefik.http.routers.hwe-owner.tls.certresolver: letsencrypt
@@ -87,20 +95,26 @@ services:
 
   tenant-web:
     <<: *logging
+    networks: [default, traefik-proxy]
     build:
       args:
-        NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
+        NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
     environment:
-      NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
+      NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
       NODE_ENV: production
     ports: !override
       - "127.0.0.1:3004:3001"
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik-proxy
       traefik.http.routers.hwe-tenant.rule: Host(`tenant.hwe.dkpsolution.tech`)
       traefik.http.routers.hwe-tenant.entrypoints: websecure
       traefik.http.routers.hwe-tenant.tls.certresolver: letsencrypt
       traefik.http.services.hwe-tenant.loadbalancer.server.port: "3001"
+
+networks:
+  traefik-proxy:
+    external: true
 
 volumes:
   # Volume de données existant du déploiement d'origine — ne pas recréer.
