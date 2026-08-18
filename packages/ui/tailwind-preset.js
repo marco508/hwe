@@ -5,13 +5,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "var(--color-background, #faf7f2)",
-        surface: "var(--color-surface, #ffffff)",
-        border: "var(--color-border, #ece6db)",
+        // Triplets RGB + <alpha-value> : sans cela, tout modificateur
+        // d'opacité (bg-surface/40, dark:bg-background/85…) est ignoré
+        // en silence et la classe n'est pas générée du tout.
+        background: "rgb(var(--rgb-background, 250 247 242) / <alpha-value>)",
+        surface: "rgb(var(--rgb-surface, 255 255 255) / <alpha-value>)",
+        border: "rgb(var(--rgb-border, 236 230 219) / <alpha-value>)",
         ink: {
-          DEFAULT: "var(--color-ink, #14201A)",
-          muted: "var(--color-ink-muted, #5d6660)",
-          subtle: "var(--color-ink-subtle, #97a09b)",
+          DEFAULT: "rgb(var(--rgb-ink, 20 32 26) / <alpha-value>)",
+          muted: "rgb(var(--rgb-ink-muted, 93 102 96) / <alpha-value>)",
+          subtle: "rgb(var(--rgb-ink-subtle, 104 111 106) / <alpha-value>)",
         },
         cream: {
           50: "#fcfaf6",

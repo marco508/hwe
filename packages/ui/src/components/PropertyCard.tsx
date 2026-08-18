@@ -108,14 +108,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             className={cn(
               "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium backdrop-blur-md",
               listingType === "SALE"
-                ? "bg-accent-500/95 text-white"
-                : "bg-brand-600/95 text-white",
+                ? "bg-accent-700/95 text-white"
+                : "bg-brand-700/95 text-white",
             )}
           >
             {listingType === "SALE" ? "À vendre" : "À louer"}
           </span>
           {eyebrow && (
-            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-white/95 text-ink backdrop-blur-md">
+            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-white/95 text-brand-950 backdrop-blur-md">
               {eyebrow}
             </span>
           )}

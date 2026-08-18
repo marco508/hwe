@@ -197,7 +197,7 @@ function PeriodCard({
                 <Button onClick={() => review(true)} disabled={busy}>
                   {busy ? "…" : "✓ J'ai bien reçu — valider"}
                 </Button>
-                <Button variant="ghost" onClick={() => setRejecting(true)} disabled={busy} className="text-danger">
+                <Button variant="ghost" onClick={() => setRejecting(true)} disabled={busy} className="text-danger dark:text-red-300">
                   Refuser
                 </Button>
               </div>

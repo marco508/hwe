@@ -234,7 +234,7 @@ function LandingInner() {
             <ThemeToggle />
             <a
               href={`${OWNER_URL}/login`}
-              className="hidden sm:inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink hover:opacity-90 transition-opacity"
+              className="hidden sm:inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 hover:opacity-90 transition-opacity"
             >
               Propriétaire
             </a>
@@ -476,7 +476,7 @@ function LandingInner() {
                   onClick={() => setListingFilter(k)}
                   className={`h-8 px-4 rounded-full transition-all ${
                     listingFilter === k
-                      ? "bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink"
+                      ? "bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950"
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
@@ -619,7 +619,7 @@ function LandingInner() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="bg-ink text-cream-200 mt-auto">
+      <footer className="bg-brand-950 text-cream-200 mt-auto">
         <div className="container-app py-16">
           <div className="grid lg:grid-cols-5 gap-10">
             <div className="lg:col-span-2">
@@ -730,14 +730,14 @@ function EmptyCountry({
             <button
               type="button"
               onClick={onClearCity}
-              className="inline-flex items-center gap-1.5 px-5 h-10 rounded-full border border-ink/15 bg-surface hover:bg-cream-200 text-sm font-medium text-ink transition-colors"
+              className="inline-flex items-center gap-1.5 px-5 h-10 rounded-full border border-ink/15 bg-surface hover:bg-cream-200 dark:hover:bg-white/10 text-sm font-medium text-ink transition-colors"
             >
               Voir tout {country}
             </button>
           )}
           <a
             href={`${ownerUrl}/register`}
-            className="inline-flex items-center gap-2 px-5 h-10 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-5 h-10 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
           >
             Publier un bien
             <ArrowRightIcon />
@@ -831,7 +831,7 @@ function FeaturedSpread({
         </div>
         <a
           href={`${tenantUrl}/properties/${property.id}`}
-          className="mt-8 inline-flex items-center gap-2 h-11 w-fit px-6 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity"
+          className="mt-8 inline-flex items-center gap-2 h-11 w-fit px-6 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
         >
           Découvrir ce bien
           <ArrowRightIcon />

@@ -42,10 +42,21 @@
     --color-border: #292f2b;
     --color-ink: #ece6da;
     --color-ink-muted: #a5aaa1;
-    --color-ink-subtle: #6f746c;
+    --color-ink-subtle: #8a9086;
+    /* Triplets RGB consommés par le preset Tailwind (alpha supporté). */
+    --rgb-background: 12 16 14;
+    --rgb-surface: 22 26 23;
+    --rgb-border: 41 47 43;
+    --rgb-ink: 236 230 218;
+    --rgb-ink-muted: 165 170 161;
+    --rgb-ink-subtle: 138 144 134;
   }
-  .dark a { color: #8eb6a0; }
-  .dark a:hover { color: #bbd1c4; }
+  /* :where() = spécificité nulle : la couleur de lien par défaut du mode
+     sombre s'applique par ordre de cascade mais CÈDE toujours devant un
+     utilitaire (text-*). `.dark a` nu battait les utilitaires et rendait
+     des CTA illisibles. */
+  :where(.dark) a { color: #8eb6a0; }
+  :where(.dark) a:hover { color: #bbd1c4; }
   .dark ::selection {
     background: rgba(47, 98, 73, 0.6);
     color: #ece6da;
@@ -81,14 +92,16 @@
   }
 
   /* ── Glassmorphism — sans backdrop-filter coûteux ── */
+  /* Opacité élevée : le texte posé sur un panneau verre doit rester lisible
+     même au-dessus d'un fond aurora coloré. */
   .glass {
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(236, 230, 219, 0.7);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(236, 230, 219, 0.8);
     box-shadow: 0 6px 24px rgba(31, 62, 48, 0.08);
   }
   .dark .glass {
-    background: rgba(22, 26, 23, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(22, 26, 23, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
   }
   .glass-strong {
@@ -107,19 +120,20 @@
     position: absolute;
     inset: -5%;
     z-index: -1;
+    /* Halos volontairement discrets : un décor, jamais un obstacle à la lecture. */
     background:
-      radial-gradient(40% 40% at 20% 30%, rgba(143, 182, 160, 0.45), transparent 60%),
-      radial-gradient(35% 35% at 80% 25%, rgba(223, 172, 94, 0.40), transparent 60%),
-      radial-gradient(30% 30% at 50% 90%, rgba(101, 174, 212, 0.25), transparent 60%);
+      radial-gradient(40% 40% at 20% 30%, rgba(143, 182, 160, 0.26), transparent 60%),
+      radial-gradient(35% 35% at 80% 25%, rgba(223, 172, 94, 0.20), transparent 60%),
+      radial-gradient(30% 30% at 50% 90%, rgba(101, 174, 212, 0.14), transparent 60%);
     filter: blur(40px);
     pointer-events: none;
-    opacity: 0.85;
+    opacity: 0.8;
   }
   .dark .aurora-bg::before {
     background:
-      radial-gradient(40% 40% at 20% 30%, rgba(47, 98, 73, 0.55), transparent 60%),
-      radial-gradient(35% 35% at 80% 25%, rgba(133, 89, 44, 0.45), transparent 60%),
-      radial-gradient(30% 30% at 50% 90%, rgba(19, 73, 106, 0.35), transparent 60%);
+      radial-gradient(40% 40% at 20% 30%, rgba(47, 98, 73, 0.40), transparent 60%),
+      radial-gradient(35% 35% at 80% 25%, rgba(133, 89, 44, 0.30), transparent 60%),
+      radial-gradient(30% 30% at 50% 90%, rgba(19, 73, 106, 0.24), transparent 60%);
   }
 
   /* ── Mesh & grid ── */
@@ -142,9 +156,11 @@
       linear-gradient(90deg, rgba(143, 182, 160, 0.10) 1px, transparent 1px);
   }
 
-  /* ── Gradient text ── */
+  /* ── Gradient text ──
+     Chaque teinte du dégradé doit rester lisible seule sur fond crème :
+     pas de tons clairs en fin de course. */
   .gradient-text {
-    background: linear-gradient(120deg, #264e3b 0%, #5f9879 45%, #c2884a 100%);
+    background: linear-gradient(120deg, #1f3e30 0%, #2f6249 50%, #a3713a 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

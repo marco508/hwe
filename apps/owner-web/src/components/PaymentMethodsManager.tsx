@@ -118,7 +118,7 @@ export function PaymentMethodsManager() {
                 <Button size="sm" variant="ghost" type="button" onClick={() => toggle(m)}>
                   {m.active ? "Masquer" : "Réactiver"}
                 </Button>
-                <Button size="sm" variant="ghost" type="button" onClick={() => remove(m)} className="text-danger">
+                <Button size="sm" variant="ghost" type="button" onClick={() => remove(m)} className="text-danger dark:text-red-300">
                   Supprimer
                 </Button>
               </div>

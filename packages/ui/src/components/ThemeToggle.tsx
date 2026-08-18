@@ -33,7 +33,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         // Light mode: subtle green tint
         "bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200",
         // Dark mode: dim surface with lighter text so it stands out on the dark navbar
-        "dark:bg-brand-900/60 dark:text-brand-300 dark:hover:bg-brand-900 dark:border-brand-800",
+        "dark:bg-brand-900 dark:text-brand-200 dark:hover:bg-brand-800 dark:border-brand-700",
         className,
       )}
     >
