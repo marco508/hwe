@@ -982,8 +982,8 @@ function LogoMark({ inverted = false }: { inverted?: boolean }) {
     <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
       <defs>
         <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={inverted ? "#dde8e1" : "#264e3b"} />
-          <stop offset="100%" stopColor="#c2884a" />
+          <stop offset="0%" stopColor={inverted ? "#d3f2e2" : "#0b6143"} />
+          <stop offset="100%" stopColor="#e17942" />
         </linearGradient>
       </defs>
       <path

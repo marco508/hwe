@@ -12,17 +12,17 @@
   inset: -5%;
   z-index: -1;
   background:
-    radial-gradient(50% 50% at 20% 20%, rgba(143, 182, 160, 0.45), transparent 60%),
-    radial-gradient(45% 45% at 80% 30%, rgba(223, 172, 94, 0.40), transparent 60%),
-    radial-gradient(40% 40% at 50% 100%, rgba(101, 174, 212, 0.25), transparent 60%);
+    radial-gradient(50% 50% at 20% 20%, rgba(111, 208, 167, 0.42), transparent 60%),
+    radial-gradient(45% 45% at 80% 30%, rgba(236, 156, 106, 0.36), transparent 60%),
+    radial-gradient(40% 40% at 50% 100%, rgba(103, 180, 214, 0.24), transparent 60%);
   filter: blur(40px);
   pointer-events: none;
 }
 .dark .hero-cinematic::before {
   background:
-    radial-gradient(50% 50% at 20% 20%, rgba(47, 98, 73, 0.55), transparent 60%),
-    radial-gradient(45% 45% at 80% 30%, rgba(133, 89, 44, 0.40), transparent 60%),
-    radial-gradient(40% 40% at 50% 100%, rgba(19, 73, 106, 0.30), transparent 60%);
+    radial-gradient(50% 50% at 20% 20%, rgba(11, 97, 67, 0.55), transparent 60%),
+    radial-gradient(45% 45% at 80% 30%, rgba(137, 57, 27, 0.40), transparent 60%),
+    radial-gradient(40% 40% at 50% 100%, rgba(20, 98, 139, 0.30), transparent 60%);
 }
 
 /* Marquee — animation linéaire, peu coûteuse */

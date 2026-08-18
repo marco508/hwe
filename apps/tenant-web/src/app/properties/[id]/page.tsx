@@ -909,7 +909,7 @@ function StepLocation({ property: p }: { property: Property }) {
                     width="48"
                     height="48"
                     viewBox="0 0 24 24"
-                    fill="#2f6249"
+                    fill="#0b6143"
                     stroke="white"
                     strokeWidth="1.5"
                     className="drop-shadow-lg"

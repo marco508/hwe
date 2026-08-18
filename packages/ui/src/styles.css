@@ -24,7 +24,7 @@
   }
 
   ::selection {
-    background: rgba(143, 182, 160, 0.45);
+    background: rgba(111, 208, 167, 0.4);
     color: theme("colors.brand.900");
   }
 
@@ -33,50 +33,50 @@
     color-scheme: dark;
   }
   .dark body {
-    background-color: #0c100e;
-    color: #ece6da;
+    background-color: #0a110e;
+    color: #eceae2;
   }
   .dark {
-    --color-background: #0c100e;
-    --color-surface: #161a17;
-    --color-border: #292f2b;
-    --color-ink: #ece6da;
-    --color-ink-muted: #a5aaa1;
-    --color-ink-subtle: #8a9086;
+    --color-background: #0a110e;
+    --color-surface: #131a16;
+    --color-border: #27312b;
+    --color-ink: #eceae2;
+    --color-ink-muted: #a3aca6;
+    --color-ink-subtle: #87918a;
     /* Triplets RGB consommés par le preset Tailwind (alpha supporté). */
-    --rgb-background: 12 16 14;
-    --rgb-surface: 22 26 23;
-    --rgb-border: 41 47 43;
-    --rgb-ink: 236 230 218;
-    --rgb-ink-muted: 165 170 161;
-    --rgb-ink-subtle: 138 144 134;
+    --rgb-background: 10 17 14;
+    --rgb-surface: 19 26 22;
+    --rgb-border: 39 49 43;
+    --rgb-ink: 236 234 226;
+    --rgb-ink-muted: 163 172 166;
+    --rgb-ink-subtle: 135 145 138;
   }
   /* :where() = spécificité nulle : la couleur de lien par défaut du mode
      sombre s'applique par ordre de cascade mais CÈDE toujours devant un
      utilitaire (text-*). `.dark a` nu battait les utilitaires et rendait
      des CTA illisibles. */
-  :where(.dark) a { color: #8eb6a0; }
-  :where(.dark) a:hover { color: #bbd1c4; }
+  :where(.dark) a { color: #6fd0a7; }
+  :where(.dark) a:hover { color: #a7e4c8; }
   .dark ::selection {
-    background: rgba(47, 98, 73, 0.6);
-    color: #ece6da;
+    background: rgba(11, 122, 81, 0.55);
+    color: #eceae2;
   }
 
   /* ── Scrollbar légère ── */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #caac76;
+    background: #b9d9c9;
     border-radius: 8px;
     border: 2px solid transparent;
     background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #b89251;
+    background: #6fd0a7;
     background-clip: padding-box;
     border: 2px solid transparent;
   }
-  .dark ::-webkit-scrollbar-thumb { background: #3f7d5d; background-clip: padding-box; border: 2px solid transparent; }
+  .dark ::-webkit-scrollbar-thumb { background: #0b7a51; background-clip: padding-box; border: 2px solid transparent; }
 }
 
 @layer components {
@@ -96,20 +96,20 @@
      même au-dessus d'un fond aurora coloré. */
   .glass {
     background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(236, 230, 219, 0.8);
-    box-shadow: 0 6px 24px rgba(31, 62, 48, 0.08);
+    border: 1px solid rgba(232, 229, 221, 0.8);
+    box-shadow: 0 6px 24px rgba(11, 97, 67, 0.08);
   }
   .dark .glass {
-    background: rgba(22, 26, 23, 0.88);
+    background: rgba(19, 26, 22, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.07);
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
   }
   .glass-strong {
     background: rgba(255, 255, 255, 0.96);
-    border: 1px solid rgba(236, 230, 219, 0.8);
+    border: 1px solid rgba(232, 229, 221, 0.8);
   }
   .dark .glass-strong {
-    background: rgba(22, 26, 23, 0.94);
+    background: rgba(19, 26, 22, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -122,18 +122,18 @@
     z-index: -1;
     /* Halos volontairement discrets : un décor, jamais un obstacle à la lecture. */
     background:
-      radial-gradient(40% 40% at 20% 30%, rgba(143, 182, 160, 0.26), transparent 60%),
-      radial-gradient(35% 35% at 80% 25%, rgba(223, 172, 94, 0.20), transparent 60%),
-      radial-gradient(30% 30% at 50% 90%, rgba(101, 174, 212, 0.14), transparent 60%);
+      radial-gradient(40% 40% at 20% 30%, rgba(111, 208, 167, 0.28), transparent 60%),
+      radial-gradient(35% 35% at 80% 25%, rgba(236, 156, 106, 0.22), transparent 60%),
+      radial-gradient(30% 30% at 50% 90%, rgba(103, 180, 214, 0.16), transparent 60%);
     filter: blur(40px);
     pointer-events: none;
     opacity: 0.8;
   }
   .dark .aurora-bg::before {
     background:
-      radial-gradient(40% 40% at 20% 30%, rgba(47, 98, 73, 0.40), transparent 60%),
-      radial-gradient(35% 35% at 80% 25%, rgba(133, 89, 44, 0.30), transparent 60%),
-      radial-gradient(30% 30% at 50% 90%, rgba(19, 73, 106, 0.24), transparent 60%);
+      radial-gradient(40% 40% at 20% 30%, rgba(11, 97, 67, 0.45), transparent 60%),
+      radial-gradient(35% 35% at 80% 25%, rgba(137, 57, 27, 0.32), transparent 60%),
+      radial-gradient(30% 30% at 50% 90%, rgba(20, 98, 139, 0.26), transparent 60%);
   }
 
   /* ── Mesh & grid ── */
@@ -145,22 +145,22 @@
 
   .bg-grid {
     background-image:
-      linear-gradient(rgba(47, 98, 73, 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(47, 98, 73, 0.07) 1px, transparent 1px);
+      linear-gradient(rgba(11, 122, 81, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(11, 122, 81, 0.07) 1px, transparent 1px);
     background-size: 36px 36px;
     mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 35%, transparent 75%);
   }
   .dark .bg-grid {
     background-image:
-      linear-gradient(rgba(143, 182, 160, 0.10) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(143, 182, 160, 0.10) 1px, transparent 1px);
+      linear-gradient(rgba(111, 208, 167, 0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(111, 208, 167, 0.10) 1px, transparent 1px);
   }
 
   /* ── Gradient text ──
      Chaque teinte du dégradé doit rester lisible seule sur fond crème :
      pas de tons clairs en fin de course. */
   .gradient-text {
-    background: linear-gradient(120deg, #1f3e30 0%, #2f6249 50%, #a3713a 100%);
+    background: linear-gradient(120deg, #0c4d37 0%, #0b7a51 45%, #ad491f 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -177,14 +177,14 @@
     background-clip: text;
   }
   .dark .gradient-text {
-    background: linear-gradient(120deg, #dde8e1 0%, #8eb6a0 45%, #ecc890 100%);
+    background: linear-gradient(120deg, #d3f2e2 0%, #6fd0a7 45%, #f4c19e 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
   }
   .gradient-warm {
-    background: linear-gradient(120deg, #c2884a 0%, #dfac5e 40%, #264e3b 100%);
+    background: linear-gradient(120deg, #d15e2a 0%, #e17942 40%, #0b6143 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -241,7 +241,7 @@
     height: 20px;
     border-radius: 9999px;
     background: #ffffff;
-    border: 2px solid #3f7d5d;
+    border: 2px solid #0b7a51;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
     cursor: grab;
     margin-top: -8px;
@@ -252,16 +252,16 @@
     height: 20px;
     border-radius: 9999px;
     background: #ffffff;
-    border: 2px solid #3f7d5d;
+    border: 2px solid #0b7a51;
     cursor: grab;
   }
   .dark input[type="range"].range-thumb::-webkit-slider-thumb {
-    background: #161a17;
-    border-color: #8eb6a0;
+    background: #131a16;
+    border-color: #6fd0a7;
   }
   .dark input[type="range"].range-thumb::-moz-range-thumb {
-    background: #161a17;
-    border-color: #8eb6a0;
+    background: #131a16;
+    border-color: #6fd0a7;
   }
 
   /* ── Stagger helper (limité à 6 enfants — au-delà c'est superflu) ── */
@@ -277,9 +277,9 @@
   .skeleton {
     background: linear-gradient(
       90deg,
-      rgba(236, 230, 219, 0.55) 0%,
-      rgba(220, 207, 176, 0.7) 50%,
-      rgba(236, 230, 219, 0.55) 100%
+      rgba(232, 229, 221, 0.55) 0%,
+      rgba(211, 242, 226, 0.7) 50%,
+      rgba(232, 229, 221, 0.55) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 1.8s linear infinite;
@@ -287,9 +287,9 @@
   .dark .skeleton {
     background: linear-gradient(
       90deg,
-      rgba(31, 62, 48, 0.4) 0%,
-      rgba(47, 98, 73, 0.55) 50%,
-      rgba(31, 62, 48, 0.4) 100%
+      rgba(12, 77, 55, 0.4) 0%,
+      rgba(11, 122, 81, 0.55) 50%,
+      rgba(12, 77, 55, 0.4) 100%
     );
     background-size: 200% 100%;
   }
@@ -321,7 +321,7 @@
 
   /* ── Pulse glow (utilisé sur les dots "live") ── */
   .pulse-dot {
-    box-shadow: 0 0 0 0 rgba(95, 152, 121, 0.5);
+    box-shadow: 0 0 0 0 rgba(55, 180, 131, 0.5);
     animation: pulse-dot 2.2s ease-out infinite;
   }
 
@@ -349,8 +349,8 @@
     100% { background-position: 200% 0; }
   }
   @keyframes pulse-dot {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(95, 152, 121, 0.5); }
-    50% { box-shadow: 0 0 0 14px rgba(95, 152, 121, 0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(55, 180, 131, 0.5); }
+    50% { box-shadow: 0 0 0 14px rgba(55, 180, 131, 0); }
   }
   @keyframes marquee {
     0% { transform: translateX(0); }
