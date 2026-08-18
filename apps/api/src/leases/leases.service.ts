@@ -4,7 +4,9 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateLeaseDto, UpdateLeaseDto } from "./dto/lease.dto";
+import { CreateLeaseDto, UpdateLeaseDto, LeaseDepositDto } from "./dto/lease.dto";
+import { assertEmailVerified } from "../common/email-verified.util";
+import { BadRequestException } from "@nestjs/common";
 
 @Injectable()
 export class LeasesService {
@@ -46,6 +48,7 @@ export class LeasesService {
    * On inclut les statuts DRAFT/SIGNED/ACTIVE (DRAFT = généré, en attente de signature).
    */
   async findMyLeases(tenantEmail: string, tenantUserId: string) {
+    await assertEmailVerified(this.prisma, tenantUserId);
     return this.prisma.leaseContract.findMany({
       where: {
         status: { in: ["DRAFT", "ACTIVE", "SIGNED"] },
@@ -113,6 +116,7 @@ export class LeasesService {
 
   /** Le locataire signe électroniquement son bail. */
   async signByTenant(leaseId: string, tenantEmail: string, tenantUserId: string) {
+    await assertEmailVerified(this.prisma, tenantUserId);
     const lease = await this.prisma.leaseContract.findUnique({
       where: { id: leaseId },
       include: { inquiry: true },
@@ -136,6 +140,45 @@ export class LeasesService {
         status: bothSigned ? "SIGNED" : lease.status,
       },
       include: { property: { include: { owner: true } } },
+    });
+  }
+
+  /** Suivi de la caution : versée / restituée, avec retenue éventuelle. */
+  async markDeposit(
+    propertyId: string,
+    leaseId: string,
+    ownerId: string,
+    dto: LeaseDepositDto,
+  ) {
+    await this.assertOwner(propertyId, ownerId);
+    const lease = await this.prisma.leaseContract.findUnique({
+      where: { id: leaseId },
+    });
+    if (!lease || lease.propertyId !== propertyId) throw new NotFoundException();
+
+    if (dto.action === "PAID") {
+      if (lease.depositPaidAt) return lease; // idempotent
+      return this.prisma.leaseContract.update({
+        where: { id: leaseId },
+        data: { depositPaidAt: new Date(), depositNote: dto.note ?? lease.depositNote },
+      });
+    }
+
+    // RETURNED
+    if (!lease.depositPaidAt) {
+      throw new BadRequestException("Marquez d'abord la caution comme versée.");
+    }
+    const retained = dto.retained ?? 0;
+    if (retained > lease.deposit) {
+      throw new BadRequestException("La retenue ne peut pas dépasser la caution.");
+    }
+    return this.prisma.leaseContract.update({
+      where: { id: leaseId },
+      data: {
+        depositReturnedAt: new Date(),
+        depositRetained: retained,
+        depositNote: dto.note ?? lease.depositNote,
+      },
     });
   }
 

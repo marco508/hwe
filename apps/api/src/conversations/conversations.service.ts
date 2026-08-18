@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { MailerService } from "../mail/mailer.service";
 
 const userPublicSelect = {
   id: true,
@@ -40,7 +41,10 @@ const conversationInclude = {
 
 @Injectable()
 export class ConversationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailer: MailerService,
+  ) {}
 
   /**
    * Crée (ou récupère) une conversation entre un utilisateur connecté et le
@@ -200,6 +204,13 @@ export class ConversationsService {
       throw new BadRequestException("Le message ne peut pas être vide.");
 
     const now = new Date();
+    // Anti-spam e-mail : on ne notifie le destinataire que s'il n'a AUCUN
+    // message non lu dans ce fil (le premier d'une rafale suffit).
+    const recipientId = convo.ownerId === senderId ? convo.otherUserId : convo.ownerId;
+    const unreadBefore = await this.prisma.message.count({
+      where: { conversationId, senderId: { not: recipientId }, readAt: null },
+    });
+
     const [message] = await this.prisma.$transaction([
       this.prisma.message.create({
         data: {
@@ -215,6 +226,10 @@ export class ConversationsService {
         data: { lastMessageAt: now },
       }),
     ]);
+
+    if (unreadBefore === 0) {
+      this.notifyRecipient(conversationId, senderId, recipientId).catch(() => {});
+    }
 
     return message;
   }
@@ -253,5 +268,34 @@ export class ConversationsService {
       },
     });
     return { count };
+  }
+
+  // E-mail « nouveau message » (best-effort) — URL selon le rôle du destinataire.
+  private async notifyRecipient(conversationId: string, senderId: string, recipientId: string) {
+    const convo = await this.prisma.conversation.findUnique({
+      where: { id: conversationId },
+      include: {
+        property: { select: { title: true } },
+        owner: { select: { id: true, email: true, firstName: true } },
+        otherUser: { select: { id: true, email: true, firstName: true } },
+      },
+    });
+    if (!convo) return;
+    const recipient = convo.owner.id === recipientId ? convo.owner : convo.otherUser;
+    const sender = convo.owner.id === senderId ? convo.owner : convo.otherUser;
+    const isOwnerRecipient = convo.owner.id === recipientId;
+    const base = (
+      isOwnerRecipient
+        ? process.env.OWNER_WEB_URL || "https://owner.hwe.dkpsolution.tech"
+        : process.env.TENANT_WEB_URL || "https://tenant.hwe.dkpsolution.tech"
+    ).replace(/\/+$/, "");
+    const url = isOwnerRecipient ? `${base}/dashboard/messages` : `${base}/messages`;
+    await this.mailer.messageReceived(
+      recipient.email,
+      recipient.firstName,
+      sender.firstName,
+      convo.property.title,
+      url,
+    );
   }
 }

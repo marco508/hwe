@@ -7,6 +7,8 @@ import {
 } from "@nestjs/common";
 import { LeaseStatus, Prisma, RentStatus, Role } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { assertEmailVerified } from "../common/email-verified.util";
+import { assertValidDataUrl } from "../common/upload.util";
 import { MailerService } from "../mail/mailer.service";
 import { buildReceiptPdf } from "./receipt";
 
@@ -142,6 +144,7 @@ export class RentsService {
 
   /** Échéances des baux dont l'utilisateur connecté est le locataire (par e-mail). */
   async myRents(userId: string) {
+    await assertEmailVerified(this.prisma, userId);
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException("Compte introuvable.");
     const leases = await this.prisma.leaseContract.findMany({
@@ -242,6 +245,8 @@ export class RentsService {
     periodId: string,
     dto: { method: string; reference: string; proofDataUrl?: string; note?: string },
   ) {
+    await assertEmailVerified(this.prisma, userId);
+    assertValidDataUrl(dto.proofDataUrl, "justificatif");
     const { period, lease, user } = await this.loadForTenant(userId, periodId);
     if (period.status === RentStatus.PAID) throw new BadRequestException("Ce loyer est déjà réglé.");
     if (period.status === RentStatus.DECLARED)

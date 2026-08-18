@@ -29,6 +29,18 @@ export class AuthController {
     return this.authService.forgotPassword(dto.email);
   }
 
+  // Vérification d'e-mail : confirmation par jeton + renvoi du lien.
+  @Post("verify-email")
+  verifyEmail(@Body("token") token: string) {
+    return this.authService.verifyEmail(String(token || ""));
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("send-verification")
+  sendVerification(@CurrentUser() user: JwtPayload) {
+    return this.authService.resendVerification(user.sub);
+  }
+
   @Post("reset-password")
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.token, dto.password);
@@ -46,6 +58,7 @@ export class AuthController {
         lastName: true,
         phone: true,
         role: true,
+        emailVerifiedAt: true,
         createdAt: true,
         updatedAt: true,
       },

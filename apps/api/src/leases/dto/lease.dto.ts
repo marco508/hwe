@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsEmail,
   IsEnum,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -93,4 +94,21 @@ export class UpdateLeaseDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+}
+
+/** Suivi de la caution : marquer versée ou restituée (retenue éventuelle). */
+export class LeaseDepositDto {
+  @IsIn(["PAID", "RETURNED"])
+  action!: "PAID" | "RETURNED";
+
+  // Montant retenu à la restitution (dégradations, loyers impayés…).
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  retained?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  note?: string;
 }

@@ -81,7 +81,70 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: { ...dto, role, password },
     });
+    // Lien de vérification d'e-mail (best-effort : l'inscription reste valide).
+    this.sendVerificationEmail(user).catch(() => {});
     return this.signToken(user);
+  }
+
+  // ── Vérification d'e-mail ─────────────────────────────────────────────
+  // Le rattachement locataire↔bail repose sur l'e-mail : sans vérification,
+  // une faute de frappe (ou un usurpateur) donne accès aux loyers/quittances.
+  // Jeton signé avec une clé dérivée de l'e-mail → invalidé si l'e-mail change.
+
+  private verifySigningKey(email: string): string {
+    return `${process.env.JWT_SECRET ?? "dev-secret"}|email-verify|${email}`;
+  }
+
+  private async sendVerificationEmail(user: { id: string; email: string; firstName: string; role: string }) {
+    const token = await this.jwt.signAsync(
+      { sub: user.id, scope: "email-verify" },
+      { secret: this.verifySigningKey(user.email), expiresIn: "48h" },
+    );
+    const base = this.resetUrlBase(user.role).replace(/\/+$/, "");
+    const url = `${base}/verify-email?token=${encodeURIComponent(token)}`;
+    await this.mailer.emailVerification(user.email, user.firstName, url);
+  }
+
+  async resendVerification(userId: string): Promise<{ ok: true; alreadyVerified?: boolean }> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException("Compte introuvable.");
+    if (user.emailVerifiedAt) return { ok: true, alreadyVerified: true };
+    await this.sendVerificationEmail(user);
+    return { ok: true };
+  }
+
+  async verifyEmail(token: string): Promise<{ ok: true }> {
+    const decoded: any = this.jwt.decode(token);
+    if (!decoded || decoded.scope !== "email-verify" || typeof decoded.sub !== "string") {
+      throw new UnauthorizedException("Lien de vérification invalide ou expiré.");
+    }
+    const user = await this.prisma.user.findUnique({ where: { id: decoded.sub } });
+    if (!user) throw new UnauthorizedException("Lien de vérification invalide ou expiré.");
+    try {
+      await this.jwt.verifyAsync(token, { secret: this.verifySigningKey(user.email) });
+    } catch {
+      throw new UnauthorizedException("Lien de vérification invalide ou expiré — redemandez-en un.");
+    }
+    if (!user.emailVerifiedAt) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerifiedAt: new Date() },
+      });
+    }
+    return { ok: true };
+  }
+
+  /** Lève une 403 claire si l'e-mail du compte n'est pas vérifié. */
+  async assertEmailVerified(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { emailVerifiedAt: true },
+    });
+    if (!user?.emailVerifiedAt) {
+      throw new UnauthorizedException(
+        "Vérifiez d'abord votre adresse e-mail (lien envoyé à l'inscription — bouton « Renvoyer » dans votre espace).",
+      );
+    }
   }
 
   async login(dto: LoginDto) {

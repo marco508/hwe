@@ -8,6 +8,8 @@ import { CreatePropertyDto } from "./dto/create-property.dto";
 import { UpdatePropertyDto } from "./dto/update-property.dto";
 import { QueryPropertyDto } from "./dto/query-property.dto";
 import { Prisma } from "@prisma/client";
+import { assertEmailVerified } from "../common/email-verified.util";
+import { assertValidDataUrl } from "../common/upload.util";
 
 const ownerSelect = {
   id: true,
@@ -90,6 +92,10 @@ export class PropertiesService {
   }
 
   async create(ownerId: string, dto: CreatePropertyDto) {
+    await assertEmailVerified(this.prisma, ownerId);
+    for (const m of dto.media ?? []) {
+      if (m.url?.startsWith("data:")) assertValidDataUrl(m.url, "média");
+    }
     const { media, ...rest } = dto;
     return this.prisma.property.create({
       data: {
@@ -104,6 +110,9 @@ export class PropertiesService {
   }
 
   async update(ownerId: string, id: string, dto: UpdatePropertyDto) {
+    for (const m of dto.media ?? []) {
+      if (m.url?.startsWith("data:")) assertValidDataUrl(m.url, "média");
+    }
     const existing = await this.prisma.property.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException();
     if (existing.ownerId !== ownerId)

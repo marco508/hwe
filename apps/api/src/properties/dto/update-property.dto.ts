@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Type } from "class-transformer";
-import { ListingType, PropertyType, PropertyStatus } from "@prisma/client";
+import { ListingType, PropertyType, PropertyStatus, EnergyClass, RentalKind } from "@prisma/client";
 import { MediaInputDto } from "./create-property.dto";
 
 export class UpdatePropertyDto {
@@ -35,6 +35,22 @@ export class UpdatePropertyDto {
   @IsOptional() @IsBoolean() hasBalcony?: boolean;
   @IsOptional() @IsBoolean() hasGarden?: boolean;
   @IsOptional() @IsBoolean() hasElevator?: boolean;
+
+  // ── Spécifique vente ── (absents de ce DTO, ces champs étaient
+  // silencieusement jetés par whitelist:true à chaque édition)
+  @IsOptional() @IsNumber() @Min(0) coOwnershipFees?: number;
+  @IsOptional() @IsNumber() @Min(0) propertyTax?: number;
+  @IsOptional() @IsEnum(EnergyClass) energyClass?: EnergyClass;
+  @IsOptional() @IsNumber() @Min(0) notaryFeesRate?: number;
+  @IsOptional() @IsBoolean() isNew?: boolean;
+
+  // ── Spécifique location ──
+  @IsOptional() @IsEnum(RentalKind) rentalKind?: RentalKind;
+  @IsOptional() @IsBoolean() chargesIncluded?: boolean;
+  @IsOptional() @IsNumber() @Min(0) chargesAmount?: number;
+  @IsOptional() @IsNumber() @Min(0) deposit?: number;
+  @IsOptional() @IsInt() @Min(0) noticeMonths?: number;
+  @IsOptional() @IsBoolean() petsAllowed?: boolean;
 
   @IsOptional() @IsString() addressLine?: string;
   @IsOptional() @IsString() city?: string;

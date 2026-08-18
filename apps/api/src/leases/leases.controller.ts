@@ -10,15 +10,16 @@ import {
 } from "@nestjs/common";
 import { Role } from "@prisma/client";
 import { LeasesService } from "./leases.service";
-import { CreateLeaseDto, UpdateLeaseDto } from "./dto/lease.dto";
+import { CreateLeaseDto, UpdateLeaseDto, LeaseDepositDto } from "./dto/lease.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, JwtPayload } from "../auth/current-user.decorator";
 
-/** Endpoint accessible aux locataires : récupère ses propres baux actifs. */
+/** Endpoints « côté locataire » : ses propres baux.
+ * OWNER inclus — un propriétaire peut aussi être locataire d'un autre bien. */
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.TENANT, Role.ADMIN)
+@Roles(Role.TENANT, Role.OWNER, Role.ADMIN)
 @Controller("leases")
 export class TenantLeasesController {
   constructor(private readonly leases: LeasesService) {}
@@ -87,6 +88,17 @@ export class LeasesController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.leases.remove(propertyId, leaseId, user.sub);
+  }
+
+  /** Suivi de la caution : versée, restituée (avec retenue éventuelle). */
+  @Post(":leaseId/deposit")
+  deposit(
+    @Param("propertyId") propertyId: string,
+    @Param("leaseId") leaseId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: LeaseDepositDto,
+  ) {
+    return this.leases.markDeposit(propertyId, leaseId, user.sub, dto);
   }
 
   /** Le propriétaire signe électroniquement le bail. */

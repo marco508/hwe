@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateDocumentDto } from "./dto/create-document.dto";
+import { assertValidDataUrl } from "../common/upload.util";
 
 @Injectable()
 export class DocumentsService {
@@ -30,6 +31,7 @@ export class DocumentsService {
 
   async create(propertyId: string, ownerId: string, dto: CreateDocumentDto) {
     await this.assertOwner(propertyId, ownerId);
+    assertValidDataUrl(dto.fileUrl, "document");
     return this.prisma.propertyDocument.create({
       data: { ...dto, propertyId },
     });
@@ -42,6 +44,7 @@ export class DocumentsService {
     dto: Partial<CreateDocumentDto>,
   ) {
     await this.assertOwner(propertyId, ownerId);
+    assertValidDataUrl(dto.fileUrl, "document");
     const doc = await this.prisma.propertyDocument.findUnique({
       where: { id: docId },
     });

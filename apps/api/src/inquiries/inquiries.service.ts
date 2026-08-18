@@ -7,17 +7,22 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateInquiryDto } from "./dto/create-inquiry.dto";
 import { ConversationsService } from "../conversations/conversations.service";
+import { MailerService } from "../mail/mailer.service";
+import { assertEmailVerified } from "../common/email-verified.util";
 
 @Injectable()
 export class InquiriesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly conversations: ConversationsService,
+    private readonly mailer: MailerService,
   ) {}
 
   async create(senderId: string, dto: CreateInquiryDto) {
+    await assertEmailVerified(this.prisma, senderId);
     const property = await this.prisma.property.findUnique({
       where: { id: dto.propertyId },
+      include: { owner: { select: { email: true, firstName: true } } },
     });
     if (!property) throw new NotFoundException("Bien introuvable");
 
@@ -61,6 +66,23 @@ export class InquiriesService {
         leaseDurationUnit: dto.leaseDurationUnit,
       },
     });
+
+    // Le propriétaire est prévenu par e-mail (sinon il ne sait jamais
+    // qu'on l'a contacté tant qu'il ne se connecte pas).
+    const sender = await this.prisma.user.findUnique({
+      where: { id: senderId },
+      select: { firstName: true, lastName: true },
+    });
+    const ownerBase = (process.env.OWNER_WEB_URL || "https://owner.hwe.dkpsolution.tech").replace(/\/+$/, "");
+    this.mailer
+      .inquiryReceived(
+        (property as any).owner.email,
+        (property as any).owner.firstName,
+        property.title,
+        sender ? `${sender.firstName} ${sender.lastName}` : "Un visiteur",
+        `${ownerBase}/dashboard/inquiries`,
+      )
+      .catch(() => {});
 
     // Crée automatiquement le fil de discussion avec le message initial.
     try {

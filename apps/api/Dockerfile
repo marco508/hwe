@@ -39,4 +39,6 @@ ENV NODE_ENV=production
 ENV API_PORT=4000
 EXPOSE 4000
 
-CMD ["sh", "-c", "pnpm exec prisma db push --skip-generate --accept-data-loss && node dist/src/main.js"]
+COPY apps/api/docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+CMD ["/entrypoint.sh"]

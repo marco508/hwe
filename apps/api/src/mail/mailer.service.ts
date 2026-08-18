@@ -126,6 +126,57 @@ export class MailerService {
     );
   }
 
+  // ─────────────────────── Vérification d'e-mail ───────────────────────
+
+  emailVerification(to: string, name: string, url: string) {
+    return this.send(
+      to,
+      "hwe — confirmez votre adresse e-mail",
+      `Bonjour ${name},\n\nConfirmez votre adresse e-mail pour activer toutes les fonctions de votre compte ` +
+        `(publier, contacter, accéder à votre bail) :\n\n${url}\n\n` +
+        `Ce lien est valable 48 heures. Si vous n'avez pas créé de compte hwe, ignorez cet e-mail.\n\nhwe`,
+    );
+  }
+
+  // ─────────────────────── Demandes & messages ───────────────────────
+
+  inquiryReceived(ownerEmail: string, ownerName: string, propertyTitle: string, senderName: string, url: string) {
+    return this.send(
+      ownerEmail,
+      `hwe — nouvelle demande pour « ${propertyTitle} »`,
+      `Bonjour ${ownerName},\n\n${senderName} vous a envoyé une demande pour « ${propertyTitle} ».\n` +
+        `Répondez-lui depuis votre espace :\n\n${url}\n\nhwe`,
+    );
+  }
+
+  messageReceived(to: string, name: string, senderName: string, propertyTitle: string, url: string) {
+    return this.send(
+      to,
+      `hwe — nouveau message de ${senderName}`,
+      `Bonjour ${name},\n\n${senderName} vous a écrit au sujet de « ${propertyTitle} ».\n` +
+        `Répondez depuis votre messagerie :\n\n${url}\n\nhwe`,
+    );
+  }
+
+  // ─────────────────────── Tickets (incidents) ───────────────────────
+
+  ticketOpened(ownerEmail: string, ownerName: string, propertyTitle: string, title: string, url: string) {
+    return this.send(
+      ownerEmail,
+      `hwe — incident signalé sur « ${propertyTitle} »`,
+      `Bonjour ${ownerName},\n\nVotre locataire a signalé un incident : « ${title} ».\n` +
+        `Consultez et traitez la demande :\n\n${url}\n\nhwe`,
+    );
+  }
+
+  ticketResolved(tenantEmail: string, tenantName: string, title: string) {
+    return this.send(
+      tenantEmail,
+      `hwe — incident résolu : « ${title} »`,
+      `Bonjour ${tenantName},\n\nVotre incident « ${title} » a été marqué comme résolu par le propriétaire.\n\nhwe`,
+    );
+  }
+
   // ─────────────────────── Réinitialisation de mot de passe ───────────────────────
 
   passwordReset(to: string, name: string, url: string) {

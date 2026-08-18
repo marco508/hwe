@@ -65,6 +65,10 @@ model User {
   phone     String?
   avatarUrl String?  @db.Text
   role      Role     @default(TENANT)
+  /// E-mail vérifié (lien envoyé à l'inscription). Requis pour publier un
+  /// bien, envoyer une demande et accéder à son bail/ses loyers : le
+  /// rattachement locataire↔bail repose sur l'e-mail.
+  emailVerifiedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -73,6 +77,7 @@ model User {
   favorites      Favorite[]
   userDocuments  UserDocument[]
   paymentMethods OwnerPaymentMethod[] @relation("OwnerPaymentMethods")
+  tickets        Ticket[]   @relation("TicketAuthor")
 
   // Messagerie
   ownerConversations Conversation[] @relation("OwnerConversations")
@@ -387,6 +392,16 @@ model LeaseContract {
   ownerSignedAt    DateTime?
   tenantSignedAt   DateTime?
 
+  // ── Caution (dépôt de garantie) — suivi du cycle complet ──────────────
+  /// Versement de la caution confirmé par le propriétaire
+  depositPaidAt     DateTime?
+  /// Restitution (fin de bail) confirmée par le propriétaire
+  depositReturnedAt DateTime?
+  /// Montant retenu à la restitution (0 = tout rendu)
+  depositRetained   Float?
+  /// Motif de la retenue / note sur la caution
+  depositNote       String? @db.Text
+
   // Back-relation: the inquiry that generated this lease
   inquiry          Inquiry?
 
@@ -394,9 +409,78 @@ model LeaseContract {
   updatedAt  DateTime @updatedAt
 
   rentPeriods RentPeriod[]
+  inspections Inspection[]
+  tickets     Ticket[]
 
   @@index([propertyId])
   @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ÉTATS DES LIEUX — un à l'entrée, un à la sortie, signés par les deux parties.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum InspectionType {
+  ENTRY // état des lieux d'entrée
+  EXIT  // état des lieux de sortie
+}
+
+model Inspection {
+  id      String         @id @default(cuid())
+  leaseId String
+  lease   LeaseContract  @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  type    InspectionType
+  date    DateTime
+
+  /// Relevé par pièce/élément : [{ label, condition, note }]
+  items            Json?
+  generalNote      String? @db.Text
+  meterElectricity String?
+  meterWater       String?
+  meterGas         String?
+  keysCount        Int?
+
+  // Signatures électroniques horodatées (comme le bail)
+  ownerSignedAt  DateTime?
+  tenantSignedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([leaseId, type])
+  @@index([leaseId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TICKETS — incidents signalés par le locataire (fuite, panne…), suivis par
+// le propriétaire jusqu'à résolution.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+model Ticket {
+  id       String        @id @default(cuid())
+  leaseId  String
+  lease    LeaseContract @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  authorId String
+  author   User          @relation("TicketAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  title        String
+  description  String  @db.Text
+  photoDataUrl String? @db.Text
+
+  status         TicketStatus @default(OPEN)
+  resolutionNote String?      @db.Text
+  resolvedAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leaseId, status])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
