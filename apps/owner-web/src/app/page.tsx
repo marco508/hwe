@@ -62,7 +62,7 @@ export default function HomePage() {
               Le marché <span className="gradient-text">immobilier</span>
             </h1>
             <p className="text-ink-muted">
-              Tous les biens publiés sur la plateforme. Comparez les prix, repérez les tendances, inspirez-vous des annonces de vos confrères.
+              Tous les biens publiés sur la plateforme — comparez les prix et les annonces.
             </p>
           </div>
           <div className="lg:w-80">
@@ -143,7 +143,7 @@ export default function HomePage() {
           }
           description={
             items.length === 0
-              ? "Soyez le premier propriétaire à publier une annonce. Vos biens seront immédiatement visibles sur la landing publique."
+              ? "Publiez votre première annonce — visible immédiatement sur la page publique."
               : "Modifiez les filtres ou essayez d'autres mots-clés."
           }
           action={

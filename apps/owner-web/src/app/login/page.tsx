@@ -51,7 +51,7 @@ export default function LoginPage() {
             Bon retour, <span className="gradient-text">propriétaire</span>
           </h1>
           <p className="text-ink-muted text-sm mt-2">
-            Accédez à votre tableau de bord pour gérer vos biens.
+            Vos biens, demandes, baux et loyers.
           </p>
         </div>
 

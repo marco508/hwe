@@ -95,8 +95,7 @@ export default function HomePage() {
       <header className="mb-8">
         <h1 className="font-display text-3xl mb-2">Trouvez votre logement</h1>
         <p className="text-ink-muted max-w-2xl">
-          Parcourez les annonces de propriétaires et entrez en contact avec eux
-          en quelques clics.
+          Annonces publiées par les propriétaires. Contactez-les directement.
         </p>
       </header>
 

@@ -583,7 +583,7 @@ export default function LeasePage() {
           <div className="text-5xl mb-4">📋</div>
           <p className="font-semibold text-lg mb-1">Aucun contrat créé</p>
           <p className="text-ink-muted text-sm mb-6">
-            Générez un contrat de bail conforme à la législation française en quelques clics.
+            Générez un bail conforme en quelques clics.
           </p>
           <Button onClick={() => setView("create")}>+ Créer un contrat</Button>
         </div>

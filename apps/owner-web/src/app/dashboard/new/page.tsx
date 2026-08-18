@@ -84,7 +84,7 @@ export default function NewPropertyPage() {
               Présentez votre bien <span className="gradient-text">avec soin</span>
             </h1>
             <p className="text-ink-muted leading-relaxed max-w-xl">
-              Plus votre annonce est complète et illustrée, plus elle attire des candidats sérieux. Comptez 10 à 15 minutes pour saisir tous les détails — vous pourrez modifier à tout moment.
+              Une annonce complète et illustrée attire des candidats sérieux. Comptez 10 à 15 minutes pour saisir tous les détails — vous pourrez modifier à tout moment.
             </p>
           </div>
 

@@ -43,8 +43,7 @@ export default function RegisterPage() {
           Bienvenue sur <span className="gradient-text">hwe</span>
         </h1>
         <p className="text-sm text-ink-muted">
-          Créez votre compte pour contacter les propriétaires, suivre vos demandes
-          et gérer votre location.
+          Contactez les propriétaires, suivez vos demandes, gérez votre location.
         </p>
       </AnimatedBackground>
       <Card>

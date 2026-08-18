@@ -735,7 +735,7 @@ export default function ReceivedInquiriesPage() {
       {items.length === 0 ? (
         <EmptyState
           title="Aucune demande pour le moment"
-          description="Les candidatures locataires ou acheteurs apparaîtront ici dès qu'une personne contactera l'un de vos biens publiés."
+          description="Les demandes reçues sur vos biens s'afficheront ici."
         />
       ) : visibleItems.length === 0 ? (
         <EmptyState

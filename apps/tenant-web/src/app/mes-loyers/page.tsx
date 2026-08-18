@@ -436,7 +436,7 @@ export default function MesLoyersPage() {
               Mes <span className="gradient-text">loyers</span>
             </h1>
             <p className="text-ink-muted max-w-xl">
-              Suivez vos échéances, déclarez vos versements et retrouvez toutes vos quittances.
+              Échéances, déclarations de versement, quittances.
             </p>
           </div>
           {nextDue ? (

@@ -47,19 +47,19 @@ const PROPERTY_TYPE_BY_CATEGORY: Record<string, PropertyType | null> = {
 // ─── Étapes (description réelle du workflow plateforme) ─────────────────────
 const STEPS = [
   {
-    title: "Imaginez",
+    title: "Cherchez",
     description:
-      "Filtrez par lieu, budget, atmosphère. Sauvegardez vos coups de cœur dans des collections personnelles.",
+      "Filtrez par ville, budget et type de bien. Gardez vos favoris.",
   },
   {
-    title: "Visitez",
+    title: "Contactez",
     description:
-      "Galeries immersives, plans, données du quartier. Contactez le propriétaire en un message — sans intermédiaire.",
+      "Photos, détails du bien, message direct au propriétaire. Sans intermédiaire.",
   },
   {
-    title: "Emménagez",
+    title: "Signez",
     description:
-      "Bail numérique, signature à distance, documents centralisés. Plus qu'à choisir la couleur des rideaux.",
+      "Bail numérique signé à distance. Loyers et quittances suivis dans votre espace.",
   },
 ];
 
@@ -297,14 +297,13 @@ function LandingInner() {
             </span>
 
             <h1 className="display-serif text-display-md sm:text-display-lg lg:text-display-xl text-ink">
-              <span className="block">L'art d'habiter,</span>
-              <span className="block italic gradient-text">réinventé.</span>
+              <span className="block">Louer, acheter, vendre —</span>
+              <span className="block italic gradient-text">sans agence.</span>
             </h1>
 
             <p className="text-ink-muted text-lg sm:text-xl max-w-2xl mx-auto mt-8 leading-relaxed">
-              Des appartements en cœur de ville, des maisons à la lisière de la
-              forêt, des terrains qui ne demandent qu'à devenir un projet.
-              Trouvez la maison qui vous ressemble
+              Contact direct avec le propriétaire, bail signé en ligne, loyers
+              et quittances suivis. Trouvez votre prochaine adresse
               {city ? ` à ${city}` : ` en ${country.name}`}.
             </p>
           </div>
@@ -365,12 +364,10 @@ function LandingInner() {
                 eyebrow={`Destinations · ${country.flag} ${country.name}`}
                 title={
                   <>
-                    Les villes qui font{" "}
-                    <em className="italic">battre le cœur</em>{" "}
-                    {prepDePays(country.name)}.
+                    Explorez <em className="italic">par ville</em>.
                   </>
                 }
-                description="Cliquez sur une ville pour explorer ses biens disponibles."
+                description="Choisissez une ville pour voir ses biens."
               />
             </RevealOnScroll>
 
@@ -442,14 +439,13 @@ function LandingInner() {
               eyebrow={`Catalogue · ${country.flag} ${country.name}${city ? ` · ${city}` : ""}`}
               title={
                 <>
-                  Trouvez l'endroit où{" "}
-                  <em className="italic">poser vos valises</em>.
+                  Les biens <em className="italic">disponibles</em>.
                 </>
               }
               description={
                 city
-                  ? `Tous les biens disponibles à ${city}.`
-                  : `Naviguez par type de bien dans tout ${country.name}.`
+                  ? `Tout ce qui est à louer ou à vendre à ${city}.`
+                  : `Filtrez par type de bien dans tout ${country.name}.`
               }
             />
           </RevealOnScroll>
@@ -552,10 +548,10 @@ function LandingInner() {
               eyebrow="Comment ça marche"
               title={
                 <>
-                  Trois temps. <em className="italic">Une histoire.</em>
+                  Trois étapes, <em className="italic">zéro agence</em>.
                 </>
               }
-              description="hwe accompagne chaque étape, du premier coup d'œil à la remise des clés."
+              description="De la recherche à la remise des clés."
             />
           </RevealOnScroll>
           <RevealOnScroll className="mt-12">
@@ -579,7 +575,7 @@ function LandingInner() {
               />
               <div className="relative max-w-2xl">
                 <span className="eyebrow text-cream-200/80">
-                  Commencez l'aventure {country.flag}
+                  Compte gratuit {country.flag}
                 </span>
                 <h2 className="display-serif text-5xl sm:text-6xl mt-3 leading-[1.05]">
                   Votre prochaine adresse{" "}
@@ -593,9 +589,8 @@ function LandingInner() {
                   .
                 </h2>
                 <p className="text-cream-200/80 text-lg mt-6 leading-relaxed">
-                  Créez votre compte en une minute. Sauvegardez des biens,
-                  recevez les nouveautés en avant-première, contactez les
-                  propriétaires directement.
+                  Favoris, contact direct avec les propriétaires, bail et
+                  loyers gérés en ligne. Inscription en une minute.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a
@@ -630,8 +625,8 @@ function LandingInner() {
                 </span>
               </div>
               <p className="text-cream-200/70 text-sm max-w-md leading-relaxed">
-                hwe connecte locataires, acheteurs et propriétaires autour d'une
-                gestion transparente — sans agence, sans bruit.
+                Location et vente entre particuliers : contact direct, bail
+                numérique, loyers suivis. Sans agence.
               </p>
             </div>
             <FooterCol
@@ -720,10 +715,10 @@ function EmptyCountry({
         </div>
         <p className="text-sm text-ink-muted max-w-md mx-auto mb-6 leading-relaxed">
           {hasCity
-            ? `Aucun bien à montrer pour cette ville avec ces filtres. Essayez d'élargir votre recherche.`
+            ? `Aucun bien ici avec ces filtres — élargissez la recherche.`
             : hasAnyInCountry
-            ? `Aucun bien ne correspond à ces filtres en ${country}. Modifiez la catégorie ou le type d'annonce.`
-            : `Le catalogue ${country} ouvre ses portes. Si vous avez un bien à louer ou à vendre, publiez-le et soyez visible auprès des premiers visiteurs.`}
+            ? `Aucun bien avec ces filtres en ${country} — changez de catégorie ou de type d'annonce.`
+            : `Le catalogue ${country} démarre. Publiez votre bien : il sera visible immédiatement.`}
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           {hasCity && (

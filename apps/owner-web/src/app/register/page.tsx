@@ -63,8 +63,7 @@ export default function RegisterPage() {
             Créer un compte <span className="gradient-text">propriétaire</span>
           </h1>
           <p className="text-ink-muted text-sm">
-            Publiez vos biens à la vente ou à la location et gérez les contacts
-            entrants.
+            Publiez vos biens, gérez demandes, baux et loyers.
           </p>
         </div>
 
