@@ -291,9 +291,9 @@ function LandingInner() {
                 ? "Chargement du catalogue…"
                 : localizedProperties.length > 0
                 ? `${localizedProperties.length} bien${localizedProperties.length !== 1 ? "s" : ""} ${
-                    city ? `à ${city}` : `en ${country.name}`
+                    city ? `à ${city}` : prepEnPays(country.name)
                   }`
-                : `La plateforme arrive en ${country.name}`}
+                : `La plateforme arrive ${prepEnPays(country.name)}`}
             </span>
 
             <h1 className="display-serif text-display-md sm:text-display-lg lg:text-display-xl text-ink">
@@ -304,7 +304,7 @@ function LandingInner() {
             <p className="text-ink-muted text-lg sm:text-xl max-w-2xl mx-auto mt-8 leading-relaxed">
               Contact direct avec le propriétaire, bail signé en ligne, loyers
               et quittances suivis. Trouvez votre prochaine adresse
-              {city ? ` à ${city}` : ` en ${country.name}`}.
+              {city ? ` à ${city}` : ` ${prepEnPays(country.name)}`}.
             </p>
           </div>
 
@@ -445,7 +445,7 @@ function LandingInner() {
               description={
                 city
                   ? `Tout ce qui est à louer ou à vendre à ${city}.`
-                  : `Filtrez par type de bien dans tout ${country.name}.`
+                  : `Filtrez par type de bien partout ${prepEnPays(country.name)}.`
               }
             />
           </RevealOnScroll>
@@ -583,7 +583,7 @@ function LandingInner() {
                     <em className="italic text-accent-200">à {city}</em>
                   ) : (
                     <em className="italic text-accent-200">
-                      en {country.name}
+                      {prepEnPays(country.name)}
                     </em>
                   )}
                   .
@@ -669,6 +669,19 @@ function LandingInner() {
 
 // ─── Sous-composants ─────────────────────────────────────────────────────────
 
+// « au Bénin », « en France », « aux Pays-Bas », « à Madagascar »…
+// Un simple `en ${pays}` produit des fautes (« en Bénin ») : la préposition
+// dépend du genre/nombre du pays. Règles vérifiées sur toute la liste supportée.
+function prepEnPays(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower === "madagascar" || lower === "maurice") return `à ${name}`;
+  if (lower === "rd congo") return `en ${name}`;
+  if (lower.startsWith("pays")) return `aux ${name}`;
+  if (/^[aeiouéèêâîôûà]/i.test(name)) return `en ${name}`;
+  if (lower.endsWith("e")) return `en ${name}`;
+  return `au ${name}`;
+}
+
 function prepDePays(name: string): string {
   const lower = name.toLowerCase();
   if (lower.startsWith("côte")) return `de ${name}`;
@@ -711,13 +724,13 @@ function EmptyCountry({
             ? `Pas encore de bien à voir ici`
             : hasAnyInCountry
             ? `Pas encore de bien dans cette sélection`
-            : `Soyez le premier en ${country}`}
+            : `Soyez le premier ${prepEnPays(country)}`}
         </div>
         <p className="text-sm text-ink-muted max-w-md mx-auto mb-6 leading-relaxed">
           {hasCity
             ? `Aucun bien ici avec ces filtres — élargissez la recherche.`
             : hasAnyInCountry
-            ? `Aucun bien avec ces filtres en ${country} — changez de catégorie ou de type d'annonce.`
+            ? `Aucun bien avec ces filtres ${prepEnPays(country)} — changez de catégorie ou de type d'annonce.`
             : `Le catalogue ${country} démarre. Publiez votre bien : il sera visible immédiatement.`}
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
