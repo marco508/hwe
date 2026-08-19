@@ -9,6 +9,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
+import { jwtSecret } from "../common/jwt-secret.util";
 
 @Injectable()
 export class AuthService {
@@ -22,7 +23,7 @@ export class AuthService {
   // passe actuel → le jeton devient invalide dès que le mot de passe change
   // (usage unique automatique, sans table dédiée).
   private resetSigningKey(passwordHash: string): string {
-    return `${process.env.JWT_SECRET ?? "dev-secret"}|password-reset|${(passwordHash || "none").slice(-24)}`;
+    return `${jwtSecret()}|password-reset|${(passwordHash || "none").slice(-24)}`;
   }
 
   // Base de l'URL de la page de réinitialisation, selon le rôle (espaces séparés).
@@ -92,7 +93,7 @@ export class AuthService {
   // Jeton signé avec une clé dérivée de l'e-mail → invalidé si l'e-mail change.
 
   private verifySigningKey(email: string): string {
-    return `${process.env.JWT_SECRET ?? "dev-secret"}|email-verify|${email}`;
+    return `${jwtSecret()}|email-verify|${email}`;
   }
 
   private async sendVerificationEmail(user: { id: string; email: string; firstName: string; role: string }) {

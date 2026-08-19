@@ -11,6 +11,7 @@ import {
 } from "@hwe/ui";
 import { useAuth } from "../lib/auth-context";
 import { api } from "../lib/api";
+import { EmailVerifyBanner } from "./EmailVerifyBanner";
 
 export function AppNavbar() {
   const { user, logout } = useAuth();
@@ -60,6 +61,7 @@ export function AppNavbar() {
   }, [user, refresh]);
 
   return (
+    <>
     <Navbar
       brand={<Link href="/">hwe</Link>}
       audienceLabel="Espace propriétaire"
@@ -108,7 +110,11 @@ export function AppNavbar() {
         </Link>
       )}
       {user && <Link href="/dashboard/messages" className="hidden md:inline">Messages</Link>}
+      {user && <Link href="/dashboard/tickets" className="hidden md:inline">Incidents</Link>}
+      {user?.role === "ADMIN" && <Link href="/dashboard/admin" className="hidden md:inline">Admin</Link>}
       {user && <Link href="/profile" className="hidden md:inline">Profil</Link>}
     </Navbar>
+    <EmailVerifyBanner />
+    </>
   );
 }

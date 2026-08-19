@@ -36,6 +36,33 @@ async function bootstrap() {
     app.use(bodyParser.urlencoded({ limit: bodyLimit, extended: true }));
   }
 
+  // ── Anti-brute-force sur l'authentification ──
+  // Compteur en mémoire par IP : 60 requêtes / 15 min sur /api/auth suffisent
+  // largement à un usage normal et bloquent les essais de mots de passe.
+  const authHits = new Map<string, { n: number; reset: number }>();
+  app.use("/api/auth", (req: any, res: any, next: () => void) => {
+    const now = Date.now();
+    if (authHits.size > 10_000) {
+      for (const [k, v] of authHits) if (now > v.reset) authHits.delete(k);
+    }
+    const ip = String(
+      (req.headers["x-forwarded-for"] || "").split(",")[0] || req.ip || "?",
+    ).trim();
+    const entry = authHits.get(ip);
+    if (!entry || now > entry.reset) {
+      authHits.set(ip, { n: 1, reset: now + 15 * 60_000 });
+      return next();
+    }
+    if (++entry.n > 60) {
+      res.status(429).json({
+        statusCode: 429,
+        message: "Trop de tentatives — réessayez dans quelques minutes.",
+      });
+      return;
+    }
+    next();
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

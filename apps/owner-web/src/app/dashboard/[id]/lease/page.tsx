@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button, Input, Label, Select, Textarea, Badge } from "@hwe/ui";
 import { useAuth } from "../../../../lib/auth-context";
 import { api } from "../../../../lib/api";
+import { LeaseExtras } from "../../../../components/LeaseExtras";
 import type { Property, LeaseContract, LeaseStatus } from "@hwe/types";
 import { LEASE_STATUS_LABELS } from "@hwe/types";
 
@@ -672,6 +673,15 @@ export default function LeasePage() {
                   </Button>
                 </div>
               </div>
+              {params?.id && (
+                <LeaseExtras
+                  propertyId={params.id}
+                  lease={lease}
+                  onLeaseUpdate={(updated) =>
+                    setLeases((l) => l.map((x) => (x.id === updated.id ? updated : x)))
+                  }
+                />
+              )}
             </div>
           ))}
         </div>

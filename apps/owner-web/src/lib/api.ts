@@ -13,6 +13,11 @@ import type {
   IdentityDocumentType,
   Conversation,
   Message,
+  Inspection,
+  InspectionType,
+  InspectionItem,
+  Ticket,
+  TicketStatus,
 } from "@hwe/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -86,7 +91,7 @@ export interface OwnerRentPeriod {
 
 type ListingType = "SALE" | "RENT";
 type PropertyType = "APARTMENT" | "HOUSE" | "LAND" | "COMMERCIAL" | "OTHER";
-type PropertyStatus = "ACTIVE" | "INACTIVE" | "RENTED" | "SOLD";
+type PropertyStatus = "DRAFT" | "PUBLISHED" | "RENTED" | "SOLD" | "ARCHIVED";
 
 interface MediaInput {
   url: string;
@@ -148,6 +153,10 @@ export const api = {
   resetPassword: (token: string, password: string) =>
     request<{ ok: true }>("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }) }),
   me: () => request<User>("/auth/me", {}, true),
+  verifyEmail: (token: string) =>
+    request<{ ok: true }>("/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),
+  sendVerification: () =>
+    request<{ ok: true; alreadyVerified?: boolean }>("/auth/send-verification", { method: "POST" }, true),
   updateMe: (body: Partial<Pick<User, "firstName" | "lastName" | "phone" | "avatarUrl">>) =>
     request<User>("/users/me", { method: "PATCH", body: JSON.stringify(body) }, true),
 
@@ -287,6 +296,82 @@ export const api = {
   signLease: (propertyId: string, leaseId: string) =>
     request<LeaseContract>(`/properties/${propertyId}/leases/${leaseId}/sign`, {
       method: "POST",
+    }, true),
+
+  markDeposit: (
+    propertyId: string,
+    leaseId: string,
+    body: { action: "PAID" | "RETURNED"; retained?: number; note?: string },
+  ) =>
+    request<LeaseContract>(`/properties/${propertyId}/leases/${leaseId}/deposit`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+
+  // ── États des lieux ──
+  listInspections: (leaseId: string) =>
+    request<Inspection[]>(`/leases/${leaseId}/inspections`, {}, true),
+  upsertInspection: (
+    leaseId: string,
+    type: InspectionType,
+    body: {
+      date: string;
+      items?: InspectionItem[];
+      generalNote?: string;
+      meterElectricity?: string;
+      meterWater?: string;
+      meterGas?: string;
+      keysCount?: number;
+    },
+  ) =>
+    request<Inspection>(`/leases/${leaseId}/inspections/${type}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }, true),
+  signInspection: (leaseId: string, type: InspectionType) =>
+    request<Inspection>(`/leases/${leaseId}/inspections/${type}/sign`, { method: "POST" }, true),
+
+  // ── Incidents ──
+  ownerTickets: (status?: TicketStatus) =>
+    request<Ticket[]>(`/tickets/owner${status ? `?status=${status}` : ""}`, {}, true),
+  reviewTicket: (id: string, body: { status: "IN_PROGRESS" | "RESOLVED"; resolutionNote?: string }) =>
+    request<Ticket>(`/tickets/${id}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+
+  // ── Administration ──
+  adminOverview: () =>
+    request<{
+      users: Record<string, number>;
+      properties: Record<string, number>;
+      leases: number;
+      ticketsOpen: number;
+      inquiries: number;
+      usersUnverified: number;
+    }>("/admin/overview", {}, true),
+  adminUsers: (q?: string, role?: string) => {
+    const search = new URLSearchParams();
+    if (q) search.set("q", q);
+    if (role) search.set("role", role);
+    return request<(User & { _count: { properties: number; inquiries: number } })[]>(
+      `/admin/users?${search.toString()}`, {}, true,
+    );
+  },
+  adminProperties: (q?: string, status?: string) => {
+    const search = new URLSearchParams();
+    if (q) search.set("q", q);
+    if (status) search.set("status", status);
+    return request<{
+      id: string; title: string; city: string; status: PropertyStatus;
+      listingType: ListingType; price: number; createdAt: string;
+      owner: { id: string; email: string; firstName: string; lastName: string };
+      _count: { inquiries: number; leases: number };
+    }[]>(`/admin/properties?${search.toString()}`, {}, true);
+  },
+  adminVerifyUserEmail: (userId: string) =>
+    request<{ ok: true }>(`/admin/users/${userId}/verify-email`, { method: "PATCH" }, true),
+  adminSetPropertyStatus: (propertyId: string, status: PropertyStatus) =>
+    request<{ ok: true }>(`/admin/properties/${propertyId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
     }, true),
 
   // grille tarifaire

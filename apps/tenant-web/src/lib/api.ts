@@ -12,6 +12,9 @@ import type {
   IdentityDocumentType,
   Conversation,
   Message,
+  Inspection,
+  InspectionType,
+  Ticket,
 } from "@hwe/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -107,6 +110,10 @@ export const api = {
   resetPassword: (token: string, password: string) =>
     request<{ ok: true }>("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }) }),
   me: () => request<User>("/auth/me", {}, true),
+  verifyEmail: (token: string) =>
+    request<{ ok: true }>("/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),
+  sendVerification: () =>
+    request<{ ok: true; alreadyVerified?: boolean }>("/auth/send-verification", { method: "POST" }, true),
   updateMe: (body: Partial<Pick<User, "firstName" | "lastName" | "phone" | "avatarUrl">>) =>
     request<User>("/users/me", { method: "PATCH", body: JSON.stringify(body) }, true),
 
@@ -175,7 +182,24 @@ export const api = {
   signLease: (leaseId: string) =>
     request<LeaseContract>(`/leases/${leaseId}/sign`, { method: "POST" }, true),
 
-  // ── Loyers ────────────────────────────────────────────────────────────
+  // ── États des lieux ──
+  listInspections: (leaseId: string) =>
+    request<Inspection[]>(`/leases/${leaseId}/inspections`, {}, true),
+  signInspection: (leaseId: string, type: InspectionType) =>
+    request<Inspection>(`/leases/${leaseId}/inspections/${type}/sign`, { method: "POST" }, true),
+
+  // ── Incidents ──
+  myTickets: () => request<Ticket[]>("/tickets/my", {}, true),
+  createTicket: (
+    leaseId: string,
+    body: { title: string; description: string; photoDataUrl?: string },
+  ) =>
+    request<Ticket>(`/leases/${leaseId}/tickets`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+
+  // ── Loyers ──
   myRents: () => request<TenantRentBundle[]>("/rents/my", {}, true),
   declareRent: (
     periodId: string,

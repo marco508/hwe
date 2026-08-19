@@ -7,6 +7,7 @@ import { Badge, Card, CardBody, CardHeader, EmptyState } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { useCurrency } from "../../lib/currency-context";
 import { api } from "../../lib/api";
+import { LeaseTenantExtras } from "../../components/LeaseTenantExtras";
 import type { LeaseContract, LeaseStatus } from "@hwe/types";
 import { LEASE_STATUS_LABELS } from "@hwe/types";
 
@@ -492,6 +493,8 @@ function LeaseCard({
             </p>
           </section>
         )}
+
+        <LeaseTenantExtras lease={lease} />
 
       </CardBody>
     </Card>

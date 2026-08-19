@@ -20,6 +20,7 @@ export interface User {
   phone?: string | null;
   avatarUrl?: string | null;
   role: Role;
+  emailVerifiedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -368,9 +369,63 @@ export interface LeaseContract {
   pdfUrl?: string | null;
   ownerSignedAt?: string | null;
   tenantSignedAt?: string | null;
+  depositPaidAt?: string | null;
+  depositReturnedAt?: string | null;
+  depositRetained?: number | null;
+  depositNote?: string | null;
   createdAt: string;
   updatedAt: string;
   property?: Pick<Property, "id" | "title" | "addressLine" | "city" | "postalCode" | "country" | "surface" | "rooms"> & {
     owner?: Pick<User, "id" | "firstName" | "lastName" | "email" | "phone">;
   };
+}
+
+// ── États des lieux ──
+export type InspectionType = "ENTRY" | "EXIT";
+
+export interface InspectionItem {
+  label: string;
+  condition: string;
+  note?: string;
+}
+
+export interface Inspection {
+  id: string;
+  leaseId: string;
+  type: InspectionType;
+  date: string;
+  items?: InspectionItem[] | null;
+  generalNote?: string | null;
+  meterElectricity?: string | null;
+  meterWater?: string | null;
+  meterGas?: string | null;
+  keysCount?: number | null;
+  ownerSignedAt?: string | null;
+  tenantSignedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ── Incidents (tickets) ──
+export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED";
+
+export interface Ticket {
+  id: string;
+  leaseId: string;
+  authorId: string;
+  title: string;
+  description: string;
+  photoDataUrl?: string | null;
+  status: TicketStatus;
+  resolutionNote?: string | null;
+  resolvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lease?: {
+    id?: string;
+    tenantFirstName?: string;
+    tenantLastName?: string;
+    property?: { id: string; title: string; city?: string };
+  };
+  author?: { firstName: string; lastName: string; email: string };
 }
