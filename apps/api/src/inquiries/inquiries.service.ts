@@ -61,6 +61,7 @@ export class InquiriesService {
         message: dto.message,
         contactEmail: dto.contactEmail,
         contactPhone: dto.contactPhone,
+        shareDossier: dto.shareDossier ?? false,
         desiredStartDate: dto.desiredStartDate ? new Date(dto.desiredStartDate) : undefined,
         leaseDuration: dto.leaseDuration,
         leaseDurationUnit: dto.leaseDurationUnit,
