@@ -1,10 +1,15 @@
 "use client";
 
 import { createI18n } from "@hwe/ui";
+import * as p0 from "./i18n-parts/property";
+import * as p1 from "./i18n-parts/rental";
+import * as p2 from "./i18n-parts/rents";
+import * as p3 from "./i18n-parts/comms";
+import * as p4 from "./i18n-parts/account";
 
 // fr = textes d'origine ; en = traduction. Couvre la coque de l'app
 // (navigation, auth, accueil) — les écrans de gestion restent en français.
-const fr = {
+const fr: Record<string, string> = {
   "nav.listings": "Annonces",
   "nav.myRental": "Ma location",
   "nav.myRents": "Mes loyers",
@@ -69,7 +74,7 @@ const fr = {
   "verify.errCta": "Retour à l'accueil",
 };
 
-const en: typeof fr = {
+const en: Record<string, string> = {
   "nav.listings": "Listings",
   "nav.myRental": "My rental",
   "nav.myRents": "My rent",
@@ -134,4 +139,7 @@ const en: typeof fr = {
   "verify.errCta": "Back to home",
 };
 
-export const { t, LangProvider, useLang, LangSwitch } = createI18n({ fr, en });
+export const { t, LangProvider, useLang, LangSwitch } = createI18n({
+  fr: { ...fr, ...p0.fr, ...p1.fr, ...p2.fr, ...p3.fr, ...p4.fr },
+  en: { ...en, ...p0.en, ...p1.en, ...p2.en, ...p3.en, ...p4.en },
+});

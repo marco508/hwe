@@ -76,7 +76,7 @@ export {
   CurrencySwitch,
   SUPPORTED_CURRENCIES,
 } from "./components/CurrencyKit";
-export { createI18n, type Lang } from "./components/I18nKit";
+export { createI18n, tUi, setUiLang, UI_DICT, type Lang } from "./components/I18nKit";
 export {
   IlloSkyline,
   IlloKeys,

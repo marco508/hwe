@@ -25,9 +25,9 @@ import { publicApi } from "../lib/api";
 import type { Property, ListingType, PropertyType } from "@hwe/types";
 
 const TENANT_URL =
-  process.env.NEXT_PUBLIC_TENANT_URL ?? "http://localhost:3001";
+  process.env.NEXT_PUBLIC_TENANT_URL ?? "https://tenant.hwe.dkpsolution.tech";
 const OWNER_URL =
-  process.env.NEXT_PUBLIC_OWNER_URL ?? "http://localhost:3004";
+  process.env.NEXT_PUBLIC_OWNER_URL ?? "https://owner.hwe.dkpsolution.tech";
 
 // ─── Catégories (traduites au rendu) ────────────────────────────────────────
 function buildCategories(): CategoryRailItem[] {
@@ -718,7 +718,7 @@ function EmptyCountry({
   onClearCity: () => void;
   hasAnyInCountry: boolean;
 }) {
-  const ownerUrl = process.env.NEXT_PUBLIC_OWNER_URL ?? "http://localhost:3004";
+  const ownerUrl = process.env.NEXT_PUBLIC_OWNER_URL ?? "https://owner.hwe.dkpsolution.tech";
   return (
     <div className="relative rounded-3xl border border-dashed border-border bg-surface/60 p-10 sm:p-16 text-center overflow-hidden">
       <span
@@ -814,7 +814,7 @@ function FeaturedSpread({
   onToggleFavorite: () => void;
 }) {
   const tenantUrl =
-    process.env.NEXT_PUBLIC_TENANT_URL ?? "http://localhost:3001";
+    process.env.NEXT_PUBLIC_TENANT_URL ?? "https://tenant.hwe.dkpsolution.tech";
   const { format: fmtPrice } = useCurrency();
   return (
     <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-stretch">

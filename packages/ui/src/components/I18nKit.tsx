@@ -15,6 +15,28 @@ export type Lang = "fr" | "en";
 
 const LANG_KEY = "hwe.lang";
 
+// ── Traduction des composants partages (packages/ui) ──
+// Les composants du design system ne peuvent pas importer le i18n d'une app :
+// ils lisent cette locale module, posee par le LangProvider pendant le rendu.
+let uiLang: Lang = "fr";
+
+export function setUiLang(l: Lang) {
+  uiLang = l;
+}
+
+// Dictionnaire des textes des composants partages — rempli au fil des besoins.
+export const UI_DICT: Record<Lang, Record<string, string>> = { fr: {}, en: {} };
+
+export function tUi(key: string, params?: Record<string, string | number>): string {
+  let text = UI_DICT[uiLang][key] ?? UI_DICT.fr[key] ?? key;
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      text = text.split(`{${k}}`).join(String(v ?? ""));
+    }
+  }
+  return text;
+}
+
 export function createI18n(dicts: Record<Lang, Record<string, string>>) {
   let locale: Lang = "fr";
 
@@ -48,6 +70,7 @@ export function createI18n(dicts: Record<Lang, Record<string, string>>) {
 
     // Pendant le rendu, avant les enfants : ils lisent t() dans la bonne langue.
     locale = lang;
+    setUiLang(lang);
 
     const setLang = React.useCallback((l: Lang) => {
       setLangState(l);

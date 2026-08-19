@@ -15,9 +15,9 @@ COPY packages/types packages/types
 COPY packages/ui packages/ui
 COPY apps/landing apps/landing
 
-ARG NEXT_PUBLIC_API_URL=http://localhost:4005
-ARG NEXT_PUBLIC_TENANT_URL=http://localhost:3004
-ARG NEXT_PUBLIC_OWNER_URL=http://localhost:3005
+ARG NEXT_PUBLIC_API_URL=https://hwe.dkpsolution.tech
+ARG NEXT_PUBLIC_TENANT_URL=https://tenant.hwe.dkpsolution.tech
+ARG NEXT_PUBLIC_OWNER_URL=https://owner.hwe.dkpsolution.tech
 
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_TENANT_URL=${NEXT_PUBLIC_TENANT_URL}
