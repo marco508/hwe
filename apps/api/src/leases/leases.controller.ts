@@ -18,6 +18,8 @@ import {
   CreateAmendmentDto,
   CoTenantDto,
   InsuranceDto,
+  OwnerNoticeDto,
+  ChargeRegularizationDto,
 } from "./dto/lease.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
@@ -100,6 +102,15 @@ export class TenantLeasesController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.leases.getInsuranceFile(leaseId, insuranceId, user);
+  }
+
+  /** Régularisations de charges (les deux parties). */
+  @Get(":leaseId/charge-regularizations")
+  chargeRegularizations(
+    @Param("leaseId") leaseId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.leases.listChargeRegularizations(leaseId, user);
   }
 }
 
@@ -186,6 +197,29 @@ export class LeasesController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.leases.removeCoTenant(propertyId, leaseId, user.sub, coTenantId);
+  }
+
+
+  /** Congé donné par le propriétaire (vente, reprise, motif légitime). */
+  @Post(":leaseId/owner-notice")
+  giveOwnerNotice(
+    @Param("propertyId") propertyId: string,
+    @Param("leaseId") leaseId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: OwnerNoticeDto,
+  ) {
+    return this.leases.giveOwnerNotice(propertyId, leaseId, user.sub, dto);
+  }
+
+  /** Régularisation annuelle des charges. */
+  @Post(":leaseId/charge-regularizations")
+  createChargeRegularization(
+    @Param("propertyId") propertyId: string,
+    @Param("leaseId") leaseId: string,
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: ChargeRegularizationDto,
+  ) {
+    return this.leases.createChargeRegularization(propertyId, leaseId, user.sub, dto);
   }
 
   /** Suivi de la caution : versée, restituée (avec retenue éventuelle). */

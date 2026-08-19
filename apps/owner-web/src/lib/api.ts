@@ -23,6 +23,7 @@ import type {
   InsuranceSummary,
   Visit,
   VisitStatus,
+  ChargeRegularization,
   UserDocument as ApplicantDocument,
 } from "@hwe/types";
 
@@ -423,6 +424,28 @@ export const api = {
   // ── Dossier de candidature ──
   getInquiryDossier: (inquiryId: string) =>
     request<ApplicantDocument[]>(`/inquiries/${inquiryId}/dossier`, {}, true),
+
+  // ── Congé propriétaire & régularisation des charges ──
+  giveOwnerNotice: (
+    propertyId: string,
+    leaseId: string,
+    body: { reason: "SALE" | "REPOSSESSION" | "OTHER"; desiredDate?: string; note?: string },
+  ) =>
+    request<LeaseContract>(`/properties/${propertyId}/leases/${leaseId}/owner-notice`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+  createChargeRegularization: (
+    propertyId: string,
+    leaseId: string,
+    body: { periodLabel: string; provisionsCollected: number; actualCharges: number; note?: string },
+  ) =>
+    request<ChargeRegularization>(`/properties/${propertyId}/leases/${leaseId}/charge-regularizations`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+  listChargeRegularizations: (leaseId: string) =>
+    request<ChargeRegularization[]>(`/leases/${leaseId}/charge-regularizations`, {}, true),
 
   // grille tarifaire
   getPricingRates: (propertyId: string) =>

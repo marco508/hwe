@@ -412,6 +412,13 @@ model LeaseContract {
   /// Motif de la retenue / note sur la caution
   depositNote       String? @db.Text
 
+  // ── Congé donné par le propriétaire (vente, reprise, motif légitime) ──
+  ownerNoticeGivenAt       DateTime?
+  ownerNoticeEffectiveDate DateTime?
+  /// SALE (vente), REPOSSESSION (reprise pour habiter), OTHER (motif légitime)
+  ownerNoticeReason        String?
+  ownerNoticeNote          String? @db.Text
+
   // ── Préavis (congé donné par le locataire) ──
   /// Date à laquelle le locataire a notifié son départ
   noticeGivenAt       DateTime?
@@ -431,6 +438,7 @@ model LeaseContract {
   amendments  LeaseAmendment[]
   coTenants   LeaseCoTenant[]
   insurances  InsuranceCertificate[]
+  chargeRegularizations ChargeRegularization[]
 
   @@index([propertyId])
   @@index([status])
@@ -668,4 +676,30 @@ model Visit {
 
   @@index([propertyId, status])
   @@index([requesterId])
+}
+
+// ─────────────────────────────────────────────
+// RÉGULARISATION DES CHARGES — comparaison annuelle provisions vs réel.
+// Le solde est purement informatif : le règlement se fait hors plateforme.
+// ─────────────────────────────────────────────
+
+model ChargeRegularization {
+  id      String        @id @default(cuid())
+  leaseId String
+  lease   LeaseContract @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  /// Période couverte, ex. « 2026 » ou « sept. 2025 – août 2026 »
+  periodLabel         String
+  /// Provisions encaissées sur la période
+  provisionsCollected Float
+  /// Charges réelles justifiées
+  actualCharges       Float
+  /// actualCharges - provisionsCollected : positif = complément dû par le
+  /// locataire, négatif = trop-perçu à lui rembourser
+  balance             Float
+  note                String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([leaseId])
 }

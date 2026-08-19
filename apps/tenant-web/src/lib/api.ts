@@ -19,6 +19,7 @@ import type {
   InsuranceSummary,
   LeaseCoTenant,
   Visit,
+  ChargeRegularization,
 } from "@hwe/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -221,6 +222,9 @@ export const api = {
     request<InsuranceSummary[]>(`/leases/${leaseId}/insurances`, {}, true),
   getInsuranceFile: (leaseId: string, insuranceId: string) =>
     request<{ fileUrl: string }>(`/leases/${leaseId}/insurances/${insuranceId}/file`, {}, true),
+
+  listChargeRegularizations: (leaseId: string) =>
+    request<ChargeRegularization[]>(`/leases/${leaseId}/charge-regularizations`, {}, true),
 
   // ── États des lieux ──
   listInspections: (leaseId: string) =>

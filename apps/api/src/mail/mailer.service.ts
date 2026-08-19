@@ -231,6 +231,37 @@ export class MailerService {
     );
   }
 
+
+  ownerNoticeGiven(tenantEmail: string, tenantName: string, propertyTitle: string, reason: string, effectiveDate: Date) {
+    const motifs: Record<string, string> = {
+      SALE: "mise en vente du logement",
+      REPOSSESSION: "reprise du logement",
+      OTHER: "motif légitime et sérieux",
+    };
+    return this.send(
+      tenantEmail,
+      `hwe — congé donné par votre propriétaire (« ${propertyTitle} »)`,
+      `Bonjour ${tenantName},\n\nVotre propriétaire vous donne congé pour ${motifs[reason] ?? "motif légitime"}.\n` +
+        `Fin de bail effective le ${effectiveDate.toLocaleDateString("fr-FR")}.\n` +
+        `Les détails sont dans votre espace, rubrique Ma location.\n\nhwe`,
+    );
+  }
+
+  chargeRegularization(tenantEmail: string, tenantName: string, propertyTitle: string, periodLabel: string, balance: number) {
+    const fmt = Math.abs(balance).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+    return this.send(
+      tenantEmail,
+      `hwe — régularisation des charges ${periodLabel} (« ${propertyTitle} »)`,
+      `Bonjour ${tenantName},\n\nVotre propriétaire a régularisé les charges de la période ${periodLabel}.\n` +
+        (balance > 0
+          ? `Complément à verser : ${fmt}.\n`
+          : balance < 0
+            ? `Trop-perçu à vous rembourser : ${fmt}.\n`
+            : `Provisions et charges réelles s'équilibrent — rien à régler.\n`) +
+        `Le détail est dans votre espace, rubrique Ma location.\n\nhwe`,
+    );
+  }
+
   // ─────────────────────── Réinitialisation de mot de passe ───────────────────────
 
   passwordReset(to: string, name: string, url: string) {

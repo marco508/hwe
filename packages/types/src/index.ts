@@ -387,6 +387,10 @@ export interface LeaseContract {
   noticeGivenAt?: string | null;
   noticeEffectiveDate?: string | null;
   noticeNote?: string | null;
+  ownerNoticeGivenAt?: string | null;
+  ownerNoticeEffectiveDate?: string | null;
+  ownerNoticeReason?: string | null;
+  ownerNoticeNote?: string | null;
   coTenants?: LeaseCoTenant[];
   amendments?: LeaseAmendment[];
   insurances?: InsuranceSummary[];
@@ -500,4 +504,22 @@ export interface Visit {
   updatedAt: string;
   property?: { id: string; title: string; city?: string; addressLine?: string };
   requester?: { firstName: string; lastName: string; email: string; phone?: string | null };
+}
+
+export const OWNER_NOTICE_REASON_LABELS: Record<string, string> = {
+  SALE: "Mise en vente",
+  REPOSSESSION: "Reprise du logement",
+  OTHER: "Motif légitime et sérieux",
+};
+
+export interface ChargeRegularization {
+  id: string;
+  leaseId: string;
+  periodLabel: string;
+  provisionsCollected: number;
+  actualCharges: number;
+  /// positif = complément dû par le locataire, négatif = à lui rembourser
+  balance: number;
+  note?: string | null;
+  createdAt: string;
 }

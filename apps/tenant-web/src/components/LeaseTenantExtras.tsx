@@ -12,7 +12,9 @@ import type {
   TicketStatus,
   LeaseAmendment,
   InsuranceSummary,
+  ChargeRegularization,
 } from "@hwe/types";
+import { OWNER_NOTICE_REASON_LABELS } from "@hwe/types";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -488,6 +490,42 @@ function InsuranceBlock({ lease }: { lease: LeaseContract }) {
   );
 }
 
+
+// ─── Régularisations de charges (lecture) ───────────────────────────
+
+function ChargeRegsBlock({ leaseId }: { leaseId: string }) {
+  const [regs, setRegs] = React.useState<ChargeRegularization[] | null>(null);
+
+  React.useEffect(() => {
+    api.listChargeRegularizations(leaseId).then(setRegs).catch(() => setRegs([]));
+  }, [leaseId]);
+
+  if (regs === null) return <p className="text-sm text-ink-muted">Chargement…</p>;
+  if (regs.length === 0)
+    return <p className="text-sm text-ink-muted">Aucune régularisation pour l'instant.</p>;
+
+  return (
+    <ul className="space-y-1 text-sm">
+      {regs.map((r) => (
+        <li key={r.id} className="flex flex-wrap items-center gap-2">
+          <span className="font-medium">{r.periodLabel}</span>
+          <span className="text-ink-muted">
+            provisions {fmtMoney(r.provisionsCollected)} · réel {fmtMoney(r.actualCharges)}
+          </span>
+          {r.balance > 0 ? (
+            <Badge tone="accent">{fmtMoney(r.balance)} à verser</Badge>
+          ) : r.balance < 0 ? (
+            <Badge tone="brand">{fmtMoney(-r.balance)} à vous rembourser</Badge>
+          ) : (
+            <Badge tone="success">Équilibré</Badge>
+          )}
+          {r.note && <span className="text-ink-muted">— {r.note}</span>}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 // ─── Bloc combiné, monté dans la carte de bail ─────────────────────────────
 
 export function LeaseTenantExtras({
@@ -548,6 +586,15 @@ export function LeaseTenantExtras({
         )}
       </section>
 
+      {lease.ownerNoticeGivenAt && (
+        <div className="rounded-lg border border-accent-500/30 bg-accent-500/10 px-4 py-3 text-sm">
+          Votre propriétaire vous a donné congé le <strong>{fmtDate(lease.ownerNoticeGivenAt)}</strong>{" "}
+          ({OWNER_NOTICE_REASON_LABELS[lease.ownerNoticeReason ?? ""] ?? "motif légitime"}) — fin de
+          bail le <strong>{lease.ownerNoticeEffectiveDate ? fmtDate(lease.ownerNoticeEffectiveDate) : "—"}</strong>.
+          {lease.ownerNoticeNote ? <span className="text-ink-muted"> {lease.ownerNoticeNote}</span> : null}
+        </div>
+      )}
+
       <section>
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           Préavis
@@ -567,6 +614,13 @@ export function LeaseTenantExtras({
           Colocataires
         </h3>
         <CoTenantsBlock lease={lease} />
+      </section>
+
+      <section>
+        <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
+          Régularisation des charges
+        </h3>
+        <ChargeRegsBlock leaseId={lease.id} />
       </section>
 
       <section>

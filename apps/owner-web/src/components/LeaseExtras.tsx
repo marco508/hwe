@@ -10,7 +10,9 @@ import type {
   LeaseContract,
   LeaseAmendment,
   InsuranceSummary,
+  ChargeRegularization,
 } from "@hwe/types";
+import { OWNER_NOTICE_REASON_LABELS } from "@hwe/types";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -571,6 +573,208 @@ function InsuranceStatus({ lease }: { lease: LeaseContract }) {
   );
 }
 
+
+// ─── Congé donné par le propriétaire ───────────────────────────────
+
+function OwnerNoticeBlock({
+  propertyId,
+  lease,
+  onUpdate,
+}: {
+  propertyId: string;
+  lease: LeaseContract;
+  onUpdate: (l: LeaseContract) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [reason, setReason] = React.useState<"SALE" | "REPOSSESSION" | "OTHER">("SALE");
+  const [desired, setDesired] = React.useState("");
+  const [note, setNote] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+
+  if (lease.ownerNoticeGivenAt) {
+    return (
+      <p className="text-sm">
+        Donné le <strong>{fmtDate(lease.ownerNoticeGivenAt)}</strong> —{" "}
+        {OWNER_NOTICE_REASON_LABELS[lease.ownerNoticeReason ?? ""] ?? lease.ownerNoticeReason} — fin de
+        bail le <strong>{lease.ownerNoticeEffectiveDate ? fmtDate(lease.ownerNoticeEffectiveDate) : "—"}</strong>.
+      </p>
+    );
+  }
+  if (lease.noticeGivenAt) {
+    return (
+      <p className="text-sm text-ink-muted">
+        Le locataire a déjà donné son préavis — fin de bail le{" "}
+        {lease.noticeEffectiveDate ? fmtDate(lease.noticeEffectiveDate) : "—"}.
+      </p>
+    );
+  }
+  const active = lease.status === "ACTIVE" || lease.status === "SIGNED";
+  if (!active) return <p className="text-sm text-ink-muted">Disponible quand le bail est actif.</p>;
+
+  const minMonths = lease.furnished ? 3 : 6;
+
+  if (!open) {
+    return (
+      <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
+        Donner congé au locataire
+      </Button>
+    );
+  }
+
+  const submit = async () => {
+    if (!confirm("Vous notifiez officiellement la fin du bail au locataire. Confirmez-vous ?")) return;
+    setBusy(true);
+    try {
+      const updated = await api.giveOwnerNotice(propertyId, lease.id, {
+        reason,
+        desiredDate: desired || undefined,
+        note: note || undefined,
+      });
+      onUpdate({ ...lease, ...updated });
+      setOpen(false);
+    } catch (e) {
+      alert("Erreur : " + (e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3 max-w-lg text-sm">
+      <p className="text-ink-muted">
+        Préavis légal côté bailleur : {minMonths} mois ({lease.furnished ? "meublé" : "non meublé"}).
+        Une date plus proche sera ramenée à ce minimum.
+      </p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div>
+          <Label>Motif légal</Label>
+          <select
+            className="h-10 w-full rounded-lg border border-ink-subtle bg-white px-2 text-sm"
+            value={reason}
+            onChange={(e) => setReason(e.target.value as typeof reason)}
+          >
+            <option value="SALE">Mise en vente</option>
+            <option value="REPOSSESSION">Reprise du logement</option>
+            <option value="OTHER">Motif légitime et sérieux</option>
+          </select>
+        </div>
+        <div>
+          <Label>Date de fin souhaitée</Label>
+          <Input type="date" value={desired} onChange={(e) => setDesired(e.target.value)} />
+        </div>
+      </div>
+      <div>
+        <Label>Précision (optionnelle)</Label>
+        <Input value={note} onChange={(e) => setNote(e.target.value)} />
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" disabled={busy} onClick={submit}>
+          {busy ? "Envoi…" : "Notifier le congé"}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Régularisation des charges ───────────────────────────────────
+
+function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; lease: LeaseContract }) {
+  const [regs, setRegs] = React.useState<ChargeRegularization[] | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [form, setForm] = React.useState({ periodLabel: "", provisions: "", actual: "", note: "" });
+  const [busy, setBusy] = React.useState(false);
+
+  React.useEffect(() => {
+    if (regs === null) {
+      api.listChargeRegularizations(lease.id).then(setRegs).catch(() => setRegs([]));
+    }
+  }, [regs, lease.id]);
+
+  const submit = async () => {
+    if (!form.periodLabel || form.provisions === "" || form.actual === "") return;
+    setBusy(true);
+    try {
+      const created = await api.createChargeRegularization(propertyId, lease.id, {
+        periodLabel: form.periodLabel,
+        provisionsCollected: parseFloat(form.provisions),
+        actualCharges: parseFloat(form.actual),
+        note: form.note || undefined,
+      });
+      setRegs((arr) => [created, ...(arr ?? [])]);
+      setForm({ periodLabel: "", provisions: "", actual: "", note: "" });
+      setOpen(false);
+    } catch (e) {
+      alert("Erreur : " + (e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3 text-sm">
+      {regs === null ? (
+        <p className="text-ink-muted">Chargement…</p>
+      ) : regs.length === 0 ? (
+        <p className="text-ink-muted">Aucune régularisation — à faire une fois par an.</p>
+      ) : (
+        <ul className="space-y-1">
+          {regs.map((r) => (
+            <li key={r.id} className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">{r.periodLabel}</span>
+              <span className="text-ink-muted">
+                provisions {fmtMoney(r.provisionsCollected)} · réel {fmtMoney(r.actualCharges)}
+              </span>
+              {r.balance > 0 ? (
+                <Badge tone="accent">+{fmtMoney(r.balance)} dû par le locataire</Badge>
+              ) : r.balance < 0 ? (
+                <Badge tone="brand">{fmtMoney(-r.balance)} à rembourser</Badge>
+              ) : (
+                <Badge tone="success">Équilibré</Badge>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {open ? (
+        <div className="space-y-3 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20 max-w-xl">
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div>
+              <Label>Période</Label>
+              <Input placeholder="2026" value={form.periodLabel} onChange={(e) => setForm({ ...form, periodLabel: e.target.value })} />
+            </div>
+            <div>
+              <Label>Provisions encaissées (€)</Label>
+              <Input type="number" min="0" step="0.01" value={form.provisions} onChange={(e) => setForm({ ...form, provisions: e.target.value })} />
+            </div>
+            <div>
+              <Label>Charges réelles (€)</Label>
+              <Input type="number" min="0" step="0.01" value={form.actual} onChange={(e) => setForm({ ...form, actual: e.target.value })} />
+            </div>
+          </div>
+          <div>
+            <Label>Détail (eau, ordures…)</Label>
+            <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" disabled={busy} onClick={submit}>
+              {busy ? "Enregistrement…" : "Enregistrer et notifier"}
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
+          </div>
+          <p className="text-xs text-ink-muted">
+            Le solde est notifié au locataire ; le règlement se fait entre vous.
+          </p>
+        </div>
+      ) : (
+        <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
+          + Régulariser une période
+        </Button>
+      )}
+    </div>
+  );
+}
+
 // ─── Bloc combiné, monté dans chaque carte de bail ─────────────────────────
 
 export function LeaseExtras({
@@ -656,6 +860,18 @@ export function LeaseExtras({
               Colocataires
             </h3>
             <CoTenantsBlock propertyId={propertyId} lease={lease} />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
+              Régularisation des charges
+            </h3>
+            <ChargeRegularizationBlock propertyId={propertyId} lease={lease} />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
+              Congé du propriétaire
+            </h3>
+            <OwnerNoticeBlock propertyId={propertyId} lease={lease} onUpdate={onLeaseUpdate} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">

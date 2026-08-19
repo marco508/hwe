@@ -12,6 +12,8 @@ import {
   CreateAmendmentDto,
   CoTenantDto,
   InsuranceDto,
+  OwnerNoticeDto,
+  ChargeRegularizationDto,
 } from "./dto/lease.dto";
 import { MailerService } from "../mail/mailer.service";
 import { resolveLeaseParty } from "../common/lease-party.util";
@@ -461,6 +463,111 @@ export class LeasesService {
     });
     if (!cert || cert.leaseId !== leaseId) throw new NotFoundException();
     return { fileUrl: cert.fileUrl };
+  }
+
+
+  // ── Congé donné par le propriétaire ──
+
+  /** Vente, reprise ou motif légitime — préavis légal : 3 mois meublé, 6 mois nu. */
+  async giveOwnerNotice(
+    propertyId: string,
+    leaseId: string,
+    ownerId: string,
+    dto: OwnerNoticeDto,
+  ) {
+    const property = await this.assertOwner(propertyId, ownerId);
+    const lease = await this.prisma.leaseContract.findUnique({ where: { id: leaseId } });
+    if (!lease || lease.propertyId !== propertyId) throw new NotFoundException();
+    if (lease.status !== "ACTIVE" && lease.status !== "SIGNED") {
+      throw new BadRequestException("Ce bail n'est pas actif.");
+    }
+    if (lease.ownerNoticeGivenAt) {
+      throw new BadRequestException(
+        `Congé déjà donné — fin de bail le ${lease.ownerNoticeEffectiveDate?.toLocaleDateString("fr-FR")}.`,
+      );
+    }
+    if (lease.noticeGivenAt) {
+      throw new BadRequestException(
+        "Le locataire a déjà donné son préavis — la fin de bail est déjà fixée.",
+      );
+    }
+
+    // Préavis légal côté bailleur : 3 mois si meublé, 6 mois si nu.
+    const months = lease.furnished ? 3 : 6;
+    const min = new Date();
+    min.setMonth(min.getMonth() + months);
+    let effective = dto.desiredDate ? new Date(dto.desiredDate) : min;
+    if (isNaN(effective.getTime()) || effective < min) effective = min;
+
+    const updated = await this.prisma.leaseContract.update({
+      where: { id: leaseId },
+      data: {
+        ownerNoticeGivenAt: new Date(),
+        ownerNoticeEffectiveDate: effective,
+        ownerNoticeReason: dto.reason,
+        ownerNoticeNote: dto.note ?? null,
+        endDate: effective,
+      },
+    });
+
+    this.mailer
+      .ownerNoticeGiven(
+        lease.tenantEmail,
+        lease.tenantFirstName,
+        property.title,
+        dto.reason,
+        effective,
+      )
+      .catch(() => {});
+
+    return updated;
+  }
+
+  // ── Régularisation des charges ──
+
+  /** Comparaison annuelle provisions vs réel ; le solde se règle hors plateforme. */
+  async createChargeRegularization(
+    propertyId: string,
+    leaseId: string,
+    ownerId: string,
+    dto: ChargeRegularizationDto,
+  ) {
+    const property = await this.assertOwner(propertyId, ownerId);
+    const lease = await this.prisma.leaseContract.findUnique({ where: { id: leaseId } });
+    if (!lease || lease.propertyId !== propertyId) throw new NotFoundException();
+
+    const balance = Math.round((dto.actualCharges - dto.provisionsCollected) * 100) / 100;
+    const created = await this.prisma.chargeRegularization.create({
+      data: {
+        leaseId,
+        periodLabel: dto.periodLabel,
+        provisionsCollected: dto.provisionsCollected,
+        actualCharges: dto.actualCharges,
+        balance,
+        note: dto.note ?? null,
+      },
+    });
+
+    this.mailer
+      .chargeRegularization(
+        lease.tenantEmail,
+        lease.tenantFirstName,
+        property.title,
+        dto.periodLabel,
+        balance,
+      )
+      .catch(() => {});
+
+    return created;
+  }
+
+  /** Les régularisations du bail, visibles par les deux parties. */
+  async listChargeRegularizations(leaseId: string, user: { sub: string; email: string }) {
+    await resolveLeaseParty(this.prisma, leaseId, user);
+    return this.prisma.chargeRegularization.findMany({
+      where: { leaseId },
+      orderBy: { createdAt: "desc" },
+    });
   }
 
   /** Le propriétaire signe électroniquement son bail. */

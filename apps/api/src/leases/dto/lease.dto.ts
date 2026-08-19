@@ -150,3 +150,26 @@ export class InsuranceDto {
   @IsString() fileUrl!: string;
   @IsDateString() validUntil!: string;
 }
+
+/** Congé donné par le propriétaire (motif légal requis). */
+export class OwnerNoticeDto {
+  @IsIn(["SALE", "REPOSSESSION", "OTHER"])
+  reason!: "SALE" | "REPOSSESSION" | "OTHER";
+
+  @IsOptional()
+  @IsDateString()
+  desiredDate?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  note?: string;
+}
+
+/** Régularisation annuelle des charges (solde informatif). */
+export class ChargeRegularizationDto {
+  @IsString() @MaxLength(60) periodLabel!: string;
+  @IsNumber() @Min(0) provisionsCollected!: number;
+  @IsNumber() @Min(0) actualCharges!: number;
+  @IsOptional() @IsString() @MaxLength(1000) note?: string;
+}
