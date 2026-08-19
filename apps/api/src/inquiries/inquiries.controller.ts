@@ -55,4 +55,12 @@ export class InquiriesController {
   received(@CurrentUser() user: JwtPayload) {
     return this.inquiries.listReceived(user.sub);
   }
+
+  // Owner views the applicant's shared dossier
+  @UseGuards(RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN)
+  @Get(":id/dossier")
+  dossier(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    return this.inquiries.getDossier(id, user.sub);
+  }
 }

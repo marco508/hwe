@@ -494,7 +494,7 @@ function LeaseCard({
           </section>
         )}
 
-        <LeaseTenantExtras lease={lease} />
+        <LeaseTenantExtras lease={lease} onLeaseUpdate={onUpdate} />
 
       </CardBody>
     </Card>

@@ -102,6 +102,7 @@ export function AppNavbar() {
       <Link href="/" className="hidden md:inline">Annonces</Link>
       {user && <Link href="/ma-location" className="hidden md:inline">Ma location</Link>}
       {user && <Link href="/mes-loyers" className="hidden md:inline">Mes loyers</Link>}
+      {user && <Link href="/mes-visites" className="hidden md:inline">Mes visites</Link>}
       {user && <Link href="/favorites" className="hidden md:inline">❤ Favoris</Link>}
       {user && <Link href="/inquiries" className="hidden md:inline">Mes demandes</Link>}
       {user && <Link href="/messages" className="hidden md:inline">Messages</Link>}

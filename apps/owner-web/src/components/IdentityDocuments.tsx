@@ -22,6 +22,11 @@ const DOC_TYPES: IdentityDocumentType[] = [
   "PASSPORT",
   "DRIVERS_LICENSE",
   "RESIDENCE_PERMIT",
+  "INCOME_PROOF",
+  "EMPLOYMENT_CONTRACT",
+  "TAX_NOTICE",
+  "GUARANTOR_ID",
+  "GUARANTOR_INCOME",
   "OTHER",
 ];
 
@@ -30,6 +35,11 @@ const DOC_ICONS: Record<IdentityDocumentType, string> = {
   PASSPORT: "📘",
   DRIVERS_LICENSE: "🚗",
   RESIDENCE_PERMIT: "📋",
+  INCOME_PROOF: "💶",
+  EMPLOYMENT_CONTRACT: "📝",
+  TAX_NOTICE: "🏛",
+  GUARANTOR_ID: "🤝",
+  GUARANTOR_INCOME: "💶",
   OTHER: "📄",
 };
 

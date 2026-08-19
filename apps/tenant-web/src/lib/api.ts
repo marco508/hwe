@@ -15,6 +15,10 @@ import type {
   Inspection,
   InspectionType,
   Ticket,
+  LeaseAmendment,
+  InsuranceSummary,
+  LeaseCoTenant,
+  Visit,
 } from "@hwe/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -149,6 +153,7 @@ export const api = {
     message: string;
     contactEmail: string;
     contactPhone?: string;
+    shareDossier?: boolean;
     desiredStartDate?: string;
     leaseDuration?: number;
     leaseDurationUnit?: "DAYS" | "WEEKS" | "MONTHS" | "YEARS";
@@ -181,6 +186,41 @@ export const api = {
   myLeases: () => request<LeaseContract[]>("/leases/my", {}, true),
   signLease: (leaseId: string) =>
     request<LeaseContract>(`/leases/${leaseId}/sign`, { method: "POST" }, true),
+
+  // ── Visites ──
+  requestVisit: (body: { propertyId: string; proposedAt: string; note?: string }) =>
+    request<Visit>("/visits", { method: "POST", body: JSON.stringify(body) }, true),
+  myVisits: () => request<Visit[]>("/visits/my", {}, true),
+  cancelVisit: (id: string) =>
+    request<Visit>(`/visits/${id}/cancel`, { method: "PATCH" }, true),
+
+  // ── Préavis ──
+  giveNotice: (leaseId: string, body: { desiredDate?: string; note?: string }) =>
+    request<LeaseContract>(`/leases/${leaseId}/notice`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+
+  // ── Avenants ──
+  listAmendments: (leaseId: string) =>
+    request<LeaseAmendment[]>(`/leases/${leaseId}/amendments`, {}, true),
+  signAmendment: (leaseId: string, amendmentId: string) =>
+    request<LeaseAmendment>(`/leases/${leaseId}/amendments/${amendmentId}/sign`, { method: "POST" }, true),
+
+  // ── Colocation ──
+  signAsCoTenant: (leaseId: string) =>
+    request<LeaseCoTenant>(`/leases/${leaseId}/cotenants/sign`, { method: "POST" }, true),
+
+  // ── Assurance habitation ──
+  addInsurance: (leaseId: string, body: { fileUrl: string; validUntil: string }) =>
+    request<InsuranceSummary>(`/leases/${leaseId}/insurances`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+  listInsurances: (leaseId: string) =>
+    request<InsuranceSummary[]>(`/leases/${leaseId}/insurances`, {}, true),
+  getInsuranceFile: (leaseId: string, insuranceId: string) =>
+    request<{ fileUrl: string }>(`/leases/${leaseId}/insurances/${insuranceId}/file`, {}, true),
 
   // ── États des lieux ──
   listInspections: (leaseId: string) =>

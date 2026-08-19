@@ -17,6 +17,7 @@ import {
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import type { Inquiry, InquiryStatus } from "@hwe/types";
+import { IDENTITY_DOCUMENT_TYPE_LABELS } from "@hwe/types";
 import {
   INQUIRY_STATUS_LABELS,
   LEASE_DURATION_UNIT_LABELS,
@@ -278,6 +279,9 @@ function InquiryDetailModal({
               {inquiry.message}
             </p>
           </div>
+
+          {/* Dossier de candidature partagé */}
+          {inquiry.shareDossier && <DossierBlock inquiryId={inquiry.id} />}
 
           {/* Souhaits (adaptés au type d'annonce) */}
           {inquiry.desiredStartDate && (
@@ -798,6 +802,67 @@ function StatTile({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Dossier de candidature ───────────────────────────────────────
+
+function DossierBlock({ inquiryId }: { inquiryId: string }) {
+  const [docs, setDocs] = React.useState<Awaited<ReturnType<typeof api.getInquiryDossier>> | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const load = async () => {
+    setOpen(true);
+    if (docs) return;
+    try {
+      setDocs(await api.getInquiryDossier(inquiryId));
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+
+  const view = (fileUrl: string) => {
+    const w = window.open();
+    if (w) w.document.write(`<iframe src="${fileUrl}" style="width:100%;height:100%;border:0"></iframe>`);
+  };
+
+  return (
+    <div className="p-4 rounded-xl border border-brand-200 bg-brand-50 dark:bg-brand-900/20 dark:border-brand-800">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <p className="text-sm font-medium">📁 Le candidat a partagé son dossier</p>
+        {!open && (
+          <button className="text-sm underline" onClick={load}>
+            Voir les documents
+          </button>
+        )}
+      </div>
+      {open && (
+        <div className="mt-3 text-sm">
+          {error ? (
+            <p className="text-ink-muted">{error}</p>
+          ) : docs === null ? (
+            <p className="text-ink-muted">Chargement…</p>
+          ) : docs.length === 0 ? (
+            <p className="text-ink-muted">Le profil du candidat ne contient encore aucun document.</p>
+          ) : (
+            <ul className="space-y-1.5">
+              {docs.map((d) => (
+                <li key={d.id} className="flex flex-wrap items-center gap-2">
+                  <span className="font-medium">{d.name}</span>
+                  <span className="text-ink-muted">
+                    {IDENTITY_DOCUMENT_TYPE_LABELS[d.documentType] ?? d.documentType}
+                  </span>
+                  <button className="underline text-ink-muted" onClick={() => view(d.fileUrl)}>
+                    Ouvrir
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

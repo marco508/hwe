@@ -3,7 +3,16 @@
 import * as React from "react";
 import { Badge, Button, Input, Label, Textarea } from "@hwe/ui";
 import { api } from "../lib/api";
-import type { Inspection, InspectionType, LeaseContract, Ticket, TicketStatus } from "@hwe/types";
+import { useAuth } from "../lib/auth-context";
+import type {
+  Inspection,
+  InspectionType,
+  LeaseContract,
+  Ticket,
+  TicketStatus,
+  LeaseAmendment,
+  InsuranceSummary,
+} from "@hwe/types";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -222,9 +231,272 @@ function TicketForm({
   );
 }
 
+
+// ─── Préavis ──────────────────────────────────────────────────────
+
+function NoticeBlock({ lease, onUpdate }: { lease: LeaseContract; onUpdate: (l: LeaseContract) => void }) {
+  const [open, setOpen] = React.useState(false);
+  const [desired, setDesired] = React.useState("");
+  const [note, setNote] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+
+  const minDate = React.useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + (lease.noticePeriod ?? 1));
+    return d;
+  }, [lease.noticePeriod]);
+
+  if (lease.noticeGivenAt) {
+    return (
+      <p className="text-sm">
+        Donné le <strong>{fmtDate(lease.noticeGivenAt)}</strong> — fin de bail le{" "}
+        <strong>{lease.noticeEffectiveDate ? fmtDate(lease.noticeEffectiveDate) : "—"}</strong>.
+        {lease.noticeNote ? <span className="text-ink-muted"> {lease.noticeNote}</span> : null}
+      </p>
+    );
+  }
+
+  const active = lease.status === "ACTIVE" || lease.status === "SIGNED";
+  if (!active) {
+    return <p className="text-sm text-ink-muted">Disponible quand le bail est actif.</p>;
+  }
+
+  if (!open) {
+    return (
+      <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
+        Donner mon préavis
+      </Button>
+    );
+  }
+
+  const submit = async () => {
+    if (!confirm("Vous notifiez officiellement votre départ. Confirmez-vous ?")) return;
+    setBusy(true);
+    try {
+      const updated = await api.giveNotice(lease.id, {
+        desiredDate: desired || undefined,
+        note: note || undefined,
+      });
+      onUpdate({ ...lease, ...updated });
+      setOpen(false);
+    } catch (e) {
+      alert("Erreur : " + (e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3 max-w-lg text-sm">
+      <p className="text-ink-muted">
+        Préavis contractuel : {lease.noticePeriod} mois — départ au plus tôt le{" "}
+        <strong>{minDate.toLocaleDateString("fr-FR")}</strong>. Une date plus proche sera
+        ramenée à ce minimum.
+      </p>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div>
+          <Label>Date de départ souhaitée</Label>
+          <Input type="date" value={desired} onChange={(e) => setDesired(e.target.value)} />
+        </div>
+        <div>
+          <Label>Message (optionnel)</Label>
+          <Input value={note} onChange={(e) => setNote(e.target.value)} />
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" disabled={busy} onClick={submit}>
+          {busy ? "Envoi…" : "Confirmer mon préavis"}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
+          Annuler
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Avenants ─────────────────────────────────────────────────────
+
+function AmendmentsBlock({ lease }: { lease: LeaseContract }) {
+  const [amendments, setAmendments] = React.useState<LeaseAmendment[] | null>(
+    lease.amendments ?? null,
+  );
+  const [busy, setBusy] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (amendments === null) {
+      api.listAmendments(lease.id).then(setAmendments).catch(() => setAmendments([]));
+    }
+  }, [amendments, lease.id]);
+
+  if (amendments === null) return <p className="text-sm text-ink-muted">Chargement…</p>;
+  if (amendments.length === 0)
+    return <p className="text-sm text-ink-muted">Aucun avenant.</p>;
+
+  const sign = async (id: string) => {
+    if (!confirm("Vous signez cet avenant : il s'applique immédiatement au bail. Confirmez-vous ?")) return;
+    setBusy(id);
+    try {
+      const signed = await api.signAmendment(lease.id, id);
+      setAmendments((arr) => (arr ?? []).map((a) => (a.id === signed.id ? signed : a)));
+    } catch (e) {
+      alert("Erreur : " + (e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <ul className="space-y-2 text-sm">
+      {amendments.map((a) => (
+        <li key={a.id} className="flex flex-wrap items-center gap-2">
+          <span>
+            Au <strong>{fmtDate(a.effectiveDate)}</strong> :
+            {a.newMonthlyRent != null && <> loyer <strong>{fmtMoney(a.newMonthlyRent)}</strong></>}
+            {a.newCharges != null && <> · charges <strong>{fmtMoney(a.newCharges)}</strong></>}
+            {a.newEndDate != null && <> · fin <strong>{fmtDate(a.newEndDate)}</strong></>}
+          </span>
+          {a.note && <span className="text-ink-muted">— {a.note}</span>}
+          {a.tenantSignedAt ? (
+            <Badge tone="success">Signé le {fmtDate(a.tenantSignedAt)}</Badge>
+          ) : (
+            <Button size="sm" disabled={busy === a.id} onClick={() => sign(a.id)}>
+              Signer
+            </Button>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// ─── Colocataires ─────────────────────────────────────────────────
+
+function CoTenantsBlock({ lease }: { lease: LeaseContract }) {
+  const { user } = useAuth();
+  const [coTenants, setCoTenants] = React.useState(lease.coTenants ?? []);
+  const [busy, setBusy] = React.useState(false);
+
+  if (coTenants.length === 0)
+    return <p className="text-sm text-ink-muted">Pas de colocataire sur ce bail.</p>;
+
+  const mine = coTenants.find((c) => c.email === user?.email);
+
+  const sign = async () => {
+    if (!confirm("Vous signez le bail en tant que colocataire. Confirmez-vous ?")) return;
+    setBusy(true);
+    try {
+      const signed = await api.signAsCoTenant(lease.id);
+      setCoTenants((arr) => arr.map((c) => (c.id === signed.id ? signed : c)));
+    } catch (e) {
+      alert("Erreur : " + (e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2 text-sm">
+      <ul className="space-y-1">
+        {coTenants.map((c) => (
+          <li key={c.id} className="flex flex-wrap items-center gap-2">
+            <span>{c.signedAt ? "✅" : "⏳"}</span>
+            <span className="font-medium">{c.firstName} {c.lastName}</span>
+            <span className="text-ink-muted">{c.email}</span>
+            {c.signedAt && <span className="text-ink-muted">signé le {fmtDate(c.signedAt)}</span>}
+          </li>
+        ))}
+      </ul>
+      {mine && !mine.signedAt && (
+        <Button size="sm" disabled={busy} onClick={sign}>
+          Signer ma ligne de colocataire
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// ─── Assurance habitation ─────────────────────────────────────────
+
+function InsuranceBlock({ lease }: { lease: LeaseContract }) {
+  const [certs, setCerts] = React.useState<InsuranceSummary[]>(lease.insurances ?? []);
+  const [file, setFile] = React.useState<string | null>(null);
+  const [validUntil, setValidUntil] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+
+  const latest = certs[0];
+  const now = Date.now();
+  const status = !latest
+    ? { text: "Aucune attestation déposée", tone: "accent" as const }
+    : new Date(latest.validUntil).getTime() < now
+      ? { text: `Expirée le ${fmtDate(latest.validUntil)}`, tone: "accent" as const }
+      : new Date(latest.validUntil).getTime() < now + 30 * 86400000
+        ? { text: `Expire le ${fmtDate(latest.validUntil)} — renouvelez`, tone: "accent" as const }
+        : { text: `Valide jusqu'au ${fmtDate(latest.validUntil)}`, tone: "success" as const };
+
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 8 * 1024 * 1024) {
+      alert("Le fichier dépasse 8 Mo.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setFile(String(reader.result));
+    reader.readAsDataURL(f);
+  };
+
+  const submit = async () => {
+    if (!file || !validUntil) return;
+    setBusy(true);
+    try {
+      const created = await api.addInsurance(lease.id, { fileUrl: file, validUntil });
+      setCerts((arr) => [created, ...arr]);
+      setFile(null);
+      setValidUntil("");
+    } catch (e) {
+      alert("Erreur : " + (e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3 text-sm">
+      <p>
+        <Badge tone={status.tone}>{status.text}</Badge>
+      </p>
+      <div className="flex flex-wrap items-end gap-2">
+        <div>
+          <Label>Attestation (PDF ou image)</Label>
+          <input
+            type="file"
+            accept="application/pdf,image/jpeg,image/png,image/webp"
+            onChange={onFile}
+            className="block text-sm"
+          />
+        </div>
+        <div>
+          <Label>Valide jusqu'au</Label>
+          <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+        </div>
+        <Button size="sm" disabled={busy || !file || !validUntil} onClick={submit}>
+          {busy ? "Envoi…" : "Déposer"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Bloc combiné, monté dans la carte de bail ─────────────────────────────
 
-export function LeaseTenantExtras({ lease }: { lease: LeaseContract }) {
+export function LeaseTenantExtras({
+  lease,
+  onLeaseUpdate,
+}: {
+  lease: LeaseContract;
+  onLeaseUpdate?: (l: LeaseContract) => void;
+}) {
   const [inspections, setInspections] = React.useState<Inspection[] | null>(null);
   const [tickets, setTickets] = React.useState<Ticket[] | null>(null);
   const [showForm, setShowForm] = React.useState(false);
@@ -274,6 +546,34 @@ export function LeaseTenantExtras({ lease }: { lease: LeaseContract }) {
             ))}
           </div>
         )}
+      </section>
+
+      <section>
+        <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
+          Préavis
+        </h3>
+        <NoticeBlock lease={lease} onUpdate={(l) => onLeaseUpdate?.(l)} />
+      </section>
+
+      <section>
+        <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
+          Avenants
+        </h3>
+        <AmendmentsBlock lease={lease} />
+      </section>
+
+      <section>
+        <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
+          Colocataires
+        </h3>
+        <CoTenantsBlock lease={lease} />
+      </section>
+
+      <section>
+        <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
+          Assurance habitation
+        </h3>
+        <InsuranceBlock lease={lease} />
       </section>
 
       <section>

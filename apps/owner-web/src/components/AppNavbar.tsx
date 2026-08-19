@@ -109,6 +109,7 @@ export function AppNavbar() {
           Demandes
         </Link>
       )}
+      {user && <Link href="/dashboard/visites" className="hidden md:inline">Visites</Link>}
       {user && <Link href="/dashboard/messages" className="hidden md:inline">Messages</Link>}
       {user && <Link href="/dashboard/tickets" className="hidden md:inline">Incidents</Link>}
       {user?.role === "ADMIN" && <Link href="/dashboard/admin" className="hidden md:inline">Admin</Link>}

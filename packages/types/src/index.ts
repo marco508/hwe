@@ -30,6 +30,11 @@ export type IdentityDocumentType =
   | "PASSPORT"
   | "DRIVERS_LICENSE"
   | "RESIDENCE_PERMIT"
+  | "INCOME_PROOF"
+  | "EMPLOYMENT_CONTRACT"
+  | "TAX_NOTICE"
+  | "GUARANTOR_ID"
+  | "GUARANTOR_INCOME"
   | "OTHER";
 
 export const IDENTITY_DOCUMENT_TYPE_LABELS: Record<IdentityDocumentType, string> = {
@@ -37,6 +42,11 @@ export const IDENTITY_DOCUMENT_TYPE_LABELS: Record<IdentityDocumentType, string>
   PASSPORT: "Passeport",
   DRIVERS_LICENSE: "Permis de conduire",
   RESIDENCE_PERMIT: "Titre de séjour",
+  INCOME_PROOF: "Justificatif de revenus",
+  EMPLOYMENT_CONTRACT: "Contrat de travail",
+  TAX_NOTICE: "Avis d'imposition",
+  GUARANTOR_ID: "Pièce d'identité du garant",
+  GUARANTOR_INCOME: "Revenus du garant",
   OTHER: "Autre",
 };
 
@@ -222,6 +232,7 @@ export interface Inquiry {
   cancelledAt?: string | null;
   leaseId?: string | null;
   createdAt: string;
+  shareDossier?: boolean;
 }
 
 export interface AuthResponse {
@@ -373,6 +384,12 @@ export interface LeaseContract {
   depositReturnedAt?: string | null;
   depositRetained?: number | null;
   depositNote?: string | null;
+  noticeGivenAt?: string | null;
+  noticeEffectiveDate?: string | null;
+  noticeNote?: string | null;
+  coTenants?: LeaseCoTenant[];
+  amendments?: LeaseAmendment[];
+  insurances?: InsuranceSummary[];
   createdAt: string;
   updatedAt: string;
   property?: Pick<Property, "id" | "title" | "addressLine" | "city" | "postalCode" | "country" | "surface" | "rooms"> & {
@@ -428,4 +445,59 @@ export interface Ticket {
     property?: { id: string; title: string; city?: string };
   };
   author?: { firstName: string; lastName: string; email: string };
+}
+
+// ── Avenants, colocation, assurance, visites ──
+export interface LeaseAmendment {
+  id: string;
+  leaseId: string;
+  effectiveDate: string;
+  newMonthlyRent?: number | null;
+  newCharges?: number | null;
+  newEndDate?: string | null;
+  note?: string | null;
+  ownerSignedAt: string;
+  tenantSignedAt?: string | null;
+  appliedAt?: string | null;
+  createdAt: string;
+}
+
+export interface LeaseCoTenant {
+  id: string;
+  leaseId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  signedAt?: string | null;
+  createdAt: string;
+}
+
+export interface InsuranceSummary {
+  id: string;
+  validUntil: string;
+  uploadedAt: string;
+}
+
+export type VisitStatus = "REQUESTED" | "CONFIRMED" | "DECLINED" | "CANCELLED";
+
+export const VISIT_STATUS_LABELS: Record<VisitStatus, string> = {
+  REQUESTED: "En attente",
+  CONFIRMED: "Confirmée",
+  DECLINED: "Non retenue",
+  CANCELLED: "Annulée",
+};
+
+export interface Visit {
+  id: string;
+  propertyId: string;
+  requesterId: string;
+  proposedAt: string;
+  status: VisitStatus;
+  note?: string | null;
+  ownerNote?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  property?: { id: string; title: string; city?: string; addressLine?: string };
+  requester?: { firstName: string; lastName: string; email: string; phone?: string | null };
 }

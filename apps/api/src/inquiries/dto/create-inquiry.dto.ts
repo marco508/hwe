@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsEmail,
   IsEnum,
@@ -16,6 +17,9 @@ export class CreateInquiryDto {
   @IsString() @MinLength(10) message!: string;
   @IsEmail() contactEmail!: string;
   @IsOptional() @IsString() contactPhone?: string;
+
+  /** Partager les documents du profil (dossier de candidature) avec le propriétaire */
+  @IsOptional() @IsBoolean() shareDossier?: boolean;
 
   /** Date souhaitée de début de location */
   @IsOptional() @IsDateString() desiredStartDate?: string;

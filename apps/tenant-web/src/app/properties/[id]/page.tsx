@@ -1029,6 +1029,7 @@ function StepContact({
     leaseDurationUnit: "MONTHS" as DurationUnit,
     isDurationLimited: false,
     message: "",
+    shareDossier: false,
   });
   const [submitting, setSubmitting] = React.useState(false);
   const [sent, setSent] = React.useState(false);
@@ -1071,6 +1072,7 @@ function StepContact({
         message: form.message,
         contactEmail: form.contactEmail,
         contactPhone: form.contactPhone || undefined,
+        shareDossier: form.shareDossier || undefined,
         desiredStartDate: form.desiredStartDate || undefined,
         leaseDuration:
           form.isDurationLimited && form.leaseDuration
@@ -1181,6 +1183,8 @@ function StepContact({
         >
           💬 Ou démarrer une discussion directe avec le propriétaire
         </button>
+
+        <VisitRequest propertyId={p.id} />
 
         <div className="mt-4">
           <Stepper
@@ -1338,6 +1342,21 @@ function StepContact({
                   plu, vos contraintes éventuelles.
                 </p>
               </div>
+              {!isSale && (
+                <label className="flex items-start gap-2 cursor-pointer select-none text-sm">
+                  <input
+                    type="checkbox"
+                    checked={form.shareDossier}
+                    onChange={(e) => setForm({ ...form, shareDossier: e.target.checked })}
+                    className="mt-0.5 w-4 h-4 rounded"
+                  />
+                  <span>
+                    Partager mon dossier (documents de mon{" "}
+                    <Link href="/profile" className="underline">profil</Link> : identité,
+                    revenus, garant) avec le propriétaire
+                  </span>
+                </label>
+              )}
               {error && (
                 <div className="rounded-md border border-red-200 bg-red-50 text-danger text-sm px-3 py-2">
                   {error}
@@ -1402,6 +1421,76 @@ function FinanceLine({
         {value}
       </div>
       {hint && <div className="text-[11px] text-ink-subtle mt-1">{hint}</div>}
+    </div>
+  );
+}
+
+// ─── Demande de visite ─────────────────────────────────────────────────
+
+function VisitRequest({ propertyId }: { propertyId: string }) {
+  const [open, setOpen] = React.useState(false);
+  const [slot, setSlot] = React.useState("");
+  const [note, setNote] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [done, setDone] = React.useState(false);
+
+  if (done) {
+    return (
+      <p className="mt-3 text-sm text-success">
+        Créneau proposé — suivez la réponse dans{" "}
+        <Link href="/mes-visites" className="underline">Mes visites</Link>.
+      </p>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mt-3 ml-0 sm:ml-3 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border bg-cream-50 dark:bg-surface/60 text-sm font-medium text-ink hover:border-brand-400 transition-colors"
+      >
+        📅 Demander une visite
+      </button>
+    );
+  }
+
+  const submit = async () => {
+    if (!slot) return;
+    setBusy(true);
+    try {
+      await api.requestVisit({ propertyId, proposedAt: new Date(slot).toISOString(), note: note || undefined });
+      setDone(true);
+    } catch (e) {
+      alert("Erreur : " + (e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 rounded-xl border border-border bg-cream-50 dark:bg-surface/60 p-4 space-y-3">
+      <p className="text-sm font-medium">Proposez un créneau de visite :</p>
+      <div className="flex flex-wrap gap-2 items-center">
+        <Input
+          type="datetime-local"
+          value={slot}
+          onChange={(e) => setSlot(e.target.value)}
+          className="max-w-[15rem]"
+        />
+        <Input
+          placeholder="Précision (optionnelle)"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="flex-1 min-w-[10rem]"
+        />
+        <Button type="button" size="sm" disabled={busy || !slot} onClick={submit}>
+          {busy ? "Envoi…" : "Proposer"}
+        </Button>
+        <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>
+          Annuler
+        </Button>
+      </div>
     </div>
   );
 }

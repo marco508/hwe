@@ -20,13 +20,16 @@ export async function resolveLeaseParty(
         },
       },
       inquiry: { select: { senderId: true } },
+      coTenants: true,
     },
   });
   if (!lease) throw new NotFoundException("Bail introuvable");
 
   const isOwner = lease.property.ownerId === user.sub;
   const isTenant =
-    lease.tenantEmail === user.email || lease.inquiry?.senderId === user.sub;
+    lease.tenantEmail === user.email ||
+    lease.inquiry?.senderId === user.sub ||
+    lease.coTenants.some((c) => c.email === user.email);
   if (!isOwner && !isTenant) {
     throw new ForbiddenException("Vous n'êtes pas partie à ce bail");
   }

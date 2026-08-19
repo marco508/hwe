@@ -18,6 +18,12 @@ import type {
   InspectionItem,
   Ticket,
   TicketStatus,
+  LeaseAmendment,
+  LeaseCoTenant,
+  InsuranceSummary,
+  Visit,
+  VisitStatus,
+  UserDocument as ApplicantDocument,
 } from "@hwe/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -373,6 +379,50 @@ export const api = {
       method: "PATCH",
       body: JSON.stringify({ status }),
     }, true),
+
+  // ── Visites ──
+  ownerVisits: (status?: VisitStatus) =>
+    request<Visit[]>(`/visits/owner${status ? `?status=${status}` : ""}`, {}, true),
+  answerVisit: (id: string, body: { status: "CONFIRMED" | "DECLINED"; ownerNote?: string }) =>
+    request<Visit>(`/visits/${id}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+
+  // ── Avenants ──
+  listAmendments: (leaseId: string) =>
+    request<LeaseAmendment[]>(`/leases/${leaseId}/amendments`, {}, true),
+  createAmendment: (
+    propertyId: string,
+    leaseId: string,
+    body: { effectiveDate: string; newMonthlyRent?: number; newCharges?: number; newEndDate?: string; note?: string },
+  ) =>
+    request<LeaseAmendment>(`/properties/${propertyId}/leases/${leaseId}/amendments`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+
+  // ── Colocation ──
+  addCoTenant: (
+    propertyId: string,
+    leaseId: string,
+    body: { firstName: string; lastName: string; email: string; phone?: string },
+  ) =>
+    request<LeaseCoTenant>(`/properties/${propertyId}/leases/${leaseId}/cotenants`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+  removeCoTenant: (propertyId: string, leaseId: string, coTenantId: string) =>
+    request<{ ok: true }>(`/properties/${propertyId}/leases/${leaseId}/cotenants/${coTenantId}`, {
+      method: "DELETE",
+    }, true),
+
+  // ── Assurance ──
+  listInsurances: (leaseId: string) =>
+    request<InsuranceSummary[]>(`/leases/${leaseId}/insurances`, {}, true),
+  getInsuranceFile: (leaseId: string, insuranceId: string) =>
+    request<{ fileUrl: string }>(`/leases/${leaseId}/insurances/${insuranceId}/file`, {}, true),
+
+  // ── Dossier de candidature ──
+  getInquiryDossier: (inquiryId: string) =>
+    request<ApplicantDocument[]>(`/inquiries/${inquiryId}/dossier`, {}, true),
 
   // grille tarifaire
   getPricingRates: (propertyId: string) =>

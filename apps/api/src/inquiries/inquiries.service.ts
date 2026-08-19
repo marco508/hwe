@@ -318,4 +318,24 @@ export class InquiriesService {
       },
     };
   }
+
+  /** Dossier de candidature : documents du profil du candidat, si partagés. */
+  async getDossier(inquiryId: string, ownerId: string) {
+    const inquiry = await this.prisma.inquiry.findUnique({
+      where: { id: inquiryId },
+      include: { property: { select: { ownerId: true } } },
+    });
+    if (!inquiry) throw new NotFoundException("Demande introuvable");
+    if (inquiry.property.ownerId !== ownerId) {
+      throw new ForbiddenException("Cette demande ne concerne pas vos biens");
+    }
+    if (!inquiry.shareDossier) {
+      throw new ForbiddenException("Le candidat n'a pas partagé son dossier.");
+    }
+    return this.prisma.userDocument.findMany({
+      where: { userId: inquiry.senderId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
 }

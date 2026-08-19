@@ -177,6 +177,60 @@ export class MailerService {
     );
   }
 
+
+  // ─────────── Préavis, avenants, visites ───────────
+
+  noticeGiven(ownerEmail: string, ownerName: string, propertyTitle: string, tenantName: string, effectiveDate: Date) {
+    return this.send(
+      ownerEmail,
+      `hwe — préavis reçu pour « ${propertyTitle} »`,
+      `Bonjour ${ownerName},\n\n${tenantName} a donné son préavis. Fin de bail effective le ${effectiveDate.toLocaleDateString("fr-FR")}.\n` +
+        `Pensez à planifier l'état des lieux de sortie et la restitution de la caution.\n\nhwe`,
+    );
+  }
+
+  amendmentCreated(tenantEmail: string, tenantName: string, propertyTitle: string, url: string) {
+    return this.send(
+      tenantEmail,
+      `hwe — avenant à signer pour « ${propertyTitle} »`,
+      `Bonjour ${tenantName},\n\nVotre propriétaire propose un avenant à votre bail (loyer, charges ou durée).\n` +
+        `Il ne s'applique qu'après votre signature :\n\n${url}\n\nhwe`,
+    );
+  }
+
+  amendmentSigned(ownerEmail: string, ownerName: string, propertyTitle: string) {
+    return this.send(
+      ownerEmail,
+      `hwe — avenant signé (« ${propertyTitle} »)`,
+      `Bonjour ${ownerName},\n\nVotre locataire a signé l'avenant : il est maintenant appliqué au bail.\n\nhwe`,
+    );
+  }
+
+  visitRequested(ownerEmail: string, ownerName: string, propertyTitle: string, requesterName: string, date: Date, url: string) {
+    return this.send(
+      ownerEmail,
+      `hwe — demande de visite pour « ${propertyTitle} »`,
+      `Bonjour ${ownerName},\n\n${requesterName} propose de visiter « ${propertyTitle} » le ` +
+        `${date.toLocaleDateString("fr-FR")} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}.\n` +
+        `Confirmez ou proposez autre chose :\n\n${url}\n\nhwe`,
+    );
+  }
+
+  visitAnswered(to: string, name: string, propertyTitle: string, date: Date, confirmed: boolean, note?: string) {
+    return this.send(
+      to,
+      confirmed
+        ? `hwe — visite confirmée (« ${propertyTitle} »)`
+        : `hwe — visite non retenue (« ${propertyTitle} »)`,
+      `Bonjour ${name},\n\n` +
+        (confirmed
+          ? `Votre visite de « ${propertyTitle} » est confirmée le ${date.toLocaleDateString("fr-FR")} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}.\n`
+          : `Le propriétaire n'a pas retenu ce créneau pour « ${propertyTitle} ».\n`) +
+        (note ? `Message : ${note}\n` : "") +
+        `\nhwe`,
+    );
+  }
+
   // ─────────────────────── Réinitialisation de mot de passe ───────────────────────
 
   passwordReset(to: string, name: string, url: string) {

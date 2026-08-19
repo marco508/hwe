@@ -99,6 +99,32 @@ export default function HomePage() {
         </p>
       </header>
 
+      {/* Mon espace : tout ce que le locataire peut faire, en un coup d'œil */}
+      {user && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+          {[
+            { href: "/ma-location", icon: "🏠", label: "Ma location", hint: "bail, état des lieux, préavis" },
+            { href: "/mes-loyers", icon: "💶", label: "Mes loyers", hint: "payer, quittances" },
+            { href: "/mes-visites", icon: "📅", label: "Mes visites", hint: "créneaux demandés" },
+            { href: "/inquiries", icon: "📨", label: "Mes demandes", hint: "candidatures envoyées" },
+            { href: "/messages", icon: "💬", label: "Messages", hint: "échanger" },
+            { href: "/profile", icon: "📁", label: "Mon dossier", hint: "identité, revenus, garant" },
+          ].map((t) => (
+            <Link
+              key={t.href}
+              href={t.href}
+              className="group rounded-2xl border border-border bg-surface p-4 hover:border-brand-400 transition-colors"
+            >
+              <span className="text-2xl">{t.icon}</span>
+              <p className="mt-2 font-medium group-hover:text-brand-600 dark:group-hover:text-brand-300">
+                {t.label}
+              </p>
+              <p className="text-xs text-ink-muted">{t.hint}</p>
+            </Link>
+          ))}
+        </div>
+      )}
+
       <Card className="mb-8">
         <CardBody>
           <form

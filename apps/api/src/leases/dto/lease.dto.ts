@@ -112,3 +112,41 @@ export class LeaseDepositDto {
   @MaxLength(500)
   note?: string;
 }
+
+/** Préavis donné par le locataire. */
+export class GiveNoticeDto {
+  // Date de départ souhaitée ; ramenée au minimum légal si trop proche.
+  @IsOptional()
+  @IsDateString()
+  desiredDate?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  note?: string;
+}
+
+/** Avenant proposé par le propriétaire (au moins un champ modifié). */
+export class CreateAmendmentDto {
+  @IsDateString()
+  effectiveDate!: string;
+
+  @IsOptional() @IsNumber() @Min(0) newMonthlyRent?: number;
+  @IsOptional() @IsNumber() @Min(0) newCharges?: number;
+  @IsOptional() @IsDateString() newEndDate?: string;
+  @IsOptional() @IsString() @MaxLength(1000) note?: string;
+}
+
+/** Colocataire ajouté au bail par le propriétaire. */
+export class CoTenantDto {
+  @IsString() @MaxLength(100) firstName!: string;
+  @IsString() @MaxLength(100) lastName!: string;
+  @IsEmail() email!: string;
+  @IsOptional() @IsString() phone?: string;
+}
+
+/** Attestation d'assurance habitation déposée par le locataire. */
+export class InsuranceDto {
+  @IsString() fileUrl!: string;
+  @IsDateString() validUntil!: string;
+}

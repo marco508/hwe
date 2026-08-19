@@ -11,6 +11,7 @@ import {
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
+import { ActionCenter } from "../../components/ActionCenter";
 import type { Property } from "@hwe/types";
 
 export default function DashboardPage() {
@@ -116,6 +117,8 @@ export default function DashboardPage() {
           </div>
         )}
       </AnimatedBackground>
+
+      <ActionCenter />
 
       {items.length === 0 ? (
         <EmptyState

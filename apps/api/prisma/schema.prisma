@@ -78,6 +78,7 @@ model User {
   userDocuments  UserDocument[]
   paymentMethods OwnerPaymentMethod[] @relation("OwnerPaymentMethods")
   tickets        Ticket[]   @relation("TicketAuthor")
+  visits         Visit[]    @relation("VisitRequester")
 
   // Messagerie
   ownerConversations Conversation[] @relation("OwnerConversations")
@@ -92,6 +93,12 @@ enum IdentityDocumentType {
   PASSPORT          // Passeport
   DRIVERS_LICENSE   // Permis de conduire
   RESIDENCE_PERMIT  // Titre de séjour
+  // ── Dossier de candidature ──
+  INCOME_PROOF      // Justificatif de revenus (bulletins de salaire…)
+  EMPLOYMENT_CONTRACT // Contrat de travail / attestation employeur
+  TAX_NOTICE        // Avis d'imposition
+  GUARANTOR_ID      // Pièce d'identité du garant
+  GUARANTOR_INCOME  // Justificatif de revenus du garant
   OTHER
 }
 
@@ -180,6 +187,7 @@ model Property {
   favorites     Favorite[]
   pricingRates  PricingRate[]
   conversations Conversation[]
+  visits        Visit[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -249,6 +257,8 @@ model Inquiry {
   leaseDuration    Int?
   /// Unité de la durée souhaitée
   leaseDurationUnit LeaseDurationUnit?
+  /// Le candidat partage son dossier (documents du profil) avec le propriétaire
+  shareDossier Boolean       @default(false)
   status       InquiryStatus @default(PENDING)
   resolvedAt   DateTime?
   cancelledAt  DateTime?
@@ -402,6 +412,13 @@ model LeaseContract {
   /// Motif de la retenue / note sur la caution
   depositNote       String? @db.Text
 
+  // ── Préavis (congé donné par le locataire) ──
+  /// Date à laquelle le locataire a notifié son départ
+  noticeGivenAt       DateTime?
+  /// Date effective de fin calculée (≥ préavis contractuel)
+  noticeEffectiveDate DateTime?
+  noticeNote          String? @db.Text
+
   // Back-relation: the inquiry that generated this lease
   inquiry          Inquiry?
 
@@ -411,6 +428,9 @@ model LeaseContract {
   rentPeriods RentPeriod[]
   inspections Inspection[]
   tickets     Ticket[]
+  amendments  LeaseAmendment[]
+  coTenants   LeaseCoTenant[]
+  insurances  InsuranceCertificate[]
 
   @@index([propertyId])
   @@index([status])
@@ -554,4 +574,98 @@ model RentPeriod {
 
   @@unique([leaseId, periodYear, periodMonth])
   @@index([status, dueDate])
+}
+
+// ─────────────────────────────────────────────
+// AVENANTS — modification du bail (loyer, charges, fin) re-signée par le
+// locataire ; appliquée au bail au moment de sa signature.
+// ─────────────────────────────────────────────
+
+model LeaseAmendment {
+  id      String        @id @default(cuid())
+  leaseId String
+  lease   LeaseContract @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  effectiveDate  DateTime
+  newMonthlyRent Float?
+  newCharges     Float?
+  newEndDate     DateTime?
+  note           String?  @db.Text
+
+  /// Le propriétaire signe en créant l'avenant
+  ownerSignedAt  DateTime  @default(now())
+  tenantSignedAt DateTime?
+  /// Date d'application effective au bail (= signature locataire)
+  appliedAt      DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([leaseId])
+}
+
+// ─────────────────────────────────────────────
+// COLOCATION — locataires supplémentaires sur un bail, chacun signe sa ligne.
+// ─────────────────────────────────────────────
+
+model LeaseCoTenant {
+  id      String        @id @default(cuid())
+  leaseId String
+  lease   LeaseContract @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  signedAt  DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([leaseId, email])
+  @@index([email])
+}
+
+// ─────────────────────────────────────────────
+// ASSURANCE HABITATION — attestations déposées par le locataire.
+// ─────────────────────────────────────────────
+
+model InsuranceCertificate {
+  id      String        @id @default(cuid())
+  leaseId String
+  lease   LeaseContract @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+
+  fileUrl    String   @db.Text
+  validUntil DateTime
+  uploadedAt DateTime @default(now())
+
+  @@index([leaseId, validUntil])
+}
+
+// ─────────────────────────────────────────────
+// VISITES — demande de créneau par le candidat, confirmée par le propriétaire.
+// ─────────────────────────────────────────────
+
+enum VisitStatus {
+  REQUESTED // demandée par le candidat
+  CONFIRMED // confirmée par le propriétaire
+  DECLINED  // refusée (voir ownerNote)
+  CANCELLED // annulée par le candidat
+}
+
+model Visit {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  requesterId String
+  requester   User     @relation("VisitRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+
+  proposedAt DateTime
+  status     VisitStatus @default(REQUESTED)
+  note       String?     @db.Text
+  ownerNote  String?     @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([propertyId, status])
+  @@index([requesterId])
 }
