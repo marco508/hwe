@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface RangeSliderProps {
   min: number;
@@ -69,7 +70,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         {/* Low thumb */}
         <input
           type="range"
-          aria-label="Minimum"
+          aria-label={tUi("ui.minimum")}
           min={min}
           max={max}
           step={step}
@@ -80,7 +81,7 @@ export const RangeSlider: React.FC<RangeSliderProps> = ({
         {/* High thumb */}
         <input
           type="range"
-          aria-label="Maximum"
+          aria-label={tUi("ui.maximum")}
           min={min}
           max={max}
           step={step}

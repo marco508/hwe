@@ -4,6 +4,9 @@ import { createI18n } from "@hwe/ui";
 
 // fr = textes d'origine de la landing ; en = traduction.
 const fr = {
+  "meta.title": "hwe — Habiter avec élégance",
+  "meta.description": "Trouvez un logement, gérez vos biens ou vendez sans agence.",
+
   "nav.destinations": "Destinations",
   "nav.catalog": "Catalogue",
   "nav.how": "Comment ça marche",
@@ -97,6 +100,9 @@ const fr = {
 };
 
 const en: typeof fr = {
+  "meta.title": "hwe — Living, elegantly",
+  "meta.description": "Find a home, manage your properties or sell without an agency.",
+
   "nav.destinations": "Destinations",
   "nav.catalog": "Listings",
   "nav.how": "How it works",

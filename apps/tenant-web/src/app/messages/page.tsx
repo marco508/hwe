@@ -16,6 +16,7 @@ import {
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
+import { t } from "../../lib/i18n";
 import type { Conversation, Message } from "@hwe/types";
 
 // Page strictement dynamique : pas de prerender (auth + useSearchParams).
@@ -74,8 +75,8 @@ function MessagesPageInner() {
               )[0];
             if (newest && newest.id !== lastSeenMsgId.current) {
               const author =
-                newest.sender?.firstName ?? "Le propriétaire";
-              notify(`Nouveau message de ${author}`, {
+                newest.sender?.firstName ?? t("com.msg.ownerFallback");
+              notify(t("com.msg.newFrom", { name: author }), {
                 body:
                   newest.content.length > 100
                     ? newest.content.slice(0, 100) + "…"
@@ -144,14 +145,13 @@ function MessagesPageInner() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="display-serif text-3xl">
-              Mes <span className="gradient-text">conversations</span>
+              {t("com.msg.title1")} <span className="gradient-text">{t("com.msg.title2")}</span>
             </h1>
             <p className="text-sm text-ink-muted mt-1">
-              Échanges directs avec les propriétaires des biens qui vous
-              intéressent.
+              {t("com.msg.sub")}
               {totalUnread > 0 && (
                 <strong className="ml-1 text-ink">
-                  {totalUnread} non lu{totalUnread > 1 ? "s" : ""}.
+                  {t(totalUnread > 1 ? "com.msg.unreadN" : "com.msg.unread1", { n: totalUnread })}
                 </strong>
               )}
             </p>
@@ -162,13 +162,13 @@ function MessagesPageInner() {
               onClick={request}
               className="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90"
             >
-              🔔 Activer les notifications
+              🔔 {t("com.msg.enableNotifs")}
             </button>
           )}
           {permission === "granted" && (
             <span className="text-xs text-ink-muted inline-flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-success" />
-              Notifications navigateur actives
+              {t("com.msg.notifsOn")}
             </span>
           )}
         </div>
@@ -190,8 +190,7 @@ function MessagesPageInner() {
               </div>
             ) : conversations.length === 0 ? (
               <div className="p-6 text-center text-sm text-ink-muted">
-                Aucune conversation. Contactez un propriétaire depuis une
-                annonce pour démarrer un échange.
+                {t("com.msg.emptyList")}
               </div>
             ) : (
               <div className="space-y-0.5">
@@ -206,7 +205,7 @@ function MessagesPageInner() {
                   return (
                     <ConversationListItem
                       key={c.id}
-                      partnerName={`${partner?.firstName ?? ""} ${partner?.lastName ?? ""}`.trim() || partner?.email || "Anonyme"}
+                      partnerName={`${partner?.firstName ?? ""} ${partner?.lastName ?? ""}`.trim() || partner?.email || t("com.msg.anonymous")}
                       partnerInitials={initials}
                       partnerAvatarUrl={partner?.avatarUrl}
                       propertyTitle={c.property?.title}
@@ -234,17 +233,17 @@ function MessagesPageInner() {
           {!active ? (
             loadingActive ? (
               <CardBody className="flex-1 flex items-center justify-center text-sm text-ink-muted">
-                Chargement…
+                {t("com.loading")}
               </CardBody>
             ) : (
               <CardBody className="flex-1 flex items-center justify-center">
                 <div className="text-center max-w-sm">
                   <div className="text-5xl mb-3">💬</div>
                   <h2 className="display-serif text-2xl mb-2">
-                    Sélectionnez une conversation
+                    {t("com.msg.selectTitle")}
                   </h2>
                   <p className="text-sm text-ink-muted">
-                    Choisissez un fil dans la liste pour voir et répondre.
+                    {t("com.msg.selectSub")}
                   </p>
                 </div>
               </CardBody>
@@ -292,7 +291,7 @@ function ActiveConversation({
           <button
             type="button"
             onClick={onBack}
-            aria-label="Retour à la liste"
+            aria-label={t("com.msg.backToList")}
             className="lg:hidden h-8 w-8 rounded-full border border-border bg-surface hover:bg-cream-100 flex items-center justify-center text-ink shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -316,7 +315,7 @@ function ActiveConversation({
           <div className="font-medium text-ink truncate">
             {partner?.firstName} {partner?.lastName}
             <span className="text-xs font-normal text-ink-muted ml-2">
-              · Propriétaire
+              · {t("com.msg.owner")}
             </span>
           </div>
           {conversation.property && (
@@ -343,7 +342,7 @@ function ActiveConversation({
       >
         {(conversation.messages ?? []).length === 0 ? (
           <div className="text-center text-sm text-ink-muted py-8">
-            Aucun message encore. Écrivez le premier !
+            {t("com.msg.emptyThread")}
           </div>
         ) : (
           (conversation.messages ?? []).map((m) => {
@@ -372,7 +371,7 @@ function ActiveConversation({
       </div>
 
       <div className="p-3 border-t border-border bg-surface">
-        <MessageComposer onSend={onSend} placeholder="Votre message…" />
+        <MessageComposer onSend={onSend} placeholder={t("com.msg.placeholder")} />
       </div>
     </>
   );

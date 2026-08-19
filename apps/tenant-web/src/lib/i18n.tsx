@@ -10,6 +10,11 @@ import * as p4 from "./i18n-parts/account";
 // fr = textes d'origine ; en = traduction. Couvre la coque de l'app
 // (navigation, auth, accueil) — les écrans de gestion restent en français.
 const fr: Record<string, string> = {
+  "common.loading": "Chargement…",
+
+  "meta.title": "hwe — Trouvez votre logement",
+  "meta.description": "Achetez ou louez un bien immobilier près de chez vous.",
+
   "nav.listings": "Annonces",
   "nav.myRental": "Ma location",
   "nav.myRents": "Mes loyers",
@@ -75,6 +80,11 @@ const fr: Record<string, string> = {
 };
 
 const en: Record<string, string> = {
+  "common.loading": "Loading…",
+
+  "meta.title": "hwe — Find your home",
+  "meta.description": "Buy or rent a property near you.",
+
   "nav.listings": "Listings",
   "nav.myRental": "My rental",
   "nav.myRents": "My rent",

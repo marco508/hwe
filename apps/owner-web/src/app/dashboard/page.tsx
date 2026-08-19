@@ -35,7 +35,7 @@ export default function DashboardPage() {
   }, [user, loading, router]);
 
   const onDelete = async (id: string) => {
-    if (!confirm("Supprimer ce bien ?")) return;
+    if (!confirm(t("acc.confirmDeleteProperty"))) return;
     await api.deleteProperty(id);
     setItems((s) => s.filter((p) => p.id !== id));
   };
@@ -125,11 +125,11 @@ export default function DashboardPage() {
 
       {items.length === 0 ? (
         <EmptyState
-          title="Vous n'avez encore aucun bien"
-          description="Publiez votre première annonce en quelques minutes. Photos, surface, prix : tout se fait en un seul écran."
+          title={t("acc.dash.emptyTitle")}
+          description={t("acc.dash.emptySub")}
           action={
             <Link href="/dashboard/new">
-              <Button variant="gradient">Ajouter un bien</Button>
+              <Button variant="gradient">{t("acc.dash.addProperty")}</Button>
             </Link>
           }
         />
@@ -155,14 +155,14 @@ export default function DashboardPage() {
                 <div className="flex gap-2 flex-wrap">
                   <Link href={`/dashboard/${p.id}/edit`} className="flex-1">
                     <Button variant="secondary" size="sm" className="w-full">
-                      Modifier
+                      {t("acc.edit")}
                     </Button>
                   </Link>
                   <Link href={`/dashboard/${p.id}/documents`}>
                     <Button
                       variant="ghost"
                       size="sm"
-                      title="Documents légaux"
+                      title={t("acc.docs.title")}
                     >
                       🗂️
                     </Button>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        title="Contrats de location"
+                        title={t("acc.dash.leases")}
                       >
                         📋
                       </Button>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
                     size="sm"
                     onClick={() => onDelete(p.id)}
                   >
-                    Supprimer
+                    {t("acc.delete")}
                   </Button>
                 </div>
               }

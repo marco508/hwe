@@ -11,6 +11,7 @@ import {
 } from "@hwe/ui";
 import { api } from "../../../lib/api";
 import { useCurrency } from "../../../lib/currency-context";
+import { t } from "../../../lib/i18n";
 import type { Property } from "@hwe/types";
 
 const formatPrice = (n: number, currency = "EUR") =>
@@ -21,17 +22,17 @@ const formatPrice = (n: number, currency = "EUR") =>
   }).format(n);
 
 const FEATURE_ICONS: Record<string, string> = {
-  Surface: "📐",
-  Pièces: "🚪",
-  Chambres: "🛏️",
-  "Salles de bain": "🛁",
-  Étage: "🏢",
-  Année: "📅",
-  Meublé: "🛋️",
-  Parking: "🅿️",
-  Balcon: "🪟",
-  Jardin: "🌿",
-  Ascenseur: "🛗",
+  surface: "📐",
+  rooms: "🚪",
+  bedrooms: "🛏️",
+  bathrooms: "🛁",
+  floor: "🏢",
+  year: "📅",
+  furnished: "🛋️",
+  parking: "🅿️",
+  balcony: "🪟",
+  garden: "🌿",
+  elevator: "🛗",
 };
 
 export default function PropertyDetailPage() {
@@ -59,21 +60,23 @@ export default function PropertyDetailPage() {
     );
   }
 
-  const features: { label: string; value: React.ReactNode }[] = [
-    { label: "Surface", value: `${p.surface} m²` },
-    { label: "Pièces", value: p.rooms },
-    { label: "Chambres", value: p.bedrooms },
-    { label: "Salles de bain", value: p.bathrooms },
+  const yesNo = (v: boolean) => (v ? t("acc.yes") : t("acc.no"));
+  const features: { key: string; label: string; value: React.ReactNode }[] = [
+    { key: "surface", label: t("acc.feat.surface"), value: `${p.surface} m²` },
+    { key: "rooms", label: t("acc.feat.rooms"), value: p.rooms },
+    { key: "bedrooms", label: t("acc.feat.bedrooms"), value: p.bedrooms },
+    { key: "bathrooms", label: t("acc.feat.bathrooms"), value: p.bathrooms },
   ];
   if (p.floor !== null && p.floor !== undefined)
-    features.push({ label: "Étage", value: p.floor });
-  if (p.yearBuilt) features.push({ label: "Année", value: p.yearBuilt });
+    features.push({ key: "floor", label: t("acc.feat.floor"), value: p.floor });
+  if (p.yearBuilt)
+    features.push({ key: "year", label: t("acc.feat.year"), value: p.yearBuilt });
   features.push(
-    { label: "Meublé", value: p.furnished ? "Oui" : "Non" },
-    { label: "Parking", value: p.hasParking ? "Oui" : "Non" },
-    { label: "Balcon", value: p.hasBalcony ? "Oui" : "Non" },
-    { label: "Jardin", value: p.hasGarden ? "Oui" : "Non" },
-    { label: "Ascenseur", value: p.hasElevator ? "Oui" : "Non" },
+    { key: "furnished", label: t("acc.feat.furnished"), value: yesNo(p.furnished) },
+    { key: "parking", label: t("acc.feat.parking"), value: yesNo(p.hasParking) },
+    { key: "balcony", label: t("acc.feat.balcony"), value: yesNo(p.hasBalcony) },
+    { key: "garden", label: t("acc.feat.garden"), value: yesNo(p.hasGarden) },
+    { key: "elevator", label: t("acc.feat.elevator"), value: yesNo(p.hasElevator) },
   );
 
   const galleryImages = (p.media ?? []).map((m) => ({
@@ -87,7 +90,7 @@ export default function PropertyDetailPage() {
         <header className="animate-fade-in-up">
           <div className="flex flex-wrap gap-2 mb-3">
             <Badge tone={p.listingType === "SALE" ? "accent" : "brand"} glow>
-              {p.listingType === "SALE" ? "À vendre" : "À louer"}
+              {p.listingType === "SALE" ? t("acc.prop.forSale") : t("acc.prop.forRent")}
             </Badge>
             <Badge tone="ocean">{p.propertyType}</Badge>
           </div>
@@ -113,7 +116,7 @@ export default function PropertyDetailPage() {
             showCounter
             autoPlayMs={6000}
             fallback={
-              <div className="font-display text-3xl">Aucune photo</div>
+              <div className="font-display text-3xl">{t("acc.prop.noPhoto")}</div>
             }
           />
         </div>
@@ -122,7 +125,7 @@ export default function PropertyDetailPage() {
         <Card className="hover-lift">
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">📝</span> Description
+              <span aria-hidden="true">📝</span> {t("acc.prop.description")}
             </h2>
           </CardHeader>
           <CardBody>
@@ -136,18 +139,18 @@ export default function PropertyDetailPage() {
         <Card className="hover-lift">
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">✨</span> Caractéristiques
+              <span aria-hidden="true">✨</span> {t("acc.prop.features")}
             </h2>
           </CardHeader>
           <CardBody className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm stagger">
             {features.map((f) => (
               <div
-                key={f.label}
+                key={f.key}
                 className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 hover:border-brand-300 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <span aria-hidden="true" className="text-base">
-                    {FEATURE_ICONS[f.label] ?? "•"}
+                    {FEATURE_ICONS[f.key] ?? "•"}
                   </span>
                   <div>
                     <div className="text-[11px] text-ink-muted">
@@ -167,13 +170,13 @@ export default function PropertyDetailPage() {
         <Card className="glass-strong border-brand-200 dark:border-brand-800/50">
           <CardBody>
             <div className="text-[11px] uppercase tracking-wider text-ink-muted mb-1">
-              {p.listingType === "SALE" ? "Prix de vente" : "Loyer mensuel"}
+              {p.listingType === "SALE" ? t("acc.prop.salePrice") : t("acc.prop.monthlyRent")}
             </div>
             <div className="text-3xl font-display gradient-text leading-none">
               {formatPrice(p.price, p.currency)}
               {p.listingType === "RENT" && (
                 <span className="text-sm font-normal text-ink-muted ml-1">
-                  /mois
+                  {t("acc.prop.perMonth")}
                 </span>
               )}
             </div>
@@ -181,7 +184,7 @@ export default function PropertyDetailPage() {
               <span>📐 {p.surface} m²</span>
               <span>•</span>
               <span>
-                {p.rooms} {p.rooms > 1 ? "pièces" : "pièce"}
+                {p.rooms} {p.rooms > 1 ? t("acc.prop.roomMany") : t("acc.prop.roomOne")}
               </span>
             </div>
           </CardBody>
@@ -190,7 +193,7 @@ export default function PropertyDetailPage() {
         {p.owner && (
           <Card className="hover-lift">
             <CardHeader>
-              <h2 className="font-display text-lg">Propriétaire</h2>
+              <h2 className="font-display text-lg">{t("acc.prop.owner")}</h2>
             </CardHeader>
             <CardBody className="text-sm space-y-2">
               <div className="flex items-center gap-3">
@@ -220,10 +223,9 @@ export default function PropertyDetailPage() {
 
         <div className="rounded-2xl glass p-5 text-sm text-ink-muted">
           <div className="font-display text-base text-ink mb-1">
-            Astuce
+            {t("acc.prop.tipTitle")}
           </div>
-          Comparez ce bien avec d'autres annonces en sauvegardant vos favoris
-          depuis l'espace locataire.
+          {t("acc.prop.tipBody")}
         </div>
       </aside>
     </article>

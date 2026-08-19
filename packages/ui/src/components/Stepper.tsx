@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface StepperItem {
   /** Stable id (unique). */
@@ -160,7 +161,7 @@ export const Stepper: React.FC<StepperProps> = ({
                       active ? "text-ink-muted" : "text-ink-subtle",
                     )}
                   >
-                    Étape {i + 1}
+                    {tUi("ui.step", { n: i + 1 })}
                   </div>
                   <div
                     className={cn(

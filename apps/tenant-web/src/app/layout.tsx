@@ -1,9 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { AppNavbar } from "../components/AppNavbar";
+import { FooterText } from "../components/FooterText";
 import { AuthProvider } from "../lib/auth-context";
 import { CurrencyProvider } from "../lib/currency-context";
 import { LangProvider } from "../lib/i18n";
+import { LocalizedTitle } from "../components/LocalizedTitle";
 
 export const metadata: Metadata = {
   title: "hwe — Trouvez votre logement",
@@ -24,11 +26,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <LangProvider>
+          <LocalizedTitle />
           <CurrencyProvider>
           <AppNavbar />
           <main className="container-app py-10">{children}</main>
           <footer className="container-app py-10 text-xs text-ink-muted">
-            © {new Date().getFullYear()} hwe — Espace locataire / acheteur
+            <FooterText />
           </footer>
           </CurrencyProvider>
           </LangProvider>

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface CategoryRailItem {
   id: string;
@@ -61,7 +62,7 @@ export const CategoryRail: React.FC<CategoryRailProps> = ({
       {/* Left arrow */}
       <button
         type="button"
-        aria-label="Faire défiler à gauche"
+        aria-label={tUi("ui.scrollLeft")}
         onClick={() => scrollBy(-1)}
         className={cn(
           "absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center h-9 w-9 rounded-full bg-surface border border-border shadow-card transition-opacity",
@@ -76,7 +77,7 @@ export const CategoryRail: React.FC<CategoryRailProps> = ({
       {/* Right arrow */}
       <button
         type="button"
-        aria-label="Faire défiler à droite"
+        aria-label={tUi("ui.scrollRight")}
         onClick={() => scrollBy(1)}
         className={cn(
           "absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center h-9 w-9 rounded-full bg-surface border border-border shadow-card transition-opacity",

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { t } from "../lib/i18n";
 
 interface AvatarUploaderProps {
   value: string | null | undefined;
@@ -43,7 +44,7 @@ export function AvatarUploader({ value, onChange, firstName, lastName }: AvatarU
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        title="Cliquer pour changer la photo"
+        title={t("acc.avatar.clickTitle")}
       >
         {value ? (
           <img
@@ -59,7 +60,7 @@ export function AvatarUploader({ value, onChange, firstName, lastName }: AvatarU
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full">
           <span className="text-white text-xs font-medium text-center px-1">
-            📷 Modifier
+            {t("acc.avatar.editOverlay")}
           </span>
         </div>
       </div>
@@ -81,7 +82,7 @@ export function AvatarUploader({ value, onChange, firstName, lastName }: AvatarU
         onClick={() => inputRef.current?.click()}
         className="text-xs text-brand-600 hover:text-brand-800 font-medium underline"
       >
-        Changer la photo
+        {t("acc.avatar.change")}
       </button>
     </div>
   );

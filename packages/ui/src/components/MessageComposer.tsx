@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface MessageComposerProps {
   onSend: (content: string) => void | Promise<void>;
@@ -14,7 +15,7 @@ export interface MessageComposerProps {
 export const MessageComposer: React.FC<MessageComposerProps> = ({
   onSend,
   disabled = false,
-  placeholder = "Écrivez votre message…",
+  placeholder = tUi("ui.writeMessage"),
   className,
 }) => {
   const [value, setValue] = React.useState("");
@@ -71,7 +72,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
       <button
         type="submit"
         disabled={!value.trim() || sending}
-        aria-label="Envoyer"
+        aria-label={tUi("ui.send")}
         className={cn(
           "h-10 w-10 rounded-full flex items-center justify-center transition-all shrink-0",
           value.trim() && !sending

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Button, Card, CardBody, CardHeader, Input, Label } from "@hwe/ui";
 import { api } from "../lib/api";
+import { t } from "../lib/i18n";
 import type { OwnerPaymentMethod } from "../lib/api";
 
 /**
@@ -66,7 +67,7 @@ export function PaymentMethodsManager() {
   };
 
   const remove = async (m: OwnerPaymentMethod) => {
-    if (!confirm(`Supprimer « ${m.label} » ? Les locataires ne le verront plus.`)) return;
+    if (!confirm(t("rent.pm.deleteConfirm", { label: m.label }))) return;
     await api.removePaymentMethod(m.id);
     setMethods((prev) => prev.filter((x) => x.id !== m.id));
   };
@@ -74,20 +75,18 @@ export function PaymentMethodsManager() {
   return (
     <Card>
       <CardHeader>
-        <div className="font-medium">💸 Coordonnées de paiement des loyers</div>
+        <div className="font-medium">{t("rent.pm.title")}</div>
         <div className="text-sm text-ink-muted">
-          Vos locataires voient ces coordonnées dans leur espace, paient directement, puis
-          déclarent leur versement — que vous validez dans{" "}
+          {t("rent.pm.desc1")}{" "}
           <a href="/dashboard/loyers" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
-            Loyers
+            {t("rent.pm.descLink")}
           </a>.
         </div>
       </CardHeader>
       <CardBody className="space-y-4">
         {methods.length === 0 && !adding && (
           <div className="rounded-xl border border-dashed border-border bg-cream-50 dark:bg-white/[0.03] px-4 py-4 text-sm text-ink-muted">
-            Aucune coordonnée renseignée. Ajoutez un IBAN, un numéro mobile money… pour que vos
-            locataires sachent comment payer leur loyer.
+            {t("rent.pm.empty")}
           </div>
         )}
 
@@ -106,20 +105,20 @@ export function PaymentMethodsManager() {
                   <p className="text-sm font-semibold text-ink">{m.label}</p>
                   {!m.active && (
                     <span className="text-[11px] rounded-full bg-cream-200 dark:bg-white/10 px-2 py-0.5 text-ink-muted">
-                      masqué
+                      {t("rent.pm.hidden")}
                     </span>
                   )}
                 </div>
                 <p className="text-sm font-mono text-ink-muted break-all mt-0.5">{m.value}</p>
-                {m.holder && <p className="text-xs text-ink-muted mt-1">Titulaire : {m.holder}</p>}
+                {m.holder && <p className="text-xs text-ink-muted mt-1">{t("rent.pm.holder", { name: m.holder })}</p>}
                 {m.instructions && <p className="text-xs text-ink-muted">{m.instructions}</p>}
               </div>
               <div className="flex gap-1 shrink-0">
                 <Button size="sm" variant="ghost" type="button" onClick={() => toggle(m)}>
-                  {m.active ? "Masquer" : "Réactiver"}
+                  {m.active ? t("rent.pm.hide") : t("rent.pm.reactivate")}
                 </Button>
                 <Button size="sm" variant="ghost" type="button" onClick={() => remove(m)} className="text-danger dark:text-red-300">
-                  Supprimer
+                  {t("rent.pm.delete")}
                 </Button>
               </div>
             </li>
@@ -130,21 +129,21 @@ export function PaymentMethodsManager() {
           <form onSubmit={add} className="space-y-3 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50/60 dark:bg-brand-900/20 p-4">
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Libellé *</Label>
+                <Label>{t("rent.pm.labelField")}</Label>
                 <Input
                   value={form.label}
                   onChange={(e) => setForm({ ...form, label: e.target.value })}
-                  placeholder="Virement SEPA, Orange Money…"
+                  placeholder={t("rent.pm.labelPlaceholder")}
                   required
                   minLength={2}
                 />
               </div>
               <div className="space-y-1">
-                <Label>Coordonnée *</Label>
+                <Label>{t("rent.pm.valueField")}</Label>
                 <Input
                   value={form.value}
                   onChange={(e) => setForm({ ...form, value: e.target.value })}
-                  placeholder="IBAN, numéro…"
+                  placeholder={t("rent.pm.valuePlaceholder")}
                   required
                   minLength={2}
                   className="font-mono"
@@ -153,34 +152,34 @@ export function PaymentMethodsManager() {
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Titulaire <span className="font-normal text-ink-subtle">(optionnel)</span></Label>
+                <Label>{t("rent.pm.holderField")} <span className="font-normal text-ink-subtle">{t("rent.pm.optional")}</span></Label>
                 <Input
                   value={form.holder}
                   onChange={(e) => setForm({ ...form, holder: e.target.value })}
                 />
               </div>
               <div className="space-y-1">
-                <Label>Consignes <span className="font-normal text-ink-subtle">(optionnel)</span></Label>
+                <Label>{t("rent.pm.instructionsField")} <span className="font-normal text-ink-subtle">{t("rent.pm.optional")}</span></Label>
                 <Input
                   value={form.instructions}
                   onChange={(e) => setForm({ ...form, instructions: e.target.value })}
-                  placeholder="Ex. : indiquez votre nom et le mois en référence"
+                  placeholder={t("rent.pm.instructionsPlaceholder")}
                 />
               </div>
             </div>
             {error && <p className="text-sm text-danger">{error}</p>}
             <div className="flex gap-2">
               <Button type="submit" disabled={busy}>
-                {busy ? "Ajout…" : "Ajouter"}
+                {busy ? t("rent.pm.adding") : t("rent.pm.add")}
               </Button>
               <Button type="button" variant="ghost" onClick={() => setAdding(false)}>
-                Annuler
+                {t("rent.cancel")}
               </Button>
             </div>
           </form>
         ) : (
           <Button type="button" variant="secondary" onClick={() => setAdding(true)}>
-            + Ajouter une coordonnée
+            {t("rent.pm.addBtn")}
           </Button>
         )}
       </CardBody>

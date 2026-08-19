@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface DestinationCardProps {
   name: string;
@@ -90,7 +91,9 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
       {/* Top-right count badge */}
       {count !== undefined && (
         <div className="absolute top-4 right-4 glass-strong rounded-full px-3 py-1 text-[11px] font-medium text-ink">
-          {count} {count > 1 ? "biens" : "bien"}
+          {count > 1
+            ? tUi("ui.countProperties", { n: count })
+            : tUi("ui.countProperty", { n: count })}
         </div>
       )}
 
@@ -105,7 +108,7 @@ export const DestinationCard: React.FC<DestinationCardProps> = ({
           {name}
         </h3>
         <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/90">
-          <span>Découvrir</span>
+          <span>{tUi("ui.discover")}</span>
           <svg
             width="14"
             height="14"

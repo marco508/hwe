@@ -8,6 +8,7 @@ import { api } from "../../lib/api";
 import { AvatarUploader } from "../../components/AvatarUploader";
 import { IdentityDocuments } from "../../components/IdentityDocuments";
 import { PaymentMethodsManager } from "../../components/PaymentMethodsManager";
+import { t } from "../../lib/i18n";
 import type { UserDocument, IdentityDocumentType } from "@hwe/types";
 
 export default function ProfilePage() {
@@ -61,12 +62,12 @@ export default function ProfilePage() {
 
   return (
     <section className="max-w-xl space-y-6">
-      <h1 className="font-display text-3xl">Mon profil</h1>
+      <h1 className="font-display text-3xl">{t("acc.profile.title")}</h1>
 
       {/* Profile card */}
       <Card>
         <CardHeader>
-          <div className="text-sm text-ink-muted">Connecté en tant que propriétaire</div>
+          <div className="text-sm text-ink-muted">{t("acc.profile.loggedInAs")}</div>
           <div className="font-medium">{user.email}</div>
         </CardHeader>
         <CardBody>
@@ -83,14 +84,14 @@ export default function ProfilePage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Prénom</Label>
+                <Label>{t("acc.profile.firstName")}</Label>
                 <Input
                   value={form.firstName}
                   onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                 />
               </div>
               <div className="space-y-1">
-                <Label>Nom</Label>
+                <Label>{t("acc.profile.lastName")}</Label>
                 <Input
                   value={form.lastName}
                   onChange={(e) => setForm({ ...form, lastName: e.target.value })}
@@ -98,7 +99,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="space-y-1">
-              <Label>Téléphone</Label>
+              <Label>{t("acc.profile.phone")}</Label>
               <Input
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -106,9 +107,9 @@ export default function ProfilePage() {
             </div>
             <div className="flex items-center gap-3">
               <Button type="submit" disabled={saving}>
-                {saving ? "Enregistrement…" : "Enregistrer"}
+                {saving ? t("acc.saving") : t("acc.save")}
               </Button>
-              {saved && <span className="text-sm text-success">Profil mis à jour ✓</span>}
+              {saved && <span className="text-sm text-success">{t("acc.profile.updated")}</span>}
             </div>
           </form>
         </CardBody>

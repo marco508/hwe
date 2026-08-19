@@ -18,9 +18,11 @@ import {
   useCurrency,
   IlloSkyline,
   IlloSearchHome,
+  countryLabel,
   type CategoryRailItem,
 } from "@hwe/ui";
 import { t, LangProvider, useLang, LangSwitch } from "../lib/i18n";
+import { LocalizedTitle } from "../components/LocalizedTitle";
 import { publicApi } from "../lib/api";
 import type { Property, ListingType, PropertyType } from "@hwe/types";
 
@@ -65,6 +67,7 @@ function buildSteps() {
 export default function LandingPage() {
   return (
     <LangProvider>
+      <LocalizedTitle />
       <CurrencyProvider>
         <LocationProvider>
           <LandingInner />
@@ -80,6 +83,7 @@ function LandingInner() {
     useLocation();
   const { lang } = useLang();
   const { format: fmtPrice } = useCurrency();
+  const countryName = countryLabel(country.code, country.name);
 
   // « à Cotonou » / « au Bénin » en français, « in Cotonou » en anglais.
   const place = city
@@ -88,7 +92,7 @@ function LandingInner() {
       : `in ${city}`
     : lang === "fr"
       ? prepEnPays(country.name)
-      : `in ${country.name}`;
+      : `in ${countryName}`;
   const plural = (n: number) => (lang === "fr" ? (n !== 1 ? "s" : "") : n !== 1 ? "ies" : "y");
   const CATEGORIES = buildCategories();
   const STEPS = buildSteps();
@@ -271,7 +275,7 @@ function LandingInner() {
               <span>
                 {t("loc.exploring")}{" "}
                 <strong className="text-ink font-medium">
-                  {city ? `${city}, ${country.name}` : country.name}
+                  {city ? `${city}, ${countryName}` : countryName}
                 </strong>
                 {isAutoDetected && (
                   <span className="text-ink-subtle"> {t("loc.auto")}</span>
@@ -284,7 +288,7 @@ function LandingInner() {
                 onClick={() => setCity(null)}
                 className="text-ink-muted hover:text-ink transition-colors underline underline-offset-2"
               >
-                {t("loc.seeAll", { country: country.name })}
+                {t("loc.seeAll", { country: countryName })}
               </button>
             )}
           </div>
@@ -327,7 +331,7 @@ function LandingInner() {
 
           <div className="mt-10">
             <SearchComposer
-              value={{ location: city ?? country.name }}
+              value={{ location: city ?? countryName }}
               onSubmit={(v) => {
                 if (v.listing === "RENT" || v.listing === "SALE")
                   setListingFilter(v.listing);
@@ -378,7 +382,7 @@ function LandingInner() {
           <div className="container-app">
             <RevealOnScroll>
               <SectionHeading
-                eyebrow={`${t("dest.eyebrow")} · ${country.flag} ${country.name}`}
+                eyebrow={`${t("dest.eyebrow")} · ${country.flag} ${countryName}`}
                 title={
                   <>
                     {t("dest.title1")} <em className="italic">{t("dest.title2")}</em>.
@@ -455,7 +459,7 @@ function LandingInner() {
         <div className="container-app">
           <RevealOnScroll>
             <SectionHeading
-              eyebrow={`${t("cat.eyebrow")} · ${country.flag} ${country.name}${city ? ` · ${city}` : ""}`}
+              eyebrow={`${t("cat.eyebrow")} · ${country.flag} ${countryName}${city ? ` · ${city}` : ""}`}
               title={
                 <>
                   {t("cat.title1")} <em className="italic">{t("cat.title2")}</em>.
@@ -510,7 +514,7 @@ function LandingInner() {
               </div>
             ) : visible.length === 0 ? (
               <EmptyCountry
-                country={country.name}
+                country={countryName}
                 flag={country.flag}
                 hasCity={Boolean(city)}
                 onClearCity={() => setCity(null)}

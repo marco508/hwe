@@ -10,6 +10,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  countryLabel,
 } from "@hwe/ui";
 import type {
   Property,
@@ -18,11 +19,8 @@ import type {
   EnergyClass,
   RentalKind,
 } from "@hwe/types";
-import {
-  LEASE_DURATION_UNIT_LABELS,
-  RENTAL_KIND_LABELS,
-  ENERGY_CLASS_COLORS,
-} from "@hwe/types";
+import { ENERGY_CLASS_COLORS } from "@hwe/types";
+import { t } from "../lib/i18n";
 import { ImageUploader } from "./ImageUploader";
 
 export type PropertyFormValue = Omit<
@@ -297,6 +295,7 @@ function CountrySelect({
     ? COUNTRIES.filter(
         (c) =>
           c.name.toLowerCase().includes(query.toLowerCase()) ||
+          countryLabel(c.code, c.name).toLowerCase().includes(query.toLowerCase()) ||
           c.code.toLowerCase().includes(query.toLowerCase()),
       )
     : COUNTRIES;
@@ -320,7 +319,7 @@ function CountrySelect({
         }}
         className="flex h-10 w-full items-center justify-between rounded-lg border border-border bg-surface px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand-500"
       >
-        <span>{selected ? selected.name : "Sélectionner un pays…"}</span>
+        <span>{selected ? countryLabel(selected.code, selected.name) : t("pf.country.select")}</span>
         <span className="text-ink-muted ml-2">▾</span>
       </button>
       {open && (
@@ -329,7 +328,7 @@ function CountrySelect({
             <input
               autoFocus
               type="text"
-              placeholder="Rechercher un pays…"
+              placeholder={t("pf.country.search")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full rounded-lg border border-border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -337,7 +336,7 @@ function CountrySelect({
           </div>
           <ul className="max-h-56 overflow-y-auto py-1">
             {filtered.length === 0 ? (
-              <li className="px-3 py-2 text-sm text-ink-muted">Aucun résultat</li>
+              <li className="px-3 py-2 text-sm text-ink-muted">{t("pf.country.noResult")}</li>
             ) : (
               filtered.map((c) => (
                 <li
@@ -353,7 +352,7 @@ function CountrySelect({
                       : "text-ink"
                   }`}
                 >
-                  {c.name}
+                  {countryLabel(c.code, c.name)}
                   <span className="ml-1 text-xs text-ink-muted">{c.currency}</span>
                 </li>
               ))
@@ -396,10 +395,9 @@ export function PropertyForm({
       {/* ── Choix Vente / Location en gros ─────────────────────────────── */}
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Type d'annonce</h2>
+          <h2 className="font-display text-lg">{t("pf.listingType.title")}</h2>
           <p className="text-sm text-ink-muted mt-1">
-            Choisissez d'abord : les champs et conseils s'adaptent au type
-            d'annonce.
+            {t("pf.listingType.sub")}
           </p>
         </CardHeader>
         <CardBody>
@@ -420,9 +418,9 @@ export function PropertyForm({
                   pricingRates: [],
                 }))
               }
-              title="Vente"
+              title={t("pf.sale")}
               icon="🏷️"
-              desc="DPE, copropriété, taxe foncière, frais de notaire"
+              desc={t("pf.sale.desc")}
               tone="accent"
             />
             <ListingTypeChoice
@@ -439,9 +437,9 @@ export function PropertyForm({
                   isNew: false,
                 }))
               }
-              title="Location"
+              title={t("pf.rent")}
               icon="🔑"
-              desc="Bail, charges, dépôt, préavis, type de location"
+              desc={t("pf.rent.desc")}
               tone="brand"
             />
           </div>
@@ -451,49 +449,47 @@ export function PropertyForm({
       {/* ── Description ──────────────────────────────────────────────── */}
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Description</h2>
+          <h2 className="font-display text-lg">{t("pf.desc.title")}</h2>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="space-y-1">
-            <Label htmlFor="title">Titre de l'annonce</Label>
+            <Label htmlFor="title">{t("pf.title")}</Label>
             <Input
               id="title"
               value={v.title}
               onChange={(e) => set("title", e.target.value)}
               placeholder={
-                isSale
-                  ? "ex : Bel appartement haussmannien avec balcon"
-                  : "ex : Studio meublé au cœur du centre-ville"
+                isSale ? t("pf.title.phSale") : t("pf.title.phRent")
               }
               required
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("pf.description")}</Label>
             <Textarea
               id="description"
               value={v.description}
               onChange={(e) => set("description", e.target.value)}
               placeholder={
                 isSale
-                  ? "Décrivez les atouts du bien, son histoire, le quartier, les travaux récents…"
-                  : "Décrivez l'ambiance, la décoration, les services à proximité, les conditions du bail…"
+                  ? t("pf.description.phSale")
+                  : t("pf.description.phRent")
               }
               required
             />
           </div>
           <div className="space-y-1">
-            <Label>Type de bien</Label>
+            <Label>{t("pf.propertyType")}</Label>
             <Select
               value={v.propertyType}
               onChange={(e) => set("propertyType", e.target.value as any)}
             >
-              <option value="APARTMENT">Appartement</option>
-              <option value="HOUSE">Maison</option>
-              <option value="STUDIO">Studio</option>
-              <option value="LAND">Terrain</option>
-              <option value="COMMERCIAL">Local commercial</option>
-              <option value="OTHER">Autre</option>
+              <option value="APARTMENT">{t("pf.type.APARTMENT")}</option>
+              <option value="HOUSE">{t("pf.type.HOUSE")}</option>
+              <option value="STUDIO">{t("pf.type.STUDIO")}</option>
+              <option value="LAND">{t("pf.type.LAND")}</option>
+              <option value="COMMERCIAL">{t("pf.type.COMMERCIAL")}</option>
+              <option value="OTHER">{t("pf.type.OTHER")}</option>
             </Select>
           </div>
         </CardBody>
@@ -502,11 +498,11 @@ export function PropertyForm({
       {/* ── Caractéristiques ──────────────────────────────────────────── */}
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Caractéristiques</h2>
+          <h2 className="font-display text-lg">{t("pf.features")}</h2>
         </CardHeader>
         <CardBody className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div className="space-y-1">
-            <Label>Surface (m²)</Label>
+            <Label>{t("pf.surface")}</Label>
             <Input
               type="number"
               min={0}
@@ -516,7 +512,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Nombre de pièces</Label>
+            <Label>{t("pf.rooms")}</Label>
             <Input
               type="number"
               min={0}
@@ -526,7 +522,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Chambres</Label>
+            <Label>{t("pf.bedrooms")}</Label>
             <Input
               type="number"
               min={0}
@@ -535,7 +531,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Salles de bain</Label>
+            <Label>{t("pf.bathrooms")}</Label>
             <Input
               type="number"
               min={0}
@@ -544,7 +540,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Étage</Label>
+            <Label>{t("pf.floor")}</Label>
             <Input
               type="number"
               value={v.floor ?? ""}
@@ -554,7 +550,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Année de construction</Label>
+            <Label>{t("pf.yearBuilt")}</Label>
             <Input
               type="number"
               value={v.yearBuilt ?? ""}
@@ -569,11 +565,11 @@ export function PropertyForm({
           <div className="col-span-2 md:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
             {(
               [
-                ["furnished", "Meublé"],
-                ["hasParking", "Parking"],
-                ["hasBalcony", "Balcon"],
-                ["hasGarden", "Jardin"],
-                ["hasElevator", "Ascenseur"],
+                ["furnished", t("pf.furnished")],
+                ["hasParking", t("pf.parking")],
+                ["hasBalcony", t("pf.balcony")],
+                ["hasGarden", t("pf.garden")],
+                ["hasElevator", t("pf.elevator")],
               ] as const
             ).map(([key, label]) => (
               <label key={key} className="flex items-center gap-2 text-sm">
@@ -592,11 +588,11 @@ export function PropertyForm({
       {/* ── Localisation ──────────────────────────────────────────────── */}
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Localisation</h2>
+          <h2 className="font-display text-lg">{t("pf.location")}</h2>
         </CardHeader>
         <CardBody className="grid grid-cols-2 gap-3">
           <div className="space-y-1 col-span-2">
-            <Label>Adresse</Label>
+            <Label>{t("pf.address")}</Label>
             <Input
               value={v.addressLine}
               onChange={(e) => set("addressLine", e.target.value)}
@@ -604,7 +600,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Code postal</Label>
+            <Label>{t("pf.postalCode")}</Label>
             <Input
               value={v.postalCode}
               onChange={(e) => set("postalCode", e.target.value)}
@@ -612,7 +608,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Ville</Label>
+            <Label>{t("pf.city")}</Label>
             <Input
               value={v.city}
               onChange={(e) => set("city", e.target.value)}
@@ -620,7 +616,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1 col-span-2 md:col-span-1">
-            <Label>Pays</Label>
+            <Label>{t("pf.country")}</Label>
             <CountrySelect
               value={v.country}
               onChange={(code) => {
@@ -630,13 +626,13 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Devise</Label>
+            <Label>{t("pf.currency")}</Label>
             <div className="flex h-10 items-center rounded-lg border border-border bg-surface/60 px-3 text-sm text-ink-muted select-none">
               {v.currency || "—"}
             </div>
           </div>
           <div className="space-y-1">
-            <Label>Latitude</Label>
+            <Label>{t("pf.latitude")}</Label>
             <Input
               type="number"
               step="any"
@@ -650,7 +646,7 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>Longitude</Label>
+            <Label>{t("pf.longitude")}</Label>
             <Input
               type="number"
               step="any"
@@ -670,18 +666,18 @@ export function PropertyForm({
       <Card>
         <CardHeader>
           <h2 className="font-display text-lg">
-            {isSale ? "Prix de vente" : "Loyer mensuel"}
+            {isSale ? t("pf.price.saleTitle") : t("pf.price.rentTitle")}
           </h2>
           <p className="text-sm text-ink-muted mt-1">
-            {isSale
-              ? "Prix de vente affiché sur l'annonce. Hors frais de notaire."
-              : "Loyer mensuel hors charges. Vous pouvez ajouter une grille tarifaire pour la location courte durée."}
+            {isSale ? t("pf.price.saleSub") : t("pf.price.rentSub")}
           </p>
         </CardHeader>
         <CardBody>
           <div className="flex items-end gap-3">
             <div className="space-y-1 flex-1">
-              <Label htmlFor="price">{isSale ? "Prix" : "Loyer / mois"}</Label>
+              <Label htmlFor="price">
+                {isSale ? t("pf.price.sale") : t("pf.price.rent")}
+              </Label>
               <Input
                 id="price"
                 type="number"
@@ -693,7 +689,7 @@ export function PropertyForm({
               />
             </div>
             <div className="space-y-1 w-32">
-              <Label>Devise</Label>
+              <Label>{t("pf.currency")}</Label>
               <div className="flex h-10 items-center justify-center rounded-lg border border-border bg-cream-100/50 px-3 text-sm font-medium text-ink-muted">
                 {v.currency || "—"}
               </div>
@@ -709,18 +705,18 @@ export function PropertyForm({
         <Card>
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">🏷️</span> Informations vente
+              <span aria-hidden="true">🏷️</span> {t("pf.saleInfo.title")}
             </h2>
             <p className="text-sm text-ink-muted mt-1">
-              Diagnostics, charges, fiscalité — tout ce qui rassure un acheteur.
+              {t("pf.saleInfo.sub")}
             </p>
           </CardHeader>
           <CardBody className="space-y-5">
             {/* DPE */}
             <div>
-              <Label>Classe énergétique (DPE)</Label>
+              <Label>{t("pf.dpe")}</Label>
               <p className="text-xs text-ink-muted mb-2">
-                Note A (très économe) à G (très énergivore).
+                {t("pf.dpe.help")}
               </p>
               <div className="flex flex-wrap gap-2">
                 {(
@@ -740,7 +736,7 @@ export function PropertyForm({
                           : "opacity-70 hover:opacity-100 hover:scale-105"
                       }`}
                       style={{ backgroundColor: ENERGY_CLASS_COLORS[c] }}
-                      aria-label={`Classe ${c}`}
+                      aria-label={t("pf.dpe.classAria", { c })}
                     >
                       {c}
                     </button>
@@ -752,7 +748,7 @@ export function PropertyForm({
                     onClick={() => set("energyClass", null)}
                     className="h-10 px-3 rounded-lg text-xs text-ink-muted hover:text-ink"
                   >
-                    Effacer
+                    {t("pf.dpe.clear")}
                   </button>
                 )}
               </div>
@@ -760,7 +756,7 @@ export function PropertyForm({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Charges de copropriété / mois</Label>
+                <Label>{t("pf.coOwnershipFees")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -772,11 +768,11 @@ export function PropertyForm({
                       e.target.value === "" ? null : Number(e.target.value),
                     )
                   }
-                  placeholder="ex : 180"
+                  placeholder={t("pf.ph", { v: 180 })}
                 />
               </div>
               <div className="space-y-1">
-                <Label>Taxe foncière annuelle</Label>
+                <Label>{t("pf.propertyTax")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -788,11 +784,11 @@ export function PropertyForm({
                       e.target.value === "" ? null : Number(e.target.value),
                     )
                   }
-                  placeholder="ex : 1200"
+                  placeholder={t("pf.ph", { v: 1200 })}
                 />
               </div>
               <div className="space-y-1">
-                <Label>Frais de notaire (%)</Label>
+                <Label>{t("pf.notaryFees")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -805,14 +801,14 @@ export function PropertyForm({
                       e.target.value === "" ? null : Number(e.target.value),
                     )
                   }
-                  placeholder="ex : 7.5"
+                  placeholder={t("pf.ph", { v: 7.5 })}
                 />
                 <p className="text-[11px] text-ink-subtle">
-                  ~7-8 % dans l'ancien, ~2-3 % dans le neuf.
+                  {t("pf.notaryFees.help")}
                 </p>
               </div>
               <div className="space-y-1">
-                <Label>Bien neuf / VEFA</Label>
+                <Label>{t("pf.isNew")}</Label>
                 <label className="flex items-center gap-2 h-10 px-3 rounded-lg border border-border cursor-pointer hover:border-ink/30">
                   <input
                     type="checkbox"
@@ -820,7 +816,7 @@ export function PropertyForm({
                     onChange={(e) => set("isNew", e.target.checked)}
                     className="accent-brand-600"
                   />
-                  <span className="text-sm">Construction neuve ou VEFA</span>
+                  <span className="text-sm">{t("pf.isNew.check")}</span>
                 </label>
               </div>
             </div>
@@ -835,17 +831,16 @@ export function PropertyForm({
         <Card>
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">🔑</span> Informations location
+              <span aria-hidden="true">🔑</span> {t("pf.rentInfo.title")}
             </h2>
             <p className="text-sm text-ink-muted mt-1">
-              Type de bail, charges, dépôt — tout ce que le futur locataire doit
-              savoir avant de candidater.
+              {t("pf.rentInfo.sub")}
             </p>
           </CardHeader>
           <CardBody className="space-y-5">
             {/* Type de bail */}
             <div>
-              <Label>Type de location</Label>
+              <Label>{t("pf.rentalKind")}</Label>
               <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(
                   ["BARE", "FURNISHED", "SEASONAL", "STUDENT"] as RentalKind[]
@@ -864,7 +859,7 @@ export function PropertyForm({
                           : "bg-surface border-border text-ink-muted hover:border-ink/30 hover:text-ink"
                       }`}
                     >
-                      {RENTAL_KIND_LABELS[k]}
+                      {t("pf.rentalKind." + k)}
                     </button>
                   );
                 })}
@@ -873,7 +868,7 @@ export function PropertyForm({
 
             {/* Charges */}
             <div>
-              <Label>Charges</Label>
+              <Label>{t("pf.charges")}</Label>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -884,7 +879,7 @@ export function PropertyForm({
                       : "bg-surface border-border text-ink-muted hover:border-ink/30 hover:text-ink"
                   }`}
                 >
-                  ✓ Charges comprises dans le loyer
+                  {t("pf.charges.included")}
                 </button>
                 <button
                   type="button"
@@ -895,12 +890,12 @@ export function PropertyForm({
                       : "bg-surface border-border text-ink-muted hover:border-ink/30 hover:text-ink"
                   }`}
                 >
-                  Charges en supplément
+                  {t("pf.charges.extra")}
                 </button>
               </div>
               {v.chargesIncluded === false && (
                 <div className="mt-3 space-y-1">
-                  <Label>Montant mensuel des charges</Label>
+                  <Label>{t("pf.charges.amount")}</Label>
                   <Input
                     type="number"
                     min={0}
@@ -912,7 +907,7 @@ export function PropertyForm({
                         e.target.value === "" ? null : Number(e.target.value),
                       )
                     }
-                    placeholder="ex : 80"
+                    placeholder={t("pf.ph", { v: 80 })}
                   />
                 </div>
               )}
@@ -920,7 +915,7 @@ export function PropertyForm({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Dépôt de garantie</Label>
+                <Label>{t("pf.deposit")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -934,16 +929,18 @@ export function PropertyForm({
                   }
                   placeholder={
                     v.price
-                      ? `ex : ${Math.round(Number(v.price))} (1 mois)`
-                      : "ex : 1 mois de loyer"
+                      ? t("pf.deposit.phWithPrice", {
+                          amount: Math.round(Number(v.price)),
+                        })
+                      : t("pf.deposit.ph")
                   }
                 />
                 <p className="text-[11px] text-ink-subtle">
-                  Généralement 1 mois (nu) ou 2 mois (meublé).
+                  {t("pf.deposit.help")}
                 </p>
               </div>
               <div className="space-y-1">
-                <Label>Préavis (mois)</Label>
+                <Label>{t("pf.notice")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -955,16 +952,16 @@ export function PropertyForm({
                       e.target.value === "" ? null : Number(e.target.value),
                     )
                   }
-                  placeholder="ex : 1"
+                  placeholder={t("pf.ph", { v: 1 })}
                 />
                 <p className="text-[11px] text-ink-subtle">
-                  Délai entre la résiliation et le départ.
+                  {t("pf.notice.help")}
                 </p>
               </div>
             </div>
 
             <div>
-              <Label>Animaux</Label>
+              <Label>{t("pf.pets")}</Label>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button
                   type="button"
@@ -975,7 +972,7 @@ export function PropertyForm({
                       : "bg-surface border-border text-ink-muted hover:border-ink/30 hover:text-ink"
                   }`}
                 >
-                  🐾 Acceptés
+                  {t("pf.pets.yes")}
                 </button>
                 <button
                   type="button"
@@ -986,7 +983,7 @@ export function PropertyForm({
                       : "bg-surface border-border text-ink-muted hover:border-ink/30 hover:text-ink"
                   }`}
                 >
-                  ✕ Non autorisés
+                  {t("pf.pets.no")}
                 </button>
               </div>
             </div>
@@ -998,20 +995,19 @@ export function PropertyForm({
       {!isSale && (
         <Card>
           <CardHeader>
-            <h2 className="font-display text-lg">Grille tarifaire détaillée</h2>
+            <h2 className="font-display text-lg">{t("pf.rates.title")}</h2>
             <p className="text-sm text-ink-muted mt-1">
-              Optionnel — pour les locations courtes ou saisonnières : tarif au
-              jour, à la semaine, au mois ou à l'année.
+              {t("pf.rates.sub")}
             </p>
           </CardHeader>
           <CardBody className="space-y-2">
             {(["DAYS", "WEEKS", "MONTHS", "YEARS"] as LeaseDurationUnit[]).map(
               (unit) => {
                 const UNIT_SINGULAR: Record<LeaseDurationUnit, string> = {
-                  DAYS: "jour",
-                  WEEKS: "semaine",
-                  MONTHS: "mois",
-                  YEARS: "an",
+                  DAYS: t("pf.unit.DAYS"),
+                  WEEKS: t("pf.unit.WEEKS"),
+                  MONTHS: t("pf.unit.MONTHS"),
+                  YEARS: t("pf.unit.YEARS"),
                 };
                 const row = v.pricingRates.find((r) => r.unit === unit);
                 const checked = !!row;
@@ -1049,7 +1045,7 @@ export function PropertyForm({
                         htmlFor={`rate-${unit}`}
                         className="text-sm font-medium w-20 cursor-pointer"
                       >
-                        Par {UNIT_SINGULAR[unit]}
+                        {t("pf.rates.per", { unit: UNIT_SINGULAR[unit] })}
                       </label>
                       {checked && (
                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -1057,7 +1053,7 @@ export function PropertyForm({
                             type="number"
                             min={0}
                             step="0.01"
-                            placeholder="ex : 100"
+                            placeholder={t("pf.ph", { v: 100 })}
                             value={displayVal}
                             onChange={(e) =>
                               set(
@@ -1087,9 +1083,9 @@ export function PropertyForm({
 
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Photos</h2>
+          <h2 className="font-display text-lg">{t("pf.photos.title")}</h2>
           <p className="text-sm text-ink-muted mt-1">
-            Jusqu'à 10 photos. La première sera la photo principale.
+            {t("pf.photos.sub")}
           </p>
         </CardHeader>
         <CardBody>
@@ -1104,7 +1100,7 @@ export function PropertyForm({
       {/* ── Statut de publication ─────────────────────────────────────── */}
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Publication</h2>
+          <h2 className="font-display text-lg">{t("pf.publish.title")}</h2>
         </CardHeader>
         <CardBody>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1112,14 +1108,14 @@ export function PropertyForm({
               [
                 {
                   val: "DRAFT",
-                  title: "Brouillon",
-                  desc: "Visible seulement par vous.",
+                  title: t("pf.status.draft"),
+                  desc: t("pf.status.draftDesc"),
                   icon: "📝",
                 },
                 {
                   val: "PUBLISHED",
-                  title: "Publié",
-                  desc: "Visible immédiatement sur la landing publique.",
+                  title: t("pf.status.published"),
+                  desc: t("pf.status.publishedDesc"),
                   icon: "🌍",
                 },
               ] as const
@@ -1162,11 +1158,11 @@ export function PropertyForm({
           variant="gradient"
         >
           {submitting
-            ? "Enregistrement…"
+            ? t("pf.submit.saving")
             : submitLabel ??
               (v.status === "PUBLISHED"
-                ? "Publier le bien"
-                : "Enregistrer en brouillon")}
+                ? t("pf.submit.publish")
+                : t("pf.submit.draft"))}
         </Button>
       </div>
     </form>

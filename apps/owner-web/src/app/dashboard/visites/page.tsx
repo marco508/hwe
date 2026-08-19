@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, Input, EmptyState, IlloVisit } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
+import { t } from "../../../lib/i18n";
 import type { Visit, VisitStatus } from "@hwe/types";
-import { VISIT_STATUS_LABELS } from "@hwe/types";
 
 const TONE: Record<VisitStatus, "accent" | "success" | "danger" | "neutral"> = {
   REQUESTED: "accent",
@@ -29,7 +29,7 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
     try {
       onUpdate(await api.answerVisit(visit.id, { status, ownerNote: note || undefined }));
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("ops.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -41,7 +41,7 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
         <div>
           <div className="flex items-center gap-3 mb-1 flex-wrap">
             <span className="font-semibold">{fmtSlot(visit.proposedAt)}</span>
-            <Badge tone={TONE[visit.status]}>{VISIT_STATUS_LABELS[visit.status]}</Badge>
+            <Badge tone={TONE[visit.status]}>{t("ops.visitStatus." + visit.status)}</Badge>
           </div>
           <p className="text-sm text-ink-muted">
             {visit.property?.title} — {visit.property?.addressLine}, {visit.property?.city}
@@ -53,7 +53,7 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
           </p>
           {visit.note && <p className="text-sm text-ink-muted mt-1">« {visit.note} »</p>}
           {visit.ownerNote && (
-            <p className="text-sm text-ink-muted mt-1">Votre réponse : {visit.ownerNote}</p>
+            <p className="text-sm text-ink-muted mt-1">{t("ops.visits.yourReply")} {visit.ownerNote}</p>
           )}
         </div>
       </div>
@@ -62,15 +62,15 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <Input
             className="flex-1 min-w-[12rem]"
-            placeholder="Message (autre créneau, code d'accès…)"
+            placeholder={t("ops.visits.msgPlaceholder")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
           <Button size="sm" disabled={busy} onClick={() => answer("CONFIRMED")}>
-            Confirmer
+            {t("ops.visits.confirm")}
           </Button>
           <Button size="sm" variant="secondary" disabled={busy} onClick={() => answer("DECLINED")}>
-            Refuser
+            {t("ops.visits.decline")}
           </Button>
         </div>
       )}
@@ -93,15 +93,15 @@ export default function VisitesPage() {
     api.ownerVisits().then(setVisits).catch(() => setVisits([]));
   }, [user]);
 
-  if (loading || visits === null) return <p className="text-ink-muted">Chargement…</p>;
+  if (loading || visits === null) return <p className="text-ink-muted">{t("ops.loading")}</p>;
 
   const shown = filter === "ALL" ? visits : visits.filter((v) => v.status === filter);
 
   return (
     <section>
-      <h1 className="font-display text-3xl mb-2">Visites</h1>
+      <h1 className="font-display text-3xl mb-2">{t("ops.visits.title")}</h1>
       <p className="text-ink-muted mb-6">
-        Les créneaux proposés par les candidats — confirmez ou proposez autre chose.
+        {t("ops.visits.sub")}
       </p>
 
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -115,7 +115,7 @@ export default function VisitesPage() {
                 : "border-ink-subtle text-ink-muted hover:border-brand-400"
             }`}
           >
-            {f === "ALL" ? "Toutes" : VISIT_STATUS_LABELS[f]}
+            {f === "ALL" ? t("ops.visits.filterAll") : t("ops.visitStatus." + f)}
             {f !== "ALL" && ` (${visits.filter((v) => v.status === f).length})`}
           </button>
         ))}
@@ -124,7 +124,7 @@ export default function VisitesPage() {
       {shown.length === 0 ? (
         <div className="text-center">
           <IlloVisit className="mx-auto w-48 mb-2" />
-          <EmptyState title="Aucune visite" description="Rien à traiter pour l'instant." />
+          <EmptyState title={t("ops.visits.emptyTitle")} description={t("ops.emptyDesc")} />
         </div>
       ) : (
         <div className="space-y-4">

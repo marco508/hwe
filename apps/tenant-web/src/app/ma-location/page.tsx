@@ -7,9 +7,9 @@ import { Badge, Card, CardBody, CardHeader, EmptyState } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { useCurrency } from "../../lib/currency-context";
 import { api } from "../../lib/api";
+import { t } from "../../lib/i18n";
 import { LeaseTenantExtras } from "../../components/LeaseTenantExtras";
 import type { LeaseContract, LeaseStatus } from "@hwe/types";
-import { LEASE_STATUS_LABELS } from "@hwe/types";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ function Countdown({ targetDate }: { targetDate: string }) {
   if (expired) {
     return (
       <div className="rounded-lg bg-ink-subtle/10 dark:bg-ink-subtle/20 border border-border px-4 py-3 text-sm text-ink-muted text-center">
-        La période de location est terminée.
+        {t("rental.countdown.finished")}
       </div>
     );
   }
@@ -89,16 +89,16 @@ function Countdown({ targetDate }: { targetDate: string }) {
   const pad = (n: number) => String(n).padStart(2, "0");
 
   const units = [
-    { label: "jours", value: days },
-    { label: "heures", value: hours },
-    { label: "min", value: minutes },
-    { label: "sec", value: seconds },
+    { label: t("rental.countdown.days"), value: days },
+    { label: t("rental.countdown.hours"), value: hours },
+    { label: t("rental.countdown.min"), value: minutes },
+    { label: t("rental.countdown.sec"), value: seconds },
   ];
 
   return (
     <div className="space-y-3">
       <p className="text-xs font-medium text-ink-muted uppercase tracking-wide">
-        Temps restant
+        {t("rental.countdown.remaining")}
       </p>
       <div className="grid grid-cols-4 gap-2">
         {units.map(({ label, value }) => (
@@ -144,7 +144,7 @@ function LeaseProgress({
     <div className="space-y-1.5">
       <div className="flex justify-between text-xs text-ink-muted">
         <span>{fmt(startDate)}</span>
-        <span>{Math.round(pct)}% écoulé</span>
+        <span>{t("rental.progress.elapsedPct", { pct: Math.round(pct) })}</span>
         <span>{fmt(endDate)}</span>
       </div>
       <div className="h-2 rounded-full bg-brand-100 dark:bg-brand-900/40 overflow-hidden">
@@ -154,7 +154,12 @@ function LeaseProgress({
         />
       </div>
       <p className="text-xs text-ink-muted text-center">
-        {Math.max(0, elapsedDays)} jour{elapsedDays !== 1 ? "s" : ""} sur {totalDays} écoulé{totalDays !== 1 ? "s" : ""}
+        {t("rental.progress.days", {
+          elapsed: Math.max(0, elapsedDays),
+          sElapsed: elapsedDays !== 1 ? "s" : "",
+          total: totalDays,
+          sTotal: totalDays !== 1 ? "s" : "",
+        })}
       </p>
     </div>
   );
@@ -162,6 +167,7 @@ function LeaseProgress({
 
 // ── Contract text generator (tenant copy) ────────────────────────────────────
 
+// Document légal français — non traduit volontairement.
 function generateContractText(lease: LeaseContract): string {
   const ownerName = lease.property?.owner
     ? `${lease.property.owner.firstName} ${lease.property.owner.lastName}`
@@ -263,13 +269,13 @@ function LeaseCard({
   const hasTenantSigned = !!lease.tenantSignedAt;
 
   const handleSign = async () => {
-    if (!confirm("En cliquant sur OK, vous signez électroniquement ce contrat de bail. Confirmez-vous ?")) return;
+    if (!confirm(t("rental.sign.confirm"))) return;
     setSigning(true);
     try {
       const updated = await api.signLease(lease.id);
       onUpdate(updated);
     } catch (e) {
-      alert("Erreur lors de la signature : " + (e as Error).message);
+      alert(t("rental.sign.error", { message: (e as Error).message }));
     } finally {
       setSigning(false);
     }
@@ -282,7 +288,7 @@ function LeaseCard({
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h2 className="font-display text-xl font-semibold text-ink">
-              {property?.title ?? "Bien"}
+              {property?.title ?? t("rental.lease.propertyFallback")}
             </h2>
             <p className="text-sm text-ink-muted mt-0.5">
               {property?.addressLine}, {property?.postalCode} {property?.city},{" "}
@@ -290,7 +296,7 @@ function LeaseCard({
             </p>
           </div>
           <Badge tone={STATUS_TONE[lease.status]}>
-            {LEASE_STATUS_LABELS[lease.status]}
+            {t("rental.status." + lease.status)}
           </Badge>
         </div>
       </CardHeader>
@@ -299,8 +305,8 @@ function LeaseCard({
       {/* Bandeau informatif pour les baux en attente de finalisation */}
         {lease.status === "DRAFT" && (
           <div className="rounded-lg border border-accent-500/30 bg-accent-500/10 dark:bg-accent-500/10 px-4 py-3 text-sm text-ink">
-            <span className="font-semibold">📋 Bail généré, en attente de signature.</span>{" "}
-            Consultez le contrat ci-dessous et signez-le électroniquement.
+            <span className="font-semibold">{t("rental.draft.title")}</span>{" "}
+            {t("rental.draft.text")}
           </div>
         )}
 
@@ -308,14 +314,14 @@ function LeaseCard({
         <section className="space-y-3">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
-              Contrat de bail
+              {t("rental.contract.title")}
             </h3>
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setShowContract((v) => !v)}
                 className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
               >
-                {showContract ? "▲ Masquer le contrat" : "▼ Lire le contrat"}
+                {showContract ? t("rental.contract.hide") : t("rental.contract.read")}
               </button>
               {lease.pdfUrl && (
                 <a
@@ -324,7 +330,7 @@ function LeaseCard({
                   rel="noopener noreferrer"
                   className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
                 >
-                  📄 Télécharger PDF
+                  {t("rental.contract.pdf")}
                 </a>
               )}
             </div>
@@ -343,19 +349,19 @@ function LeaseCard({
             <div className="flex items-center gap-1.5">
               <span>{lease.ownerSignedAt ? "✅" : "⏳"}</span>
               <span className="text-ink-muted">
-                Propriétaire :{" "}
+                {t("rental.sign.owner")}{" "}
                 {lease.ownerSignedAt
-                  ? `signé le ${fmt(lease.ownerSignedAt)}`
-                  : "en attente"}
+                  ? t("rental.sign.signedOn", { date: fmt(lease.ownerSignedAt) })
+                  : t("rental.sign.pending")}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <span>{lease.tenantSignedAt ? "✅" : "⏳"}</span>
               <span className="text-ink-muted">
-                Locataire :{" "}
+                {t("rental.sign.tenant")}{" "}
                 {lease.tenantSignedAt
-                  ? `signé le ${fmt(lease.tenantSignedAt)}`
-                  : "en attente"}
+                  ? t("rental.sign.signedOn", { date: fmt(lease.tenantSignedAt) })
+                  : t("rental.sign.pending")}
               </span>
             </div>
           </div>
@@ -367,7 +373,7 @@ function LeaseCard({
               disabled={signing}
               className="inline-flex items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 transition-colors"
             >
-              {signing ? "Signature en cours…" : "✍️ Signer le bail électroniquement"}
+              {signing ? t("rental.sign.busy") : t("rental.sign.cta")}
             </button>
           )}
         </section>
@@ -379,9 +385,9 @@ function LeaseCard({
             className="flex items-center justify-between gap-3 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50/60 dark:bg-brand-900/20 px-4 py-3 hover:shadow-card transition-shadow"
           >
             <div>
-              <p className="text-sm font-semibold text-ink">💶 Mes loyers et quittances</p>
+              <p className="text-sm font-semibold text-ink">{t("rental.rentsLink.title")}</p>
               <p className="text-xs text-ink-muted mt-0.5">
-                Payer, déclarer un versement et télécharger vos quittances
+                {t("rental.rentsLink.text")}
               </p>
             </div>
             <span className="text-brand-600 dark:text-brand-300" aria-hidden="true">→</span>
@@ -392,7 +398,7 @@ function LeaseCard({
         {hasTimer && isActive && lease.status !== "DRAFT" && (
           <section className="space-y-4 p-4 rounded-lg border border-brand-200 dark:border-brand-800 bg-brand-50/50 dark:bg-brand-900/20">
             <h3 className="text-sm font-semibold text-brand-700 dark:text-brand-300">
-              ⏱ Location à durée limitée
+              {t("rental.timer.title")}
             </h3>
             <LeaseProgress startDate={lease.startDate} endDate={lease.endDate!} />
             <Countdown targetDate={lease.endDate!} />
@@ -402,13 +408,13 @@ function LeaseCard({
         {/* Dates */}
         <section>
           <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-3">
-            Période
+            {t("rental.section.period")}
           </h3>
           <div className="grid grid-cols-2 gap-4">
-            <Detail label="Début" value={fmt(lease.startDate)} />
+            <Detail label={t("rental.period.start")} value={fmt(lease.startDate)} />
             <Detail
-              label="Fin"
-              value={lease.endDate ? fmt(lease.endDate) : "Indéterminée"}
+              label={t("rental.period.end")}
+              value={lease.endDate ? fmt(lease.endDate) : t("rental.period.indefinite")}
             />
           </div>
         </section>
@@ -416,16 +422,16 @@ function LeaseCard({
         {/* Financier */}
         <section>
           <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-3">
-            Conditions financières
+            {t("rental.section.finance")}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <Detail label="Loyer mensuel HC" value={fmtCurrencyUser(lease.monthlyRent, "EUR")} />
-            <Detail label="Charges" value={fmtCurrencyUser(lease.charges, "EUR")} />
+            <Detail label={t("rental.finance.rent")} value={fmtCurrencyUser(lease.monthlyRent, "EUR")} />
+            <Detail label={t("rental.finance.charges")} value={fmtCurrencyUser(lease.charges, "EUR")} />
             <Detail
-              label="Total mensuel (HC + charges)"
+              label={t("rental.finance.total")}
               value={fmtCurrencyUser(lease.monthlyRent + lease.charges, "EUR")}
             />
-            <Detail label="Dépôt de garantie" value={fmtCurrencyUser(lease.deposit, "EUR")} />
+            <Detail label={t("rental.finance.deposit")} value={fmtCurrencyUser(lease.deposit, "EUR")} />
             {lease.endDate && (() => {
               const start = new Date(lease.startDate).getTime();
               const end = new Date(lease.endDate).getTime();
@@ -433,20 +439,29 @@ function LeaseCard({
               const total = (lease.monthlyRent + lease.charges) * totalMonths;
               return (
                 <Detail
-                  label="Montant total de la location"
+                  label={t("rental.finance.grandTotal")}
                   value={fmtCurrencyUser(Math.round(total), "EUR")}
                 />
               );
             })()}
             <Detail
-              label="Paiement le"
-              value={`${lease.rentPaymentDay}${lease.rentPaymentDay === 1 ? "er" : "ème"} du mois`}
+              label={t("rental.finance.paymentDay")}
+              value={t("rental.finance.paymentDayValue", {
+                day: lease.rentPaymentDay,
+                suffix: lease.rentPaymentDay === 1 ? "er" : "ème",
+              })}
             />
             <Detail
-              label="Préavis"
-              value={`${lease.noticePeriod} mois`}
+              label={t("rental.finance.notice")}
+              value={t(
+                lease.noticePeriod === 1 ? "rental.months.one" : "rental.months.other",
+                { n: lease.noticePeriod },
+              )}
             />
-            <Detail label="Meublé" value={lease.furnished ? "Oui" : "Non"} />
+            <Detail
+              label={t("rental.finance.furnished")}
+              value={lease.furnished ? t("rental.yes") : t("rental.no")}
+            />
           </div>
         </section>
 
@@ -454,11 +469,11 @@ function LeaseCard({
         {property && (
           <section>
             <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-3">
-              Caractéristiques du bien
+              {t("rental.section.property")}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <Detail label="Surface" value={`${property.surface} m²`} />
-              <Detail label="Pièces" value={String(property.rooms)} />
+              <Detail label={t("rental.property.surface")} value={`${property.surface} m²`} />
+              <Detail label={t("rental.property.rooms")} value={String(property.rooms)} />
             </div>
           </section>
         )}
@@ -467,16 +482,16 @@ function LeaseCard({
         {property?.owner && (
           <section>
             <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-3">
-              Votre propriétaire
+              {t("rental.section.owner")}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <Detail
-                label="Nom"
+                label={t("rental.owner.name")}
                 value={`${property.owner.firstName} ${property.owner.lastName}`}
               />
-              <Detail label="Email" value={property.owner.email} />
+              <Detail label={t("rental.owner.email")} value={property.owner.email} />
               {property.owner.phone && (
-                <Detail label="Téléphone" value={property.owner.phone} />
+                <Detail label={t("rental.owner.phone")} value={property.owner.phone} />
               )}
             </div>
           </section>
@@ -486,7 +501,7 @@ function LeaseCard({
         {lease.specialClauses && (
           <section>
             <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
-              Clauses particulières
+              {t("rental.section.clauses")}
             </h3>
             <p className="text-sm text-ink whitespace-pre-line leading-relaxed">
               {lease.specialClauses}
@@ -532,29 +547,29 @@ export default function MaLocationPage() {
   }, [user, loading, router]);
 
   if (loading || working)
-    return <p className="text-ink-muted">Chargement…</p>;
+    return <p className="text-ink-muted">{t("rental.loading")}</p>;
 
   if (error)
     return (
       <p className="text-danger">
-        Erreur lors du chargement de vos baux : {error}
+        {t("rental.page.loadError", { message: error })}
       </p>
     );
 
   return (
     <section>
-      <h1 className="font-display text-3xl mb-2">Ma location</h1>
+      <h1 className="font-display text-3xl mb-2">{t("rental.page.title")}</h1>
       <p className="text-ink-muted mb-8">
-        Retrouvez ici les détails de votre bail en cours.
+        {t("rental.page.sub")}
       </p>
 
       {leases.length === 0 ? (
         <EmptyState
-          title="Aucune location active"
-          description="Vous n'avez pas de bail actif enregistré à votre adresse email. Si vous venez de signer un bail, contactez votre propriétaire."
+          title={t("rental.empty.title")}
+          description={t("rental.empty.desc")}
           action={
             <Link href="/" className="text-sm">
-              Parcourir les annonces
+              {t("rental.empty.cta")}
             </Link>
           }
         />

@@ -16,12 +16,8 @@ import {
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
+import { t } from "../../../lib/i18n";
 import type { Inquiry, InquiryStatus } from "@hwe/types";
-import { IDENTITY_DOCUMENT_TYPE_LABELS } from "@hwe/types";
-import {
-  INQUIRY_STATUS_LABELS,
-  LEASE_DURATION_UNIT_LABELS,
-} from "@hwe/types";
 
 const STATUS_TONE: Record<
   InquiryStatus,
@@ -33,12 +29,12 @@ const STATUS_TONE: Record<
   CANCELLED: "neutral",
 };
 
-const TABS: { key: InquiryStatus | "ALL"; label: string; emoji: string }[] = [
-  { key: "ALL", label: "Toutes", emoji: "📋" },
-  { key: "PENDING", label: "À traiter", emoji: "⏳" },
-  { key: "ACCEPTED", label: "Acceptées", emoji: "✓" },
-  { key: "REJECTED", label: "Refusées", emoji: "✕" },
-  { key: "CANCELLED", label: "Annulées", emoji: "🚫" },
+const TABS: { key: InquiryStatus | "ALL"; labelKey: string; emoji: string }[] = [
+  { key: "ALL", labelKey: "com.tab.all", emoji: "📋" },
+  { key: "PENDING", labelKey: "com.tab.pending", emoji: "⏳" },
+  { key: "ACCEPTED", labelKey: "com.tab.accepted", emoji: "✓" },
+  { key: "REJECTED", labelKey: "com.tab.rejected", emoji: "✕" },
+  { key: "CANCELLED", labelKey: "com.tab.cancelled", emoji: "🚫" },
 ];
 
 // ── Stepper transaction ────────────────────────────────────────────────────
@@ -49,37 +45,37 @@ function getTransactionSteps(i: Inquiry): {
   const isSale = i.property?.listingType === "SALE";
   const steps: StepperItem[] = isSale
     ? [
-        { id: "received", title: "Reçue", icon: "📨", done: true },
+        { id: "received", title: t("com.step.received"), icon: "📨", done: true },
         {
           id: "accepted",
-          title: "Acceptée",
+          title: t("com.step.accepted"),
           icon: "🤝",
           done: i.status === "ACCEPTED",
         },
         {
           id: "offer",
-          title: "Négociation",
+          title: t("com.step.offer"),
           icon: "💬",
           done: i.status === "ACCEPTED",
         },
-        { id: "deed", title: "Signature", icon: "✍️" },
+        { id: "deed", title: t("com.step.deed"), icon: "✍️" },
       ]
     : [
-        { id: "received", title: "Reçue", icon: "📨", done: true },
+        { id: "received", title: t("com.step.received"), icon: "📨", done: true },
         {
           id: "accepted",
-          title: "Acceptée",
+          title: t("com.step.accepted"),
           icon: "🤝",
           done: i.status === "ACCEPTED",
         },
         {
           id: "lease",
-          title: "Bail généré",
+          title: t("com.step.lease"),
           icon: "📋",
           done: i.status === "ACCEPTED" && !!i.leaseId,
         },
-        { id: "signed", title: "Signé", icon: "✍️" },
-        { id: "active", title: "Active", icon: "🏠" },
+        { id: "signed", title: t("com.step.signed"), icon: "✍️" },
+        { id: "active", title: t("com.step.active"), icon: "🏠" },
       ];
 
   let activeId = "received";
@@ -203,7 +199,7 @@ function InquiryDetailModal({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 h-8 w-8 rounded-full bg-surface/80 hover:bg-surface flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
-            aria-label="Fermer"
+            aria-label={t("com.close")}
           >
             ✕
           </button>
@@ -228,7 +224,7 @@ function InquiryDetailModal({
               )}
             </div>
             <Badge tone={STATUS_TONE[inquiry.status]} glow>
-              {INQUIRY_STATUS_LABELS[inquiry.status]}
+              {t("com.status." + inquiry.status)}
             </Badge>
           </div>
         </div>
@@ -254,7 +250,7 @@ function InquiryDetailModal({
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted">
-                {isSale ? "Vente" : "Location"}
+                {isSale ? t("com.sale") : t("com.rental")}
               </div>
               {inquiry.property && (
                 <Link
@@ -273,7 +269,7 @@ function InquiryDetailModal({
           {/* Message */}
           <div>
             <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted mb-2">
-              Message
+              {t("com.message")}
             </div>
             <p className="text-sm whitespace-pre-line rounded-xl p-4 bg-cream-50/60 border border-border leading-relaxed">
               {inquiry.message}
@@ -299,12 +295,12 @@ function InquiryDetailModal({
                     : "text-brand-700 dark:text-brand-300"
                 }`}
               >
-                {isSale ? "🏷️ Projet d'achat" : "📅 Souhaits de location"}
+                {isSale ? t("com.purchaseProject") : t("com.rentalWishes")}
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-ink-muted">
-                    {isSale ? "Date de visite souhaitée" : "Date d'entrée souhaitée"}
+                    {isSale ? t("com.visitDateWanted") : t("com.entryDateWanted")}
                   </span>
                   <span className="font-medium">
                     {new Date(inquiry.desiredStartDate).toLocaleDateString(
@@ -317,19 +313,17 @@ function InquiryDetailModal({
                 {!isSale && inquiry.leaseDuration && (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-ink-muted">Durée souhaitée</span>
+                      <span className="text-ink-muted">{t("com.durationWanted")}</span>
                       <span className="font-medium">
                         {inquiry.leaseDuration}{" "}
                         {inquiry.leaseDurationUnit
-                          ? LEASE_DURATION_UNIT_LABELS[
-                              inquiry.leaseDurationUnit
-                            ]
-                          : "mois"}
+                          ? t("com.duration." + inquiry.leaseDurationUnit)
+                          : t("com.duration.MONTHS")}
                       </span>
                     </div>
                     {endDate && (
                       <div className="flex justify-between">
-                        <span className="text-ink-muted">Fin prévue</span>
+                        <span className="text-ink-muted">{t("com.plannedEnd")}</span>
                         <span className="font-medium text-brand-700 dark:text-brand-300">
                           {endDate.toLocaleDateString("fr-FR", {
                             day: "numeric",
@@ -343,9 +337,9 @@ function InquiryDetailModal({
                 )}
                 {!isSale && !inquiry.leaseDuration && (
                   <div className="flex justify-between">
-                    <span className="text-ink-muted">Durée souhaitée</span>
+                    <span className="text-ink-muted">{t("com.durationWanted")}</span>
                     <span className="text-ink-subtle italic">
-                      Non précisée
+                      {t("com.notSpecified")}
                     </span>
                   </div>
                 )}
@@ -356,11 +350,12 @@ function InquiryDetailModal({
           {/* Timestamps */}
           <div className="text-xs text-ink-muted space-y-0.5 pt-2 border-t border-border/60">
             <div>
-              Reçue le {new Date(inquiry.createdAt).toLocaleString("fr-FR")}
+              {t("com.receivedOn")}{" "}
+              {new Date(inquiry.createdAt).toLocaleString("fr-FR")}
             </div>
             {inquiry.resolvedAt && (
               <div>
-                Traitée le{" "}
+                {t("com.processedOn")}{" "}
                 {new Date(inquiry.resolvedAt).toLocaleString("fr-FR")}
               </div>
             )}
@@ -378,7 +373,7 @@ function InquiryDetailModal({
                 }}
                 className="flex-1"
               >
-                ✕ Refuser
+                {t("com.reject")}
               </Button>
               <Button
                 variant="gradient"
@@ -389,32 +384,32 @@ function InquiryDetailModal({
                 }}
                 className="flex-1"
               >
-                {isLoading ? "Traitement…" : "✓ Accepter"}
+                {isLoading ? t("com.processing") : t("com.accept")}
               </Button>
             </div>
           ) : inquiry.status === "ACCEPTED" && !isSale && inquiry.leaseId ? (
             <Link href={`/dashboard/${inquiry.propertyId}/lease`}>
               <Button variant="gradient" className="w-full">
-                📋 Voir le contrat de bail
+                {t("com.viewLease")}
               </Button>
             </Link>
           ) : inquiry.status === "ACCEPTED" && isSale ? (
             <div className="rounded-xl border border-accent-200 bg-accent-50/50 dark:bg-accent-900/15 p-4 text-sm">
               <div className="font-medium text-ink mb-1">
-                🤝 Acheteur accepté
+                {t("com.buyerAccepted")}
               </div>
               <p className="text-ink-muted text-xs leading-relaxed mb-3">
-                Vous pouvez maintenant échanger directement avec
+                {t("com.buyerAcceptedBody1")}
                 {" "}
-                {inquiry.sender?.firstName} pour la suite : visite, négociation,
-                compromis chez le notaire. Quand la vente est finalisée, passez
-                l'annonce en "Vendu" depuis votre tableau de bord.
+                {inquiry.sender?.firstName}
+                {" "}
+                {t("com.buyerAcceptedBody2")}
               </p>
               <Link
                 href={`/dashboard/messages`}
                 className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-xs font-medium hover:opacity-90 transition-opacity"
               >
-                💬 Ouvrir la discussion
+                {t("com.openDiscussion")}
               </Link>
             </div>
           ) : null}
@@ -457,7 +452,7 @@ function InquiryCard({
                   {i.sender?.firstName} {i.sender?.lastName}
                 </span>
                 <Badge tone={STATUS_TONE[i.status]}>
-                  {INQUIRY_STATUS_LABELS[i.status]}
+                  {t("com.status." + i.status)}
                 </Badge>
               </div>
               <div className="text-sm text-ink-muted">
@@ -468,7 +463,7 @@ function InquiryCard({
           </div>
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <Badge tone={isSale ? "accent" : "brand"}>
-              {isSale ? "🏷️ Vente" : "🔑 Location"}
+              {isSale ? t("com.saleBadge") : t("com.rentalBadge")}
             </Badge>
             <Link
               href={`/properties/${i.property?.id}`}
@@ -488,7 +483,7 @@ function InquiryCard({
           <div className="flex flex-wrap gap-4 text-xs mb-4 p-3 rounded-lg bg-cream-50/60 border border-border">
             <div>
               <span className="text-ink-muted">
-                {isSale ? "Visite souhaitée : " : "Entrée souhaitée : "}
+                {isSale ? t("com.visitWanted") : t("com.entryWanted")}{" "}
               </span>
               <span className="font-medium">
                 {new Date(i.desiredStartDate).toLocaleDateString("fr-FR", {
@@ -501,12 +496,12 @@ function InquiryCard({
             {/* Durée — uniquement pour les locations */}
             {!isSale && i.leaseDuration && (
               <div>
-                <span className="text-ink-muted">Durée : </span>
+                <span className="text-ink-muted">{t("com.durationLabel")} </span>
                 <span className="font-medium">
                   {i.leaseDuration}{" "}
                   {i.leaseDurationUnit
-                    ? LEASE_DURATION_UNIT_LABELS[i.leaseDurationUnit]
-                    : "mois"}
+                    ? t("com.duration." + i.leaseDurationUnit)
+                    : t("com.duration.MONTHS")}
                 </span>
               </div>
             )}
@@ -526,7 +521,7 @@ function InquiryCard({
 
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="text-xs text-ink-muted">
-            Reçue {timeAgo(i.createdAt)}
+            {t("com.received")} {timeAgo(i.createdAt)}
           </div>
 
           <div className="flex gap-2 flex-wrap">
@@ -535,11 +530,11 @@ function InquiryCard({
               variant="secondary"
               onClick={() => onViewDetails(i)}
             >
-              🔍 Détails
+              {t("com.details")}
             </Button>
             <Link href="/dashboard/messages">
               <Button size="sm" variant="ghost">
-                💬 Discuter
+                {t("com.discuss")}
               </Button>
             </Link>
             {isPending ? (
@@ -550,7 +545,7 @@ function InquiryCard({
                   disabled={isLoading}
                   onClick={() => onRespond(i.id, "REJECTED")}
                 >
-                  ✕ Refuser
+                  {t("com.reject")}
                 </Button>
                 <Button
                   size="sm"
@@ -558,19 +553,19 @@ function InquiryCard({
                   disabled={isLoading}
                   onClick={() => onRespond(i.id, "ACCEPTED")}
                 >
-                  {isLoading ? "…" : "✓ Accepter"}
+                  {isLoading ? "…" : t("com.accept")}
                 </Button>
               </>
             ) : i.status === "ACCEPTED" && !isSale && i.leaseId ? (
               <Link href={`/dashboard/${i.propertyId}/lease`}>
                 <Button size="sm" variant="gradient">
-                  📋 Contrat
+                  {t("com.contract")}
                 </Button>
               </Link>
             ) : i.status === "ACCEPTED" && isSale ? (
               <Link href={`/dashboard/messages`}>
                 <Button size="sm" variant="gradient">
-                  💬 Discuter
+                  {t("com.discuss")}
                 </Button>
               </Link>
             ) : null}
@@ -584,12 +579,12 @@ function InquiryCard({
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const min = Math.floor(diff / 60000);
-  if (min < 1) return "à l'instant";
-  if (min < 60) return `il y a ${min} min`;
+  if (min < 1) return t("com.justNow");
+  if (min < 60) return t("com.minAgo", { n: min });
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `il y a ${hr} h`;
+  if (hr < 24) return t("com.hrAgo", { n: hr });
   const days = Math.floor(hr / 24);
-  if (days < 7) return `il y a ${days} j`;
+  if (days < 7) return t("com.dayAgo", { n: days });
   return new Date(dateStr).toLocaleDateString("fr-FR");
 }
 
@@ -620,14 +615,15 @@ export default function ReceivedInquiriesPage() {
   }, [user, loading, router]);
 
   const respond = async (id: string, decision: "ACCEPTED" | "REJECTED") => {
-    const label = decision === "ACCEPTED" ? "accepter" : "refuser";
-    if (!confirm(`Confirmer : ${label} cette demande ?`)) return;
+    const question =
+      decision === "ACCEPTED" ? t("com.confirmAccept") : t("com.confirmReject");
+    if (!confirm(question)) return;
     setProcessing(id);
     try {
       const updated = await api.respondToInquiry(id, decision);
       setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("com.errorPrefix") + (e as Error).message);
     } finally {
       setProcessing(null);
     }
@@ -666,35 +662,33 @@ export default function ReceivedInquiriesPage() {
         className="rounded-2xl border border-border/60 px-8 py-8 mb-8"
       >
         <h1 className="display-serif text-4xl mb-2">
-          Demandes <span className="gradient-text">de contact</span>
+          {t("com.heroTitle1")}{" "}
+          <span className="gradient-text">{t("com.heroTitle2")}</span>
         </h1>
-        <p className="text-ink-muted">
-          Acceptez ou refusez les candidatures. Un contrat de bail est généré
-          automatiquement en cas d'acceptation pour les locations.
-        </p>
+        <p className="text-ink-muted">{t("com.heroSub")}</p>
 
         {/* Stats */}
         {items.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
             <StatTile
-              kicker="Total"
+              kicker={t("com.statTotal")}
               value={stats.total}
               icon="📨"
             />
             <StatTile
-              kicker="À traiter"
+              kicker={t("com.tab.pending")}
               value={stats.pending}
               icon="⏳"
               accent={stats.pending > 0}
             />
             <StatTile
-              kicker="Acceptées"
+              kicker={t("com.tab.accepted")}
               value={stats.accepted}
               icon="✓"
               accent={false}
             />
             <StatTile
-              kicker="Refusées"
+              kicker={t("com.tab.rejected")}
               value={stats.rejected}
               icon="✕"
               accent={false}
@@ -705,7 +699,7 @@ export default function ReceivedInquiriesPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
-        {TABS.map(({ key, label, emoji }) => {
+        {TABS.map(({ key, labelKey, emoji }) => {
           const count = countByStatus(key);
           if (key !== "ALL" && count === 0) return null;
           const isActive = activeTab === key;
@@ -720,7 +714,7 @@ export default function ReceivedInquiriesPage() {
               }`}
             >
               <span>{emoji}</span>
-              <span>{label}</span>
+              <span>{t(labelKey)}</span>
               <span
                 className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
                   isActive
@@ -738,13 +732,13 @@ export default function ReceivedInquiriesPage() {
       {/* Content */}
       {items.length === 0 ? (
         <EmptyState
-          title="Aucune demande pour le moment"
-          description="Les demandes reçues sur vos biens s'afficheront ici."
+          title={t("com.emptyTitle")}
+          description={t("com.emptyDesc")}
         />
       ) : visibleItems.length === 0 ? (
         <EmptyState
-          title="Aucune demande dans cette catégorie"
-          description="Changez d'onglet pour voir les autres demandes."
+          title={t("com.emptyTabTitle")}
+          description={t("com.emptyTabDesc")}
         />
       ) : (
         <div className="space-y-4">
@@ -831,10 +825,10 @@ function DossierBlock({ inquiryId }: { inquiryId: string }) {
   return (
     <div className="p-4 rounded-xl border border-brand-200 bg-brand-50 dark:bg-brand-900/20 dark:border-brand-800">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <p className="text-sm font-medium">📁 Le candidat a partagé son dossier</p>
+        <p className="text-sm font-medium">{t("com.dossierShared")}</p>
         {!open && (
           <button className="text-sm underline" onClick={load}>
-            Voir les documents
+            {t("com.dossierView")}
           </button>
         )}
       </div>
@@ -843,19 +837,19 @@ function DossierBlock({ inquiryId }: { inquiryId: string }) {
           {error ? (
             <p className="text-ink-muted">{error}</p>
           ) : docs === null ? (
-            <p className="text-ink-muted">Chargement…</p>
+            <p className="text-ink-muted">{t("com.loading")}</p>
           ) : docs.length === 0 ? (
-            <p className="text-ink-muted">Le profil du candidat ne contient encore aucun document.</p>
+            <p className="text-ink-muted">{t("com.dossierEmpty")}</p>
           ) : (
             <ul className="space-y-1.5">
               {docs.map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{d.name}</span>
                   <span className="text-ink-muted">
-                    {IDENTITY_DOCUMENT_TYPE_LABELS[d.documentType] ?? d.documentType}
+                    {t("com.docType." + d.documentType)}
                   </span>
                   <button className="underline text-ink-muted" onClick={() => view(d.fileUrl)}>
-                    Ouvrir
+                    {t("com.open")}
                   </button>
                 </li>
               ))}

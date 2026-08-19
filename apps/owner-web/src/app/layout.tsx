@@ -1,9 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { AppNavbar } from "../components/AppNavbar";
+import { FooterText } from "../components/FooterText";
 import { AuthProvider } from "../lib/auth-context";
 import { CurrencyProvider } from "../lib/currency-context";
 import { LangProvider } from "../lib/i18n";
+import { LocalizedTitle } from "../components/LocalizedTitle";
 
 export const metadata: Metadata = {
   title: "hwe — Espace propriétaire",
@@ -37,6 +39,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col">
         <AuthProvider>
           <LangProvider>
+          <LocalizedTitle />
           <CurrencyProvider>
             {/* Decorative blob (single, static) */}
             <div
@@ -52,12 +55,7 @@ export default function RootLayout({
               {children}
             </main>
             <footer className="container-app py-10 text-xs text-ink-muted flex items-center justify-between border-t border-border/50">
-              <span>
-                © {new Date().getFullYear()} hwe — Espace propriétaire
-              </span>
-              <span className="hidden sm:inline text-ink-subtle">
-                Habiter avec élégance ✦
-              </span>
+              <FooterText />
             </footer>
           </CurrencyProvider>
           </LangProvider>

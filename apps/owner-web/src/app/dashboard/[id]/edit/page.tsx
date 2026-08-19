@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "../../../../lib/api";
 import { useAuth } from "../../../../lib/auth-context";
+import { t } from "../../../../lib/i18n";
 import { PropertyForm, PropertyFormValue } from "../../../../components/PropertyForm";
 import { AnimatedBackground, Button } from "@hwe/ui";
 import type { Property, PricingRate, LeaseDurationUnit } from "@hwe/types";
@@ -72,7 +73,7 @@ export default function EditPropertyPage() {
 
       router.push("/dashboard");
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("pf.errPrefix") + (e as Error).message);
       setSubmitting(false);
     }
   };
@@ -99,29 +100,29 @@ export default function EditPropertyPage() {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Retour au tableau de bord
+          {t("pf.back")}
         </Link>
         <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
-          {property.status === "PUBLISHED" ? "🌍 Annonce publiée" : "📝 Brouillon"}
+          {property.status === "PUBLISHED" ? t("pf.edit.published") : t("pf.edit.draft")}
         </span>
         <h1 className="font-display text-4xl mb-2">
-          Modifier <span className="gradient-text">{property.title}</span>
+          {t("pf.edit.title")} <span className="gradient-text">{property.title}</span>
         </h1>
         <p className="text-ink-muted">
-          {property.city}, {property.country} · {property.surface} m² · {property.rooms} {property.rooms > 1 ? "pièces" : "pièce"}
+          {property.city}, {property.country} · {property.surface} m² · {property.rooms} {property.rooms > 1 ? t("pf.edit.roomsPlural") : t("pf.edit.room")}
         </p>
 
         <div className="flex flex-wrap gap-2 mt-5">
           <Link href={`/dashboard/${property.id}/documents`}>
-            <Button variant="secondary" size="sm">🗂️ Documents légaux</Button>
+            <Button variant="secondary" size="sm">{t("pf.edit.docs")}</Button>
           </Link>
           {property.listingType === "RENT" && (
             <Link href={`/dashboard/${property.id}/lease`}>
-              <Button variant="secondary" size="sm">📋 Contrats de location</Button>
+              <Button variant="secondary" size="sm">{t("pf.edit.leases")}</Button>
             </Link>
           )}
           <Link href={`/properties/${property.id}`}>
-            <Button variant="ghost" size="sm">👁 Aperçu public</Button>
+            <Button variant="ghost" size="sm">{t("pf.edit.preview")}</Button>
           </Link>
         </div>
       </AnimatedBackground>
@@ -130,7 +131,7 @@ export default function EditPropertyPage() {
         initial={initial}
         onSubmit={onSubmit}
         submitting={submitting}
-        submitLabel="Mettre à jour"
+        submitLabel={t("pf.edit.submit")}
       />
     </section>
   );

@@ -6,6 +6,7 @@ import { EmptyState, PropertyCard } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { useCurrency } from "../../lib/currency-context";
 import { api } from "../../lib/api";
+import { t } from "../../lib/i18n";
 import type { Favorite } from "@hwe/types";
 
 export default function FavoritesPage() {
@@ -28,25 +29,25 @@ export default function FavoritesPage() {
       await api.removeFavorite(propertyId);
       setItems((prev) => prev.filter((f) => f.propertyId !== propertyId));
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("com.error") + (e as Error).message);
     } finally {
       setRemoving(null);
     }
   };
 
-  if (loading || working) return <p className="text-ink-muted">Chargement…</p>;
+  if (loading || working) return <p className="text-ink-muted">{t("com.loading")}</p>;
 
   return (
     <section>
-      <h1 className="font-display text-3xl mb-2">Mes favoris</h1>
+      <h1 className="font-display text-3xl mb-2">{t("com.fav.title")}</h1>
       <p className="text-ink-muted mb-8">
-        Les biens que vous avez sauvegardés pour les retrouver facilement.
+        {t("com.fav.sub")}
       </p>
 
       {items.length === 0 ? (
         <EmptyState
-          title="Aucun favori pour l'instant"
-          description="Parcourez les annonces et cliquez sur le cœur pour sauvegarder un bien."
+          title={t("com.fav.emptyTitle")}
+          description={t("com.fav.emptyDesc")}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -78,7 +79,7 @@ export default function FavoritesPage() {
                     }}
                     className="flex items-center gap-1 text-sm font-medium text-red-500 hover:text-red-700 disabled:opacity-50 transition-colors"
                   >
-                    ♥ {removing === p.id ? "Suppression…" : "Retirer des favoris"}
+                    ♥ {removing === p.id ? t("com.fav.removing") : t("com.fav.remove")}
                   </button>
                 }
               />

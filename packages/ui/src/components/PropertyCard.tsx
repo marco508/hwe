@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { ImageCarousel } from "./ImageCarousel";
+import { tUi } from "./I18nKit";
 
 export interface PropertyCardProps {
   title: string;
@@ -45,13 +46,13 @@ const formatPrice = (n: number, currency = "EUR") => {
   }
 };
 
-const PROPERTY_LABEL: Record<string, string> = {
-  APARTMENT: "Appartement",
-  HOUSE: "Maison",
-  STUDIO: "Studio",
-  LAND: "Terrain",
-  COMMERCIAL: "Local",
-  OTHER: "Autre",
+const PROPERTY_LABEL_KEY: Record<string, string> = {
+  APARTMENT: "ui.propertyType.apartment",
+  HOUSE: "ui.propertyType.house",
+  STUDIO: "ui.propertyType.studio",
+  LAND: "ui.propertyType.land",
+  COMMERCIAL: "ui.propertyType.commercial",
+  OTHER: "ui.propertyType.other",
 };
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -112,7 +113,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                 : "bg-brand-700/95 text-white",
             )}
           >
-            {listingType === "SALE" ? "À vendre" : "À louer"}
+            {listingType === "SALE" ? tUi("ui.forSale") : tUi("ui.forRent")}
           </span>
           {eyebrow && (
             <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-white/95 text-brand-950 backdrop-blur-md">
@@ -125,7 +126,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         {favoritable && (
           <button
             type="button"
-            aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+            aria-label={
+              isFavorite ? tUi("ui.removeFavorite") : tUi("ui.addFavorite")
+            }
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -178,7 +181,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             {title}
           </h3>
           <span className="text-[11px] text-ink-muted shrink-0 mt-0.5">
-            {PROPERTY_LABEL[propertyType] ?? propertyType}
+            {PROPERTY_LABEL_KEY[propertyType]
+              ? tUi(PROPERTY_LABEL_KEY[propertyType])
+              : propertyType}
           </span>
         </div>
         <div className="flex items-center gap-1 text-[13px] text-ink-muted mb-1.5">
@@ -200,7 +205,10 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           <span className="truncate">{city}</span>
           <span className="text-ink-subtle px-1">·</span>
           <span>
-            {surface} m² · {rooms} {rooms > 1 ? "pièces" : "pièce"}
+            {surface} m² ·{" "}
+            {rooms > 1
+              ? tUi("ui.rooms", { n: rooms })
+              : tUi("ui.room", { n: rooms })}
           </span>
         </div>
         <div className="flex items-baseline gap-1.5">
@@ -208,7 +216,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             {displayPrice ?? formatPrice(price, currency)}
           </span>
           {listingType === "RENT" && (
-            <span className="text-xs text-ink-muted">/ mois</span>
+            <span className="text-xs text-ink-muted">{tUi("ui.perMonth")}</span>
           )}
         </div>
 

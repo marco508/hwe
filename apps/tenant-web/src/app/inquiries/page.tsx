@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, Card, CardBody, CardHeader, EmptyState } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
+import { t } from "../../lib/i18n";
 import type { Inquiry, InquiryStatus } from "@hwe/types";
-import { INQUIRY_STATUS_LABELS, LEASE_DURATION_UNIT_LABELS } from "@hwe/types";
 
 const STATUS_TONE: Record<InquiryStatus, "neutral" | "success" | "danger" | "accent" | "brand"> = {
   PENDING: "accent",
@@ -16,31 +16,19 @@ const STATUS_TONE: Record<InquiryStatus, "neutral" | "success" | "danger" | "acc
   CANCELLED: "neutral",
 };
 
-const STATUS_MESSAGES: Record<InquiryStatus, { icon: string; text: string }> = {
-  PENDING: {
-    icon: "⏳",
-    text: "Votre demande est en attente de réponse du propriétaire.",
-  },
-  ACCEPTED: {
-    icon: "🎉",
-    text: "Le propriétaire a accepté votre demande ! Un contrat de bail a été généré. Il vous contactera pour finaliser.",
-  },
-  REJECTED: {
-    icon: "❌",
-    text: "Le propriétaire n'a pas retenu votre candidature pour ce bien.",
-  },
-  CANCELLED: {
-    icon: "🚫",
-    text: "Vous avez annulé cette demande.",
-  },
+const STATUS_ICONS: Record<InquiryStatus, string> = {
+  PENDING: "⏳",
+  ACCEPTED: "🎉",
+  REJECTED: "❌",
+  CANCELLED: "🚫",
 };
 
-const TABS: { key: InquiryStatus | "ALL"; label: string; emoji: string }[] = [
-  { key: "ALL",       label: "Toutes",          emoji: "📋" },
-  { key: "PENDING",   label: "En attente",       emoji: "⏳" },
-  { key: "ACCEPTED",  label: "Location en cours", emoji: "🏠" },
-  { key: "REJECTED",  label: "Refusées",         emoji: "❌" },
-  { key: "CANCELLED", label: "Annulées",         emoji: "🚫" },
+const TABS: { key: InquiryStatus | "ALL"; emoji: string }[] = [
+  { key: "ALL",       emoji: "📋" },
+  { key: "PENDING",   emoji: "⏳" },
+  { key: "ACCEPTED",  emoji: "🏠" },
+  { key: "REJECTED",  emoji: "❌" },
+  { key: "CANCELLED", emoji: "🚫" },
 ];
 
 // ── UserAvatar ────────────────────────────────────────────────────────────────
@@ -86,7 +74,6 @@ function InquiryDetailModal({
   onCancel: (id: string) => void;
   cancelling: string | null;
 }) {
-  const statusMsg = STATUS_MESSAGES[inquiry.status];
   const backdropRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -129,14 +116,14 @@ function InquiryDetailModal({
             />
             <div>
               <div className="font-display text-xl font-semibold">
-                Ma demande
+                {t("com.inq.myRequest")}
               </div>
               <div className="flex gap-2 mt-1 flex-wrap">
                 <Badge tone={STATUS_TONE[inquiry.status]}>
-                  {INQUIRY_STATUS_LABELS[inquiry.status]}
+                  {t("com.status." + inquiry.status)}
                 </Badge>
                 <Badge tone={inquiry.property?.listingType === "SALE" ? "accent" : "brand"}>
-                  {inquiry.property?.listingType === "SALE" ? "Vente" : "Location"}
+                  {inquiry.property?.listingType === "SALE" ? t("com.listing.sale") : t("com.listing.rent")}
                 </Badge>
               </div>
             </div>
@@ -154,7 +141,7 @@ function InquiryDetailModal({
           {/* Property */}
           {inquiry.property && (
             <div>
-              <div className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">Bien concerné</div>
+              <div className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">{t("com.inq.property")}</div>
               <Link
                 href={`/properties/${inquiry.property.id}`}
                 className="font-medium text-brand-600 hover:underline"
@@ -167,7 +154,7 @@ function InquiryDetailModal({
 
           {/* Message */}
           <div>
-            <div className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">Mon message</div>
+            <div className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1">{t("com.inq.myMessage")}</div>
             <p className="text-sm whitespace-pre-line bg-surface-2 rounded-lg p-3 border border-border">
               {inquiry.message}
             </p>
@@ -176,10 +163,10 @@ function InquiryDetailModal({
           {/* Rental wishes */}
           {(inquiry.desiredStartDate || inquiry.leaseDuration) && (
             <div className="p-3 rounded-lg bg-slate-50 border border-border text-sm space-y-1">
-              <div className="font-semibold text-ink mb-2">📅 Mes souhaits de location</div>
+              <div className="font-semibold text-ink mb-2">📅 {t("com.inq.wishes")}</div>
               {inquiry.desiredStartDate && (
                 <div className="flex justify-between">
-                  <span className="text-ink-muted">Début souhaité</span>
+                  <span className="text-ink-muted">{t("com.inq.startWanted")}</span>
                   <span className="font-medium">
                     {new Date(inquiry.desiredStartDate).toLocaleDateString("fr-FR", {
                       day: "numeric", month: "long", year: "numeric",
@@ -188,16 +175,16 @@ function InquiryDetailModal({
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-ink-muted">Durée</span>
+                <span className="text-ink-muted">{t("com.inq.duration")}</span>
                 <span className="font-medium">
                   {inquiry.leaseDuration
-                    ? `${inquiry.leaseDuration} ${inquiry.leaseDurationUnit ? LEASE_DURATION_UNIT_LABELS[inquiry.leaseDurationUnit] : "mois"}`
-                    : "Indéterminée"}
+                    ? `${inquiry.leaseDuration} ${t("com.unit." + (inquiry.leaseDurationUnit ?? "MONTHS"))}`
+                    : t("com.inq.openEnded")}
                 </span>
               </div>
               {endDate && (
                 <div className="flex justify-between">
-                  <span className="text-ink-muted">Fin prévue</span>
+                  <span className="text-ink-muted">{t("com.inq.endDate")}</span>
                   <span className="font-medium text-emerald-700">
                     {endDate.toLocaleDateString("fr-FR", {
                       day: "numeric", month: "long", year: "numeric",
@@ -218,15 +205,15 @@ function InquiryDetailModal({
               ? "bg-slate-50 text-slate-700 border border-slate-200"
               : "bg-amber-50 text-amber-800 border border-amber-100"
           }`}>
-            <span className="text-base shrink-0">{statusMsg.icon}</span>
-            <span>{statusMsg.text}</span>
+            <span className="text-base shrink-0">{STATUS_ICONS[inquiry.status]}</span>
+            <span>{t("com.statusMsg." + inquiry.status)}</span>
           </div>
 
           {/* Timestamps */}
           <div className="text-xs text-ink-muted space-y-0.5">
-            <div>Envoyé le {new Date(inquiry.createdAt).toLocaleString("fr-FR")}</div>
-            {inquiry.resolvedAt && <div>Répondu le {new Date(inquiry.resolvedAt).toLocaleString("fr-FR")}</div>}
-            {inquiry.cancelledAt && <div>Annulée le {new Date(inquiry.cancelledAt).toLocaleString("fr-FR")}</div>}
+            <div>{t("com.inq.sentOn", { date: new Date(inquiry.createdAt).toLocaleString("fr-FR") })}</div>
+            {inquiry.resolvedAt && <div>{t("com.inq.repliedOn", { date: new Date(inquiry.resolvedAt).toLocaleString("fr-FR") })}</div>}
+            {inquiry.cancelledAt && <div>{t("com.inq.cancelledOn", { date: new Date(inquiry.cancelledAt).toLocaleString("fr-FR") })}</div>}
           </div>
 
           {/* Actions */}
@@ -236,12 +223,12 @@ function InquiryDetailModal({
               disabled={cancelling === inquiry.id}
               onClick={() => { onCancel(inquiry.id); onClose(); }}
             >
-              {cancelling === inquiry.id ? "Annulation…" : "Annuler la demande"}
+              {cancelling === inquiry.id ? t("com.inq.cancelling") : t("com.inq.cancelRequest")}
             </Button>
           )}
           {inquiry.status === "ACCEPTED" && (
             <div className="text-xs text-emerald-700 font-medium">
-              Le propriétaire vous contactera prochainement à l&apos;adresse {inquiry.contactEmail}
+              {t("com.inq.acceptedNote", { email: inquiry.contactEmail ?? "" })}
             </div>
           )}
         </div>
@@ -262,8 +249,6 @@ function InquiryCard({
   onCancel: (id: string) => void;
   onViewDetails: (i: Inquiry) => void;
 }) {
-  const statusMsg = STATUS_MESSAGES[i.status];
-
   return (
     <Card>
       <CardHeader>
@@ -281,10 +266,10 @@ function InquiryCard({
               </Link>
               <div className="flex items-center gap-2 shrink-0">
                 <Badge tone={i.property?.listingType === "SALE" ? "accent" : "brand"}>
-                  {i.property?.listingType === "SALE" ? "Vente" : "Location"}
+                  {i.property?.listingType === "SALE" ? t("com.listing.sale") : t("com.listing.rent")}
                 </Badge>
                 <Badge tone={STATUS_TONE[i.status]}>
-                  {INQUIRY_STATUS_LABELS[i.status]}
+                  {t("com.status." + i.status)}
                 </Badge>
               </div>
             </div>
@@ -299,18 +284,18 @@ function InquiryCard({
           <div className="flex flex-wrap gap-4 text-sm mb-4 p-3 rounded-lg bg-slate-50 border border-border">
             {i.desiredStartDate && (
               <div>
-                <span className="text-ink-muted">Début souhaité : </span>
+                <span className="text-ink-muted">{t("com.inq.startWantedC")}</span>
                 <span className="font-medium">
                   {new Date(i.desiredStartDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                 </span>
               </div>
             )}
             <div>
-              <span className="text-ink-muted">Durée : </span>
+              <span className="text-ink-muted">{t("com.inq.durationC")}</span>
               <span className="font-medium">
                 {i.leaseDuration
-                  ? `${i.leaseDuration} ${i.leaseDurationUnit ? LEASE_DURATION_UNIT_LABELS[i.leaseDurationUnit] : "mois"}`
-                  : "Indéterminée"}
+                  ? `${i.leaseDuration} ${t("com.unit." + (i.leaseDurationUnit ?? "MONTHS"))}`
+                  : t("com.inq.openEnded")}
               </span>
             </div>
           </div>
@@ -325,23 +310,23 @@ function InquiryCard({
             ? "bg-slate-50 text-slate-700 border border-slate-200"
             : "bg-amber-50 text-amber-800 border border-amber-100"
         }`}>
-          <span className="text-base shrink-0">{statusMsg.icon}</span>
-          <span>{statusMsg.text}</span>
+          <span className="text-base shrink-0">{STATUS_ICONS[i.status]}</span>
+          <span>{t("com.statusMsg." + i.status)}</span>
         </div>
 
         <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
           <div className="text-xs text-ink-muted">
-            Envoyé le {new Date(i.createdAt).toLocaleString("fr-FR")}
-            {i.resolvedAt && <span> · Répondu le {new Date(i.resolvedAt).toLocaleString("fr-FR")}</span>}
-            {i.cancelledAt && <span> · Annulée le {new Date(i.cancelledAt).toLocaleString("fr-FR")}</span>}
+            {t("com.inq.sentOn", { date: new Date(i.createdAt).toLocaleString("fr-FR") })}
+            {i.resolvedAt && <span> · {t("com.inq.repliedOn", { date: new Date(i.resolvedAt).toLocaleString("fr-FR") })}</span>}
+            {i.cancelledAt && <span> · {t("com.inq.cancelledOn", { date: new Date(i.cancelledAt).toLocaleString("fr-FR") })}</span>}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Button size="sm" variant="secondary" onClick={() => onViewDetails(i)}>
-              🔍 Détails
+              🔍 {t("com.details")}
             </Button>
             <Link href="/messages">
               <Button size="sm" variant="gradient">
-                💬 Discuter
+                💬 {t("com.chat")}
               </Button>
             </Link>
             {i.status === "PENDING" && (
@@ -351,7 +336,7 @@ function InquiryCard({
                 disabled={cancelling === i.id}
                 onClick={() => onCancel(i.id)}
               >
-                {cancelling === i.id ? "Annulation…" : "Annuler"}
+                {cancelling === i.id ? t("com.inq.cancelling") : t("com.cancel")}
               </Button>
             )}
           </div>
@@ -378,19 +363,19 @@ export default function SentInquiriesPage() {
   }, [user, loading, router]);
 
   const cancel = async (id: string) => {
-    if (!confirm("Confirmer l'annulation de cette demande ?")) return;
+    if (!confirm(t("com.inq.confirmCancel"))) return;
     setCancelling(id);
     try {
       const updated = await api.cancelInquiry(id);
       setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("com.error") + (e as Error).message);
     } finally {
       setCancelling(null);
     }
   };
 
-  if (loading || working) return <p className="text-ink-muted">Chargement…</p>;
+  if (loading || working) return <p className="text-ink-muted">{t("com.loading")}</p>;
 
   const countByStatus = (key: InquiryStatus | "ALL") =>
     key === "ALL" ? items.length : items.filter((i) => i.status === key).length;
@@ -400,14 +385,14 @@ export default function SentInquiriesPage() {
 
   return (
     <section>
-      <h1 className="font-display text-3xl mb-2">Mes demandes</h1>
+      <h1 className="font-display text-3xl mb-2">{t("com.inq.title")}</h1>
       <p className="text-ink-muted mb-6">
-        Suivez l&apos;état de vos candidatures auprès des propriétaires.
+        {t("com.inq.sub")}
       </p>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
-        {TABS.map(({ key, label, emoji }) => {
+        {TABS.map(({ key, emoji }) => {
           const count = countByStatus(key);
           if (key !== "ALL" && count === 0) return null;
           const isActive = activeTab === key;
@@ -422,7 +407,7 @@ export default function SentInquiriesPage() {
               }`}
             >
               <span>{emoji}</span>
-              <span>{label}</span>
+              <span>{t("com.tab." + key)}</span>
               <span className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
                 isActive ? "bg-brand-100 text-brand-700" : "bg-surface-2 text-ink-muted"
               }`}>
@@ -436,13 +421,13 @@ export default function SentInquiriesPage() {
       {/* Content */}
       {items.length === 0 ? (
         <EmptyState
-          title="Vous n'avez encore envoyé aucune demande"
-          description="Parcourez les annonces et contactez les propriétaires depuis la fiche du bien."
+          title={t("com.inq.emptyTitle")}
+          description={t("com.inq.emptyDesc")}
         />
       ) : visibleItems.length === 0 ? (
         <EmptyState
-          title="Aucune demande dans cette catégorie"
-          description="Changez d'onglet pour voir vos autres demandes."
+          title={t("com.inq.emptyTabTitle")}
+          description={t("com.inq.emptyTabDesc")}
         />
       ) : (
         <div className="space-y-4">

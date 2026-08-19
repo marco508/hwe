@@ -5,18 +5,13 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, Input, EmptyState } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
+import { t } from "../../../lib/i18n";
 import type { Ticket, TicketStatus } from "@hwe/types";
 
 const TONE: Record<TicketStatus, "accent" | "neutral" | "success"> = {
   OPEN: "accent",
   IN_PROGRESS: "neutral",
   RESOLVED: "success",
-};
-
-const LABEL: Record<TicketStatus, string> = {
-  OPEN: "Ouvert",
-  IN_PROGRESS: "En cours",
-  RESOLVED: "Résolu",
 };
 
 function fmtDate(iso: string) {
@@ -42,7 +37,7 @@ function TicketCard({
         resolutionNote: status === "RESOLVED" && note ? note : undefined,
       }));
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("ops.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -54,7 +49,7 @@ function TicketCard({
         <div>
           <div className="flex items-center gap-3 mb-1 flex-wrap">
             <span className="font-semibold">{ticket.title}</span>
-            <Badge tone={TONE[ticket.status]}>{LABEL[ticket.status]}</Badge>
+            <Badge tone={TONE[ticket.status]}>{t("ops.ticketStatus." + ticket.status)}</Badge>
           </div>
           <p className="text-sm text-ink-muted">
             {ticket.lease?.property?.title}
@@ -75,13 +70,13 @@ function TicketCard({
             className="text-sm underline text-ink-muted"
             onClick={() => setShowPhoto((s) => !s)}
           >
-            {showPhoto ? "Masquer la photo" : "Voir la photo"}
+            {showPhoto ? t("ops.tickets.hidePhoto") : t("ops.tickets.showPhoto")}
           </button>
           {showPhoto && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={ticket.photoDataUrl}
-              alt="Photo de l'incident"
+              alt={t("ops.tickets.photoAlt")}
               className="mt-2 max-h-80 rounded-xl border border-ink-subtle"
             />
           )}
@@ -90,24 +85,24 @@ function TicketCard({
 
       {ticket.status === "RESOLVED" ? (
         <p className="text-sm text-ink-muted">
-          Résolu le {ticket.resolvedAt ? fmtDate(ticket.resolvedAt) : "—"}
+          {t("ops.tickets.resolvedOn")} {ticket.resolvedAt ? fmtDate(ticket.resolvedAt) : "—"}
           {ticket.resolutionNote ? ` — ${ticket.resolutionNote}` : ""}
         </p>
       ) : (
         <div className="flex flex-wrap items-center gap-2 pt-1">
           {ticket.status === "OPEN" && (
             <Button size="sm" variant="secondary" disabled={busy} onClick={() => move("IN_PROGRESS")}>
-              Prendre en charge
+              {t("ops.tickets.takeOver")}
             </Button>
           )}
           <Input
             className="flex-1 min-w-[12rem]"
-            placeholder="Note de résolution (optionnelle)"
+            placeholder={t("ops.tickets.notePlaceholder")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
           <Button size="sm" disabled={busy} onClick={() => move("RESOLVED")}>
-            Marquer résolu
+            {t("ops.tickets.markResolved")}
           </Button>
         </div>
       )}
@@ -130,15 +125,15 @@ export default function TicketsPage() {
     api.ownerTickets().then(setTickets).catch(() => setTickets([]));
   }, [user]);
 
-  if (loading || tickets === null) return <p className="text-ink-muted">Chargement…</p>;
+  if (loading || tickets === null) return <p className="text-ink-muted">{t("ops.loading")}</p>;
 
   const shown = filter === "ALL" ? tickets : tickets.filter((t) => t.status === filter);
 
   return (
     <section>
-      <h1 className="font-display text-3xl mb-2">Incidents</h1>
+      <h1 className="font-display text-3xl mb-2">{t("ops.tickets.title")}</h1>
       <p className="text-ink-muted mb-6">
-        Les problèmes signalés par vos locataires, à traiter ici.
+        {t("ops.tickets.sub")}
       </p>
 
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -152,7 +147,7 @@ export default function TicketsPage() {
                 : "border-ink-subtle text-ink-muted hover:border-brand-400"
             }`}
           >
-            {f === "ALL" ? "Tous" : LABEL[f]}
+            {f === "ALL" ? t("ops.tickets.filterAll") : t("ops.ticketStatus." + f)}
             {f !== "ALL" && ` (${tickets.filter((t) => t.status === f).length})`}
           </button>
         ))}
@@ -160,8 +155,8 @@ export default function TicketsPage() {
 
       {shown.length === 0 ? (
         <EmptyState
-          title="Aucun incident"
-          description="Rien à traiter pour l'instant."
+          title={t("ops.tickets.emptyTitle")}
+          description={t("ops.emptyDesc")}
         />
       ) : (
         <div className="space-y-4">

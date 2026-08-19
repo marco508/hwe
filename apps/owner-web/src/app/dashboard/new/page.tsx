@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { AnimatedBackground } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
+import { t } from "../../../lib/i18n";
 import { PropertyForm, PropertyFormValue } from "../../../components/PropertyForm";
 
 export default function NewPropertyPage() {
@@ -53,7 +54,7 @@ export default function NewPropertyPage() {
 
       router.push(`/properties/${created.id}`);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("pf.errPrefix") + (e as Error).message);
       setSubmitting(false);
     }
   };
@@ -74,25 +75,25 @@ export default function NewPropertyPage() {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
-              Retour au tableau de bord
+              {t("pf.back")}
             </Link>
             <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-500 pulse-dot" />
-              Nouveau bien
+              {t("pf.new.badge")}
             </span>
             <h1 className="font-display text-4xl mb-2">
-              Présentez votre bien <span className="gradient-text">avec soin</span>
+              {t("pf.new.title1")} <span className="gradient-text">{t("pf.new.title2")}</span>
             </h1>
             <p className="text-ink-muted leading-relaxed max-w-xl">
-              Une annonce complète et illustrée attire des candidats sérieux. Comptez 10 à 15 minutes pour saisir tous les détails — vous pourrez modifier à tout moment.
+              {t("pf.new.sub")}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 max-w-sm">
-            <TipCard icon="📸" text="Photos lumineuses, plusieurs angles" />
-            <TipCard icon="📍" text="Adresse précise, ville exacte" />
-            <TipCard icon="💶" text="Prix juste, devise locale" />
-            <TipCard icon="📝" text="Description honnête et vivante" />
+            <TipCard icon="📸" text={t("pf.new.tip1")} />
+            <TipCard icon="📍" text={t("pf.new.tip2")} />
+            <TipCard icon="💶" text={t("pf.new.tip3")} />
+            <TipCard icon="📝" text={t("pf.new.tip4")} />
           </div>
         </div>
       </AnimatedBackground>

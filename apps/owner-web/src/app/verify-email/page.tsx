@@ -62,7 +62,7 @@ export default function VerifyEmailPage() {
       <div className="max-w-md w-full">
         <Card>
           <CardBody>
-            <React.Suspense fallback={<p className="text-sm text-muted-foreground">Chargement…</p>}>
+            <React.Suspense fallback={<p className="text-sm text-muted-foreground">{t("common.loading")}</p>}>
               <VerifyContent />
             </React.Suspense>
           </CardBody>

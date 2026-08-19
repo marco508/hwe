@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Button, Input, Label, Textarea, Badge } from "@hwe/ui";
 import { api } from "../lib/api";
+import { t } from "../lib/i18n";
 import type {
   Inspection,
   InspectionItem,
@@ -12,7 +13,6 @@ import type {
   InsuranceSummary,
   ChargeRegularization,
 } from "@hwe/types";
-import { OWNER_NOTICE_REASON_LABELS } from "@hwe/types";
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -51,7 +51,7 @@ function DepositBlock({
       });
       onUpdate(updated);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -61,15 +61,16 @@ function DepositBlock({
     return (
       <div className="text-sm space-y-1">
         <p>
-          Versée le <strong>{fmtDate(lease.depositPaidAt!)}</strong>, restituée le{" "}
+          {t("lease.deposit.paidOn")} <strong>{fmtDate(lease.depositPaidAt!)}</strong>,{" "}
+          {t("lease.deposit.returnedOn")}{" "}
           <strong>{fmtDate(lease.depositReturnedAt)}</strong>
           {lease.depositRetained ? (
             <span>
               {" "}
-              — retenue : <strong>{fmtMoney(lease.depositRetained)}</strong>
+              — {t("lease.deposit.retained")} <strong>{fmtMoney(lease.depositRetained)}</strong>
             </span>
           ) : (
-            <span> — sans retenue</span>
+            <span> — {t("lease.deposit.noRetention")}</span>
           )}
         </p>
         {lease.depositNote && <p className="text-ink-muted">{lease.depositNote}</p>}
@@ -81,11 +82,11 @@ function DepositBlock({
     return (
       <div className="text-sm space-y-3">
         <p>
-          Versée le <strong>{fmtDate(lease.depositPaidAt)}</strong> ({fmtMoney(lease.deposit)})
+          {t("lease.deposit.paidOn")} <strong>{fmtDate(lease.depositPaidAt)}</strong> ({fmtMoney(lease.deposit)})
         </p>
         <div className="grid sm:grid-cols-2 gap-3 max-w-lg">
           <div>
-            <Label htmlFor={`ret-${lease.id}`}>Retenue (€, 0 si aucune)</Label>
+            <Label htmlFor={`ret-${lease.id}`}>{t("lease.deposit.retainedLabel")}</Label>
             <Input
               id={`ret-${lease.id}`}
               type="number"
@@ -97,17 +98,17 @@ function DepositBlock({
             />
           </div>
           <div>
-            <Label htmlFor={`note-${lease.id}`}>Motif (si retenue)</Label>
+            <Label htmlFor={`note-${lease.id}`}>{t("lease.deposit.reasonLabel")}</Label>
             <Input
               id={`note-${lease.id}`}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Ex : réparation porte"
+              placeholder={t("lease.deposit.reasonPlaceholder")}
             />
           </div>
         </div>
         <Button size="sm" variant="secondary" disabled={busy} onClick={() => act("RETURNED")}>
-          Marquer la caution restituée
+          {t("lease.deposit.markReturned")}
         </Button>
       </div>
     );
@@ -116,21 +117,16 @@ function DepositBlock({
   return (
     <div className="text-sm space-y-3">
       <p className="text-ink-muted">
-        {fmtMoney(lease.deposit)} — pas encore reçue.
+        {fmtMoney(lease.deposit)} — {t("lease.deposit.notReceived")}
       </p>
       <Button size="sm" disabled={busy} onClick={() => act("PAID")}>
-        Marquer la caution versée
+        {t("lease.deposit.markPaid")}
       </Button>
     </div>
   );
 }
 
 // ─── États des lieux ──────────────────────────────────────────────────────
-
-const TYPE_LABEL: Record<InspectionType, string> = {
-  ENTRY: "Entrée",
-  EXIT: "Sortie",
-};
 
 const CONDITIONS = ["Bon", "Usé", "À réparer", "Neuf"];
 
@@ -177,7 +173,7 @@ function InspectionEditor({
       });
       onSaved(saved);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -187,11 +183,11 @@ function InspectionEditor({
     <div className="space-y-4 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20">
       <div className="grid sm:grid-cols-3 gap-3">
         <div>
-          <Label>Date</Label>
+          <Label>{t("lease.inspection.date")}</Label>
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
         <div>
-          <Label>Clés remises</Label>
+          <Label>{t("lease.inspection.keys")}</Label>
           <Input
             type="number"
             min="0"
@@ -202,27 +198,27 @@ function InspectionEditor({
       </div>
       <div className="grid sm:grid-cols-3 gap-3">
         <div>
-          <Label>Compteur électricité</Label>
+          <Label>{t("lease.inspection.meterElec")}</Label>
           <Input value={elec} onChange={(e) => setElec(e.target.value)} />
         </div>
         <div>
-          <Label>Compteur eau</Label>
+          <Label>{t("lease.inspection.meterWater")}</Label>
           <Input value={water} onChange={(e) => setWater(e.target.value)} />
         </div>
         <div>
-          <Label>Compteur gaz</Label>
+          <Label>{t("lease.inspection.meterGas")}</Label>
           <Input value={gas} onChange={(e) => setGas(e.target.value)} />
         </div>
       </div>
 
       <div>
-        <Label>Relevé pièce par pièce</Label>
+        <Label>{t("lease.inspection.roomByRoom")}</Label>
         <div className="space-y-2 mt-1">
           {items.map((it, i) => (
             <div key={i} className="flex flex-wrap gap-2 items-center">
               <Input
                 className="flex-1 min-w-[10rem]"
-                placeholder="Pièce / élément (ex : Cuisine — murs)"
+                placeholder={t("lease.inspection.itemPlaceholder")}
                 value={it.label}
                 onChange={(e) => setItem(i, { label: e.target.value })}
               />
@@ -232,12 +228,14 @@ function InspectionEditor({
                 onChange={(e) => setItem(i, { condition: e.target.value })}
               >
                 {CONDITIONS.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {t("lease.condition." + c)}
+                  </option>
                 ))}
               </select>
               <Input
                 className="flex-1 min-w-[8rem]"
-                placeholder="Remarque"
+                placeholder={t("lease.inspection.notePlaceholder")}
                 value={it.note ?? ""}
                 onChange={(e) => setItem(i, { note: e.target.value })}
               />
@@ -258,12 +256,12 @@ function InspectionEditor({
           className="mt-2"
           onClick={() => setItems((arr) => [...arr, { label: "", condition: "Bon", note: "" }])}
         >
-          + Ajouter une ligne
+          {t("lease.inspection.addLine")}
         </Button>
       </div>
 
       <div>
-        <Label>Observations générales</Label>
+        <Label>{t("lease.inspection.generalNotes")}</Label>
         <Textarea
           rows={3}
           value={generalNote}
@@ -273,15 +271,15 @@ function InspectionEditor({
 
       <div className="flex gap-2">
         <Button size="sm" disabled={busy} onClick={save}>
-          {busy ? "Enregistrement…" : "Enregistrer"}
+          {busy ? t("lease.saving") : t("lease.save")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onCancel}>
-          Annuler
+          {t("lease.cancel")}
         </Button>
       </div>
       {(initial?.ownerSignedAt || initial?.tenantSignedAt) && (
         <p className="text-xs text-ink-muted">
-          Modifier annule les signatures déjà posées.
+          {t("lease.inspection.editVoidsSignatures")}
         </p>
       )}
     </div>
@@ -308,7 +306,7 @@ function InspectionRow({
     try {
       onChange(await api.signInspection(leaseId, type));
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -331,32 +329,39 @@ function InspectionRow({
 
   return (
     <div className="flex flex-wrap items-center gap-3 text-sm">
-      <span className="font-medium w-16">{TYPE_LABEL[type]}</span>
+      <span className="font-medium w-16">{t("lease.inspection.type." + type)}</span>
       {inspection ? (
         <>
           <span>{fmtDate(inspection.date)}</span>
           <span className="text-ink-muted">
-            {(inspection.items?.length ?? 0)} ligne{(inspection.items?.length ?? 0) > 1 ? "s" : ""}
+            {(inspection.items?.length ?? 0)}{" "}
+            {(inspection.items?.length ?? 0) > 1
+              ? t("lease.inspection.lines")
+              : t("lease.inspection.line")}
           </span>
-          <span title="Propriétaire">{inspection.ownerSignedAt ? "✅" : "⏳"} prop.</span>
-          <span title="Locataire">{inspection.tenantSignedAt ? "✅" : "⏳"} loc.</span>
-          {locked && <Badge tone="success">Verrouillé</Badge>}
+          <span title={t("lease.owner")}>
+            {inspection.ownerSignedAt ? "✅" : "⏳"} {t("lease.inspection.ownerAbbr")}
+          </span>
+          <span title={t("lease.tenant")}>
+            {inspection.tenantSignedAt ? "✅" : "⏳"} {t("lease.inspection.tenantAbbr")}
+          </span>
+          {locked && <Badge tone="success">{t("lease.inspection.locked")}</Badge>}
           {!inspection.ownerSignedAt && (
             <Button size="sm" variant="secondary" disabled={busy} onClick={sign}>
-              Signer
+              {t("lease.sign")}
             </Button>
           )}
           {!locked && (
             <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>
-              Modifier
+              {t("lease.edit")}
             </Button>
           )}
         </>
       ) : (
         <>
-          <span className="text-ink-muted">Pas encore rédigé</span>
+          <span className="text-ink-muted">{t("lease.inspection.notDrafted")}</span>
           <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
-            Rédiger
+            {t("lease.inspection.draft")}
           </Button>
         </>
       )}
@@ -376,7 +381,7 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
   const submit = async () => {
     if (!form.effectiveDate) return;
     if (!form.rent && !form.charges && !form.endDate) {
-      alert("Modifiez au moins une condition (loyer, charges ou fin).");
+      alert(t("lease.amendment.atLeastOne"));
       return;
     }
     setBusy(true);
@@ -392,7 +397,7 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
       setForm({ effectiveDate: "", rent: "", charges: "", endDate: "", note: "" });
       setOpen(false);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -401,21 +406,21 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
   return (
     <div className="space-y-3 text-sm">
       {amendments.length === 0 ? (
-        <p className="text-ink-muted">Aucun avenant.</p>
+        <p className="text-ink-muted">{t("lease.amendment.none")}</p>
       ) : (
         <ul className="space-y-1">
           {amendments.map((a) => (
             <li key={a.id} className="flex flex-wrap items-center gap-2">
               <span>
-                Au <strong>{fmtDate(a.effectiveDate)}</strong> :
-                {a.newMonthlyRent != null && <> loyer <strong>{fmtMoney(a.newMonthlyRent)}</strong></>}
-                {a.newCharges != null && <> · charges <strong>{fmtMoney(a.newCharges)}</strong></>}
-                {a.newEndDate != null && <> · fin <strong>{fmtDate(a.newEndDate)}</strong></>}
+                {t("lease.amendment.asOf")} <strong>{fmtDate(a.effectiveDate)}</strong> :
+                {a.newMonthlyRent != null && <> {t("lease.amendment.rentWord")} <strong>{fmtMoney(a.newMonthlyRent)}</strong></>}
+                {a.newCharges != null && <> · {t("lease.amendment.chargesWord")} <strong>{fmtMoney(a.newCharges)}</strong></>}
+                {a.newEndDate != null && <> · {t("lease.amendment.endWord")} <strong>{fmtDate(a.newEndDate)}</strong></>}
               </span>
               {a.tenantSignedAt ? (
-                <Badge tone="success">Signé — appliqué</Badge>
+                <Badge tone="success">{t("lease.amendment.signedApplied")}</Badge>
               ) : (
-                <Badge tone="accent">En attente de signature</Badge>
+                <Badge tone="accent">{t("lease.amendment.awaitingSignature")}</Badge>
               )}
             </li>
           ))}
@@ -425,37 +430,37 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
         <div className="space-y-3 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20 max-w-xl">
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <Label>Date d'effet</Label>
+              <Label>{t("lease.amendment.effectiveDate")}</Label>
               <Input type="date" value={form.effectiveDate} onChange={(e) => setForm({ ...form, effectiveDate: e.target.value })} />
             </div>
             <div>
-              <Label>Nouveau loyer (€, vide = inchangé)</Label>
+              <Label>{t("lease.amendment.newRent")}</Label>
               <Input type="number" min="0" step="0.01" value={form.rent} onChange={(e) => setForm({ ...form, rent: e.target.value })} />
             </div>
             <div>
-              <Label>Nouvelles charges (€)</Label>
+              <Label>{t("lease.amendment.newCharges")}</Label>
               <Input type="number" min="0" step="0.01" value={form.charges} onChange={(e) => setForm({ ...form, charges: e.target.value })} />
             </div>
             <div>
-              <Label>Nouvelle date de fin</Label>
+              <Label>{t("lease.amendment.newEndDate")}</Label>
               <Input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
             </div>
           </div>
           <div>
-            <Label>Motif (révision IRL, renouvellement…)</Label>
+            <Label>{t("lease.amendment.reason")}</Label>
             <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
           </div>
           <div className="flex gap-2">
             <Button size="sm" disabled={busy || !form.effectiveDate} onClick={submit}>
-              {busy ? "Création…" : "Proposer l'avenant"}
+              {busy ? t("lease.creating") : t("lease.amendment.submit")}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
+            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>{t("lease.cancel")}</Button>
           </div>
-          <p className="text-xs text-ink-muted">Il ne s'applique qu'après signature du locataire.</p>
+          <p className="text-xs text-ink-muted">{t("lease.amendment.appliesAfterSignature")}</p>
         </div>
       ) : (
         <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
-          + Proposer un avenant
+          {t("lease.amendment.propose")}
         </Button>
       )}
     </div>
@@ -484,26 +489,26 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
       setForm({ firstName: "", lastName: "", email: "", phone: "" });
       setOpen(false);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Retirer ce colocataire ?")) return;
+    if (!confirm(t("lease.coTenant.confirmRemove"))) return;
     try {
       await api.removeCoTenant(propertyId, lease.id, id);
       setCoTenants((arr) => arr.filter((c) => c.id !== id));
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     }
   };
 
   return (
     <div className="space-y-3 text-sm">
       {coTenants.length === 0 ? (
-        <p className="text-ink-muted">Pas de colocataire — le locataire principal figure au contrat.</p>
+        <p className="text-ink-muted">{t("lease.coTenant.none")}</p>
       ) : (
         <ul className="space-y-1">
           {coTenants.map((c) => (
@@ -522,19 +527,19 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
       )}
       {open ? (
         <div className="flex flex-wrap gap-2 items-end max-w-2xl">
-          <Input placeholder="Prénom" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="max-w-[9rem]" />
-          <Input placeholder="Nom" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="max-w-[9rem]" />
-          <Input placeholder="E-mail" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="max-w-[14rem]" />
-          <Button size="sm" disabled={busy} onClick={add}>Ajouter</Button>
-          <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
+          <Input placeholder={t("lease.coTenant.firstName")} value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="max-w-[9rem]" />
+          <Input placeholder={t("lease.coTenant.lastName")} value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="max-w-[9rem]" />
+          <Input placeholder={t("lease.coTenant.email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="max-w-[14rem]" />
+          <Button size="sm" disabled={busy} onClick={add}>{t("lease.add")}</Button>
+          <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>{t("lease.cancel")}</Button>
         </div>
       ) : (
         <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
-          + Ajouter un colocataire
+          {t("lease.coTenant.addBtn")}
         </Button>
       )}
       <p className="text-xs text-ink-muted">
-        Le colocataire signe sa ligne depuis son espace (même adresse e-mail) et accède au bail.
+        {t("lease.coTenant.hint")}
       </p>
     </div>
   );
@@ -553,21 +558,23 @@ function InsuranceStatus({ lease }: { lease: LeaseContract }) {
       const w = window.open();
       if (w) w.document.write(`<iframe src="${fileUrl}" style="width:100%;height:100%;border:0"></iframe>`);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     }
   };
 
   if (!latest) {
-    return <p className="text-sm"><Badge tone="accent">Aucune attestation déposée</Badge></p>;
+    return <p className="text-sm"><Badge tone="accent">{t("lease.insurance.none")}</Badge></p>;
   }
   const expired = new Date(latest.validUntil).getTime() < now;
   return (
     <div className="text-sm flex flex-wrap items-center gap-2">
       <Badge tone={expired ? "accent" : "success"}>
-        {expired ? `Expirée le ${fmtDate(latest.validUntil)}` : `Valide jusqu'au ${fmtDate(latest.validUntil)}`}
+        {expired
+          ? t("lease.insurance.expiredOn", { date: fmtDate(latest.validUntil) })
+          : t("lease.insurance.validUntil", { date: fmtDate(latest.validUntil) })}
       </Badge>
       <button className="underline text-ink-muted" onClick={() => view(latest.id)}>
-        Voir l'attestation
+        {t("lease.insurance.view")}
       </button>
     </div>
   );
@@ -594,35 +601,36 @@ function OwnerNoticeBlock({
   if (lease.ownerNoticeGivenAt) {
     return (
       <p className="text-sm">
-        Donné le <strong>{fmtDate(lease.ownerNoticeGivenAt)}</strong> —{" "}
-        {OWNER_NOTICE_REASON_LABELS[lease.ownerNoticeReason ?? ""] ?? lease.ownerNoticeReason} — fin de
-        bail le <strong>{lease.ownerNoticeEffectiveDate ? fmtDate(lease.ownerNoticeEffectiveDate) : "—"}</strong>.
+        {t("lease.notice.givenOn")} <strong>{fmtDate(lease.ownerNoticeGivenAt)}</strong> —{" "}
+        {lease.ownerNoticeReason ? t("lease.noticeReason." + lease.ownerNoticeReason) : null} —{" "}
+        {t("lease.notice.leaseEndsOn")}{" "}
+        <strong>{lease.ownerNoticeEffectiveDate ? fmtDate(lease.ownerNoticeEffectiveDate) : "—"}</strong>.
       </p>
     );
   }
   if (lease.noticeGivenAt) {
     return (
       <p className="text-sm text-ink-muted">
-        Le locataire a déjà donné son préavis — fin de bail le{" "}
+        {t("lease.notice.tenantAlready")}{" "}
         {lease.noticeEffectiveDate ? fmtDate(lease.noticeEffectiveDate) : "—"}.
       </p>
     );
   }
   const active = lease.status === "ACTIVE" || lease.status === "SIGNED";
-  if (!active) return <p className="text-sm text-ink-muted">Disponible quand le bail est actif.</p>;
+  if (!active) return <p className="text-sm text-ink-muted">{t("lease.notice.availableWhenActive")}</p>;
 
   const minMonths = lease.furnished ? 3 : 6;
 
   if (!open) {
     return (
       <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
-        Donner congé au locataire
+        {t("lease.notice.giveBtn")}
       </Button>
     );
   }
 
   const submit = async () => {
-    if (!confirm("Vous notifiez officiellement la fin du bail au locataire. Confirmez-vous ?")) return;
+    if (!confirm(t("lease.notice.confirm"))) return;
     setBusy(true);
     try {
       const updated = await api.giveOwnerNotice(propertyId, lease.id, {
@@ -633,7 +641,7 @@ function OwnerNoticeBlock({
       onUpdate({ ...lease, ...updated });
       setOpen(false);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -642,36 +650,38 @@ function OwnerNoticeBlock({
   return (
     <div className="space-y-3 max-w-lg text-sm">
       <p className="text-ink-muted">
-        Préavis légal côté bailleur : {minMonths} mois ({lease.furnished ? "meublé" : "non meublé"}).
-        Une date plus proche sera ramenée à ce minimum.
+        {t("lease.notice.legalNotice", {
+          n: minMonths,
+          type: lease.furnished ? t("lease.furnishedWord") : t("lease.unfurnishedWord"),
+        })}
       </p>
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
-          <Label>Motif légal</Label>
+          <Label>{t("lease.notice.legalReason")}</Label>
           <select
             className="h-10 w-full rounded-lg border border-ink-subtle bg-white px-2 text-sm"
             value={reason}
             onChange={(e) => setReason(e.target.value as typeof reason)}
           >
-            <option value="SALE">Mise en vente</option>
-            <option value="REPOSSESSION">Reprise du logement</option>
-            <option value="OTHER">Motif légitime et sérieux</option>
+            <option value="SALE">{t("lease.noticeReason.SALE")}</option>
+            <option value="REPOSSESSION">{t("lease.noticeReason.REPOSSESSION")}</option>
+            <option value="OTHER">{t("lease.noticeReason.OTHER")}</option>
           </select>
         </div>
         <div>
-          <Label>Date de fin souhaitée</Label>
+          <Label>{t("lease.notice.desiredEnd")}</Label>
           <Input type="date" value={desired} onChange={(e) => setDesired(e.target.value)} />
         </div>
       </div>
       <div>
-        <Label>Précision (optionnelle)</Label>
+        <Label>{t("lease.notice.detail")}</Label>
         <Input value={note} onChange={(e) => setNote(e.target.value)} />
       </div>
       <div className="flex gap-2">
         <Button size="sm" disabled={busy} onClick={submit}>
-          {busy ? "Envoi…" : "Notifier le congé"}
+          {busy ? t("lease.sending") : t("lease.notice.notifyBtn")}
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
+        <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>{t("lease.cancel")}</Button>
       </div>
     </div>
   );
@@ -705,7 +715,7 @@ function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; 
       setForm({ periodLabel: "", provisions: "", actual: "", note: "" });
       setOpen(false);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("lease.errorPrefix") + (e as Error).message);
     } finally {
       setBusy(false);
     }
@@ -714,23 +724,24 @@ function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; 
   return (
     <div className="space-y-3 text-sm">
       {regs === null ? (
-        <p className="text-ink-muted">Chargement…</p>
+        <p className="text-ink-muted">{t("lease.loading")}</p>
       ) : regs.length === 0 ? (
-        <p className="text-ink-muted">Aucune régularisation — à faire une fois par an.</p>
+        <p className="text-ink-muted">{t("lease.reg.none")}</p>
       ) : (
         <ul className="space-y-1">
           {regs.map((r) => (
             <li key={r.id} className="flex flex-wrap items-center gap-2">
               <span className="font-medium">{r.periodLabel}</span>
               <span className="text-ink-muted">
-                provisions {fmtMoney(r.provisionsCollected)} · réel {fmtMoney(r.actualCharges)}
+                {t("lease.reg.provisionsWord")} {fmtMoney(r.provisionsCollected)} ·{" "}
+                {t("lease.reg.actualWord")} {fmtMoney(r.actualCharges)}
               </span>
               {r.balance > 0 ? (
-                <Badge tone="accent">+{fmtMoney(r.balance)} dû par le locataire</Badge>
+                <Badge tone="accent">+{fmtMoney(r.balance)} {t("lease.reg.dueByTenant")}</Badge>
               ) : r.balance < 0 ? (
-                <Badge tone="brand">{fmtMoney(-r.balance)} à rembourser</Badge>
+                <Badge tone="brand">{fmtMoney(-r.balance)} {t("lease.reg.toRefund")}</Badge>
               ) : (
-                <Badge tone="success">Équilibré</Badge>
+                <Badge tone="success">{t("lease.reg.balanced")}</Badge>
               )}
             </li>
           ))}
@@ -740,35 +751,35 @@ function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; 
         <div className="space-y-3 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20 max-w-xl">
           <div className="grid sm:grid-cols-3 gap-3">
             <div>
-              <Label>Période</Label>
+              <Label>{t("lease.reg.period")}</Label>
               <Input placeholder="2026" value={form.periodLabel} onChange={(e) => setForm({ ...form, periodLabel: e.target.value })} />
             </div>
             <div>
-              <Label>Provisions encaissées (€)</Label>
+              <Label>{t("lease.reg.provisionsCollected")}</Label>
               <Input type="number" min="0" step="0.01" value={form.provisions} onChange={(e) => setForm({ ...form, provisions: e.target.value })} />
             </div>
             <div>
-              <Label>Charges réelles (€)</Label>
+              <Label>{t("lease.reg.actualCharges")}</Label>
               <Input type="number" min="0" step="0.01" value={form.actual} onChange={(e) => setForm({ ...form, actual: e.target.value })} />
             </div>
           </div>
           <div>
-            <Label>Détail (eau, ordures…)</Label>
+            <Label>{t("lease.reg.detail")}</Label>
             <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
           </div>
           <div className="flex gap-2">
             <Button size="sm" disabled={busy} onClick={submit}>
-              {busy ? "Enregistrement…" : "Enregistrer et notifier"}
+              {busy ? t("lease.saving") : t("lease.reg.saveNotify")}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Annuler</Button>
+            <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>{t("lease.cancel")}</Button>
           </div>
           <p className="text-xs text-ink-muted">
-            Le solde est notifié au locataire ; le règlement se fait entre vous.
+            {t("lease.reg.hint")}
           </p>
         </div>
       ) : (
         <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
-          + Régulariser une période
+          {t("lease.reg.addBtn")}
         </Button>
       )}
     </div>
@@ -809,29 +820,30 @@ export function LeaseExtras({
         onClick={() => setOpen((o) => !o)}
         className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
       >
-        {open ? "▾" : "▸"} Gérer le bail — caution, états des lieux, avenants, colocation, assurance
+        {open ? "▾" : "▸"} {t("lease.extras.toggle")}
       </button>
       {open && (
         <div className="mt-4 space-y-6">
           {lease.noticeGivenAt && (
             <div className="rounded-lg border border-accent-500/30 bg-accent-500/10 px-4 py-2 text-sm">
-              Préavis reçu le <strong>{fmtDate(lease.noticeGivenAt)}</strong> — fin de bail le{" "}
-              <strong>{lease.noticeEffectiveDate ? fmtDate(lease.noticeEffectiveDate) : "—"}</strong>.
-              Pensez à l'état des lieux de sortie et à la caution.
+              {t("lease.extras.noticeReceivedOn")} <strong>{fmtDate(lease.noticeGivenAt)}</strong> —{" "}
+              {t("lease.notice.leaseEndsOn")}{" "}
+              <strong>{lease.noticeEffectiveDate ? fmtDate(lease.noticeEffectiveDate) : "—"}</strong>.{" "}
+              {t("lease.extras.noticeReminder")}
             </div>
           )}
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
-              Caution
+              {t("lease.section.deposit")}
             </h3>
             <DepositBlock propertyId={propertyId} lease={lease} onUpdate={onLeaseUpdate} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
-              États des lieux
+              {t("lease.section.inspections")}
             </h3>
             {inspections === null ? (
-              <p className="text-sm text-ink-muted">Chargement…</p>
+              <p className="text-sm text-ink-muted">{t("lease.loading")}</p>
             ) : (
               <div className="space-y-3">
                 <InspectionRow
@@ -851,31 +863,31 @@ export function LeaseExtras({
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
-              Avenants
+              {t("lease.section.amendments")}
             </h3>
             <AmendmentsBlock propertyId={propertyId} lease={lease} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
-              Colocataires
+              {t("lease.section.coTenants")}
             </h3>
             <CoTenantsBlock propertyId={propertyId} lease={lease} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
-              Régularisation des charges
+              {t("lease.section.reg")}
             </h3>
             <ChargeRegularizationBlock propertyId={propertyId} lease={lease} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
-              Congé du propriétaire
+              {t("lease.section.ownerNotice")}
             </h3>
             <OwnerNoticeBlock propertyId={propertyId} lease={lease} onUpdate={onLeaseUpdate} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
-              Assurance habitation
+              {t("lease.section.insurance")}
             </h3>
             <InsuranceStatus lease={lease} />
           </div>

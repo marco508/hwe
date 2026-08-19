@@ -1,3 +1,219 @@
-// Dictionnaire de zone — rempli par la passe de traduction.
-export const fr: Record<string, string> = {};
-export const en: Record<string, string> = {};
+// Dictionnaire de zone — Compte : profil, avatar, documents d'identité,
+// mot de passe oublié / réinitialisé, recherche de biens de l'accueil, pied de page.
+export const fr: Record<string, string> = {
+  // Profil
+  "acc.profile.title": "Mon profil",
+  "acc.profile.loggedAs": "Connecté en tant que locataire / acheteur",
+  "acc.profile.firstName": "Prénom",
+  "acc.profile.lastName": "Nom",
+  "acc.profile.phone": "Téléphone",
+  "acc.profile.save": "Enregistrer",
+  "acc.profile.saving": "Enregistrement…",
+  "acc.profile.saved": "Profil mis à jour ✓",
+
+  // Photo de profil
+  "acc.avatar.clickToChange": "Cliquer pour changer la photo",
+  "acc.avatar.alt": "Avatar",
+  "acc.avatar.edit": "Modifier",
+  "acc.avatar.change": "Changer la photo",
+
+  // Documents d'identité
+  "acc.docs.title": "Documents d'identité",
+  "acc.docs.hint": "CNI, passeport, titre de séjour… Ces documents restent privés et confidentiels.",
+  "acc.docs.add": "+ Ajouter",
+  "acc.docs.type": "Type de document",
+  "acc.docs.name": "Nom / libellé",
+  "acc.docs.file": "Fichier (image ou PDF)",
+  "acc.docs.changeFile": "Changer de fichier",
+  "acc.docs.pickFile": "Cliquer pour sélectionner un fichier",
+  "acc.docs.fileHint": "JPG, PNG, PDF — max 10 Mo",
+  "acc.docs.uploading": "Envoi…",
+  "acc.docs.save": "Enregistrer",
+  "acc.docs.cancel": "Annuler",
+  "acc.docs.empty": "Aucun document d'identité ajouté pour le moment.",
+  "acc.docs.verified": "✓ Vérifié",
+  "acc.docs.view": "Voir",
+  "acc.docs.delete": "Supprimer",
+  "acc.docs.confirmDelete": "Supprimer ce document ?",
+  "acc.docs.bytes": "{n} o",
+  "acc.docs.kbytes": "{n} Ko",
+  "acc.docs.mbytes": "{n} Mo",
+
+  // Types de document
+  "acc.docType.NATIONAL_ID": "Carte nationale d'identité",
+  "acc.docType.PASSPORT": "Passeport",
+  "acc.docType.DRIVERS_LICENSE": "Permis de conduire",
+  "acc.docType.RESIDENCE_PERMIT": "Titre de séjour",
+  "acc.docType.INCOME_PROOF": "Justificatif de revenus",
+  "acc.docType.EMPLOYMENT_CONTRACT": "Contrat de travail",
+  "acc.docType.TAX_NOTICE": "Avis d'imposition",
+  "acc.docType.GUARANTOR_ID": "Pièce d'identité du garant",
+  "acc.docType.GUARANTOR_INCOME": "Revenus du garant",
+  "acc.docType.OTHER": "Autre",
+
+  // Mot de passe oublié
+  "acc.forgot.title": "Mot de passe oublié",
+  "acc.forgot.sub": "Saisissez votre e-mail : nous vous enverrons un lien pour définir un nouveau mot de passe.",
+  "acc.forgot.email": "E-mail",
+  "acc.forgot.submit": "Envoyer le lien",
+  "acc.forgot.sending": "Envoi…",
+  "acc.forgot.sentTitle": "Vérifiez votre boîte mail",
+  "acc.forgot.sentText": "Si un compte existe pour cet e-mail, un lien de réinitialisation vient d'y être envoyé. Le lien est valable 30 minutes.",
+  "acc.forgot.backToLogin": "Retour à la connexion",
+
+  // Réinitialisation du mot de passe
+  "acc.reset.title": "Nouveau mot de passe",
+  "acc.reset.sub": "Choisissez un nouveau mot de passe (au moins 8 caractères).",
+  "acc.reset.new": "Nouveau mot de passe",
+  "acc.reset.confirm": "Confirmer le mot de passe",
+  "acc.reset.submit": "Valider",
+  "acc.reset.validating": "Validation…",
+  "acc.reset.mismatch": "Les deux mots de passe ne correspondent pas.",
+  "acc.reset.tooShort": "Au moins 8 caractères.",
+  "acc.reset.expired": "Ce lien a expiré ou a déjà été utilisé. Redemandez une réinitialisation.",
+  "acc.reset.invalidLink": "Lien de réinitialisation invalide.",
+  "acc.reset.requestNew": "Redemander un lien",
+  "acc.reset.doneTitle": "Mot de passe réinitialisé",
+  "acc.reset.doneText": "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+  "acc.reset.login": "Se connecter",
+  "acc.reset.loading": "Chargement…",
+
+  // Recherche de biens (accueil)
+  "acc.search.type": "Type",
+  "acc.search.all": "Tous",
+  "acc.search.rent": "Location",
+  "acc.search.sale": "Vente",
+  "acc.search.property": "Bien",
+  "acc.search.propertyType.APARTMENT": "Appartement",
+  "acc.search.propertyType.HOUSE": "Maison",
+  "acc.search.propertyType.STUDIO": "Studio",
+  "acc.search.propertyType.LAND": "Terrain",
+  "acc.search.propertyType.COMMERCIAL": "Local",
+  "acc.search.propertyType.OTHER": "Autre",
+  "acc.search.country": "Pays",
+  "acc.search.countryPlaceholder": "ex : France",
+  "acc.search.city": "Ville",
+  "acc.search.maxPrice": "Prix max",
+  "acc.search.minSurface": "Surface min (m²)",
+  "acc.search.submit": "Rechercher",
+
+  // Liste des biens
+  "acc.list.emptyTitle": "Aucun bien ne correspond",
+  "acc.list.emptyDesc": "Essayez d'élargir vos critères.",
+  "acc.fav.add": "Ajouter aux favoris",
+  "acc.fav.remove": "Retirer des favoris",
+  "acc.fav.save": "Sauvegarder",
+  "acc.fav.saved": "Sauvegardé",
+
+  // Pied de page
+  "acc.footer": "Espace locataire / acheteur",
+};
+
+export const en: Record<string, string> = {
+  // Profile
+  "acc.profile.title": "My profile",
+  "acc.profile.loggedAs": "Signed in as tenant / buyer",
+  "acc.profile.firstName": "First name",
+  "acc.profile.lastName": "Last name",
+  "acc.profile.phone": "Phone",
+  "acc.profile.save": "Save",
+  "acc.profile.saving": "Saving…",
+  "acc.profile.saved": "Profile updated ✓",
+
+  // Profile picture
+  "acc.avatar.clickToChange": "Click to change the photo",
+  "acc.avatar.alt": "Avatar",
+  "acc.avatar.edit": "Edit",
+  "acc.avatar.change": "Change photo",
+
+  // Identity documents
+  "acc.docs.title": "Identity documents",
+  "acc.docs.hint": "ID card, passport, residence permit… These documents stay private and confidential.",
+  "acc.docs.add": "+ Add",
+  "acc.docs.type": "Document type",
+  "acc.docs.name": "Name / label",
+  "acc.docs.file": "File (image or PDF)",
+  "acc.docs.changeFile": "Change file",
+  "acc.docs.pickFile": "Click to select a file",
+  "acc.docs.fileHint": "JPG, PNG, PDF — max 10 MB",
+  "acc.docs.uploading": "Uploading…",
+  "acc.docs.save": "Save",
+  "acc.docs.cancel": "Cancel",
+  "acc.docs.empty": "No identity document added yet.",
+  "acc.docs.verified": "✓ Verified",
+  "acc.docs.view": "View",
+  "acc.docs.delete": "Delete",
+  "acc.docs.confirmDelete": "Delete this document?",
+  "acc.docs.bytes": "{n} B",
+  "acc.docs.kbytes": "{n} KB",
+  "acc.docs.mbytes": "{n} MB",
+
+  // Document types
+  "acc.docType.NATIONAL_ID": "National ID card",
+  "acc.docType.PASSPORT": "Passport",
+  "acc.docType.DRIVERS_LICENSE": "Driver's licence",
+  "acc.docType.RESIDENCE_PERMIT": "Residence permit",
+  "acc.docType.INCOME_PROOF": "Proof of income",
+  "acc.docType.EMPLOYMENT_CONTRACT": "Employment contract",
+  "acc.docType.TAX_NOTICE": "Tax assessment notice",
+  "acc.docType.GUARANTOR_ID": "Guarantor's ID",
+  "acc.docType.GUARANTOR_INCOME": "Guarantor's income",
+  "acc.docType.OTHER": "Other",
+
+  // Forgot password
+  "acc.forgot.title": "Forgot password",
+  "acc.forgot.sub": "Enter your email: we'll send you a link to set a new password.",
+  "acc.forgot.email": "Email",
+  "acc.forgot.submit": "Send the link",
+  "acc.forgot.sending": "Sending…",
+  "acc.forgot.sentTitle": "Check your inbox",
+  "acc.forgot.sentText": "If an account exists for this email, a reset link has just been sent to it. The link is valid for 30 minutes.",
+  "acc.forgot.backToLogin": "Back to login",
+
+  // Password reset
+  "acc.reset.title": "New password",
+  "acc.reset.sub": "Choose a new password (at least 8 characters).",
+  "acc.reset.new": "New password",
+  "acc.reset.confirm": "Confirm password",
+  "acc.reset.submit": "Confirm",
+  "acc.reset.validating": "Validating…",
+  "acc.reset.mismatch": "The two passwords do not match.",
+  "acc.reset.tooShort": "At least 8 characters.",
+  "acc.reset.expired": "This link has expired or has already been used. Please request a new reset.",
+  "acc.reset.invalidLink": "Invalid reset link.",
+  "acc.reset.requestNew": "Request a new link",
+  "acc.reset.doneTitle": "Password reset",
+  "acc.reset.doneText": "You can now log in with your new password.",
+  "acc.reset.login": "Log in",
+  "acc.reset.loading": "Loading…",
+
+  // Property search (home)
+  "acc.search.type": "Type",
+  "acc.search.all": "All",
+  "acc.search.rent": "Rent",
+  "acc.search.sale": "Sale",
+  "acc.search.property": "Property",
+  "acc.search.propertyType.APARTMENT": "Apartment",
+  "acc.search.propertyType.HOUSE": "House",
+  "acc.search.propertyType.STUDIO": "Studio",
+  "acc.search.propertyType.LAND": "Land",
+  "acc.search.propertyType.COMMERCIAL": "Commercial unit",
+  "acc.search.propertyType.OTHER": "Other",
+  "acc.search.country": "Country",
+  "acc.search.countryPlaceholder": "e.g. France",
+  "acc.search.city": "City",
+  "acc.search.maxPrice": "Max price",
+  "acc.search.minSurface": "Min surface (m²)",
+  "acc.search.submit": "Search",
+
+  // Property list
+  "acc.list.emptyTitle": "No property matches",
+  "acc.list.emptyDesc": "Try broadening your criteria.",
+  "acc.fav.add": "Add to favorites",
+  "acc.fav.remove": "Remove from favorites",
+  "acc.fav.save": "Save",
+  "acc.fav.saved": "Saved",
+
+  // Footer
+  "acc.footer": "Tenant / buyer space",
+};

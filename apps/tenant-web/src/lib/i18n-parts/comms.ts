@@ -1,3 +1,201 @@
-// Dictionnaire de zone — rempli par la passe de traduction.
-export const fr: Record<string, string> = {};
-export const en: Record<string, string> = {};
+// Dictionnaire de zone — demandes, messagerie, favoris, visites.
+// fr = textes d'origine ; en = traduction.
+export const fr: Record<string, string> = {
+  // ── Partagé ──
+  "com.loading": "Chargement…",
+  "com.error": "Erreur : ",
+  "com.cancel": "Annuler",
+  "com.details": "Détails",
+  "com.chat": "Discuter",
+  "com.listing.sale": "Vente",
+  "com.listing.rent": "Location",
+
+  // ── Statuts de demande ──
+  "com.status.PENDING": "En attente",
+  "com.status.ACCEPTED": "Acceptée",
+  "com.status.REJECTED": "Refusée",
+  "com.status.CANCELLED": "Annulée",
+
+  "com.statusMsg.PENDING": "Votre demande est en attente de réponse du propriétaire.",
+  "com.statusMsg.ACCEPTED": "Le propriétaire a accepté votre demande ! Un contrat de bail a été généré. Il vous contactera pour finaliser.",
+  "com.statusMsg.REJECTED": "Le propriétaire n'a pas retenu votre candidature pour ce bien.",
+  "com.statusMsg.CANCELLED": "Vous avez annulé cette demande.",
+
+  "com.tab.ALL": "Toutes",
+  "com.tab.PENDING": "En attente",
+  "com.tab.ACCEPTED": "Location en cours",
+  "com.tab.REJECTED": "Refusées",
+  "com.tab.CANCELLED": "Annulées",
+
+  // ── Mes demandes ──
+  "com.inq.title": "Mes demandes",
+  "com.inq.sub": "Suivez l'état de vos candidatures auprès des propriétaires.",
+  "com.inq.myRequest": "Ma demande",
+  "com.inq.property": "Bien concerné",
+  "com.inq.myMessage": "Mon message",
+  "com.inq.wishes": "Mes souhaits de location",
+  "com.inq.startWanted": "Début souhaité",
+  "com.inq.startWantedC": "Début souhaité : ",
+  "com.inq.duration": "Durée",
+  "com.inq.durationC": "Durée : ",
+  "com.inq.openEnded": "Indéterminée",
+  "com.inq.endDate": "Fin prévue",
+  "com.inq.sentOn": "Envoyé le {date}",
+  "com.inq.repliedOn": "Répondu le {date}",
+  "com.inq.cancelledOn": "Annulée le {date}",
+  "com.inq.cancelRequest": "Annuler la demande",
+  "com.inq.cancelling": "Annulation…",
+  "com.inq.acceptedNote": "Le propriétaire vous contactera prochainement à l'adresse {email}",
+  "com.inq.confirmCancel": "Confirmer l'annulation de cette demande ?",
+  "com.inq.emptyTitle": "Vous n'avez encore envoyé aucune demande",
+  "com.inq.emptyDesc": "Parcourez les annonces et contactez les propriétaires depuis la fiche du bien.",
+  "com.inq.emptyTabTitle": "Aucune demande dans cette catégorie",
+  "com.inq.emptyTabDesc": "Changez d'onglet pour voir vos autres demandes.",
+
+  "com.unit.DAYS": "jour(s)",
+  "com.unit.WEEKS": "semaine(s)",
+  "com.unit.MONTHS": "mois",
+  "com.unit.YEARS": "an(s)",
+
+  // ── Messagerie ──
+  "com.msg.title1": "Mes",
+  "com.msg.title2": "conversations",
+  "com.msg.sub": "Échanges directs avec les propriétaires des biens qui vous intéressent.",
+  "com.msg.unread1": "{n} non lu.",
+  "com.msg.unreadN": "{n} non lus.",
+  "com.msg.enableNotifs": "Activer les notifications",
+  "com.msg.notifsOn": "Notifications navigateur actives",
+  "com.msg.emptyList": "Aucune conversation. Contactez un propriétaire depuis une annonce pour démarrer un échange.",
+  "com.msg.anonymous": "Anonyme",
+  "com.msg.selectTitle": "Sélectionnez une conversation",
+  "com.msg.selectSub": "Choisissez un fil dans la liste pour voir et répondre.",
+  "com.msg.backToList": "Retour à la liste",
+  "com.msg.owner": "Propriétaire",
+  "com.msg.emptyThread": "Aucun message encore. Écrivez le premier !",
+  "com.msg.placeholder": "Votre message…",
+  "com.msg.ownerFallback": "Le propriétaire",
+  "com.msg.newFrom": "Nouveau message de {name}",
+
+  // ── Favoris ──
+  "com.fav.title": "Mes favoris",
+  "com.fav.sub": "Les biens que vous avez sauvegardés pour les retrouver facilement.",
+  "com.fav.emptyTitle": "Aucun favori pour l'instant",
+  "com.fav.emptyDesc": "Parcourez les annonces et cliquez sur le cœur pour sauvegarder un bien.",
+  "com.fav.removing": "Suppression…",
+  "com.fav.remove": "Retirer des favoris",
+
+  // ── Mes visites ──
+  "com.visits.title": "Mes visites",
+  "com.visits.sub": "Vos créneaux demandés — la demande se fait depuis la page d'une annonce.",
+  "com.visits.confirmCancel": "Annuler cette demande de visite ?",
+  "com.visits.emptyTitle": "Aucune visite demandée",
+  "com.visits.emptyDesc": "Ouvrez une annonce et proposez un créneau.",
+  "com.visits.browse": "Parcourir les annonces",
+  "com.visits.ownerNote": "Propriétaire : {note}",
+  "com.visits.at": "à",
+
+  "com.visitStatus.REQUESTED": "En attente",
+  "com.visitStatus.CONFIRMED": "Confirmée",
+  "com.visitStatus.DECLINED": "Non retenue",
+  "com.visitStatus.CANCELLED": "Annulée",
+};
+
+export const en: Record<string, string> = {
+  // ── Shared ──
+  "com.loading": "Loading…",
+  "com.error": "Error: ",
+  "com.cancel": "Cancel",
+  "com.details": "Details",
+  "com.chat": "Chat",
+  "com.listing.sale": "Sale",
+  "com.listing.rent": "Rental",
+
+  // ── Inquiry statuses ──
+  "com.status.PENDING": "Pending",
+  "com.status.ACCEPTED": "Accepted",
+  "com.status.REJECTED": "Rejected",
+  "com.status.CANCELLED": "Cancelled",
+
+  "com.statusMsg.PENDING": "Your request is awaiting the landlord's reply.",
+  "com.statusMsg.ACCEPTED": "The landlord accepted your request! A lease agreement has been generated. They will contact you to finalize.",
+  "com.statusMsg.REJECTED": "The landlord did not select your application for this property.",
+  "com.statusMsg.CANCELLED": "You cancelled this request.",
+
+  "com.tab.ALL": "All",
+  "com.tab.PENDING": "Pending",
+  "com.tab.ACCEPTED": "Active rental",
+  "com.tab.REJECTED": "Rejected",
+  "com.tab.CANCELLED": "Cancelled",
+
+  // ── My requests ──
+  "com.inq.title": "My requests",
+  "com.inq.sub": "Track the status of your applications with landlords.",
+  "com.inq.myRequest": "My request",
+  "com.inq.property": "Property",
+  "com.inq.myMessage": "My message",
+  "com.inq.wishes": "My rental preferences",
+  "com.inq.startWanted": "Desired start",
+  "com.inq.startWantedC": "Desired start: ",
+  "com.inq.duration": "Duration",
+  "com.inq.durationC": "Duration: ",
+  "com.inq.openEnded": "Open-ended",
+  "com.inq.endDate": "Expected end",
+  "com.inq.sentOn": "Sent on {date}",
+  "com.inq.repliedOn": "Replied on {date}",
+  "com.inq.cancelledOn": "Cancelled on {date}",
+  "com.inq.cancelRequest": "Cancel the request",
+  "com.inq.cancelling": "Cancelling…",
+  "com.inq.acceptedNote": "The landlord will contact you shortly at {email}",
+  "com.inq.confirmCancel": "Confirm cancelling this request?",
+  "com.inq.emptyTitle": "You haven't sent any request yet",
+  "com.inq.emptyDesc": "Browse the listings and contact landlords from a property page.",
+  "com.inq.emptyTabTitle": "No request in this category",
+  "com.inq.emptyTabDesc": "Switch tabs to see your other requests.",
+
+  "com.unit.DAYS": "day(s)",
+  "com.unit.WEEKS": "week(s)",
+  "com.unit.MONTHS": "month(s)",
+  "com.unit.YEARS": "year(s)",
+
+  // ── Messaging ──
+  "com.msg.title1": "My",
+  "com.msg.title2": "conversations",
+  "com.msg.sub": "Direct exchanges with the landlords of the properties you're interested in.",
+  "com.msg.unread1": "{n} unread.",
+  "com.msg.unreadN": "{n} unread.",
+  "com.msg.enableNotifs": "Enable notifications",
+  "com.msg.notifsOn": "Browser notifications enabled",
+  "com.msg.emptyList": "No conversation yet. Contact a landlord from a listing to start chatting.",
+  "com.msg.anonymous": "Anonymous",
+  "com.msg.selectTitle": "Select a conversation",
+  "com.msg.selectSub": "Pick a thread from the list to read and reply.",
+  "com.msg.backToList": "Back to the list",
+  "com.msg.owner": "Landlord",
+  "com.msg.emptyThread": "No message yet. Write the first one!",
+  "com.msg.placeholder": "Your message…",
+  "com.msg.ownerFallback": "The landlord",
+  "com.msg.newFrom": "New message from {name}",
+
+  // ── Favorites ──
+  "com.fav.title": "My favorites",
+  "com.fav.sub": "The properties you saved so you can find them again easily.",
+  "com.fav.emptyTitle": "No favorites yet",
+  "com.fav.emptyDesc": "Browse the listings and click the heart to save a property.",
+  "com.fav.removing": "Removing…",
+  "com.fav.remove": "Remove from favorites",
+
+  // ── My visits ──
+  "com.visits.title": "My visits",
+  "com.visits.sub": "Your requested slots — requests are made from a listing page.",
+  "com.visits.confirmCancel": "Cancel this visit request?",
+  "com.visits.emptyTitle": "No visit requested",
+  "com.visits.emptyDesc": "Open a listing and propose a time slot.",
+  "com.visits.browse": "Browse the listings",
+  "com.visits.ownerNote": "Landlord: {note}",
+  "com.visits.at": "at",
+
+  "com.visitStatus.REQUESTED": "Pending",
+  "com.visitStatus.CONFIRMED": "Confirmed",
+  "com.visitStatus.DECLINED": "Declined",
+  "com.visitStatus.CANCELLED": "Cancelled",
+};

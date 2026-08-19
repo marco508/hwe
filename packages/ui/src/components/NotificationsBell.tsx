@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { UnreadBadge } from "./UnreadBadge";
+import { tUi } from "./I18nKit";
 
 export interface BellPreviewItem {
   id: string;
@@ -40,12 +41,12 @@ const timeAgo = (iso?: string | null) => {
   if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diff / 60000);
-  if (min < 1) return "à l'instant";
-  if (min < 60) return `${min} min`;
+  if (min < 1) return tUi("ui.time.now");
+  if (min < 60) return tUi("ui.time.min", { n: min });
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr} h`;
+  if (hr < 24) return tUi("ui.time.hours", { n: hr });
   const days = Math.floor(hr / 24);
-  if (days < 7) return `${days} j`;
+  if (days < 7) return tUi("ui.time.days", { n: days });
   return new Date(iso).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",
@@ -61,7 +62,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
   preview = [],
   seeAllHref,
   onOpen,
-  label = "Messages",
+  label = tUi("ui.messages"),
   className,
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -90,7 +91,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
     <div ref={rootRef} className={cn("relative", className)}>
       <button
         type="button"
-        aria-label={`${label}${unreadCount > 0 ? ` (${unreadCount} non lus)` : ""}`}
+        aria-label={`${label}${unreadCount > 0 ? ` (${tUi("ui.unreadCount", { n: unreadCount })})` : ""}`}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -134,10 +135,10 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
             <div className="px-4 py-8 text-center">
               <div className="text-3xl mb-2">💭</div>
               <div className="text-sm text-ink-muted">
-                Aucun message pour l'instant.
+                {tUi("ui.noMessagesYet")}
               </div>
               <div className="text-xs text-ink-subtle mt-1">
-                Vos conversations apparaîtront ici.
+                {tUi("ui.conversationsAppearHere")}
               </div>
             </div>
           ) : (
@@ -200,7 +201,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
             onClick={() => setOpen(false)}
             className="block text-center text-sm font-medium py-3 border-t border-border bg-cream-50/60 dark:bg-surface/60 hover:bg-cream-100 dark:hover:bg-white/[0.04] text-ink transition-colors"
           >
-            Voir toutes les conversations
+            {tUi("ui.seeAllConversations")}
           </a>
         </div>
       )}

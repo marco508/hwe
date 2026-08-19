@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface Testimonial {
   quote: string;
@@ -100,7 +101,7 @@ export const TestimonialCarousel: React.FC<TestimonialCarouselProps> = ({
               <button
                 key={i}
                 type="button"
-                aria-label={`Voir le témoignage ${i + 1}`}
+                aria-label={tUi("ui.viewTestimonial", { n: i + 1 })}
                 onClick={() => setIndex(i)}
                 className={cn(
                   "h-1.5 rounded-full transition-all",
@@ -114,7 +115,7 @@ export const TestimonialCarousel: React.FC<TestimonialCarouselProps> = ({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              aria-label="Témoignage précédent"
+              aria-label={tUi("ui.prevTestimonial")}
               onClick={() => setIndex((i) => (i - 1 + total) % total)}
               className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-border bg-surface hover:bg-cream-100 dark:hover:bg-white/[0.04] transition-colors"
             >
@@ -133,7 +134,7 @@ export const TestimonialCarousel: React.FC<TestimonialCarouselProps> = ({
             </button>
             <button
               type="button"
-              aria-label="Témoignage suivant"
+              aria-label={tUi("ui.nextTestimonial")}
               onClick={() => setIndex((i) => (i + 1) % total)}
               className="h-9 w-9 inline-flex items-center justify-center rounded-full border border-border bg-surface hover:bg-cream-100 dark:hover:bg-white/[0.04] transition-colors"
             >

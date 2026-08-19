@@ -19,28 +19,17 @@ import {
   type EnergyClassLetter,
 } from "@hwe/ui";
 import { api } from "../../../lib/api";
+import { t, useLang } from "../../../lib/i18n";
 import { useCurrency } from "../../../lib/currency-context";
 import { useAuth } from "../../../lib/auth-context";
 import type {
   Property,
   PricingRate,
   LeaseDurationUnit,
-  RentalKind,
 } from "@hwe/types";
-import {
-  LEASE_DURATION_UNIT_LABELS,
-  RENTAL_KIND_LABELS,
-  computeRentalTotal,
-} from "@hwe/types";
+import { computeRentalTotal } from "@hwe/types";
 
 type DurationUnit = "DAYS" | "WEEKS" | "MONTHS" | "YEARS";
-
-const UNIT_LABELS: Record<DurationUnit, string> = {
-  DAYS: "jour(s)",
-  WEEKS: "semaine(s)",
-  MONTHS: "mois",
-  YEARS: "an(s)",
-};
 
 const formatPrice = (n: number, currency = "EUR", decimals = 0) =>
   new Intl.NumberFormat("fr-FR", {
@@ -144,25 +133,30 @@ function PropertyDetailInner({
   fmtPrice: (n: number, currency?: string) => string;
 }) {
   // ── Steps du wizard ──────────────────────────────────────────────────────
+  const { lang } = useLang();
   const STEPS: StepperItem[] = React.useMemo(() => {
     const base: StepperItem[] = [
-      { id: "overview", title: "Aperçu", icon: "👁" },
-      { id: "gallery", title: "Galerie", icon: "📸" },
-      { id: "features", title: "Caractéristiques", icon: "📐" },
+      { id: "overview", title: t("prop.step.overview"), icon: "👁" },
+      { id: "gallery", title: t("prop.step.gallery"), icon: "📸" },
+      { id: "features", title: t("prop.step.features"), icon: "📐" },
     ];
     if (isSale) {
-      base.push({ id: "sale-info", title: "Informations vente", icon: "🏷️" });
+      base.push({ id: "sale-info", title: t("prop.step.saleInfo"), icon: "🏷️" });
     } else {
-      base.push({ id: "rent-info", title: "Conditions de location", icon: "🔑" });
+      base.push({ id: "rent-info", title: t("prop.step.rentInfo"), icon: "🔑" });
     }
-    base.push({ id: "location", title: "Localisation", icon: "📍" });
+    base.push({ id: "location", title: t("prop.step.location"), icon: "📍" });
     base.push(
       isOwner
-        ? { id: "your-bien", title: "Votre bien", icon: "👤" }
-        : { id: "contact", title: isSale ? "Faire une offre" : "Candidater", icon: "✉️" },
+        ? { id: "your-bien", title: t("prop.step.yourBien"), icon: "👤" }
+        : {
+            id: "contact",
+            title: isSale ? t("prop.step.offer") : t("prop.step.apply"),
+            icon: "✉️",
+          },
     );
     return base;
-  }, [isSale, isOwner]);
+  }, [isSale, isOwner, lang]);
 
   const [activeStep, setActiveStep] = React.useState<string>("overview");
 
@@ -207,14 +201,14 @@ function PropertyDetailInner({
             >
               <polyline points="15 18 9 12 15 6" />
             </svg>
-            Retour au catalogue
+            {t("prop.back")}
           </Link>
           {currentUser && !isOwner && (
             <button
               type="button"
               disabled={favLoading}
               onClick={onToggleFav}
-              aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+              aria-label={isFav ? t("prop.fav.remove") : t("prop.fav.add")}
               className={`shrink-0 h-9 w-9 rounded-full flex items-center justify-center text-xl transition-all ${
                 isFav
                   ? "bg-red-50 text-red-500 hover:bg-red-100"
@@ -231,16 +225,18 @@ function PropertyDetailInner({
           <div className="flex-1">
             <div className="flex flex-wrap gap-2 mb-3">
               <Badge tone={isSale ? "accent" : "brand"} glow>
-                {isSale ? "À vendre" : "À louer"}
+                {isSale ? t("prop.badge.sale") : t("prop.badge.rent")}
               </Badge>
-              <Badge tone="neutral">{p.propertyType}</Badge>
+              <Badge tone="neutral">{t("prop.type." + p.propertyType)}</Badge>
               {!isSale && p.rentalKind && (
-                <Badge tone="ocean">{RENTAL_KIND_LABELS[p.rentalKind]}</Badge>
+                <Badge tone="ocean">{t("prop.rentalKind." + p.rentalKind)}</Badge>
               )}
-              {isSale && p.isNew && <Badge tone="success">Neuf / VEFA</Badge>}
+              {isSale && p.isNew && (
+                <Badge tone="success">{t("prop.badge.new")}</Badge>
+              )}
               {isSale && p.energyClass && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-surface border border-border px-2 py-0.5 text-xs">
-                  DPE
+                  {t("prop.badge.dpe")}
                   <EnergyClassBadge
                     value={p.energyClass as EnergyClassLetter}
                     withStrip={false}
@@ -272,23 +268,27 @@ function PropertyDetailInner({
 
           <div className="lg:text-right">
             <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted mb-1">
-              {isSale ? "Prix de vente" : "Loyer mensuel"}
+              {isSale ? t("prop.price.sale") : t("prop.price.rent")}
             </div>
             <div className="display-serif text-4xl gradient-text leading-none">
               {fmtPrice(p.price, p.currency)}
               {!isSale && (
                 <span className="text-sm font-normal text-ink-muted ml-1">
-                  /mois
+                  {t("prop.perMonth")}
                 </span>
               )}
             </div>
             {!isSale && p.chargesIncluded === false && p.chargesAmount && (
               <div className="text-xs text-ink-muted mt-1">
-                + {fmtPrice(p.chargesAmount, p.currency)} de charges
+                {t("prop.chargesExtra", {
+                  amount: fmtPrice(p.chargesAmount, p.currency),
+                })}
               </div>
             )}
             {!isSale && p.chargesIncluded === true && (
-              <div className="text-xs text-ink-muted mt-1">Charges incluses</div>
+              <div className="text-xs text-ink-muted mt-1">
+                {t("prop.chargesIncluded")}
+              </div>
             )}
           </div>
         </div>
@@ -300,11 +300,10 @@ function PropertyDetailInner({
           <span className="text-3xl shrink-0">👤</span>
           <div className="flex-1 min-w-0">
             <div className="font-medium text-ink">
-              C'est votre annonce
+              {t("prop.owner.title")}
             </div>
             <div className="text-sm text-ink-muted">
-              Vous ne pouvez pas {isSale ? "acheter" : "louer"} votre propre
-              bien. Gérez-le depuis votre tableau de bord.
+              {isSale ? t("prop.owner.textSale") : t("prop.owner.textRent")}
             </div>
           </div>
           <a
@@ -314,7 +313,7 @@ function PropertyDetailInner({
             }
             className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity"
           >
-            Modifier l'annonce
+            {t("prop.owner.edit")}
           </a>
         </div>
       )}
@@ -376,10 +375,13 @@ function PropertyDetailInner({
           >
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Étape précédente
+          {t("prop.nav.prev")}
         </Button>
         <div className="text-xs text-ink-muted">
-          Étape {activeIndex + 1} sur {STEPS.length}
+          {t("prop.nav.progress", {
+            n: activeIndex + 1,
+            total: STEPS.length,
+          })}
         </div>
         <Button
           variant="gradient"
@@ -387,7 +389,7 @@ function PropertyDetailInner({
           disabled={!canNext}
           className="gap-1.5"
         >
-          Étape suivante
+          {t("prop.nav.next")}
           <svg
             width="14"
             height="14"
@@ -434,12 +436,14 @@ function StepOverview({
             showDots
             showCounter
             autoPlayMs={6000}
-            fallback={<span className="display-serif">Aucune photo</span>}
+            fallback={
+              <span className="display-serif">{t("prop.noPhoto")}</span>
+            }
           />
         </div>
         <Card>
           <CardHeader>
-            <h2 className="font-display text-lg">Description</h2>
+            <h2 className="font-display text-lg">{t("prop.description")}</h2>
           </CardHeader>
           <CardBody>
             <p className="whitespace-pre-line text-sm leading-relaxed">
@@ -455,48 +459,56 @@ function StepOverview({
           <CardBody className="space-y-4">
             <div>
               <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted mb-1">
-                {isSale ? "Prix de vente" : "Loyer mensuel"}
+                {isSale ? t("prop.price.sale") : t("prop.price.rent")}
               </div>
               <div className="display-serif text-3xl gradient-text leading-none">
                 {fmtPrice(p.price, p.currency)}
               </div>
               {isSale && p.surface && (
                 <div className="text-xs text-ink-muted mt-1">
-                  Soit {fmtPrice(Math.round(p.price / p.surface), p.currency)}{" "}
-                  / m²
+                  {t("prop.pricePerSqm", {
+                    amount: fmtPrice(
+                      Math.round(p.price / p.surface),
+                      p.currency,
+                    ),
+                  })}
                 </div>
               )}
             </div>
 
             <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border">
-              <Mini label="Surface" value={`${p.surface} m²`} />
-              <Mini label="Pièces" value={p.rooms || "—"} />
-              <Mini label="Chambres" value={p.bedrooms || "—"} />
+              <Mini label={t("prop.surface")} value={`${p.surface} m²`} />
+              <Mini label={t("prop.rooms")} value={p.rooms || "—"} />
+              <Mini label={t("prop.bedrooms")} value={p.bedrooms || "—"} />
             </div>
           </CardBody>
         </Card>
 
         <Card>
           <CardHeader>
-            <h3 className="font-medium text-sm">Points clés</h3>
+            <h3 className="font-medium text-sm">{t("prop.keyPoints")}</h3>
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
-            {p.furnished && <KeyPoint icon="🛋️" text="Meublé" />}
-            {p.hasParking && <KeyPoint icon="🅿️" text="Parking inclus" />}
-            {p.hasBalcony && <KeyPoint icon="🪟" text="Balcon" />}
-            {p.hasGarden && <KeyPoint icon="🌿" text="Jardin" />}
-            {p.hasElevator && <KeyPoint icon="🛗" text="Ascenseur" />}
-            {!isSale && p.rentalKind && (
-              <KeyPoint icon="🔑" text={RENTAL_KIND_LABELS[p.rentalKind]} />
+            {p.furnished && <KeyPoint icon="🛋️" text={t("prop.furnished")} />}
+            {p.hasParking && (
+              <KeyPoint icon="🅿️" text={t("prop.parkingIncluded")} />
             )}
-            {isSale && p.isNew && <KeyPoint icon="✨" text="Bien neuf / VEFA" />}
+            {p.hasBalcony && <KeyPoint icon="🪟" text={t("prop.balcony")} />}
+            {p.hasGarden && <KeyPoint icon="🌿" text={t("prop.garden")} />}
+            {p.hasElevator && <KeyPoint icon="🛗" text={t("prop.elevator")} />}
+            {!isSale && p.rentalKind && (
+              <KeyPoint icon="🔑" text={t("prop.rentalKind." + p.rentalKind)} />
+            )}
+            {isSale && p.isNew && (
+              <KeyPoint icon="✨" text={t("prop.newVefa")} />
+            )}
             {!p.furnished &&
               !p.hasParking &&
               !p.hasBalcony &&
               !p.hasGarden &&
               !p.hasElevator && (
                 <div className="text-xs text-ink-subtle">
-                  Aucun équipement renseigné.
+                  {t("prop.noAmenities")}
                 </div>
               )}
           </CardBody>
@@ -537,7 +549,7 @@ function StepGallery({ property: p }: { property: Property }) {
     return (
       <Card>
         <CardBody className="py-16 text-center text-ink-muted">
-          Aucune photo disponible pour ce bien.
+          {t("prop.gallery.empty")}
         </CardBody>
       </Card>
     );
@@ -572,28 +584,29 @@ function StepGallery({ property: p }: { property: Property }) {
 }
 
 function StepFeatures({ property: p }: { property: Property }) {
+  const yesNo = (v: boolean) => (v ? t("prop.yes") : t("prop.no"));
   const items: { label: string; value: React.ReactNode; icon: string }[] = [
-    { icon: "📐", label: "Surface", value: `${p.surface} m²` },
-    { icon: "🚪", label: "Pièces", value: p.rooms || "—" },
-    { icon: "🛏️", label: "Chambres", value: p.bedrooms || "—" },
-    { icon: "🛁", label: "Salles de bain", value: p.bathrooms || "—" },
+    { icon: "📐", label: t("prop.surface"), value: `${p.surface} m²` },
+    { icon: "🚪", label: t("prop.rooms"), value: p.rooms || "—" },
+    { icon: "🛏️", label: t("prop.bedrooms"), value: p.bedrooms || "—" },
+    { icon: "🛁", label: t("prop.bathrooms"), value: p.bathrooms || "—" },
   ];
   if (p.floor !== null && p.floor !== undefined)
-    items.push({ icon: "🏢", label: "Étage", value: p.floor });
+    items.push({ icon: "🏢", label: t("prop.floor"), value: p.floor });
   if (p.yearBuilt)
-    items.push({ icon: "📅", label: "Année", value: p.yearBuilt });
+    items.push({ icon: "📅", label: t("prop.year"), value: p.yearBuilt });
   items.push(
-    { icon: "🛋️", label: "Meublé", value: p.furnished ? "Oui" : "Non" },
-    { icon: "🅿️", label: "Parking", value: p.hasParking ? "Oui" : "Non" },
-    { icon: "🪟", label: "Balcon", value: p.hasBalcony ? "Oui" : "Non" },
-    { icon: "🌿", label: "Jardin", value: p.hasGarden ? "Oui" : "Non" },
-    { icon: "🛗", label: "Ascenseur", value: p.hasElevator ? "Oui" : "Non" },
+    { icon: "🛋️", label: t("prop.furnished"), value: yesNo(p.furnished) },
+    { icon: "🅿️", label: t("prop.parking"), value: yesNo(p.hasParking) },
+    { icon: "🪟", label: t("prop.balcony"), value: yesNo(p.hasBalcony) },
+    { icon: "🌿", label: t("prop.garden"), value: yesNo(p.hasGarden) },
+    { icon: "🛗", label: t("prop.elevator"), value: yesNo(p.hasElevator) },
   );
 
   return (
     <Card>
       <CardHeader>
-        <h2 className="font-display text-lg">Caractéristiques détaillées</h2>
+        <h2 className="font-display text-lg">{t("prop.features.title")}</h2>
       </CardHeader>
       <CardBody className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {items.map((it) => (
@@ -632,12 +645,8 @@ function StepSaleInfo({
       {p.energyClass && (
         <Card>
           <CardHeader>
-            <h2 className="font-display text-lg">
-              Diagnostic de Performance Énergétique
-            </h2>
-            <p className="text-sm text-ink-muted mt-1">
-              Échelle officielle de A (très économe) à G (très énergivore).
-            </p>
+            <h2 className="font-display text-lg">{t("prop.dpe.title")}</h2>
+            <p className="text-sm text-ink-muted mt-1">{t("prop.dpe.scale")}</p>
           </CardHeader>
           <CardBody>
             <div className="flex items-center gap-6 flex-wrap">
@@ -647,14 +656,14 @@ function StepSaleInfo({
               />
               <div>
                 <div className="display-serif text-3xl">
-                  Classe {p.energyClass}
+                  {t("prop.dpe.class", { letter: p.energyClass })}
                 </div>
                 <p className="text-sm text-ink-muted">
                   {p.energyClass === "A" || p.energyClass === "B"
-                    ? "Bien très peu énergivore — factures réduites."
+                    ? t("prop.dpe.good")
                     : p.energyClass === "C" || p.energyClass === "D"
-                    ? "Performance énergétique correcte."
-                    : "Travaux d'isolation potentiellement à prévoir."}
+                    ? t("prop.dpe.ok")
+                    : t("prop.dpe.bad")}
                 </p>
               </div>
             </div>
@@ -665,27 +674,30 @@ function StepSaleInfo({
       {/* Coûts récurrents */}
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Charges & fiscalité</h2>
+          <h2 className="font-display text-lg">{t("prop.sale.costs")}</h2>
         </CardHeader>
         <CardBody className="grid sm:grid-cols-2 gap-4">
           {p.coOwnershipFees != null && (
             <FinanceLine
-              label="Charges de copropriété"
-              value={`${fmtPrice(p.coOwnershipFees, p.currency)} / mois`}
-              hint={`Soit ${fmtPrice(p.coOwnershipFees * 12, p.currency)} / an`}
+              label={t("prop.sale.coOwnership")}
+              value={t("prop.perMonthAmount", {
+                amount: fmtPrice(p.coOwnershipFees, p.currency),
+              })}
+              hint={t("prop.perYearAmount", {
+                amount: fmtPrice(p.coOwnershipFees * 12, p.currency),
+              })}
             />
           )}
           {p.propertyTax != null && (
             <FinanceLine
-              label="Taxe foncière annuelle"
+              label={t("prop.sale.propertyTax")}
               value={fmtPrice(p.propertyTax, p.currency)}
-              hint="Acquittée chaque année par le propriétaire"
+              hint={t("prop.sale.propertyTaxHint")}
             />
           )}
           {(p.coOwnershipFees == null && p.propertyTax == null) && (
             <div className="col-span-2 text-sm text-ink-muted">
-              Aucune information sur les charges ou la fiscalité renseignée par
-              le propriétaire.
+              {t("prop.sale.noCostInfo")}
             </div>
           )}
         </CardBody>
@@ -694,14 +706,16 @@ function StepSaleInfo({
       {/* Frais d'acquisition */}
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Frais d'acquisition estimés</h2>
+          <h2 className="font-display text-lg">{t("prop.sale.acqTitle")}</h2>
           <p className="text-sm text-ink-muted mt-1">
-            Estimation à titre indicatif. À confirmer par votre notaire.
+            {t("prop.sale.acqHint")}
           </p>
         </CardHeader>
         <CardBody className="space-y-3">
           <div className="flex items-center justify-between py-2 border-b border-border/60">
-            <span className="text-sm text-ink-muted">Prix de vente</span>
+            <span className="text-sm text-ink-muted">
+              {t("prop.price.sale")}
+            </span>
             <span className="font-display text-lg">
               {fmtPrice(p.price, p.currency)}
             </span>
@@ -709,7 +723,9 @@ function StepSaleInfo({
           {notaryFees && (
             <div className="flex items-center justify-between py-2 border-b border-border/60">
               <span className="text-sm text-ink-muted">
-                Frais de notaire (~{p.notaryFeesRate ?? (p.isNew ? 2.5 : 7.5)} %)
+                {t("prop.sale.notary", {
+                  rate: p.notaryFeesRate ?? (p.isNew ? 2.5 : 7.5),
+                })}
               </span>
               <span className="font-display text-lg">
                 {fmtPrice(notaryFees, p.currency)}
@@ -717,7 +733,9 @@ function StepSaleInfo({
             </div>
           )}
           <div className="flex items-center justify-between py-2 bg-cream-100/60 dark:bg-surface/60 rounded-lg px-3">
-            <span className="text-sm font-medium">Budget total estimé</span>
+            <span className="text-sm font-medium">
+              {t("prop.sale.totalBudget")}
+            </span>
             <span className="display-serif text-2xl gradient-text">
               {fmtPrice(p.price + (notaryFees ?? 0), p.currency)}
             </span>
@@ -741,57 +759,63 @@ function StepRentInfo({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Conditions du bail</h2>
+          <h2 className="font-display text-lg">{t("prop.rent.leaseTerms")}</h2>
         </CardHeader>
         <CardBody className="grid sm:grid-cols-2 gap-4">
           {p.rentalKind && (
             <FinanceLine
-              label="Type de bail"
-              value={RENTAL_KIND_LABELS[p.rentalKind as RentalKind]}
+              label={t("prop.rent.leaseType")}
+              value={t("prop.rentalKind." + p.rentalKind)}
               hint={
                 p.rentalKind === "BARE"
-                  ? "Logement vide, bail 3 ans (renouvelable)"
+                  ? t("prop.rent.hintBare")
                   : p.rentalKind === "FURNISHED"
-                  ? "Logement meublé, bail 1 an minimum"
+                  ? t("prop.rent.hintFurnished")
                   : p.rentalKind === "SEASONAL"
-                  ? "Court séjour, vacances"
-                  : "Bail étudiant 9 mois"
+                  ? t("prop.rent.hintSeasonal")
+                  : t("prop.rent.hintStudent")
               }
             />
           )}
           <FinanceLine
-            label="Charges"
+            label={t("prop.rent.charges")}
             value={
               p.chargesIncluded === true
-                ? "Incluses dans le loyer"
+                ? t("prop.rent.chargesIn")
                 : p.chargesIncluded === false
-                ? `+ ${fmtPrice(p.chargesAmount ?? 0, p.currency)} / mois`
-                : "Non renseigné"
+                ? t("prop.rent.chargesPlus", {
+                    amount: fmtPrice(p.chargesAmount ?? 0, p.currency),
+                  })
+                : t("prop.notSpecified")
             }
             hint={
               p.chargesIncluded === false
-                ? "Eau, chauffage, copro, ascenseur…"
+                ? t("prop.rent.chargesHint")
                 : undefined
             }
           />
           {p.deposit != null && (
             <FinanceLine
-              label="Dépôt de garantie"
+              label={t("prop.rent.deposit")}
               value={fmtPrice(p.deposit, p.currency)}
-              hint="Restitué en fin de bail, déduction faite des éventuels manquements"
+              hint={t("prop.rent.depositHint")}
             />
           )}
           {p.noticeMonths != null && (
             <FinanceLine
-              label="Préavis"
-              value={`${p.noticeMonths} ${p.noticeMonths > 1 ? "mois" : "mois"}`}
-              hint="Délai à respecter pour résilier"
+              label={t("prop.rent.notice")}
+              value={`${p.noticeMonths} ${
+                p.noticeMonths > 1 ? t("prop.months") : t("prop.month")
+              }`}
+              hint={t("prop.rent.noticeHint")}
             />
           )}
           {p.petsAllowed != null && (
             <FinanceLine
-              label="Animaux"
-              value={p.petsAllowed ? "🐾 Acceptés" : "✕ Non autorisés"}
+              label={t("prop.rent.pets")}
+              value={
+                p.petsAllowed ? t("prop.rent.petsYes") : t("prop.rent.petsNo")
+              }
             />
           )}
         </CardBody>
@@ -800,25 +824,33 @@ function StepRentInfo({
       {/* Récapitulatif "Budget mensuel" */}
       <Card className="glass-strong">
         <CardHeader>
-          <h2 className="font-display text-lg">Budget mensuel</h2>
+          <h2 className="font-display text-lg">
+            {t("prop.rent.monthlyBudget")}
+          </h2>
         </CardHeader>
         <CardBody className="space-y-3">
           <div className="flex items-center justify-between py-2 border-b border-border/60">
-            <span className="text-sm text-ink-muted">Loyer hors charges</span>
+            <span className="text-sm text-ink-muted">
+              {t("prop.rent.rentExcl")}
+            </span>
             <span className="font-display text-lg">
               {fmtPrice(p.price, p.currency)}
             </span>
           </div>
           {p.chargesIncluded === false && p.chargesAmount != null && (
             <div className="flex items-center justify-between py-2 border-b border-border/60">
-              <span className="text-sm text-ink-muted">Charges</span>
+              <span className="text-sm text-ink-muted">
+                {t("prop.rent.charges")}
+              </span>
               <span className="font-display text-lg">
                 + {fmtPrice(p.chargesAmount, p.currency)}
               </span>
             </div>
           )}
           <div className="flex items-center justify-between py-2 bg-cream-100/60 dark:bg-surface/60 rounded-lg px-3">
-            <span className="text-sm font-medium">Total à prévoir / mois</span>
+            <span className="text-sm font-medium">
+              {t("prop.rent.totalPerMonth")}
+            </span>
             <span className="display-serif text-2xl gradient-text">
               {fmtPrice(
                 p.price +
@@ -829,8 +861,9 @@ function StepRentInfo({
           </div>
           {p.deposit != null && (
             <div className="text-xs text-ink-muted mt-2">
-              + dépôt de garantie de {fmtPrice(p.deposit, p.currency)} à l'entrée
-              dans les lieux.
+              {t("prop.rent.depositNote", {
+                amount: fmtPrice(p.deposit, p.currency),
+              })}
             </div>
           )}
         </CardBody>
@@ -840,10 +873,8 @@ function StepRentInfo({
       {rates.length > 0 && (
         <Card>
           <CardHeader>
-            <h2 className="font-display text-lg">Grille tarifaire détaillée</h2>
-            <p className="text-sm text-ink-muted mt-1">
-              Tarifs proposés par le propriétaire selon la durée du séjour.
-            </p>
+            <h2 className="font-display text-lg">{t("prop.rates.title")}</h2>
+            <p className="text-sm text-ink-muted mt-1">{t("prop.rates.sub")}</p>
           </CardHeader>
           <CardBody>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -857,7 +888,9 @@ function StepRentInfo({
                       className="rounded-xl border border-brand-200 bg-brand-50 dark:bg-brand-900/20 p-4 text-center"
                     >
                       <div className="text-[11px] text-ink-muted mb-1 uppercase tracking-[0.14em]">
-                        Par {UNIT_LABELS[unit].replace("(s)", "")}
+                        {t("prop.rates.per", {
+                          unit: t("prop.unit." + unit).replace("(s)", ""),
+                        })}
                       </div>
                       <div className="display-serif text-xl gradient-text">
                         {fmtPrice(rate.amount, p.currency)}
@@ -879,7 +912,7 @@ function StepLocation({ property: p }: { property: Property }) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <h2 className="font-display text-lg">Adresse</h2>
+          <h2 className="font-display text-lg">{t("prop.loc.address")}</h2>
         </CardHeader>
         <CardBody className="space-y-3">
           <div className="text-base">
@@ -929,7 +962,7 @@ function StepLocation({ property: p }: { property: Property }) {
       ) : (
         <Card>
           <CardBody className="text-sm text-ink-muted">
-            Les coordonnées GPS ne sont pas renseignées pour ce bien.
+            {t("prop.loc.noGps")}
           </CardBody>
         </Card>
       )}
@@ -942,37 +975,35 @@ function StepYourBien({ property: p }: { property: Property }) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="font-display text-lg">Gérer votre annonce</h2>
-        <p className="text-sm text-ink-muted mt-1">
-          Vous êtes propriétaire de ce bien. Voici vos raccourcis.
-        </p>
+        <h2 className="font-display text-lg">{t("prop.own.title")}</h2>
+        <p className="text-sm text-ink-muted mt-1">{t("prop.own.sub")}</p>
       </CardHeader>
       <CardBody className="grid sm:grid-cols-2 gap-3">
         <ActionTile
           href={`${ownerUrl}/dashboard/${p.id}/edit`}
           icon="✏️"
-          title="Modifier l'annonce"
-          desc="Mettre à jour photos, prix, description"
+          title={t("prop.owner.edit")}
+          desc={t("prop.own.editDesc")}
         />
         <ActionTile
           href={`${ownerUrl}/dashboard/${p.id}/documents`}
           icon="🗂️"
-          title="Documents légaux"
-          desc="Titre, taxes, diagnostics, copro"
+          title={t("prop.own.docs")}
+          desc={t("prop.own.docsDesc")}
         />
         {p.listingType === "RENT" && (
           <ActionTile
             href={`${ownerUrl}/dashboard/${p.id}/lease`}
             icon="📋"
-            title="Contrats de bail"
-            desc="Génération, signature, suivi"
+            title={t("prop.own.lease")}
+            desc={t("prop.own.leaseDesc")}
           />
         )}
         <ActionTile
           href={`${ownerUrl}/dashboard/inquiries`}
           icon="📩"
-          title="Demandes reçues"
-          desc="Voir les candidatures pour ce bien"
+          title={t("prop.own.inquiries")}
+          desc={t("prop.own.inquiriesDesc")}
         />
       </CardBody>
     </Card>
@@ -1085,10 +1116,7 @@ function StepContact({
       });
       setSent(true);
     } catch (e) {
-      setError(
-        (e as Error).message ||
-          "Impossible d'envoyer la demande. Êtes-vous connecté ?",
-      );
+      setError((e as Error).message || t("prop.form.errSend"));
     } finally {
       setSubmitting(false);
     }
@@ -1100,18 +1128,17 @@ function StepContact({
         <CardBody className="text-center py-12 px-6">
           <div className="text-5xl mb-4">🔒</div>
           <h3 className="display-serif text-2xl mb-2">
-            Connectez-vous pour {isSale ? "faire une offre" : "candidater"}
+            {isSale ? t("prop.form.loginSale") : t("prop.form.loginRent")}
           </h3>
           <p className="text-sm text-ink-muted mb-6 max-w-md mx-auto">
-            Créez un compte gratuit pour contacter le propriétaire directement,
-            sauvegarder vos coups de cœur et suivre vos demandes.
+            {t("prop.form.loginSub")}
           </p>
           <div className="flex gap-3 justify-center">
             <Link href="/register">
-              <Button variant="gradient">Créer un compte</Button>
+              <Button variant="gradient">{t("prop.form.signup")}</Button>
             </Link>
             <Link href="/login">
-              <Button variant="secondary">Se connecter</Button>
+              <Button variant="secondary">{t("prop.form.login")}</Button>
             </Link>
           </div>
         </CardBody>
@@ -1124,21 +1151,24 @@ function StepContact({
       <Card>
         <CardBody className="text-center py-12 px-6">
           <div className="text-5xl mb-4">✨</div>
-          <h3 className="display-serif text-3xl mb-2">Demande envoyée</h3>
+          <h3 className="display-serif text-3xl mb-2">
+            {t("prop.form.sentTitle")}
+          </h3>
           <p className="text-sm text-ink-muted mb-2 max-w-md mx-auto">
-            Le propriétaire a reçu votre message. Vous pouvez maintenant
-            continuer l'échange en direct via la messagerie.
+            {t("prop.form.sentSub")}
           </p>
           <div className="mt-6 inline-flex items-center gap-2 text-xs text-ink-muted bg-cream-100 dark:bg-surface/60 px-4 py-2 rounded-full">
             <span className="h-2 w-2 rounded-full bg-success" />
-            Une conversation a été ouverte automatiquement.
+            {t("prop.form.sentConvo")}
           </div>
           <div className="mt-6 flex flex-wrap gap-3 justify-center">
             <Link href="/messages">
-              <Button variant="gradient">💬 Ouvrir la discussion</Button>
+              <Button variant="gradient">{t("prop.form.openChat")}</Button>
             </Link>
             <Link href="/inquiries">
-              <Button variant="secondary">Voir mes demandes</Button>
+              <Button variant="secondary">
+                {t("prop.form.viewRequests")}
+              </Button>
             </Link>
           </div>
         </CardBody>
@@ -1147,23 +1177,22 @@ function StepContact({
   }
 
   const SUBSTEPS: StepperItem[] = [
-    { id: "1", title: "Coordonnées", icon: "📞" },
-    { id: "2", title: isSale ? "Votre projet" : "Souhaits", icon: "🗓️" },
-    { id: "3", title: "Message", icon: "✉️" },
+    { id: "1", title: t("prop.form.step1"), icon: "📞" },
+    {
+      id: "2",
+      title: isSale ? t("prop.form.step2Sale") : t("prop.form.step2Rent"),
+      icon: "🗓️",
+    },
+    { id: "3", title: t("prop.form.step3"), icon: "✉️" },
   ];
 
   return (
     <Card>
       <CardHeader>
         <h2 className="font-display text-lg">
-          {isSale
-            ? "Faire une offre auprès du propriétaire"
-            : "Candidater à cette location"}
+          {isSale ? t("prop.form.titleSale") : t("prop.form.titleRent")}
         </h2>
-        <p className="text-sm text-ink-muted mt-1">
-          Trois étapes — moins d'une minute. Une conversation s'ouvrira
-          automatiquement après envoi.
-        </p>
+        <p className="text-sm text-ink-muted mt-1">{t("prop.form.sub")}</p>
 
         {/* Raccourci : ouvrir une discussion directe (sans remplir la candidature) */}
         <button
@@ -1174,14 +1203,15 @@ function StepContact({
               window.location.href = `/messages?c=${convo.id}`;
             } catch (e) {
               alert(
-                "Impossible d'ouvrir la discussion : " +
-                  ((e as Error).message ?? "erreur inconnue"),
+                t("prop.form.errChat", {
+                  msg: (e as Error).message ?? t("prop.form.errUnknown"),
+                }),
               );
             }
           }}
           className="mt-4 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border bg-cream-50 dark:bg-surface/60 text-sm font-medium text-ink hover:border-brand-400 transition-colors"
         >
-          💬 Ou démarrer une discussion directe avec le propriétaire
+          {t("prop.form.directChat")}
         </button>
 
         <VisitRequest propertyId={p.id} />
@@ -1199,7 +1229,7 @@ function StepContact({
           {step === 1 && (
             <div className="space-y-3 animate-fade-in">
               <div className="space-y-1">
-                <Label>Votre email</Label>
+                <Label>{t("prop.form.email")}</Label>
                 <Input
                   type="email"
                   value={form.contactEmail}
@@ -1210,18 +1240,17 @@ function StepContact({
                 />
               </div>
               <div className="space-y-1">
-                <Label>Téléphone (optionnel)</Label>
+                <Label>{t("prop.form.phone")}</Label>
                 <Input
                   value={form.contactPhone}
                   onChange={(e) =>
                     setForm({ ...form, contactPhone: e.target.value })
                   }
-                  placeholder="+33 6 00 00 00 00"
+                  placeholder={t("prop.form.phonePlaceholder")}
                 />
               </div>
               <p className="text-xs text-ink-muted">
-                Le propriétaire utilisera ces coordonnées pour vous recontacter.
-                Elles restent privées.
+                {t("prop.form.privacy")}
               </p>
             </div>
           )}
@@ -1230,8 +1259,10 @@ function StepContact({
             <div className="space-y-4 animate-fade-in">
               <div className="space-y-1">
                 <Label>
-                  {isSale ? "Date de visite souhaitée" : "Date d'entrée souhaitée"}
-                  <span className="text-ink-subtle ml-1">(optionnel)</span>
+                  {isSale ? t("prop.form.dateSale") : t("prop.form.dateRent")}
+                  <span className="text-ink-subtle ml-1">
+                    {t("prop.form.optional")}
+                  </span>
                 </Label>
                 <Input
                   type="date"
@@ -1258,7 +1289,7 @@ function StepContact({
                       }
                       className="h-4 w-4 accent-brand-600"
                     />
-                    Durée limitée (séjour court, location saisonnière…)
+                    {t("prop.form.limited")}
                   </label>
 
                   {form.isDurationLimited && (
@@ -1268,7 +1299,7 @@ function StepContact({
                           type="number"
                           min={1}
                           max={9999}
-                          placeholder="ex : 3"
+                          placeholder={t("prop.form.egPlaceholder")}
                           value={form.leaseDuration}
                           onChange={(e) =>
                             setForm({ ...form, leaseDuration: e.target.value })
@@ -1290,7 +1321,7 @@ function StepContact({
                             : (["DAYS", "WEEKS", "MONTHS", "YEARS"] as DurationUnit[])
                           ).map((u) => (
                             <option key={u} value={u}>
-                              {UNIT_LABELS[u]}
+                              {t("prop.unit." + u)}
                             </option>
                           ))}
                         </select>
@@ -1299,7 +1330,7 @@ function StepContact({
                       {simulatedTotal !== null && (
                         <div className="rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 px-4 py-3">
                           <div className="text-xs text-ink-muted mb-1">
-                            Montant estimé pour votre séjour
+                            {t("prop.form.simTotal")}
                           </div>
                           <div className="display-serif text-2xl gradient-text">
                             {fmtPrice(simulatedTotal, p.currency)}
@@ -1313,9 +1344,7 @@ function StepContact({
 
               {isSale && (
                 <div className="rounded-xl border border-border bg-cream-50 dark:bg-surface/60 p-4 text-sm text-ink-muted">
-                  Précisez dans votre message si vous comptez financer par prêt
-                  immobilier, si vous avez un délai pour la signature, ou toute
-                  autre information utile au propriétaire.
+                  {t("prop.form.saleTip")}
                 </div>
               )}
             </div>
@@ -1324,7 +1353,7 @@ function StepContact({
           {step === 3 && (
             <div className="space-y-3 animate-fade-in">
               <div className="space-y-1">
-                <Label>Votre message au propriétaire</Label>
+                <Label>{t("prop.form.message")}</Label>
                 <Textarea
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
@@ -1332,14 +1361,11 @@ function StepContact({
                   required
                   rows={6}
                   placeholder={
-                    isSale
-                      ? "Bonjour, je suis intéressé(e) par votre bien. Mon projet est…"
-                      : "Bonjour, je suis intéressé(e) par votre annonce. Je suis…"
+                    isSale ? t("prop.form.phSale") : t("prop.form.phRent")
                   }
                 />
                 <p className="text-[11px] text-ink-subtle">
-                  Présentez-vous brièvement : votre situation, ce qui vous a
-                  plu, vos contraintes éventuelles.
+                  {t("prop.form.msgHint")}
                 </p>
               </div>
               {!isSale && (
@@ -1351,9 +1377,11 @@ function StepContact({
                     className="mt-0.5 w-4 h-4 rounded"
                   />
                   <span>
-                    Partager mon dossier (documents de mon{" "}
-                    <Link href="/profile" className="underline">profil</Link> : identité,
-                    revenus, garant) avec le propriétaire
+                    {t("prop.form.share1")}{" "}
+                    <Link href="/profile" className="underline">
+                      {t("prop.form.shareLink")}
+                    </Link>
+                    {t("prop.form.share2")}
                   </span>
                 </label>
               )}
@@ -1374,7 +1402,7 @@ function StepContact({
               disabled={step === 1}
               onClick={() => setStep((s) => (s > 1 ? ((s - 1) as 1 | 2) : s))}
             >
-              ← Précédent
+              {t("prop.form.prev")}
             </Button>
             {step < 3 ? (
               <Button
@@ -1383,15 +1411,15 @@ function StepContact({
                 size="sm"
                 onClick={() => setStep((s) => (s < 3 ? ((s + 1) as 2 | 3) : s))}
               >
-                Suivant →
+                {t("prop.form.next")}
               </Button>
             ) : (
               <Button type="submit" variant="gradient" disabled={submitting}>
                 {submitting
-                  ? "Envoi…"
+                  ? t("prop.form.sending")
                   : isSale
-                  ? "Envoyer mon offre"
-                  : "Envoyer ma candidature"}
+                  ? t("prop.form.submitSale")
+                  : t("prop.form.submitRent")}
               </Button>
             )}
           </div>
@@ -1437,8 +1465,11 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
   if (done) {
     return (
       <p className="mt-3 text-sm text-success">
-        Créneau proposé — suivez la réponse dans{" "}
-        <Link href="/mes-visites" className="underline">Mes visites</Link>.
+        {t("prop.visit.done1")}{" "}
+        <Link href="/mes-visites" className="underline">
+          {t("prop.visit.doneLink")}
+        </Link>
+        .
       </p>
     );
   }
@@ -1450,7 +1481,7 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
         onClick={() => setOpen(true)}
         className="mt-3 ml-0 sm:ml-3 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border bg-cream-50 dark:bg-surface/60 text-sm font-medium text-ink hover:border-brand-400 transition-colors"
       >
-        📅 Demander une visite
+        {t("prop.visit.cta")}
       </button>
     );
   }
@@ -1462,7 +1493,7 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
       await api.requestVisit({ propertyId, proposedAt: new Date(slot).toISOString(), note: note || undefined });
       setDone(true);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("prop.visit.err", { msg: (e as Error).message }));
     } finally {
       setBusy(false);
     }
@@ -1470,7 +1501,7 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
 
   return (
     <div className="mt-4 rounded-xl border border-border bg-cream-50 dark:bg-surface/60 p-4 space-y-3">
-      <p className="text-sm font-medium">Proposez un créneau de visite :</p>
+      <p className="text-sm font-medium">{t("prop.visit.title")}</p>
       <div className="flex flex-wrap gap-2 items-center">
         <Input
           type="datetime-local"
@@ -1479,16 +1510,16 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
           className="max-w-[15rem]"
         />
         <Input
-          placeholder="Précision (optionnelle)"
+          placeholder={t("prop.visit.note")}
           value={note}
           onChange={(e) => setNote(e.target.value)}
           className="flex-1 min-w-[10rem]"
         />
         <Button type="button" size="sm" disabled={busy || !slot} onClick={submit}>
-          {busy ? "Envoi…" : "Proposer"}
+          {busy ? t("prop.form.sending") : t("prop.visit.submit")}
         </Button>
         <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>
-          Annuler
+          {t("prop.visit.cancel")}
         </Button>
       </div>
     </div>

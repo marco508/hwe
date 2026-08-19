@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 /** Persists user preference in localStorage and toggles the `dark` class on <html>. */
 export function ThemeToggle({ className }: { className?: string }) {
@@ -25,8 +26,8 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button
       onClick={toggle}
-      aria-label={dark ? "Passer en mode clair" : "Passer en mode sombre"}
-      title={dark ? "Mode clair" : "Mode sombre"}
+      aria-label={dark ? tUi("ui.switchToLight") : tUi("ui.switchToDark")}
+      title={dark ? tUi("ui.lightMode") : tUi("ui.darkMode")}
       className={cn(
         // Pill with a visible but calm background
         "inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 transition-colors",
@@ -55,7 +56,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             <circle cx="12" cy="12" r="4" />
             <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
           </svg>
-          <span className="text-xs font-medium">Clair</span>
+          <span className="text-xs font-medium">{tUi("ui.light")}</span>
         </>
       ) : (
         <>
@@ -74,7 +75,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           >
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
           </svg>
-          <span className="text-xs font-medium">Sombre</span>
+          <span className="text-xs font-medium">{tUi("ui.dark")}</span>
         </>
       )}
     </button>

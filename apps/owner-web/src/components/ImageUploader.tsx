@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { t } from "../lib/i18n";
 
 interface ImageUploaderProps {
   value: string[]; // base64 data URLs or existing URLs
@@ -16,7 +17,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error("Erreur de lecture du fichier"));
+      reader.onerror = () => reject(new Error(t("pf.up.readError")));
       reader.readAsDataURL(file);
     });
 
@@ -30,7 +31,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
       const dataUrls = await Promise.all(toProcess.map(fileToDataUrl));
       onChange([...value, ...dataUrls]);
     } catch {
-      alert("Certains fichiers n'ont pas pu être chargés.");
+      alert(t("pf.up.loadError"));
     }
   };
 
@@ -100,12 +101,16 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
             />
           </svg>
           <p className="text-sm font-medium text-ink">
-            Glissez vos photos ici ou{" "}
-            <span className="text-brand-600 underline">cliquez pour parcourir</span>
+            {t("pf.up.drop")}{" "}
+            <span className="text-brand-600 underline">{t("pf.up.browse")}</span>
           </p>
           <p className="text-xs text-ink-muted">
-            JPG, PNG, WEBP · max {maxImages} photos{" "}
-            {value.length > 0 && `· ${value.length}/${maxImages} ajoutée${value.length > 1 ? "s" : ""}`}
+            {t("pf.up.formats", { max: maxImages })}{" "}
+            {value.length > 0 &&
+              t(value.length > 1 ? "pf.up.addedPlural" : "pf.up.added", {
+                n: value.length,
+                max: maxImages,
+              })}
           </p>
           <input
             ref={inputRef}
@@ -129,14 +134,14 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
-                alt={`Photo ${i + 1}`}
+                alt={t("pf.up.photoAlt", { n: i + 1 })}
                 className="w-full h-full object-cover"
               />
 
               {/* Position badge */}
               {i === 0 && (
                 <span className="absolute top-1.5 left-1.5 bg-brand-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
-                  Principale
+                  {t("pf.up.main")}
                 </span>
               )}
 
@@ -147,7 +152,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
                   type="button"
                   onClick={() => moveLeft(i)}
                   disabled={i === 0}
-                  title="Déplacer à gauche"
+                  title={t("pf.up.moveLeft")}
                   className="p-1.5 rounded-full bg-white/20 hover:bg-white/40 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +164,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
                 <button
                   type="button"
                   onClick={() => remove(i)}
-                  title="Supprimer"
+                  title={t("pf.up.delete")}
                   className="p-1.5 rounded-full bg-red-500/80 hover:bg-red-600 text-white transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +177,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
                   type="button"
                   onClick={() => moveRight(i)}
                   disabled={i === value.length - 1}
-                  title="Déplacer à droite"
+                  title={t("pf.up.moveRight")}
                   className="p-1.5 rounded-full bg-white/20 hover:bg-white/40 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,7 +198,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              <span className="text-xs font-medium">Ajouter</span>
+              <span className="text-xs font-medium">{t("pf.up.add")}</span>
             </button>
           )}
         </div>

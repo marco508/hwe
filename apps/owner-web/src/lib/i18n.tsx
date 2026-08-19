@@ -11,6 +11,16 @@ import * as p5 from "./i18n-parts/account";
 // fr = textes d'origine ; en = traduction. Couvre la coque de l'app
 // (navigation, auth, tableau de bord) — les écrans de gestion restent en français.
 const fr: Record<string, string> = {
+  "login.password": "Mot de passe",
+  "register.firstName": "Prénom",
+  "register.lastName": "Nom",
+  "register.phone": "Téléphone",
+  "dash.addFirst": "Ajouter le premier bien",
+  "common.loading": "Chargement…",
+
+  "meta.title": "hwe — Espace propriétaire",
+  "meta.description": "Gérez vos biens immobiliers à la vente ou à la location.",
+
   "nav.market": "Marché",
   "nav.myProperties": "Mes biens",
   "nav.rents": "Loyers",
@@ -81,6 +91,16 @@ const fr: Record<string, string> = {
 };
 
 const en: Record<string, string> = {
+  "login.password": "Password",
+  "register.firstName": "First name",
+  "register.lastName": "Last name",
+  "register.phone": "Phone",
+  "dash.addFirst": "Add your first property",
+  "common.loading": "Loading…",
+
+  "meta.title": "hwe — Landlord space",
+  "meta.description": "Manage your properties for sale or for rent.",
+
   "nav.market": "Market",
   "nav.myProperties": "My properties",
   "nav.rents": "Rents",

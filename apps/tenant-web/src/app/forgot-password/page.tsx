@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Button, Card, CardBody, Input, Label, AnimatedBackground } from "@hwe/ui";
 import { api } from "../../lib/api";
+import { t } from "../../lib/i18n";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState("");
@@ -30,28 +31,27 @@ export default function ForgotPasswordPage() {
           <CardBody>
             {sent ? (
               <div className="text-center">
-                <h1 className="font-display text-2xl mb-2">Vérifiez votre boîte mail</h1>
+                <h1 className="font-display text-2xl mb-2">{t("acc.forgot.sentTitle")}</h1>
                 <p className="text-sm text-muted-foreground mb-6">
-                  Si un compte existe pour cet e-mail, un lien de réinitialisation vient d'y être envoyé.
-                  Le lien est valable 30 minutes.
+                  {t("acc.forgot.sentText")}
                 </p>
-                <Link href="/login"><Button className="w-full">Retour à la connexion</Button></Link>
+                <Link href="/login"><Button className="w-full">{t("acc.forgot.backToLogin")}</Button></Link>
               </div>
             ) : (
               <form onSubmit={onSubmit}>
-                <h1 className="font-display text-2xl mb-1">Mot de passe oublié</h1>
+                <h1 className="font-display text-2xl mb-1">{t("acc.forgot.title")}</h1>
                 <p className="text-sm text-muted-foreground mb-6">
-                  Saisissez votre e-mail : nous vous enverrons un lien pour définir un nouveau mot de passe.
+                  {t("acc.forgot.sub")}
                 </p>
                 <div className="mb-4">
-                  <Label>E-mail</Label>
+                  <Label>{t("acc.forgot.email")}</Label>
                   <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Envoi…" : "Envoyer le lien"}
+                  {loading ? t("acc.forgot.sending") : t("acc.forgot.submit")}
                 </Button>
                 <div className="text-center mt-4">
-                  <Link href="/login" className="text-sm text-muted-foreground hover:underline">Retour à la connexion</Link>
+                  <Link href="/login" className="text-sm text-muted-foreground hover:underline">{t("acc.forgot.backToLogin")}</Link>
                 </div>
               </form>
             )}

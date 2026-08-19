@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface ImageCarouselProps {
   images: { url: string; alt?: string | null }[];
@@ -104,7 +105,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
       tabIndex={0}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Galerie du bien"
+      aria-label={tUi("ui.propertyGallery")}
     >
       {/* Slides track */}
       <div
@@ -140,7 +141,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
         <>
           <button
             type="button"
-            aria-label="Image précédente"
+            aria-label={tUi("ui.prevImage")}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -154,7 +155,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
           </button>
           <button
             type="button"
-            aria-label="Image suivante"
+            aria-label={tUi("ui.nextImage")}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -176,7 +177,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
             <button
               key={i}
               type="button"
-              aria-label={`Aller à l'image ${i + 1}`}
+              aria-label={tUi("ui.goToImage", { n: i + 1 })}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

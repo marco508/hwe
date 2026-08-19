@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   brand: React.ReactNode;
@@ -46,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {childArray.length > 0 && (
             <button
               type="button"
-              aria-label="Menu"
+              aria-label={tUi("ui.menu")}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((v) => !v)}
               className="md:hidden h-9 w-9 inline-flex items-center justify-center rounded-full border border-border bg-surface hover:bg-cream-100 text-ink shrink-0"

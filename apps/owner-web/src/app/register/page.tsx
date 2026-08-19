@@ -75,7 +75,7 @@ export default function RegisterPage() {
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label htmlFor="firstName">Prénom</Label>
+                  <Label htmlFor="firstName">{t("register.firstName")}</Label>
                   <Input
                     id="firstName"
                     value={form.firstName}
@@ -104,11 +104,11 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="phone">Téléphone</Label>
+                <Label htmlFor="phone">{t("register.phone")}</Label>
                 <Input id="phone" value={form.phone} onChange={set("phone")} />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password">{t("login.password")}</Label>
                 <Input
                   id="password"
                   type="password"

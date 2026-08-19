@@ -3,7 +3,9 @@
 import * as React from "react";
 import { Button, Card, CardBody, CardHeader, Label } from "@hwe/ui";
 import type { UserDocument, IdentityDocumentType } from "@hwe/types";
-import { IDENTITY_DOCUMENT_TYPE_LABELS } from "@hwe/types";
+import { t } from "../lib/i18n";
+
+const docTypeLabel = (code: IdentityDocumentType) => t("acc.docType." + code);
 
 interface IdentityDocumentsProps {
   documents: UserDocument[];
@@ -45,9 +47,9 @@ const DOC_ICONS: Record<IdentityDocumentType, string> = {
 
 function formatBytes(bytes?: number | null) {
   if (!bytes) return null;
-  if (bytes < 1024) return `${bytes} o`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+  if (bytes < 1024) return `${bytes} ${t("acc.unit.b")}`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} ${t("acc.unit.kb")}`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} ${t("acc.unit.mb")}`;
 }
 
 export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocumentsProps) {
@@ -91,7 +93,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
     setUploading(true);
     try {
       await onAdd({
-        name: form.name || IDENTITY_DOCUMENT_TYPE_LABELS[form.documentType],
+        name: form.name || docTypeLabel(form.documentType),
         documentType: form.documentType,
         fileUrl: pendingFile.dataUrl,
         fileSize: pendingFile.size,
@@ -106,7 +108,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
   };
 
   const handleDelete = async (docId: string) => {
-    if (!confirm("Supprimer ce document ?")) return;
+    if (!confirm(t("acc.confirmDeleteDoc"))) return;
     setDeleting(docId);
     try {
       await onDelete(docId);
@@ -120,14 +122,14 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-medium">Documents d&apos;identité</div>
+            <div className="font-medium">{t("acc.idDocs.title")}</div>
             <div className="text-xs text-ink-muted mt-0.5">
-              CNI, passeport, titre de séjour… Ces documents restent privés et confidentiels.
+              {t("acc.idDocs.sub")}
             </div>
           </div>
           {!adding && (
             <Button size="sm" variant="secondary" onClick={() => setAdding(true)}>
-              + Ajouter
+              {t("acc.idDocs.add")}
             </Button>
           )}
         </div>
@@ -138,7 +140,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
           <div className="mb-4 p-4 rounded-lg border border-brand-200 bg-brand-50 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>Type de document</Label>
+                <Label>{t("acc.idDocs.typeLabel")}</Label>
                 <select
                   value={form.documentType}
                   onChange={(e) =>
@@ -146,20 +148,20 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
                   }
                   className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 >
-                  {DOC_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {DOC_ICONS[t]} {IDENTITY_DOCUMENT_TYPE_LABELS[t]}
+                  {DOC_TYPES.map((code) => (
+                    <option key={code} value={code}>
+                      {DOC_ICONS[code]} {docTypeLabel(code)}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="space-y-1">
-                <Label>Nom / libellé</Label>
+                <Label>{t("acc.idDocs.nameLabel")}</Label>
                 <input
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder={IDENTITY_DOCUMENT_TYPE_LABELS[form.documentType]}
+                  placeholder={docTypeLabel(form.documentType)}
                   className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
@@ -167,7 +169,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
 
             {/* File picker */}
             <div>
-              <Label>Fichier (image ou PDF)</Label>
+              <Label>{t("acc.idDocs.fileLabel")}</Label>
               <div
                 className={`mt-1 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
                   pendingFile
@@ -188,14 +190,14 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
                       onClick={(e) => { e.stopPropagation(); setPendingFile(null); }}
                       className="text-xs text-red-500 underline mt-1"
                     >
-                      Changer de fichier
+                      {t("acc.idDocs.changeFile")}
                     </button>
                   </div>
                 ) : (
                   <div className="text-sm text-ink-muted">
                     <span className="text-2xl">📎</span>
-                    <p className="mt-1">Cliquer pour sélectionner un fichier</p>
-                    <p className="text-xs">JPG, PNG, PDF — max 10 Mo</p>
+                    <p className="mt-1">{t("acc.idDocs.clickSelect")}</p>
+                    <p className="text-xs">{t("acc.idDocs.fileHint")}</p>
                   </div>
                 )}
               </div>
@@ -214,7 +216,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
                 disabled={!pendingFile || uploading}
                 onClick={submit}
               >
-                {uploading ? "Envoi…" : "Enregistrer"}
+                {uploading ? t("acc.sending") : t("acc.save")}
               </Button>
               <Button
                 size="sm"
@@ -225,7 +227,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
                   setForm({ documentType: "NATIONAL_ID", name: "" });
                 }}
               >
-                Annuler
+                {t("acc.cancel")}
               </Button>
             </div>
           </div>
@@ -234,7 +236,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
         {/* Document list */}
         {documents.length === 0 && !adding ? (
           <p className="text-sm text-ink-muted text-center py-4">
-            Aucun document d&apos;identité ajouté pour le moment.
+            {t("acc.idDocs.empty")}
           </p>
         ) : (
           <div className="space-y-2">
@@ -250,10 +252,10 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">{doc.name}</div>
                     <div className="flex items-center gap-2 text-xs text-ink-muted flex-wrap">
-                      <span>{IDENTITY_DOCUMENT_TYPE_LABELS[doc.documentType]}</span>
+                      <span>{docTypeLabel(doc.documentType)}</span>
                       {doc.fileSize && <span>· {formatBytes(doc.fileSize)}</span>}
                       {doc.verifiedAt && (
-                        <span className="text-emerald-600 font-medium">✓ Vérifié</span>
+                        <span className="text-emerald-600 font-medium">{t("acc.idDocs.verified")}</span>
                       )}
                     </div>
                   </div>
@@ -265,7 +267,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
                     rel="noopener noreferrer"
                     className="text-xs text-brand-600 hover:underline font-medium"
                   >
-                    Voir
+                    {t("acc.view")}
                   </a>
                   <button
                     type="button"
@@ -273,7 +275,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete }: IdentityDocume
                     disabled={deleting === doc.id}
                     className="text-xs text-red-500 hover:text-red-700 font-medium disabled:opacity-50"
                   >
-                    {deleting === doc.id ? "…" : "Supprimer"}
+                    {deleting === doc.id ? "…" : t("acc.delete")}
                   </button>
                 </div>
               </div>

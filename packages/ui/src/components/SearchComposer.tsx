@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export type SearchComposerListing = "ALL" | "RENT" | "SALE";
 
@@ -54,7 +55,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
         className,
       )}
       role="search"
-      aria-label="Recherche de biens"
+      aria-label={tUi("ui.propertySearch")}
     >
       <button
         type="button"
@@ -62,14 +63,14 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
         onClick={() => setActive("location")}
       >
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-          Destination
+          {tUi("ui.destination")}
         </span>
         <input
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           onFocus={() => setActive("location")}
-          placeholder="Paris, Bordeaux, Lyon…"
+          placeholder={tUi("ui.cityExamples")}
           className="bg-transparent outline-none text-sm font-medium text-ink placeholder:text-ink-subtle min-w-[140px]"
         />
       </button>
@@ -82,7 +83,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
         onClick={() => setActive("listing")}
       >
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-          Type
+          {tUi("ui.type")}
         </span>
         <select
           value={listing}
@@ -92,9 +93,9 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
           onFocus={() => setActive("listing")}
           className="bg-transparent outline-none text-sm font-medium text-ink cursor-pointer pr-1"
         >
-          <option value="ALL">Tous les biens</option>
-          <option value="RENT">À louer</option>
-          <option value="SALE">À vendre</option>
+          <option value="ALL">{tUi("ui.allProperties")}</option>
+          <option value="RENT">{tUi("ui.forRent")}</option>
+          <option value="SALE">{tUi("ui.forSale")}</option>
         </select>
       </button>
 
@@ -106,7 +107,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
         onClick={() => setActive("date")}
       >
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-          Quand
+          {tUi("ui.when")}
         </span>
         <input
           type="date"
@@ -125,12 +126,12 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
         onClick={() => setActive("guests")}
       >
         <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
-          Voyageurs
+          {tUi("ui.guests")}
         </span>
         <span className="inline-flex items-center gap-2 text-sm font-medium text-ink">
           <button
             type="button"
-            aria-label="Moins de voyageurs"
+            aria-label={tUi("ui.fewerGuests")}
             onClick={(e) => {
               e.stopPropagation();
               setGuests((g) => Math.max(1, g - 1));
@@ -142,7 +143,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
           {guests}
           <button
             type="button"
-            aria-label="Plus de voyageurs"
+            aria-label={tUi("ui.moreGuests")}
             onClick={(e) => {
               e.stopPropagation();
               setGuests((g) => Math.min(20, g + 1));
@@ -156,7 +157,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
 
       <button
         type="submit"
-        aria-label="Rechercher"
+        aria-label={tUi("ui.search")}
         className="ml-2 my-1 inline-flex items-center justify-center gap-2 h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-brand-600 to-accent-500 text-white text-sm font-medium shadow-md hover:shadow-glow transition-shadow"
       >
         <svg
@@ -173,7 +174,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
           <circle cx="11" cy="11" r="8" />
           <path d="m21 21-4.3-4.3" />
         </svg>
-        <span className="hidden sm:inline">Rechercher</span>
+        <span className="hidden sm:inline">{tUi("ui.search")}</span>
       </button>
     </form>
   );

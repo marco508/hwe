@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, EmptyState, IlloVisit } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
+import { t } from "../../lib/i18n";
 import type { Visit, VisitStatus } from "@hwe/types";
-import { VISIT_STATUS_LABELS } from "@hwe/types";
 
 const TONE: Record<VisitStatus, "accent" | "success" | "danger" | "neutral"> = {
   REQUESTED: "accent",
@@ -18,7 +18,7 @@ const TONE: Record<VisitStatus, "accent" | "success" | "danger" | "neutral"> = {
 
 function fmtSlot(iso: string) {
   const d = new Date(iso);
-  return `${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} à ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+  return `${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} ${t("com.visits.at")} ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
 }
 
 export default function MesVisitesPage() {
@@ -35,30 +35,30 @@ export default function MesVisitesPage() {
     api.myVisits().then(setVisits).catch(() => setVisits([]));
   }, [user, loading, router]);
 
-  if (loading || visits === null) return <p className="text-ink-muted">Chargement…</p>;
+  if (loading || visits === null) return <p className="text-ink-muted">{t("com.loading")}</p>;
 
   const cancel = async (id: string) => {
-    if (!confirm("Annuler cette demande de visite ?")) return;
+    if (!confirm(t("com.visits.confirmCancel"))) return;
     const updated = await api.cancelVisit(id);
     setVisits((arr) => (arr ?? []).map((v) => (v.id === updated.id ? { ...v, ...updated } : v)));
   };
 
   return (
     <section>
-      <h1 className="font-display text-3xl mb-2">Mes visites</h1>
+      <h1 className="font-display text-3xl mb-2">{t("com.visits.title")}</h1>
       <p className="text-ink-muted mb-8">
-        Vos créneaux demandés — la demande se fait depuis la page d'une annonce.
+        {t("com.visits.sub")}
       </p>
 
       {visits.length === 0 ? (
         <div className="text-center">
         <IlloVisit className="mx-auto w-48 mb-2" />
         <EmptyState
-          title="Aucune visite demandée"
-          description="Ouvrez une annonce et proposez un créneau."
+          title={t("com.visits.emptyTitle")}
+          description={t("com.visits.emptyDesc")}
           action={
             <Link href="/" className="text-sm">
-              Parcourir les annonces
+              {t("com.visits.browse")}
             </Link>
           }
         />
@@ -74,7 +74,7 @@ export default function MesVisitesPage() {
                 <div>
                   <div className="flex items-center gap-3 mb-1 flex-wrap">
                     <span className="font-semibold">{fmtSlot(v.proposedAt)}</span>
-                    <Badge tone={TONE[v.status]}>{VISIT_STATUS_LABELS[v.status]}</Badge>
+                    <Badge tone={TONE[v.status]}>{t("com.visitStatus." + v.status)}</Badge>
                   </div>
                   <Link
                     href={`/properties/${v.propertyId}`}
@@ -84,13 +84,13 @@ export default function MesVisitesPage() {
                   </Link>
                   {v.ownerNote && (
                     <p className="text-sm text-ink-muted mt-1">
-                      Propriétaire : {v.ownerNote}
+                      {t("com.visits.ownerNote", { note: v.ownerNote })}
                     </p>
                   )}
                 </div>
                 {v.status === "REQUESTED" && (
                   <Button size="sm" variant="secondary" onClick={() => cancel(v.id)}>
-                    Annuler
+                    {t("com.cancel")}
                   </Button>
                 )}
               </div>

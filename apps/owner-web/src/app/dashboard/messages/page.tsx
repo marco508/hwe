@@ -17,6 +17,7 @@ import {
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
+import { t } from "../../../lib/i18n";
 import type { Conversation, Message } from "@hwe/types";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +49,7 @@ function MessagesPageInner() {
       conversations.reduce((s, c) => s + (c._count?.messages ?? 0), 0),
     [conversations],
   );
-  useTitleFlash(totalUnread, "hwe — Propriétaire");
+  useTitleFlash(totalUnread, t("com.msgTabTitle"));
 
   // Redirect to login if not auth
   React.useEffect(() => {
@@ -79,8 +80,8 @@ function MessagesPageInner() {
             if (latest && latest.id !== lastSeenMsgId.current) {
               const convo = items.find((c) => c.id === latest.conversationId);
               const author =
-                latest.sender?.firstName ?? "Quelqu'un";
-              notify(`Nouveau message de ${author}`, {
+                latest.sender?.firstName ?? t("com.someone");
+              notify(t("com.newMessageFrom", { name: author }), {
                 body:
                   latest.content.length > 100
                     ? latest.content.slice(0, 100) + "…"
@@ -159,13 +160,15 @@ function MessagesPageInner() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="display-serif text-3xl">
-              Messages <span className="gradient-text">en direct</span>
+              {t("com.msgTitle1")}{" "}
+              <span className="gradient-text">{t("com.msgTitle2")}</span>
             </h1>
             <p className="text-sm text-ink-muted mt-1">
-              Discutez directement avec vos candidats acheteurs et locataires.
+              {t("com.msgSub")}
               {totalUnread > 0 && (
                 <strong className="ml-1 text-ink">
-                  {totalUnread} non lu{totalUnread > 1 ? "s" : ""}.
+                  {totalUnread}{" "}
+                  {totalUnread > 1 ? t("com.unreadPlural") : t("com.unread")}.
                 </strong>
               )}
             </p>
@@ -176,13 +179,13 @@ function MessagesPageInner() {
               onClick={request}
               className="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90"
             >
-              🔔 Activer les notifications
+              {t("com.enableNotifs")}
             </button>
           )}
           {permission === "granted" && (
             <span className="text-xs text-ink-muted inline-flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-success" />
-              Notifications navigateur actives
+              {t("com.notifsActive")}
             </span>
           )}
         </div>
@@ -205,8 +208,7 @@ function MessagesPageInner() {
               </div>
             ) : conversations.length === 0 ? (
               <div className="p-6 text-center text-sm text-ink-muted">
-                Aucune conversation pour le moment. Elles apparaîtront ici dès
-                qu'un candidat vous contactera.
+                {t("com.noConversations")}
               </div>
             ) : (
               <div className="space-y-0.5">
@@ -220,7 +222,7 @@ function MessagesPageInner() {
                   return (
                     <ConversationListItem
                       key={c.id}
-                      partnerName={`${partner?.firstName ?? ""} ${partner?.lastName ?? ""}`.trim() || partner?.email || "Anonyme"}
+                      partnerName={`${partner?.firstName ?? ""} ${partner?.lastName ?? ""}`.trim() || partner?.email || t("com.anonymous")}
                       partnerInitials={initials}
                       partnerAvatarUrl={partner?.avatarUrl}
                       propertyTitle={c.property?.title}
@@ -249,18 +251,17 @@ function MessagesPageInner() {
           {!active ? (
             loadingActive ? (
               <CardBody className="flex-1 flex items-center justify-center text-sm text-ink-muted">
-                Chargement…
+                {t("com.loading")}
               </CardBody>
             ) : (
               <CardBody className="flex-1 flex items-center justify-center">
                 <div className="text-center max-w-sm">
                   <div className="text-5xl mb-3">💬</div>
                   <h2 className="display-serif text-2xl mb-2">
-                    Sélectionnez une conversation
+                    {t("com.selectConversation")}
                   </h2>
                   <p className="text-sm text-ink-muted">
-                    Choisissez un fil de discussion dans la liste pour voir les
-                    messages et y répondre.
+                    {t("com.selectConversationDesc")}
                   </p>
                 </div>
               </CardBody>
@@ -310,7 +311,7 @@ function ActiveConversation({
           <button
             type="button"
             onClick={onBack}
-            aria-label="Retour à la liste"
+            aria-label={t("com.backToList")}
             className="lg:hidden h-8 w-8 rounded-full border border-border bg-surface hover:bg-cream-100 flex items-center justify-center text-ink shrink-0"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -359,7 +360,7 @@ function ActiveConversation({
       >
         {(conversation.messages ?? []).length === 0 ? (
           <div className="text-center text-sm text-ink-muted py-8">
-            Aucun message encore. Écrivez le premier !
+            {t("com.noMessages")}
           </div>
         ) : (
           (conversation.messages ?? []).map((m) => {
@@ -389,7 +390,7 @@ function ActiveConversation({
 
       {/* Composer */}
       <div className="p-3 border-t border-border bg-surface">
-        <MessageComposer onSend={onSend} placeholder="Votre réponse…" />
+        <MessageComposer onSend={onSend} placeholder={t("com.composerPlaceholder")} />
       </div>
     </>
   );

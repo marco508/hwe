@@ -14,6 +14,7 @@ import {
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
+import { t } from "../../../lib/i18n";
 import type { OwnerRentPeriod, RentStatus } from "../../../lib/api";
 
 function fmtEUR(n: number) {
@@ -24,13 +25,6 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 }
 
-const STATUS_LABEL: Record<RentStatus, string> = {
-  DUE: "À payer",
-  DECLARED: "À vérifier",
-  PAID: "Payé",
-  LATE: "En retard",
-};
-
 const STATUS_TONE: Record<RentStatus, "neutral" | "success" | "brand" | "accent"> = {
   DUE: "accent",
   DECLARED: "brand",
@@ -39,11 +33,11 @@ const STATUS_TONE: Record<RentStatus, "neutral" | "success" | "brand" | "accent"
 };
 
 const FILTERS: { value: RentStatus | "ALL"; label: string }[] = [
-  { value: "DECLARED", label: "À vérifier" },
-  { value: "LATE", label: "En retard" },
-  { value: "DUE", label: "À venir" },
-  { value: "PAID", label: "Payés" },
-  { value: "ALL", label: "Tout" },
+  { value: "DECLARED", label: "rent.filter.DECLARED" },
+  { value: "LATE", label: "rent.filter.LATE" },
+  { value: "DUE", label: "rent.filter.DUE" },
+  { value: "PAID", label: "rent.filter.PAID" },
+  { value: "ALL", label: "rent.filter.ALL" },
 ];
 
 // ── Squelette de chargement ─────────────────────────────────────────────────
@@ -96,9 +90,11 @@ function PeriodCard({
   const review = async (accept: boolean) => {
     if (accept) {
       const ok = confirm(
-        `Confirmez-vous avoir reçu ${fmtEUR(period.amount)} de ${period.lease.tenantName} ` +
-          `pour ${period.periodLabel} ?\n\nVérifiez la réception sur votre relevé (banque / opérateur), ` +
-          `pas seulement sur la capture. La quittance sera générée et envoyée au locataire.`,
+        t("rent.confirmReceive", {
+          amount: fmtEUR(period.amount),
+          tenant: period.lease.tenantName,
+          period: period.periodLabel,
+        }),
       );
       if (!ok) return;
     }
@@ -107,7 +103,7 @@ function PeriodCard({
       const updated = await api.reviewRent(period.id, accept, accept ? undefined : reason.trim() || undefined);
       onReviewed(updated);
     } catch (e) {
-      alert("Erreur : " + (e as Error).message);
+      alert(t("rent.error", { message: (e as Error).message }));
     } finally {
       setBusy(false);
     }
@@ -118,7 +114,7 @@ function PeriodCard({
     try {
       await api.downloadReceipt(period.id);
     } catch (e) {
-      alert("Téléchargement impossible : " + (e as Error).message);
+      alert(t("rent.downloadError", { message: (e as Error).message }));
     } finally {
       setDownloading(false);
     }
@@ -142,8 +138,8 @@ function PeriodCard({
             <p>{period.lease.tenantEmail}</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
-            <p className="text-xs text-ink-muted hidden sm:block">échéance {fmtDate(period.dueDate)}</p>
-            <Badge tone={STATUS_TONE[period.status]}>{STATUS_LABEL[period.status]}</Badge>
+            <p className="text-xs text-ink-muted hidden sm:block">{t("rent.dueOn", { date: fmtDate(period.dueDate) })}</p>
+            <Badge tone={STATUS_TONE[period.status]}>{t("rent.status." + period.status)}</Badge>
           </div>
         </div>
 
@@ -152,12 +148,12 @@ function PeriodCard({
           <div className="rounded-xl border border-ocean-200 dark:border-ocean-700/50 bg-ocean-50/60 dark:bg-ocean-700/10 p-4 sm:p-5 space-y-3">
             <div className="text-sm text-ink space-y-1">
               <p>
-                Déclaré le {period.declaredAt ? fmtDate(period.declaredAt) : "—"}
-                {period.declaredMethod ? <> via <strong>{period.declaredMethod}</strong></> : null}
+                {t("rent.declaredOn", { date: period.declaredAt ? fmtDate(period.declaredAt) : "—" })}
+                {period.declaredMethod ? <> {t("rent.via")} <strong>{period.declaredMethod}</strong></> : null}
               </p>
               {period.declaredRef && (
                 <p>
-                  Identifiant de transaction :{" "}
+                  {t("rent.txId")}{" "}
                   <code className="font-mono text-xs bg-surface border border-border rounded px-1.5 py-0.5">
                     {period.declaredRef}
                   </code>
@@ -174,13 +170,13 @@ function PeriodCard({
                   onClick={() => setShowProof((v) => !v)}
                   className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
                 >
-                  {showProof ? "▲ Masquer la capture" : "▼ Voir la capture du reçu"}
+                  {showProof ? t("rent.hideProof") : t("rent.showProof")}
                 </button>
                 {showProof && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={period.proofDataUrl}
-                    alt="Capture du reçu"
+                    alt={t("rent.proofAlt")}
                     className="mt-2 max-h-96 rounded-lg border border-border shadow-card"
                   />
                 )}
@@ -188,17 +184,17 @@ function PeriodCard({
             )}
 
             <p className="text-xs text-ink-muted">
-              ⚠️ Vérifiez la réception <strong>sur votre relevé</strong> (banque ou opérateur), pas
-              seulement sur la capture : une capture peut se falsifier, votre relevé non.
+              {t("rent.checkStatement1")} <strong>{t("rent.checkStatement2")}</strong>{" "}
+              {t("rent.checkStatement3")}
             </p>
 
             {!rejecting ? (
               <div className="flex gap-2 flex-wrap">
                 <Button onClick={() => review(true)} disabled={busy}>
-                  {busy ? "…" : "✓ J'ai bien reçu — valider"}
+                  {busy ? "…" : t("rent.validate")}
                 </Button>
                 <Button variant="ghost" onClick={() => setRejecting(true)} disabled={busy} className="text-danger dark:text-red-300">
-                  Refuser
+                  {t("rent.reject")}
                 </Button>
               </div>
             ) : (
@@ -206,15 +202,15 @@ function PeriodCard({
                 <Input
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="Motif du refus (ex. : montant non reçu sur mon compte)"
+                  placeholder={t("rent.rejectPlaceholder")}
                   maxLength={300}
                 />
                 <div className="flex gap-2">
                   <Button variant="danger" onClick={() => review(false)} disabled={busy}>
-                    {busy ? "…" : "Confirmer le refus"}
+                    {busy ? "…" : t("rent.confirmReject")}
                   </Button>
                   <Button variant="ghost" onClick={() => setRejecting(false)}>
-                    Annuler
+                    {t("rent.cancel")}
                   </Button>
                 </div>
               </div>
@@ -226,19 +222,19 @@ function PeriodCard({
         {period.status === "PAID" && (
           <div className="flex flex-wrap items-center gap-3 text-sm text-ink-muted">
             <span>
-              ✓ Payé le {period.paidAt ? fmtDate(period.paidAt) : "—"}
-              {period.declaredMethod ? ` via ${period.declaredMethod}` : ""}
+              {t("rent.paidOn", { date: period.paidAt ? fmtDate(period.paidAt) : "—" })}
+              {period.declaredMethod ? ` ${t("rent.via")} ${period.declaredMethod}` : ""}
             </span>
             {period.receiptNo && (
               <Button size="sm" variant="secondary" onClick={download} disabled={downloading}>
-                {downloading ? "…" : `📄 Quittance ${period.receiptNo}`}
+                {downloading ? "…" : t("rent.receiptBtn", { no: period.receiptNo })}
               </Button>
             )}
           </div>
         )}
 
         {period.status !== "PAID" && period.status !== "DECLARED" && period.rejectReason && (
-          <p className="text-xs text-ink-muted">Dernier refus : {period.rejectReason}</p>
+          <p className="text-xs text-ink-muted">{t("rent.lastReject", { reason: period.rejectReason })}</p>
         )}
       </CardBody>
     </Card>
@@ -286,7 +282,7 @@ export default function LoyersPage() {
   const shown = periods.filter((p) => filter === "ALL" || p.status === filter);
 
   if (loading || working) return <LoadingSkeleton />;
-  if (error) return <p className="text-danger">Erreur lors du chargement des loyers : {error}</p>;
+  if (error) return <p className="text-danger">{t("rent.loadError", { message: error })}</p>;
 
   return (
     <section className="space-y-6">
@@ -295,24 +291,24 @@ export default function LoyersPage() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="font-display text-3xl sm:text-4xl mb-1">
-              Suivi des <span className="gradient-text">loyers</span>
+              {t("rent.title1")} <span className="gradient-text">{t("rent.title2")}</span>
             </h1>
             <p className="text-ink-muted max-w-xl">
-              Vos locataires paient sur vos coordonnées (
+              {t("rent.intro1")}
               <Link href="/profile" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
-                rubrique Profil
+                {t("rent.introProfileLink")}
               </Link>
-              ) puis déclarent ici. Validez après vérification sur votre relevé — la quittance part toute seule.
+              {t("rent.intro2")}
             </p>
           </div>
         </div>
 
         {periods.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 stagger">
-            <StatCard icon="🔍" value={counts.declared} label="À vérifier" highlight={counts.declared > 0} />
-            <StatCard icon="⏰" value={counts.late} label="En retard" />
-            <StatCard icon="✅" value={fmtEUR(counts.collectedMonth)} label="Encaissé ce mois-ci" />
-            <StatCard icon="📆" value={fmtEUR(counts.expectedMonth)} label="Attendu ce mois-ci" />
+            <StatCard icon="🔍" value={counts.declared} label={t("rent.stat.declared")} highlight={counts.declared > 0} />
+            <StatCard icon="⏰" value={counts.late} label={t("rent.stat.late")} />
+            <StatCard icon="✅" value={fmtEUR(counts.collectedMonth)} label={t("rent.stat.collected")} />
+            <StatCard icon="📆" value={fmtEUR(counts.expectedMonth)} label={t("rent.stat.expected")} />
           </div>
         )}
       </AnimatedBackground>
@@ -333,7 +329,7 @@ export default function LoyersPage() {
                   : "border-border bg-surface text-ink-muted hover:text-ink hover:border-ink/30")
               }
             >
-              {f.label}
+              {t(f.label)}
               {n > 0 && (
                 <span
                   className={
@@ -351,13 +347,13 @@ export default function LoyersPage() {
 
       {shown.length === 0 ? (
         <EmptyState
-          title={filter === "DECLARED" ? "Rien à vérifier" : "Rien à afficher"}
+          title={filter === "DECLARED" ? t("rent.empty.nothingToVerify") : t("rent.empty.nothingToShow")}
           description={
             periods.length === 0
-              ? "Les échéances apparaîtront dès qu'un bail actif est enregistré sur l'un de vos biens."
+              ? t("rent.empty.noLease")
               : filter === "DECLARED"
-                ? "Aucune déclaration de versement en attente. Vous serez alerté par e-mail dès qu'un locataire déclare un paiement."
-                : "Aucune échéance dans cette catégorie."
+                ? t("rent.empty.noDeclared")
+                : t("rent.empty.noneInCategory")
           }
         />
       ) : (

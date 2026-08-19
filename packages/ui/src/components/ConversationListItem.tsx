@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { UnreadBadge } from "./UnreadBadge";
+import { tUi } from "./I18nKit";
 
 export interface ConversationListItemProps {
   partnerName: string;
@@ -25,12 +26,12 @@ const timeAgo = (iso?: string | null) => {
   if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diff / 60000);
-  if (min < 1) return "à l'instant";
-  if (min < 60) return `${min} min`;
+  if (min < 1) return tUi("ui.time.now");
+  if (min < 60) return tUi("ui.time.min", { n: min });
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr} h`;
+  if (hr < 24) return tUi("ui.time.hours", { n: hr });
   const days = Math.floor(hr / 24);
-  if (days < 7) return `${days} j`;
+  if (days < 7) return tUi("ui.time.days", { n: days });
   return new Date(iso).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "short",

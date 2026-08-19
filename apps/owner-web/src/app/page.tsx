@@ -10,6 +10,7 @@ import {
 } from "@hwe/ui";
 import { api } from "../lib/api";
 import type { Property } from "@hwe/types";
+import { t } from "../lib/i18n";
 
 export default function HomePage() {
   const [items, setItems] = React.useState<Property[]>([]);
@@ -149,7 +150,7 @@ export default function HomePage() {
           action={
             items.length === 0 ? (
               <Link href="/dashboard/new">
-                <Button variant="gradient">Ajouter le premier bien</Button>
+                <Button variant="gradient">{t("dash.addFirst")}</Button>
               </Link>
             ) : null
           }

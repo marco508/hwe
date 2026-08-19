@@ -7,8 +7,8 @@ import { Button, Input, Label, Select, Textarea, Badge } from "@hwe/ui";
 import { useAuth } from "../../../../lib/auth-context";
 import { api } from "../../../../lib/api";
 import { LeaseExtras } from "../../../../components/LeaseExtras";
+import { t } from "../../../../lib/i18n";
 import type { Property, LeaseContract, LeaseStatus } from "@hwe/types";
-import { LEASE_STATUS_LABELS } from "@hwe/types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -38,6 +38,7 @@ const STATUS_TONE: Record<LeaseStatus, "neutral" | "success" | "accent" | "dange
 
 // ─── Contract text generator ──────────────────────────────────────────────────
 
+// Document légal français — non traduit volontairement
 function generateContractText(lease: LeaseContract, property: Property): string {
   const ownerName = property.owner
     ? `${property.owner.firstName} ${property.owner.lastName}`
@@ -269,7 +270,7 @@ export default function LeasePage() {
       setForm(EMPTY_FORM);
       setView("list");
     } catch (err) {
-      alert("Erreur : " + (err as Error).message);
+      alert(t("lease.errorPrefix") + (err as Error).message);
     } finally {
       setSubmitting(false);
     }
@@ -282,7 +283,7 @@ export default function LeasePage() {
   };
 
   const handleDelete = async (leaseId: string) => {
-    if (!confirm("Supprimer ce contrat ?") || !params?.id) return;
+    if (!confirm(t("lease.confirmDelete")) || !params?.id) return;
     await api.deleteLease(params.id, leaseId);
     setLeases((l) => l.filter((x) => x.id !== leaseId));
   };
@@ -305,7 +306,7 @@ export default function LeasePage() {
     URL.revokeObjectURL(url);
   };
 
-  if (loading || working) return <p className="text-ink-muted">Chargement…</p>;
+  if (loading || working) return <p className="text-ink-muted">{t("lease.loading")}</p>;
 
   // ── Preview view ─────────────────────────────────────────────────────────────
   if (view === "preview" && selectedLease) {
@@ -316,35 +317,37 @@ export default function LeasePage() {
             onClick={() => setView("list")}
             className="text-sm text-ink-muted hover:underline"
           >
-            ← Retour aux contrats
+            {t("lease.backToContracts")}
           </button>
         </div>
         <div className="flex items-center justify-between mb-6 gap-4">
-          <h1 className="font-display text-2xl">Aperçu du contrat</h1>
+          <h1 className="font-display text-2xl">{t("lease.previewTitle")}</h1>
           <div className="flex gap-2">
             <Button onClick={downloadContract} variant="secondary">
-              ⬇️ Télécharger (.txt)
+              {t("lease.download")}
             </Button>
             {!selectedLease.ownerSignedAt && (
               <Button
                 onClick={async () => {
                   if (!params?.id) return;
-                  if (!confirm("Confirmez-vous la signature électronique de ce contrat ?")) return;
+                  if (!confirm(t("lease.confirmSign"))) return;
                   try {
                     const updated = await api.signLease(params.id, selectedLease.id);
                     setLeases((l) => l.map((x) => (x.id === updated.id ? updated : x)));
                     setSelectedLease(updated);
                   } catch (e) {
-                    alert("Erreur : " + (e as Error).message);
+                    alert(t("lease.errorPrefix") + (e as Error).message);
                   }
                 }}
               >
-                ✍️ Signer électroniquement
+                {t("lease.signBtn")}
               </Button>
             )}
             {selectedLease.ownerSignedAt && (
               <span className="inline-flex items-center gap-1.5 text-sm font-medium text-success-700 dark:text-success-400 bg-success-50 dark:bg-success-900/30 border border-success-200 dark:border-success-800 rounded-lg px-3 py-2">
-                ✅ Signé le {new Date(selectedLease.ownerSignedAt).toLocaleDateString("fr-FR")}
+                {t("lease.signedOn", {
+                  date: new Date(selectedLease.ownerSignedAt).toLocaleDateString("fr-FR"),
+                })}
               </span>
             )}
           </div>
@@ -359,19 +362,23 @@ export default function LeasePage() {
           <div className="flex items-center gap-1.5">
             <span>{selectedLease.ownerSignedAt ? "✅" : "⏳"}</span>
             <span className="text-ink-muted">
-              Propriétaire :{" "}
+              {t("lease.ownerColon")}{" "}
               {selectedLease.ownerSignedAt
-                ? `signé le ${new Date(selectedLease.ownerSignedAt).toLocaleDateString("fr-FR")}`
-                : "en attente"}
+                ? t("lease.signedOnShort", {
+                    date: new Date(selectedLease.ownerSignedAt).toLocaleDateString("fr-FR"),
+                  })
+                : t("lease.pending")}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span>{selectedLease.tenantSignedAt ? "✅" : "⏳"}</span>
             <span className="text-ink-muted">
-              Locataire :{" "}
+              {t("lease.tenantColon")}{" "}
               {selectedLease.tenantSignedAt
-                ? `signé le ${new Date(selectedLease.tenantSignedAt).toLocaleDateString("fr-FR")}`
-                : "en attente"}
+                ? t("lease.signedOnShort", {
+                    date: new Date(selectedLease.tenantSignedAt).toLocaleDateString("fr-FR"),
+                  })
+                : t("lease.pending")}
             </span>
           </div>
         </div>
@@ -388,38 +395,38 @@ export default function LeasePage() {
             onClick={() => setView("list")}
             className="text-sm text-ink-muted hover:underline"
           >
-            ← Retour aux contrats
+            {t("lease.backToContracts")}
           </button>
         </div>
-        <h1 className="font-display text-3xl mb-8">Nouveau contrat de location</h1>
+        <h1 className="font-display text-3xl mb-8">{t("lease.newTitle")}</h1>
 
         <form onSubmit={handleCreate} className="max-w-2xl space-y-8">
           {/* Tenant info */}
           <fieldset className="space-y-4 border border-ink-subtle rounded-xl p-6">
             <legend className="font-semibold px-2 text-sm uppercase tracking-wide text-ink-muted">
-              👤 Informations du locataire
+              {t("lease.section.tenant")}
             </legend>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="tf">Prénom *</Label>
+                <Label htmlFor="tf">{t("lease.firstName")}</Label>
                 <Input id="tf" {...field("tenantFirstName")} required />
               </div>
               <div>
-                <Label htmlFor="tl">Nom *</Label>
+                <Label htmlFor="tl">{t("lease.lastName")}</Label>
                 <Input id="tl" {...field("tenantLastName")} required />
               </div>
             </div>
             <div>
-              <Label htmlFor="te">Email *</Label>
+              <Label htmlFor="te">{t("lease.email")}</Label>
               <Input id="te" type="email" {...field("tenantEmail")} required />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="tp">Téléphone</Label>
+                <Label htmlFor="tp">{t("lease.phone")}</Label>
                 <Input id="tp" type="tel" {...field("tenantPhone")} />
               </div>
               <div>
-                <Label htmlFor="ta">Adresse actuelle</Label>
+                <Label htmlFor="ta">{t("lease.currentAddress")}</Label>
                 <Input id="ta" {...field("tenantAddress")} />
               </div>
             </div>
@@ -428,11 +435,11 @@ export default function LeasePage() {
           {/* Financial */}
           <fieldset className="space-y-4 border border-ink-subtle rounded-xl p-6">
             <legend className="font-semibold px-2 text-sm uppercase tracking-wide text-ink-muted">
-              💶 Conditions financières
+              {t("lease.section.financial")}
             </legend>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="rent">Loyer (€/mois) *</Label>
+                <Label htmlFor="rent">{t("lease.rentLabel")}</Label>
                 <Input
                   id="rent"
                   type="number"
@@ -443,7 +450,7 @@ export default function LeasePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="charges">Charges (€/mois)</Label>
+                <Label htmlFor="charges">{t("lease.chargesLabel")}</Label>
                 <Input
                   id="charges"
                   type="number"
@@ -453,7 +460,7 @@ export default function LeasePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="deposit">Dépôt de garantie (€) *</Label>
+                <Label htmlFor="deposit">{t("lease.depositLabel")}</Label>
                 <Input
                   id="deposit"
                   type="number"
@@ -466,11 +473,11 @@ export default function LeasePage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="rpd">Jour de paiement du loyer</Label>
+                <Label htmlFor="rpd">{t("lease.paymentDay")}</Label>
                 <Select id="rpd" {...field("rentPaymentDay")}>
                   {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
                     <option key={d} value={d}>
-                      {d === 1 ? "1er" : `${d}`} du mois
+                      {d === 1 ? t("lease.paymentDayFirst") : t("lease.paymentDayN", { d })}
                     </option>
                   ))}
                 </Select>
@@ -481,26 +488,26 @@ export default function LeasePage() {
           {/* Duration */}
           <fieldset className="space-y-4 border border-ink-subtle rounded-xl p-6">
             <legend className="font-semibold px-2 text-sm uppercase tracking-wide text-ink-muted">
-              📅 Durée du bail
+              {t("lease.section.duration")}
             </legend>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="sd">Date de début *</Label>
+                <Label htmlFor="sd">{t("lease.startDate")}</Label>
                 <Input id="sd" type="date" {...field("startDate")} required />
               </div>
               <div>
-                <Label htmlFor="ed">Date de fin (vide = indéterminée)</Label>
+                <Label htmlFor="ed">{t("lease.endDate")}</Label>
                 <Input id="ed" type="date" {...field("endDate")} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="np">Préavis (mois)</Label>
+                <Label htmlFor="np">{t("lease.noticePeriod")}</Label>
                 <Select id="np" {...field("noticePeriod")}>
-                  <option value="1">1 mois</option>
-                  <option value="2">2 mois</option>
-                  <option value="3">3 mois</option>
-                  <option value="6">6 mois</option>
+                  <option value="1">{t("lease.notice.1")}</option>
+                  <option value="2">{t("lease.notice.2")}</option>
+                  <option value="3">{t("lease.notice.3")}</option>
+                  <option value="6">{t("lease.notice.6")}</option>
                 </Select>
               </div>
               <div className="flex items-end pb-1">
@@ -513,7 +520,7 @@ export default function LeasePage() {
                     }
                     className="w-4 h-4 rounded"
                   />
-                  <span className="text-sm font-medium">Logement meublé</span>
+                  <span className="text-sm font-medium">{t("lease.furnishedCheckbox")}</span>
                 </label>
               </div>
             </div>
@@ -522,7 +529,7 @@ export default function LeasePage() {
           {/* Special clauses */}
           <fieldset className="space-y-4 border border-ink-subtle rounded-xl p-6">
             <legend className="font-semibold px-2 text-sm uppercase tracking-wide text-ink-muted">
-              📝 Clauses particulières
+              {t("lease.section.clauses")}
             </legend>
             <Textarea
               id="clauses"
@@ -531,20 +538,20 @@ export default function LeasePage() {
                 setForm((f) => ({ ...f, specialClauses: e.target.value }))
               }
               rows={5}
-              placeholder="Ex : Interdiction d'animaux, travaux autorisés, utilisation professionnelle partielle…"
+              placeholder={t("lease.clausesPlaceholder")}
             />
           </fieldset>
 
           <div className="flex gap-3">
             <Button type="submit" disabled={submitting}>
-              {submitting ? "Création…" : "Créer le contrat"}
+              {submitting ? t("lease.creating") : t("lease.createSubmit")}
             </Button>
             <Button
               type="button"
               variant="secondary"
               onClick={() => setView("list")}
             >
-              Annuler
+              {t("lease.cancel")}
             </Button>
           </div>
         </form>
@@ -560,12 +567,12 @@ export default function LeasePage() {
           href={`/dashboard/${params?.id}/edit`}
           className="text-sm text-ink-muted hover:underline"
         >
-          ← Retour au bien
+          {t("lease.backToProperty")}
         </Link>
       </div>
       <div className="flex items-start justify-between mb-8 gap-4">
         <div>
-          <h1 className="font-display text-3xl mb-1">Contrats de location</h1>
+          <h1 className="font-display text-3xl mb-1">{t("lease.title")}</h1>
           <p className="text-ink-muted">
             {property?.title} — {property?.addressLine}, {property?.city}
           </p>
@@ -573,20 +580,20 @@ export default function LeasePage() {
             href="/dashboard/loyers"
             className="inline-block mt-1 text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
           >
-            💶 Suivre les loyers de ce bail →
+            {t("lease.trackRents")}
           </Link>
         </div>
-        <Button onClick={() => setView("create")}>+ Nouveau contrat</Button>
+        <Button onClick={() => setView("create")}>{t("lease.newBtn")}</Button>
       </div>
 
       {leases.length === 0 ? (
         <div className="text-center py-20 border-2 border-dashed border-ink-subtle rounded-2xl">
           <div className="text-5xl mb-4">📋</div>
-          <p className="font-semibold text-lg mb-1">Aucun contrat créé</p>
+          <p className="font-semibold text-lg mb-1">{t("lease.emptyTitle")}</p>
           <p className="text-ink-muted text-sm mb-6">
-            Générez un bail conforme en quelques clics.
+            {t("lease.emptySub")}
           </p>
-          <Button onClick={() => setView("create")}>+ Créer un contrat</Button>
+          <Button onClick={() => setView("create")}>{t("lease.emptyCta")}</Button>
         </div>
       ) : (
         <div className="space-y-4">
@@ -602,38 +609,38 @@ export default function LeasePage() {
                       {lease.tenantFirstName} {lease.tenantLastName}
                     </span>
                     <Badge tone={STATUS_TONE[lease.status]}>
-                      {LEASE_STATUS_LABELS[lease.status]}
+                      {t("lease.status." + lease.status)}
                     </Badge>
                   </div>
                   <p className="text-sm text-ink-muted">{lease.tenantEmail}</p>
                   <div className="flex flex-wrap gap-4 mt-3 text-sm">
                     <span>
-                      🗓 Début : <strong>{formatDate(lease.startDate)}</strong>
+                      🗓 {t("lease.cardStart")} <strong>{formatDate(lease.startDate)}</strong>
                     </span>
                     {lease.endDate && (
                       <span>
-                        Fin : <strong>{formatDate(lease.endDate)}</strong>
+                        {t("lease.cardEnd")} <strong>{formatDate(lease.endDate)}</strong>
                       </span>
                     )}
                     <span>
                       💶{" "}
                       <strong>
-                        {formatMoney(lease.monthlyRent + lease.charges)} / mois
+                        {formatMoney(lease.monthlyRent + lease.charges)} {t("lease.perMonth")}
                       </strong>
                       {lease.charges > 0 && (
                         <span className="text-ink-muted">
                           {" "}
-                          (dont {formatMoney(lease.charges)} de charges)
+                          {t("lease.inclCharges", { amount: formatMoney(lease.charges) })}
                         </span>
                       )}
                     </span>
                     <span>
-                      🔒 Dépôt :{" "}
+                      🔒 {t("lease.cardDeposit")}{" "}
                       <strong>{formatMoney(lease.deposit)}</strong>
                     </span>
                     {lease.furnished && (
                       <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
-                        Meublé
+                        {t("lease.furnishedBadge")}
                       </span>
                     )}
                   </div>
@@ -644,7 +651,7 @@ export default function LeasePage() {
                     size="sm"
                     onClick={() => openPreview(lease)}
                   >
-                    📄 Voir le contrat
+                    {t("lease.viewContract")}
                   </Button>
                   {lease.status === "DRAFT" && (
                     <Button
@@ -652,7 +659,7 @@ export default function LeasePage() {
                       size="sm"
                       onClick={() => handleStatusChange(lease, "ACTIVE")}
                     >
-                      Activer
+                      {t("lease.activate")}
                     </Button>
                   )}
                   {lease.status === "ACTIVE" && (
@@ -661,7 +668,7 @@ export default function LeasePage() {
                       size="sm"
                       onClick={() => handleStatusChange(lease, "TERMINATED")}
                     >
-                      Résilier
+                      {t("lease.terminate")}
                     </Button>
                   )}
                   <Button
@@ -689,10 +696,10 @@ export default function LeasePage() {
 
       <div className="mt-10 pt-6 border-t border-ink-subtle flex gap-4 flex-wrap">
         <Link href={`/dashboard/${params?.id}/documents`}>
-          <Button variant="secondary">🗂️ Documents légaux</Button>
+          <Button variant="secondary">{t("lease.legalDocs")}</Button>
         </Link>
         <Link href={`/dashboard/${params?.id}/edit`}>
-          <Button variant="ghost">Retour au bien</Button>
+          <Button variant="ghost">{t("lease.backToPropertyBtn")}</Button>
         </Link>
       </div>
     </section>

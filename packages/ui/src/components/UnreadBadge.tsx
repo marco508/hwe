@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface UnreadBadgeProps {
   count: number;
@@ -21,7 +22,7 @@ export const UnreadBadge: React.FC<UnreadBadgeProps> = ({
           "inline-block h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_2px_rgba(255,255,255,0.9)]",
           className,
         )}
-        aria-label={`${count} non lu`}
+        aria-label={tUi("ui.unreadOne", { n: count })}
       />
     );
   }

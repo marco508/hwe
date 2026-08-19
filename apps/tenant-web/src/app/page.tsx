@@ -21,7 +21,7 @@ function HeartButton({
   return (
     <button
       type="button"
-      aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
+      aria-label={isFav ? t("acc.fav.remove") : t("acc.fav.add")}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -33,7 +33,7 @@ function HeartButton({
           : "text-ink-muted hover:text-red-400"
       }`}
     >
-      {isFav ? "♥" : "♡"} {isFav ? "Sauvegardé" : "Sauvegarder"}
+      {isFav ? "♥" : "♡"} {isFav ? t("acc.fav.saved") : t("acc.fav.save")}
     </button>
   );
 }
@@ -133,52 +133,52 @@ export default function HomePage() {
             className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 items-end"
           >
             <div className="space-y-1">
-              <Label>Type</Label>
+              <Label>{t("acc.search.type")}</Label>
               <Select
                 value={filters.listingType ?? ""}
                 onChange={(e) =>
                   setFilters({ ...filters, listingType: (e.target.value || undefined) as any })
                 }
               >
-                <option value="">Tous</option>
-                <option value="RENT">Location</option>
-                <option value="SALE">Vente</option>
+                <option value="">{t("acc.search.all")}</option>
+                <option value="RENT">{t("acc.search.rent")}</option>
+                <option value="SALE">{t("acc.search.sale")}</option>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Bien</Label>
+              <Label>{t("acc.search.property")}</Label>
               <Select
                 value={filters.propertyType ?? ""}
                 onChange={(e) =>
                   setFilters({ ...filters, propertyType: (e.target.value || undefined) as any })
                 }
               >
-                <option value="">Tous</option>
-                <option value="APARTMENT">Appartement</option>
-                <option value="HOUSE">Maison</option>
-                <option value="STUDIO">Studio</option>
-                <option value="LAND">Terrain</option>
-                <option value="COMMERCIAL">Local</option>
-                <option value="OTHER">Autre</option>
+                <option value="">{t("acc.search.all")}</option>
+                <option value="APARTMENT">{t("acc.search.propertyType.APARTMENT")}</option>
+                <option value="HOUSE">{t("acc.search.propertyType.HOUSE")}</option>
+                <option value="STUDIO">{t("acc.search.propertyType.STUDIO")}</option>
+                <option value="LAND">{t("acc.search.propertyType.LAND")}</option>
+                <option value="COMMERCIAL">{t("acc.search.propertyType.COMMERCIAL")}</option>
+                <option value="OTHER">{t("acc.search.propertyType.OTHER")}</option>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Pays</Label>
+              <Label>{t("acc.search.country")}</Label>
               <Input
-                placeholder="ex : France"
+                placeholder={t("acc.search.countryPlaceholder")}
                 value={filters.country ?? ""}
                 onChange={(e) => setFilters({ ...filters, country: e.target.value || undefined })}
               />
             </div>
             <div className="space-y-1">
-              <Label>Ville</Label>
+              <Label>{t("acc.search.city")}</Label>
               <Input
                 value={filters.city ?? ""}
                 onChange={(e) => setFilters({ ...filters, city: e.target.value })}
               />
             </div>
             <div className="space-y-1">
-              <Label>Prix max</Label>
+              <Label>{t("acc.search.maxPrice")}</Label>
               <Input
                 type="number"
                 min={0}
@@ -192,7 +192,7 @@ export default function HomePage() {
               />
             </div>
             <div className="space-y-1">
-              <Label>Surface min (m²)</Label>
+              <Label>{t("acc.search.minSurface")}</Label>
               <Input
                 type="number"
                 min={0}
@@ -209,7 +209,7 @@ export default function HomePage() {
               type="submit"
               className="h-10 rounded-md bg-brand-600 text-white text-sm font-medium hover:bg-brand-700"
             >
-              Rechercher
+              {t("acc.search.submit")}
             </button>
           </form>
         </CardBody>
@@ -229,8 +229,8 @@ export default function HomePage() {
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          title="Aucun bien ne correspond"
-          description="Essayez d'élargir vos critères."
+          title={t("acc.list.emptyTitle")}
+          description={t("acc.list.emptyDesc")}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -257,7 +257,7 @@ export default function HomePage() {
                   />
                 ) : (
                   <Link href="/login" className="text-sm text-ink-muted hover:underline">
-                    ♡ Sauvegarder
+                    ♡ {t("acc.fav.save")}
                   </Link>
                 )
               }

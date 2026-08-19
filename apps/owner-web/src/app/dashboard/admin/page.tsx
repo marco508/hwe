@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, Input, Select } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
+import { t } from "../../../lib/i18n";
 
 type Overview = {
   users: Record<string, number>;
@@ -41,13 +42,11 @@ type AdminProperty = {
 
 const PROPERTY_STATUSES = ["DRAFT", "PUBLISHED", "RENTED", "SOLD", "ARCHIVED"] as const;
 
-const STATUS_LABEL: Record<string, string> = {
-  DRAFT: "Brouillon",
-  PUBLISHED: "Publiée",
-  RENTED: "Louée",
-  SOLD: "Vendue",
-  ARCHIVED: "Archivée",
-};
+function statusLabel(code: string) {
+  return (PROPERTY_STATUSES as readonly string[]).includes(code)
+    ? t("ops.propStatus." + code)
+    : code;
+}
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR");
@@ -93,28 +92,28 @@ export default function AdminPage() {
     load().catch(() => {});
   }, [load]);
 
-  if (loading) return <p className="text-ink-muted">Chargement…</p>;
+  if (loading) return <p className="text-ink-muted">{t("ops.loading")}</p>;
   if (user && !isAdmin) {
-    return <p className="text-ink-muted">Réservé aux administrateurs.</p>;
+    return <p className="text-ink-muted">{t("ops.admin.adminsOnly")}</p>;
   }
-  if (!overview) return <p className="text-ink-muted">Chargement…</p>;
+  if (!overview) return <p className="text-ink-muted">{t("ops.loading")}</p>;
 
   const totalUsers = Object.values(overview.users).reduce((a, b) => a + b, 0);
 
   return (
     <section>
-      <h1 className="font-display text-3xl mb-6">Administration</h1>
+      <h1 className="font-display text-3xl mb-6">{t("ops.admin.title")}</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-        <StatTile label="Comptes" value={totalUsers} />
-        <StatTile label="Non vérifiés" value={overview.usersUnverified} />
+        <StatTile label={t("ops.admin.statAccounts")} value={totalUsers} />
+        <StatTile label={t("ops.admin.statUnverified")} value={overview.usersUnverified} />
         <StatTile
-          label="Annonces publiées"
+          label={t("ops.admin.statPublished")}
           value={overview.properties.PUBLISHED ?? 0}
         />
-        <StatTile label="Baux" value={overview.leases} />
-        <StatTile label="Demandes" value={overview.inquiries} />
-        <StatTile label="Incidents ouverts" value={overview.ticketsOpen} />
+        <StatTile label={t("ops.admin.statLeases")} value={overview.leases} />
+        <StatTile label={t("ops.admin.statInquiries")} value={overview.inquiries} />
+        <StatTile label={t("ops.admin.statOpenTickets")} value={overview.ticketsOpen} />
       </div>
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
@@ -127,7 +126,7 @@ export default function AdminPage() {
                 : "border-ink-subtle text-ink-muted"
             }`}
           >
-            Comptes ({totalUsers})
+            {t("ops.admin.tabUsers")} ({totalUsers})
           </button>
           <button
             onClick={() => setTab("properties")}
@@ -137,12 +136,12 @@ export default function AdminPage() {
                 : "border-ink-subtle text-ink-muted"
             }`}
           >
-            Annonces
+            {t("ops.admin.tabProperties")}
           </button>
         </div>
         <Input
           className="max-w-xs"
-          placeholder="Rechercher…"
+          placeholder={t("ops.admin.searchPlaceholder")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
@@ -153,11 +152,11 @@ export default function AdminPage() {
           <table className="w-full text-sm">
             <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
               <tr>
-                <th className="px-4 py-3 font-medium">Compte</th>
-                <th className="px-4 py-3 font-medium">Rôle</th>
-                <th className="px-4 py-3 font-medium">E-mail vérifié</th>
-                <th className="px-4 py-3 font-medium">Biens / demandes</th>
-                <th className="px-4 py-3 font-medium">Inscrit le</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colAccount")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colRole")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colEmailVerified")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colPropsInquiries")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colSignedUp")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -174,7 +173,7 @@ export default function AdminPage() {
                     <Badge tone={u.role === "ADMIN" ? "accent" : "neutral"}>{u.role}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    {u.emailVerifiedAt ? `✅ ${fmtDate(u.emailVerifiedAt)}` : "⏳ non"}
+                    {u.emailVerifiedAt ? `✅ ${fmtDate(u.emailVerifiedAt)}` : t("ops.admin.notVerified")}
                   </td>
                   <td className="px-4 py-3 text-ink-muted">
                     {u._count.properties} / {u._count.inquiries}
@@ -190,7 +189,7 @@ export default function AdminPage() {
                           load().catch(() => {});
                         }}
                       >
-                        Valider l'e-mail
+                        {t("ops.admin.verifyEmail")}
                       </Button>
                     )}
                   </td>
@@ -204,11 +203,11 @@ export default function AdminPage() {
           <table className="w-full text-sm">
             <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
               <tr>
-                <th className="px-4 py-3 font-medium">Annonce</th>
-                <th className="px-4 py-3 font-medium">Propriétaire</th>
-                <th className="px-4 py-3 font-medium">Statut</th>
-                <th className="px-4 py-3 font-medium">Demandes / baux</th>
-                <th className="px-4 py-3 font-medium">Créée le</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colListing")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colOwner")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colStatus")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colInquiriesLeases")}</th>
+                <th className="px-4 py-3 font-medium">{t("ops.admin.colCreated")}</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -222,7 +221,7 @@ export default function AdminPage() {
                   <td className="px-4 py-3 text-ink-muted">{p.owner.email}</td>
                   <td className="px-4 py-3">
                     <Badge tone={p.status === "PUBLISHED" ? "success" : "neutral"}>
-                      {STATUS_LABEL[p.status] ?? p.status}
+                      {statusLabel(p.status)}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-ink-muted">
@@ -242,7 +241,7 @@ export default function AdminPage() {
                     >
                       {PROPERTY_STATUSES.map((s) => (
                         <option key={s} value={s}>
-                          {STATUS_LABEL[s]}
+                          {t("ops.propStatus." + s)}
                         </option>
                       ))}
                     </Select>

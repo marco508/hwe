@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "../utils";
+import { tUi } from "./I18nKit";
 
 export interface MessageBubbleProps {
   content: string;
@@ -83,12 +84,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div className="flex items-center gap-1.5 mt-0.5 px-1 text-[10px] text-ink-subtle">
           {timestamp && <span>{formatTime(timestamp)}</span>}
           {fromMe && read && (
-            <span title="Lu" className="text-brand-600">
+            <span title={tUi("ui.read")} className="text-brand-600">
               ✓✓
             </span>
           )}
           {fromMe && !read && (
-            <span title="Envoyé" className="text-ink-subtle">
+            <span title={tUi("ui.sent")} className="text-ink-subtle">
               ✓
             </span>
           )}

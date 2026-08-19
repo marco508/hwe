@@ -7,6 +7,7 @@ import {
   groupCountriesByRegion,
   type Country,
 } from "./LocationContext";
+import { tUi, countryLabel } from "./I18nKit";
 
 export interface CountryPickerProps {
   citiesByCountry?: Record<string, string[]>;
@@ -70,6 +71,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
         countries: g.countries.filter(
           (c) =>
             c.name.toLowerCase().includes(q) ||
+            countryLabel(c.code, c.name).toLowerCase().includes(q) ||
             c.code.toLowerCase().includes(q) ||
             c.propertyCountry.toLowerCase().includes(q),
         ),
@@ -93,10 +95,10 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
           "inline-flex items-center gap-2 h-9 px-3 rounded-full text-sm font-medium",
           "border border-border bg-surface hover:border-ink/30 transition-colors",
         )}
-        title={isAutoDetected ? "Détecté via votre adresse IP" : "Modifier la localisation"}
+        title={isAutoDetected ? tUi("ui.detectedViaIp") : tUi("ui.changeLocation")}
       >
         <span aria-hidden="true" className="text-base leading-none">{country.flag}</span>
-        <span className="hidden sm:inline">{country.name}</span>
+        <span className="hidden sm:inline">{countryLabel(country.code, country.name)}</span>
         {city && (
           <>
             <span className="text-ink-subtle">·</span>
@@ -114,20 +116,20 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
       {open && (
         <div
           role="dialog"
-          aria-label="Choisir une localisation"
+          aria-label={tUi("ui.chooseLocation")}
           className="absolute right-0 mt-2 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-surface shadow-elevated z-50 overflow-hidden animate-scale-in origin-top-right"
         >
           {/* Tabs */}
           <div className="flex border-b border-border bg-cream-100/40 dark:bg-surface/60">
             <TabButton active={tab === "country"} onClick={() => setTab("country")}>
-              Pays
+              {tUi("ui.countryTab")}
             </TabButton>
             <TabButton
               active={tab === "city"}
               onClick={() => setTab("city")}
               disabled={cities.length === 0}
             >
-              Ville
+              {tUi("ui.cityTab")}
               {cities.length > 0 && (
                 <span className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-cream-200 dark:bg-surface text-[10px] text-ink-muted">
                   {cities.length}
@@ -141,7 +143,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
               {isDetecting && (
                 <div className="px-4 py-2 text-[11px] text-ink-muted bg-cream-100/60 border-b border-border flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand-500 pulse-dot" />
-                  Détection de votre position en cours…
+                  {tUi("ui.detectingLocation")}
                 </div>
               )}
               {/* Search */}
@@ -151,7 +153,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Rechercher un pays…"
+                    placeholder={tUi("ui.searchCountry")}
                     className="h-9 w-full pl-9 pr-3 rounded-full border border-border bg-cream-100/40 dark:bg-surface/60 text-sm text-ink placeholder:text-ink-subtle outline-none focus-visible:border-brand-500 focus-visible:shadow-focus"
                   />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted">
@@ -166,13 +168,13 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
               <div className="max-h-[400px] overflow-y-auto pb-1">
                 {filteredGroups.length === 0 && (
                   <div className="px-4 py-6 text-center text-sm text-ink-muted">
-                    Aucun pays ne correspond à "{query}"
+                    {tUi("ui.noCountryMatch", { query })}
                   </div>
                 )}
                 {filteredGroups.map((g) => (
                   <div key={g.region}>
                     <div className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-[0.16em] text-ink-subtle font-medium">
-                      {g.label}
+                      {tUi(`ui.region.${g.region}`)}
                     </div>
                     <ul>
                       {g.countries.map((c) => {
@@ -204,14 +206,16 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                                 {c.flag}
                               </span>
                               <span className="flex-1 text-left">
-                                {c.name}
+                                {countryLabel(c.code, c.name)}
                                 <span className="block text-[10px] text-ink-subtle">
                                   {c.currency}
                                 </span>
                               </span>
                               {count > 0 && (
                                 <span className="text-[11px] text-ink-subtle whitespace-nowrap">
-                                  {count} bien{count > 1 ? "s" : ""}
+                                  {count > 1
+                                    ? tUi("ui.countProperties", { n: count })
+                                    : tUi("ui.countProperty", { n: count })}
                                 </span>
                               )}
                               {active && (
@@ -250,7 +254,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                 >
                   <span aria-hidden="true">🌍</span>
                   <span className="flex-1 text-left">
-                    Tout le pays · {country.name}
+                    {tUi("ui.wholeCountry", { name: countryLabel(country.code, country.name) })}
                   </span>
                   {city === null && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -291,8 +295,8 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
 
           <div className="px-4 py-2 text-[11px] text-ink-subtle bg-cream-100/40 dark:bg-surface/40 border-t border-border">
             {isAutoDetected
-              ? "Détecté via votre adresse IP"
-              : "Choix mémorisé sur cet appareil"}
+              ? tUi("ui.detectedViaIp")
+              : tUi("ui.savedOnDevice")}
           </div>
         </div>
       )}
