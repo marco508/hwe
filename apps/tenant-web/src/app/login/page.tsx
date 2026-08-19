@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatedBackground, Button, Card, CardBody, Input, Label } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
+import { t } from "../../lib/i18n";
+import { IlloKeys } from "@hwe/ui";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,7 +24,7 @@ export default function LoginPage() {
       await login(email, password);
       router.push("/");
     } catch {
-      setError("Identifiants invalides.");
+      setError(t("login.errCreds"));
       setLoading(false);
     }
   };
@@ -30,18 +32,19 @@ export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto">
       <AnimatedBackground variant="soft" className="rounded-2xl border border-border/60 px-6 py-7 mb-6 text-center">
+        <IlloKeys className="mx-auto w-40 mb-2" />
         <h1 className="font-display text-3xl mb-1">
-          Bon retour sur <span className="gradient-text">hwe</span>
+          {t("login.title1")} <span className="gradient-text">hwe</span>
         </h1>
         <p className="text-sm text-ink-muted">
-          Retrouvez vos favoris, vos demandes, votre bail et vos loyers.
+          {t("login.sub")}
         </p>
       </AnimatedBackground>
       <Card>
         <CardBody>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("login.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -52,9 +55,9 @@ export default function LoginPage() {
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Mot de passe</Label>
+                <Label htmlFor="password">{t("login.password")}</Label>
                 <Link href="/forgot-password" className="text-xs text-ink-muted hover:underline">
-                  Mot de passe oublié ?
+                  {t("login.forgot")}
                 </Link>
               </div>
               <Input
@@ -67,12 +70,12 @@ export default function LoginPage() {
             </div>
             {error && <p className="text-sm text-danger">{error}</p>}
             <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Connexion…" : "Se connecter"}
+              {loading ? t("login.submitting") : t("login.submit")}
             </Button>
             <p className="text-sm text-ink-muted text-center">
-              Pas de compte ?{" "}
+              {t("login.noAccount")}{" "}
               <Link href="/register" className="font-medium">
-                Créer un compte
+                {t("login.signup")}
               </Link>
             </p>
           </form>

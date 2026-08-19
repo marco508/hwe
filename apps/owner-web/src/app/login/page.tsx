@@ -12,6 +12,8 @@ import {
   AnimatedBackground,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
+import { t } from "../../lib/i18n";
+import { IlloKeys } from "@hwe/ui";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,13 +30,13 @@ export default function LoginPage() {
     try {
       const u = await login(email, password);
       if (u.role !== "OWNER" && u.role !== "ADMIN") {
-        setError("Ce compte n'est pas un compte propriétaire.");
+        setError(t("login.errRole"));
         setLoading(false);
         return;
       }
       router.push("/dashboard");
     } catch {
-      setError("Identifiants invalides.");
+      setError(t("login.errCreds"));
       setLoading(false);
     }
   };
@@ -45,13 +47,14 @@ export default function LoginPage() {
         <div className="text-center mb-6">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-glow" />
-            Connexion sécurisée
+            {t("login.badge")}
           </span>
+          <IlloKeys className="mx-auto w-44 mb-2" />
           <h1 className="font-display text-4xl">
-            Bon retour, <span className="gradient-text">propriétaire</span>
+            {t("login.title1")} <span className="gradient-text">{t("login.title2")}</span>
           </h1>
           <p className="text-ink-muted text-sm mt-2">
-            Vos biens, demandes, baux et loyers.
+            {t("login.sub")}
           </p>
         </div>
 
@@ -94,10 +97,10 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full"
               >
-                {loading ? "Connexion…" : "Se connecter"}
+                {loading ? t("login.submitting") : t("login.submit")}
               </Button>
               <p className="text-sm text-ink-muted text-center">
-                Pas de compte ?{" "}
+                {t("login.noAccount")}{" "}
                 <Link href="/register" className="font-medium">
                   Créer un compte propriétaire
                 </Link>

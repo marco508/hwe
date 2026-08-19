@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Badge, Button, Input, EmptyState } from "@hwe/ui";
+import { Badge, Button, Input, EmptyState, IlloVisit } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import type { Visit, VisitStatus } from "@hwe/types";
@@ -122,7 +122,10 @@ export default function VisitesPage() {
       </div>
 
       {shown.length === 0 ? (
-        <EmptyState title="Aucune visite" description="Rien à traiter pour l'instant." />
+        <div className="text-center">
+          <IlloVisit className="mx-auto w-48 mb-2" />
+          <EmptyState title="Aucune visite" description="Rien à traiter pour l'instant." />
+        </div>
       ) : (
         <div className="space-y-4">
           {shown.map((v) => (

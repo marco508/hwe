@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Button, Card, CardBody, AnimatedBackground } from "@hwe/ui";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth-context";
+import { t } from "../../lib/i18n";
 
 function VerifyContent() {
   const token = useSearchParams().get("token") || "";
@@ -27,29 +28,29 @@ function VerifyContent() {
   }, [token, refresh]);
 
   if (state === "pending") {
-    return <p className="text-sm text-muted-foreground text-center">Vérification…</p>;
+    return <p className="text-sm text-muted-foreground text-center">{t("verify.pending")}</p>;
   }
   if (state === "ok") {
     return (
       <div className="text-center">
-        <h1 className="font-display text-2xl mb-2">Adresse confirmée</h1>
+        <h1 className="font-display text-2xl mb-2">{t("verify.okTitle")}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Votre compte est actif : publiez, répondez, gérez vos baux.
+          {t("verify.okSub")}
         </p>
         <Link href="/dashboard">
-          <Button className="w-full">Aller à mes biens</Button>
+          <Button className="w-full">{t("verify.okCta")}</Button>
         </Link>
       </div>
     );
   }
   return (
     <div className="text-center">
-      <h1 className="font-display text-2xl mb-2">Lien invalide ou expiré</h1>
+      <h1 className="font-display text-2xl mb-2">{t("verify.errTitle")}</h1>
       <p className="text-sm text-muted-foreground mb-6">
-        Redemandez un lien depuis le bandeau de votre espace, puis réessayez.
+        {t("verify.errSub")}
       </p>
       <Link href="/dashboard">
-        <Button variant="secondary" className="w-full">Retour à mon espace</Button>
+        <Button variant="secondary" className="w-full">{t("verify.errCta")}</Button>
       </Link>
     </div>
   );

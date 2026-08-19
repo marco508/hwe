@@ -13,8 +13,14 @@ import {
   CountryPicker,
   useLocation,
   SUPPORTED_COUNTRIES,
+  CurrencyProvider,
+  CurrencySwitch,
+  useCurrency,
+  IlloSkyline,
+  IlloSearchHome,
   type CategoryRailItem,
 } from "@hwe/ui";
+import { t, LangProvider, useLang, LangSwitch } from "../lib/i18n";
 import { publicApi } from "../lib/api";
 import type { Property, ListingType, PropertyType } from "@hwe/types";
 
@@ -23,16 +29,18 @@ const TENANT_URL =
 const OWNER_URL =
   process.env.NEXT_PUBLIC_OWNER_URL ?? "http://localhost:3004";
 
-// ─── Catégories ─────────────────────────────────────────────────────────────
-const CATEGORIES: CategoryRailItem[] = [
-  { id: "ALL", label: "Tout voir", icon: <IconCompass /> },
-  { id: "APARTMENT", label: "Appartements", icon: <IconBuilding /> },
-  { id: "HOUSE", label: "Maisons", icon: <IconHouse /> },
-  { id: "STUDIO", label: "Studios", icon: <IconStudio /> },
-  { id: "VILLA", label: "Villas", icon: <IconVilla /> },
-  { id: "LAND", label: "Terrains", icon: <IconLand /> },
-  { id: "COMMERCIAL", label: "Locaux", icon: <IconCity /> },
-];
+// ─── Catégories (traduites au rendu) ────────────────────────────────────────
+function buildCategories(): CategoryRailItem[] {
+  return [
+    { id: "ALL", label: t("cats.all"), icon: <IconCompass /> },
+    { id: "APARTMENT", label: t("cats.apartments"), icon: <IconBuilding /> },
+    { id: "HOUSE", label: t("cats.houses"), icon: <IconHouse /> },
+    { id: "STUDIO", label: t("cats.studios"), icon: <IconStudio /> },
+    { id: "VILLA", label: t("cats.villas"), icon: <IconVilla /> },
+    { id: "LAND", label: t("cats.land"), icon: <IconLand /> },
+    { id: "COMMERCIAL", label: t("cats.commercial"), icon: <IconCity /> },
+  ];
+}
 
 const PROPERTY_TYPE_BY_CATEGORY: Record<string, PropertyType | null> = {
   ALL: null,
@@ -44,31 +52,25 @@ const PROPERTY_TYPE_BY_CATEGORY: Record<string, PropertyType | null> = {
   COMMERCIAL: "COMMERCIAL",
 };
 
-// ─── Étapes (description réelle du workflow plateforme) ─────────────────────
-const STEPS = [
-  {
-    title: "Cherchez",
-    description:
-      "Filtrez par ville, budget et type de bien. Gardez vos favoris.",
-  },
-  {
-    title: "Contactez",
-    description:
-      "Photos, détails du bien, message direct au propriétaire. Sans intermédiaire.",
-  },
-  {
-    title: "Signez",
-    description:
-      "Bail numérique signé à distance. Loyers et quittances suivis dans votre espace.",
-  },
-];
+// ─── Étapes (traduites au rendu) ─────────────────────────────────────────────
+function buildSteps() {
+  return [
+    { title: t("steps.1.title"), description: t("steps.1.desc") },
+    { title: t("steps.2.title"), description: t("steps.2.desc") },
+    { title: t("steps.3.title"), description: t("steps.3.desc") },
+  ];
+}
 
 // ─── Page wrapper avec Provider ─────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <LocationProvider>
-      <LandingInner />
-    </LocationProvider>
+    <LangProvider>
+      <CurrencyProvider>
+        <LocationProvider>
+          <LandingInner />
+        </LocationProvider>
+      </CurrencyProvider>
+    </LangProvider>
   );
 }
 
@@ -76,6 +78,20 @@ export default function LandingPage() {
 function LandingInner() {
   const { country, countryCode, city, setCity, isAutoDetected, isDetecting } =
     useLocation();
+  const { lang } = useLang();
+  const { format: fmtPrice } = useCurrency();
+
+  // « à Cotonou » / « au Bénin » en français, « in Cotonou » en anglais.
+  const place = city
+    ? lang === "fr"
+      ? `à ${city}`
+      : `in ${city}`
+    : lang === "fr"
+      ? prepEnPays(country.name)
+      : `in ${country.name}`;
+  const plural = (n: number) => (lang === "fr" ? (n !== 1 ? "s" : "") : n !== 1 ? "ies" : "y");
+  const CATEGORIES = buildCategories();
+  const STEPS = buildSteps();
 
   const [properties, setProperties] = React.useState<Property[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -216,14 +232,14 @@ function LandingInner() {
                 href="#destinations"
                 className="hover:text-ink transition-colors"
               >
-                Destinations
+                {t("nav.destinations")}
               </a>
             )}
             <a href="#catalogue" className="hover:text-ink transition-colors">
-              Catalogue
+              {t("nav.catalog")}
             </a>
             <a href="#etapes" className="hover:text-ink transition-colors">
-              Comment ça marche
+              {t("nav.how")}
             </a>
           </nav>
           <div className="flex items-center gap-2">
@@ -231,12 +247,14 @@ function LandingInner() {
               citiesByCountry={citiesByCountry}
               countsByCountry={countsByCountry}
             />
+            <LangSwitch className="hidden sm:inline-flex" />
+            <CurrencySwitch className="hidden md:inline-flex" />
             <ThemeToggle />
             <a
               href={`${OWNER_URL}/login`}
               className="hidden sm:inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 hover:opacity-90 transition-opacity"
             >
-              Propriétaire
+              {t("nav.owner")}
             </a>
           </div>
         </div>
@@ -251,15 +269,12 @@ function LandingInner() {
                 {country.flag}
               </span>
               <span>
-                Vous explorez{" "}
+                {t("loc.exploring")}{" "}
                 <strong className="text-ink font-medium">
                   {city ? `${city}, ${country.name}` : country.name}
                 </strong>
                 {isAutoDetected && (
-                  <span className="text-ink-subtle">
-                    {" "}
-                    · détecté automatiquement
-                  </span>
+                  <span className="text-ink-subtle"> {t("loc.auto")}</span>
                 )}
               </span>
             </div>
@@ -269,7 +284,7 @@ function LandingInner() {
                 onClick={() => setCity(null)}
                 className="text-ink-muted hover:text-ink transition-colors underline underline-offset-2"
               >
-                Voir tout {country.name}
+                {t("loc.seeAll", { country: country.name })}
               </button>
             )}
           </div>
@@ -286,26 +301,28 @@ function LandingInner() {
                 <span className="relative h-2 w-2 rounded-full bg-brand-500" />
               </span>
               {isDetecting
-                ? "Détection de votre position…"
+                ? t("hero.detecting")
                 : loading
-                ? "Chargement du catalogue…"
+                ? t("hero.loading")
                 : localizedProperties.length > 0
-                ? `${localizedProperties.length} bien${localizedProperties.length !== 1 ? "s" : ""} ${
-                    city ? `à ${city}` : prepEnPays(country.name)
-                  }`
-                : `La plateforme arrive ${prepEnPays(country.name)}`}
+                ? t("hero.count", {
+                    n: localizedProperties.length,
+                    s: plural(localizedProperties.length),
+                    place,
+                  })
+                : t("hero.coming", { place })}
             </span>
 
             <h1 className="display-serif text-display-md sm:text-display-lg lg:text-display-xl text-ink">
-              <span className="block">Louer, acheter, vendre —</span>
-              <span className="block italic gradient-text">sans agence.</span>
+              <span className="block">{t("hero.title1")}</span>
+              <span className="block italic gradient-text">{t("hero.title2")}</span>
             </h1>
 
             <p className="text-ink-muted text-lg sm:text-xl max-w-2xl mx-auto mt-8 leading-relaxed">
-              Contact direct avec le propriétaire, bail signé en ligne, loyers
-              et quittances suivis. Trouvez votre prochaine adresse
-              {city ? ` à ${city}` : ` ${prepEnPays(country.name)}`}.
+              {t("hero.sub", { place })}
             </p>
+
+            <IlloSkyline className="mx-auto mt-8 w-full max-w-xl" />
           </div>
 
           <div className="mt-10">
@@ -333,19 +350,19 @@ function LandingInner() {
           {totalProperties > 0 && (
             <div className="mt-14 grid grid-cols-3 gap-3 max-w-3xl mx-auto">
               <FloatingStat
-                kicker="Biens publiés"
+                kicker={t("stats.props")}
                 value={`${totalProperties}`}
-                hint="sur la plateforme"
+                hint={t("stats.propsHint")}
               />
               <FloatingStat
-                kicker="Villes couvertes"
+                kicker={t("stats.cities")}
                 value={`${totalCities}`}
-                hint="à travers le monde"
+                hint={t("stats.citiesHint")}
               />
               <FloatingStat
-                kicker="Pays présents"
+                kicker={t("stats.countries")}
                 value={`${totalCountries}`}
-                hint="& ça grandit"
+                hint={t("stats.countriesHint")}
               />
             </div>
           )}
@@ -361,13 +378,13 @@ function LandingInner() {
           <div className="container-app">
             <RevealOnScroll>
               <SectionHeading
-                eyebrow={`Destinations · ${country.flag} ${country.name}`}
+                eyebrow={`${t("dest.eyebrow")} · ${country.flag} ${country.name}`}
                 title={
                   <>
-                    Explorez <em className="italic">par ville</em>.
+                    {t("dest.title1")} <em className="italic">{t("dest.title2")}</em>.
                   </>
                 }
-                description="Choisissez une ville pour voir ses biens."
+                description={t("dest.desc")}
               />
             </RevealOnScroll>
 
@@ -398,14 +415,16 @@ function LandingInner() {
                   )}
                   <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
                   <div className="absolute top-4 right-4 glass-strong rounded-full px-3 py-1 text-[11px] font-medium text-ink">
-                    {d.count} {d.count > 1 ? "biens" : "bien"}
+                    {lang === "fr"
+                      ? `${d.count} bien${d.count > 1 ? "s" : ""}`
+                      : `${d.count} propert${d.count > 1 ? "ies" : "y"}`}
                   </div>
                   <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                     <h3 className="display-serif text-2xl sm:text-3xl text-white leading-none">
                       {d.name}
                     </h3>
                     <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/90">
-                      <span>Découvrir</span>
+                      <span>{t("dest.discover")}</span>
                       <svg
                         width="14"
                         height="14"
@@ -436,16 +455,16 @@ function LandingInner() {
         <div className="container-app">
           <RevealOnScroll>
             <SectionHeading
-              eyebrow={`Catalogue · ${country.flag} ${country.name}${city ? ` · ${city}` : ""}`}
+              eyebrow={`${t("cat.eyebrow")} · ${country.flag} ${country.name}${city ? ` · ${city}` : ""}`}
               title={
                 <>
-                  Les biens <em className="italic">disponibles</em>.
+                  {t("cat.title1")} <em className="italic">{t("cat.title2")}</em>.
                 </>
               }
               description={
                 city
-                  ? `Tout ce qui est à louer ou à vendre à ${city}.`
-                  : `Filtrez par type de bien partout ${prepEnPays(country.name)}.`
+                  ? t("cat.descCity", { city })
+                  : t("cat.descCountry", { place })
               }
             />
           </RevealOnScroll>
@@ -461,8 +480,8 @@ function LandingInner() {
           <div className="flex items-center justify-between mt-6 flex-wrap gap-4">
             <div className="text-sm text-ink-muted">
               {loading
-                ? "Chargement…"
-                : `${visible.length} bien${visible.length !== 1 ? "s" : ""} dans cette sélection`}
+                ? t("cat.loading")
+                : t("cat.selection", { n: visible.length, s: plural(visible.length) })}
             </div>
             <div className="inline-flex p-1 rounded-full bg-surface border border-border text-sm">
               {(["ALL", "RENT", "SALE"] as const).map((k) => (
@@ -476,7 +495,7 @@ function LandingInner() {
                       : "text-ink-muted hover:text-ink"
                   }`}
                 >
-                  {k === "ALL" ? "Tous" : k === "RENT" ? "Location" : "Vente"}
+                  {k === "ALL" ? t("cat.all") : k === "RENT" ? t("cat.rent") : t("cat.sale")}
                 </button>
               ))}
             </div>
@@ -526,6 +545,7 @@ function LandingInner() {
                         alt: m.alt ?? p.title,
                       }))}
                       thumbnailUrl={p.media?.[0]?.url ?? null}
+                      displayPrice={fmtPrice(p.price, p.currency)}
                       href={`${TENANT_URL}/properties/${p.id}`}
                       favoritable
                       isFavorite={favorites.has(p.id)}
@@ -545,13 +565,13 @@ function LandingInner() {
           <RevealOnScroll>
             <SectionHeading
               align="center"
-              eyebrow="Comment ça marche"
+              eyebrow={t("steps.eyebrow")}
               title={
                 <>
-                  Trois étapes, <em className="italic">zéro agence</em>.
+                  {t("steps.title1")} <em className="italic">{t("steps.title2")}</em>.
                 </>
               }
-              description="De la recherche à la remise des clés."
+              description={t("steps.desc")}
             />
           </RevealOnScroll>
           <RevealOnScroll className="mt-12">
@@ -575,36 +595,28 @@ function LandingInner() {
               />
               <div className="relative max-w-2xl">
                 <span className="eyebrow text-cream-200/80">
-                  Compte gratuit {country.flag}
+                  {t("cta.eyebrow")} {country.flag}
                 </span>
                 <h2 className="display-serif text-5xl sm:text-6xl mt-3 leading-[1.05]">
-                  Votre prochaine adresse{" "}
-                  {city ? (
-                    <em className="italic text-accent-200">à {city}</em>
-                  ) : (
-                    <em className="italic text-accent-200">
-                      {prepEnPays(country.name)}
-                    </em>
-                  )}
-                  .
+                  {t("cta.title")}{" "}
+                  <em className="italic text-accent-200">{place}</em>.
                 </h2>
                 <p className="text-cream-200/80 text-lg mt-6 leading-relaxed">
-                  Favoris, contact direct avec les propriétaires, bail et
-                  loyers gérés en ligne. Inscription en une minute.
+                  {t("cta.sub")}
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a
                     href={`${TENANT_URL}/register`}
                     className="inline-flex items-center gap-2 h-12 px-7 rounded-full bg-accent-400 text-brand-900 text-sm font-medium hover:bg-accent-300 transition-colors"
                   >
-                    Trouver un logement
+                    {t("cta.find")}
                     <ArrowRightIcon />
                   </a>
                   <a
                     href={`${OWNER_URL}/register`}
                     className="inline-flex items-center h-12 px-7 rounded-full border border-cream-50/30 text-cream-50 text-sm font-medium hover:bg-cream-50/10 transition-colors"
                   >
-                    Publier un bien
+                    {t("cta.publish")}
                   </a>
                 </div>
               </div>
@@ -625,41 +637,38 @@ function LandingInner() {
                 </span>
               </div>
               <p className="text-cream-200/70 text-sm max-w-md leading-relaxed">
-                Location et vente entre particuliers : contact direct, bail
-                numérique, loyers suivis. Sans agence.
+                {t("footer.about")}
               </p>
             </div>
             <FooterCol
-              title="Explorer"
+              title={t("footer.explore")}
               links={[
                 ...(destinations.length > 0
-                  ? [{ label: "Destinations", href: "#destinations" }]
+                  ? [{ label: t("nav.destinations"), href: "#destinations" }]
                   : []),
-                { label: "Catalogue", href: "#catalogue" },
-                { label: "Comment ça marche", href: "#etapes" },
+                { label: t("nav.catalog"), href: "#catalogue" },
+                { label: t("nav.how"), href: "#etapes" },
               ]}
             />
             <FooterCol
-              title="Compte"
+              title={t("footer.account")}
               links={[
-                { label: "Espace locataire", href: `${TENANT_URL}` },
-                { label: "Espace propriétaire", href: `${OWNER_URL}` },
-                { label: "Créer un compte", href: `${TENANT_URL}/register` },
+                { label: t("footer.tenant"), href: `${TENANT_URL}` },
+                { label: t("footer.owner"), href: `${OWNER_URL}` },
+                { label: t("footer.signup"), href: `${TENANT_URL}/register` },
               ]}
             />
             <FooterCol
               title="hwe"
               links={[
-                { label: "Contact", href: "#" },
-                { label: "Mentions légales", href: "#" },
-                { label: "Conditions d'utilisation", href: "#" },
+                { label: t("footer.contact"), href: "#" },
+                { label: t("footer.legal"), href: "#" },
+                { label: t("footer.terms"), href: "#" },
               ]}
             />
           </div>
           <div className="border-t border-cream-50/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream-200/60">
-            <span>
-              © {new Date().getFullYear()} hwe — Habiter avec élégance.
-            </span>
+            <span>{t("footer.tagline", { year: new Date().getFullYear() })}</span>
           </div>
         </div>
       </footer>
@@ -680,6 +689,11 @@ function prepEnPays(name: string): string {
   if (/^[aeiouéèêâîôûà]/i.test(name)) return `en ${name}`;
   if (lower.endsWith("e")) return `en ${name}`;
   return `au ${name}`;
+}
+
+// Version i18n-consciente de prepEnPays pour les composants hors LandingInner.
+function placeOf(countryName: string): string {
+  return t("hero.title1") === "Rent, buy, sell —" ? `in ${countryName}` : prepEnPays(countryName);
 }
 
 function prepDePays(name: string): string {
@@ -716,22 +730,23 @@ function EmptyCountry({
         className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-accent-200/40 dark:bg-accent-700/20 blur-3xl"
       />
       <div className="relative">
-        <div className="text-5xl mb-4" aria-hidden="true">
+        <IlloSearchHome className="mx-auto mb-4 w-40" />
+        <div className="text-3xl mb-3" aria-hidden="true">
           {flag}
         </div>
         <div className="display-serif text-3xl text-ink mb-3 leading-tight">
           {hasCity
-            ? `Pas encore de bien à voir ici`
+            ? t("empty.city")
             : hasAnyInCountry
-            ? `Pas encore de bien dans cette sélection`
-            : `Soyez le premier ${prepEnPays(country)}`}
+            ? t("empty.filters")
+            : t("empty.first", { place: placeOf(country) })}
         </div>
         <p className="text-sm text-ink-muted max-w-md mx-auto mb-6 leading-relaxed">
           {hasCity
-            ? `Aucun bien ici avec ces filtres — élargissez la recherche.`
+            ? t("empty.cityDesc")
             : hasAnyInCountry
-            ? `Aucun bien avec ces filtres ${prepEnPays(country)} — changez de catégorie ou de type d'annonce.`
-            : `Le catalogue ${country} démarre. Publiez votre bien : il sera visible immédiatement.`}
+            ? t("empty.filtersDesc", { place: placeOf(country) })
+            : t("empty.firstDesc", { country })}
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           {hasCity && (
@@ -740,14 +755,14 @@ function EmptyCountry({
               onClick={onClearCity}
               className="inline-flex items-center gap-1.5 px-5 h-10 rounded-full border border-ink/15 bg-surface hover:bg-cream-200 dark:hover:bg-white/10 text-sm font-medium text-ink transition-colors"
             >
-              Voir tout {country}
+              {t("loc.seeAll", { country })}
             </button>
           )}
           <a
             href={`${ownerUrl}/register`}
             className="inline-flex items-center gap-2 px-5 h-10 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
           >
-            Publier un bien
+            {t("cta.publish")}
             <ArrowRightIcon />
           </a>
         </div>
@@ -800,6 +815,7 @@ function FeaturedSpread({
 }) {
   const tenantUrl =
     process.env.NEXT_PUBLIC_TENANT_URL ?? "http://localhost:3001";
+  const { format: fmtPrice } = useCurrency();
   return (
     <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-stretch">
       <div className="lg:col-span-3 relative">
@@ -817,15 +833,16 @@ function FeaturedSpread({
             alt: m.alt ?? property.title,
           }))}
           thumbnailUrl={property.media?.[0]?.url ?? null}
+          displayPrice={fmtPrice(property.price, property.currency)}
           href={`${tenantUrl}/properties/${property.id}`}
           favoritable
           isFavorite={isFavorite}
           onToggleFavorite={onToggleFavorite}
-          eyebrow="À la une"
+          eyebrow={t("featured.eyebrow")}
         />
       </div>
       <div className="lg:col-span-2 flex flex-col justify-center">
-        <span className="eyebrow">À la une</span>
+        <span className="eyebrow">{t("featured.eyebrow")}</span>
         <h3 className="display-serif text-4xl sm:text-5xl mt-3 leading-[1.05]">
           {property.title}
         </h3>
@@ -833,15 +850,15 @@ function FeaturedSpread({
           {property.description}
         </p>
         <div className="mt-8 grid grid-cols-3 gap-4 text-sm">
-          <Specced label="Surface" value={`${property.surface} m²`} />
-          <Specced label="Pièces" value={property.rooms || "—"} />
-          <Specced label="Ville" value={property.city} />
+          <Specced label={t("featured.surface")} value={`${property.surface} m²`} />
+          <Specced label={t("featured.rooms")} value={property.rooms || "—"} />
+          <Specced label={t("featured.city")} value={property.city} />
         </div>
         <a
           href={`${tenantUrl}/properties/${property.id}`}
           className="mt-8 inline-flex items-center gap-2 h-11 w-fit px-6 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
         >
-          Découvrir ce bien
+          {t("featured.discover")}
           <ArrowRightIcon />
         </a>
       </div>

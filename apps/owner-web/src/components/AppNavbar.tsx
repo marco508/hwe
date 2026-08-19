@@ -6,12 +6,14 @@ import {
   Navbar,
   Button,
   ThemeToggle,
+  CurrencySwitch,
   NotificationsBell,
   type BellPreviewItem,
 } from "@hwe/ui";
 import { useAuth } from "../lib/auth-context";
 import { api } from "../lib/api";
 import { EmailVerifyBanner } from "./EmailVerifyBanner";
+import { t, LangSwitch } from "../lib/i18n";
 
 export function AppNavbar() {
   const { user, logout } = useAuth();
@@ -75,6 +77,8 @@ export function AppNavbar() {
               onOpen={refresh}
             />
           )}
+          <LangSwitch className="hidden sm:inline-flex" />
+          <CurrencySwitch className="hidden md:inline-flex" />
           <ThemeToggle />
           {user ? (
             <>
@@ -82,7 +86,7 @@ export function AppNavbar() {
                 {user.firstName}
               </span>
               <Button variant="ghost" size="sm" onClick={logout}>
-                <span className="hidden sm:inline">Déconnexion</span>
+                <span className="hidden sm:inline">{t("nav.logout")}</span>
                 <span className="sm:hidden">⏻</span>
               </Button>
             </>
@@ -90,30 +94,30 @@ export function AppNavbar() {
             <>
               <Link href="/login">
                 <Button variant="ghost" size="sm">
-                  Connexion
+                  {t("nav.login")}
                 </Button>
               </Link>
               <Link href="/register">
-                <Button size="sm">Créer un compte</Button>
+                <Button size="sm">{t("nav.signup")}</Button>
               </Link>
             </>
           )}
         </>
       }
     >
-      <Link href="/" className="hidden md:inline">Marché</Link>
-      {user && <Link href="/dashboard" className="hidden md:inline">Mes biens</Link>}
-      {user && <Link href="/dashboard/loyers" className="hidden md:inline">Loyers</Link>}
+      <Link href="/" className="hidden md:inline">{t("nav.market")}</Link>
+      {user && <Link href="/dashboard" className="hidden md:inline">{t("nav.myProperties")}</Link>}
+      {user && <Link href="/dashboard/loyers" className="hidden md:inline">{t("nav.rents")}</Link>}
       {user && (
         <Link href="/dashboard/inquiries" className="hidden md:inline">
-          Demandes
+          {t("nav.requests")}
         </Link>
       )}
-      {user && <Link href="/dashboard/visites" className="hidden md:inline">Visites</Link>}
-      {user && <Link href="/dashboard/messages" className="hidden md:inline">Messages</Link>}
-      {user && <Link href="/dashboard/tickets" className="hidden md:inline">Incidents</Link>}
-      {user?.role === "ADMIN" && <Link href="/dashboard/admin" className="hidden md:inline">Admin</Link>}
-      {user && <Link href="/profile" className="hidden md:inline">Profil</Link>}
+      {user && <Link href="/dashboard/visites" className="hidden md:inline">{t("nav.visits")}</Link>}
+      {user && <Link href="/dashboard/messages" className="hidden md:inline">{t("nav.messages")}</Link>}
+      {user && <Link href="/dashboard/tickets" className="hidden md:inline">{t("nav.incidents")}</Link>}
+      {user?.role === "ADMIN" && <Link href="/dashboard/admin" className="hidden md:inline">{t("nav.admin")}</Link>}
+      {user && <Link href="/profile" className="hidden md:inline">{t("nav.profile")}</Link>}
     </Navbar>
     <EmailVerifyBanner />
     </>

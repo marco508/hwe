@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useAuth } from "../lib/auth-context";
 import { api } from "../lib/api";
+import { t } from "../lib/i18n";
 
 /** Bandeau affiché tant que l'adresse e-mail n'est pas confirmée.
  * `emailVerifiedAt === null` vient de /auth/me — après une simple connexion
@@ -28,16 +29,16 @@ export function EmailVerifyBanner() {
 
   return (
     <div className="bg-accent/10 border-b border-accent/30 px-6 py-2 text-sm flex flex-wrap items-center justify-center gap-3 text-center">
-      <span>Confirmez votre e-mail pour publier, répondre et gérer vos baux.</span>
+      <span>{t("banner.text")}</span>
       {sent ? (
-        <span className="font-medium">Lien envoyé — vérifiez votre boîte mail.</span>
+        <span className="font-medium">{t("banner.sent")}</span>
       ) : (
         <button
           onClick={resend}
           disabled={busy}
           className="underline font-medium disabled:opacity-50"
         >
-          {busy ? "Envoi…" : "Renvoyer le lien"}
+          {busy ? t("banner.sending") : t("banner.resend")}
         </button>
       )}
     </div>

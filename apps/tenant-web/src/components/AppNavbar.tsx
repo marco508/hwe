@@ -6,12 +6,14 @@ import {
   Navbar,
   Button,
   ThemeToggle,
+  CurrencySwitch,
   NotificationsBell,
   type BellPreviewItem,
 } from "@hwe/ui";
 import { useAuth } from "../lib/auth-context";
 import { api } from "../lib/api";
 import { EmailVerifyBanner } from "./EmailVerifyBanner";
+import { t, LangSwitch } from "../lib/i18n";
 
 export function AppNavbar() {
   const { user, logout } = useAuth();
@@ -75,6 +77,8 @@ export function AppNavbar() {
               onOpen={refresh}
             />
           )}
+          <LangSwitch className="hidden sm:inline-flex" />
+          <CurrencySwitch className="hidden md:inline-flex" />
           <ThemeToggle />
           {user ? (
             <>
@@ -82,31 +86,31 @@ export function AppNavbar() {
                 {user.firstName}
               </span>
               <Button variant="ghost" size="sm" onClick={logout}>
-                <span className="hidden sm:inline">Déconnexion</span>
+                <span className="hidden sm:inline">{t("nav.logout")}</span>
                 <span className="sm:hidden">⏻</span>
               </Button>
             </>
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm">Connexion</Button>
+                <Button variant="ghost" size="sm">{t("nav.login")}</Button>
               </Link>
               <Link href="/register">
-                <Button size="sm">Créer un compte</Button>
+                <Button size="sm">{t("nav.signup")}</Button>
               </Link>
             </>
           )}
         </>
       }
     >
-      <Link href="/" className="hidden md:inline">Annonces</Link>
-      {user && <Link href="/ma-location" className="hidden md:inline">Ma location</Link>}
-      {user && <Link href="/mes-loyers" className="hidden md:inline">Mes loyers</Link>}
-      {user && <Link href="/mes-visites" className="hidden md:inline">Mes visites</Link>}
-      {user && <Link href="/favorites" className="hidden md:inline">❤ Favoris</Link>}
-      {user && <Link href="/inquiries" className="hidden md:inline">Mes demandes</Link>}
-      {user && <Link href="/messages" className="hidden md:inline">Messages</Link>}
-      {user && <Link href="/profile" className="hidden md:inline">Profil</Link>}
+      <Link href="/" className="hidden md:inline">{t("nav.listings")}</Link>
+      {user && <Link href="/ma-location" className="hidden md:inline">{t("nav.myRental")}</Link>}
+      {user && <Link href="/mes-loyers" className="hidden md:inline">{t("nav.myRents")}</Link>}
+      {user && <Link href="/mes-visites" className="hidden md:inline">{t("nav.myVisits")}</Link>}
+      {user && <Link href="/favorites" className="hidden md:inline">{t("nav.favorites")}</Link>}
+      {user && <Link href="/inquiries" className="hidden md:inline">{t("nav.myRequests")}</Link>}
+      {user && <Link href="/messages" className="hidden md:inline">{t("nav.messages")}</Link>}
+      {user && <Link href="/profile" className="hidden md:inline">{t("nav.profile")}</Link>}
     </Navbar>
     <EmailVerifyBanner />
     </>

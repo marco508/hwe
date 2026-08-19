@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatedBackground, Button, Card, CardBody, Input, Label } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
+import { t } from "../../lib/i18n";
+import { IlloKeys } from "@hwe/ui";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -31,7 +33,7 @@ export default function RegisterPage() {
       router.push("/");
     } catch (err) {
       const msg = (err as Error).message;
-      setError(msg.includes("409") ? "Email déjà utilisé." : "Échec de l'inscription.");
+      setError(msg.includes("409") ? t("register.errTaken") : t("register.errFail"));
       setLoading(false);
     }
   };
@@ -39,11 +41,12 @@ export default function RegisterPage() {
   return (
     <div className="max-w-md mx-auto">
       <AnimatedBackground variant="soft" className="rounded-2xl border border-border/60 px-6 py-7 mb-6 text-center">
+        <IlloKeys className="mx-auto w-40 mb-2" />
         <h1 className="font-display text-3xl mb-1">
-          Bienvenue sur <span className="gradient-text">hwe</span>
+          {t("register.title1")} <span className="gradient-text">hwe</span>
         </h1>
         <p className="text-sm text-ink-muted">
-          Contactez les propriétaires, suivez vos demandes, gérez votre location.
+          {t("register.sub")}
         </p>
       </AnimatedBackground>
       <Card>
@@ -51,33 +54,33 @@ export default function RegisterPage() {
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="firstName">Prénom</Label>
+                <Label htmlFor="firstName">{t("register.firstName")}</Label>
                 <Input id="firstName" value={form.firstName} onChange={set("firstName")} required />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="lastName">Nom</Label>
+                <Label htmlFor="lastName">{t("register.lastName")}</Label>
                 <Input id="lastName" value={form.lastName} onChange={set("lastName")} required />
               </div>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("login.email")}</Label>
               <Input id="email" type="email" value={form.email} onChange={set("email")} required />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="phone">Téléphone</Label>
+              <Label htmlFor="phone">{t("register.phone")}</Label>
               <Input id="phone" value={form.phone} onChange={set("phone")} />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password">{t("login.password")}</Label>
               <Input id="password" type="password" value={form.password} onChange={set("password")} minLength={8} required />
             </div>
             {error && <p className="text-sm text-danger">{error}</p>}
             <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Création…" : "Créer mon compte"}
+              {loading ? t("register.submitting") : t("register.submit")}
             </Button>
             <p className="text-sm text-ink-muted text-center">
-              Déjà inscrit ?{" "}
-              <Link href="/login" className="font-medium">Connexion</Link>
+              {t("register.already")}{" "}
+              <Link href="/login" className="font-medium">{t("register.login")}</Link>
             </p>
           </form>
         </CardBody>

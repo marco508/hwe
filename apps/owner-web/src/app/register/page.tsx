@@ -12,6 +12,8 @@ import {
   AnimatedBackground,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
+import { t } from "../../lib/i18n";
+import { IlloKeys } from "@hwe/ui";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -41,8 +43,8 @@ export default function RegisterPage() {
       const msg = (err as Error).message;
       setError(
         msg.includes("409")
-          ? "Email déjà utilisé."
-          : "Échec de la création du compte.",
+          ? t("register.errTaken")
+          : t("register.errFail"),
       );
       setLoading(false);
     }
@@ -57,13 +59,14 @@ export default function RegisterPage() {
         <div className="text-center mb-6">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
             <span className="h-1.5 w-1.5 rounded-full bg-accent-500 animate-pulse-glow" />
-            Compte gratuit
+            {t("register.badge")}
           </span>
+          <IlloKeys className="mx-auto w-44 mb-2" />
           <h1 className="font-display text-4xl mb-1">
-            Créer un compte <span className="gradient-text">propriétaire</span>
+            {t("register.title1")} <span className="gradient-text">{t("register.title2")}</span>
           </h1>
           <p className="text-ink-muted text-sm">
-            Publiez vos biens, gérez demandes, baux et loyers.
+            {t("register.sub")}
           </p>
         </div>
 
@@ -126,10 +129,10 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="w-full"
               >
-                {loading ? "Création…" : "Créer mon compte"}
+                {loading ? t("register.submitting") : t("register.submit")}
               </Button>
               <p className="text-sm text-ink-muted text-center">
-                Déjà inscrit ?{" "}
+                {t("register.already")}{" "}
                 <Link href="/login" className="font-medium">
                   Connexion
                 </Link>

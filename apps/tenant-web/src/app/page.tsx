@@ -6,6 +6,7 @@ import { Card, CardBody, EmptyState, Input, Label, PropertyCard, Select } from "
 import { api } from "../lib/api";
 import { useCurrency } from "../lib/currency-context";
 import { useAuth } from "../lib/auth-context";
+import { t } from "../lib/i18n";
 import type { Property, PropertyQuery } from "@hwe/types";
 
 function HeartButton({
@@ -93,9 +94,9 @@ export default function HomePage() {
   return (
     <section>
       <header className="mb-8">
-        <h1 className="font-display text-3xl mb-2">Trouvez votre logement</h1>
+        <h1 className="font-display text-3xl mb-2">{t("home.title")}</h1>
         <p className="text-ink-muted max-w-2xl">
-          Annonces publiées par les propriétaires. Contactez-les directement.
+          {t("home.sub")}
         </p>
       </header>
 
@@ -103,12 +104,12 @@ export default function HomePage() {
       {user && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           {[
-            { href: "/ma-location", icon: "🏠", label: "Ma location", hint: "bail, état des lieux, préavis" },
-            { href: "/mes-loyers", icon: "💶", label: "Mes loyers", hint: "payer, quittances" },
-            { href: "/mes-visites", icon: "📅", label: "Mes visites", hint: "créneaux demandés" },
-            { href: "/inquiries", icon: "📨", label: "Mes demandes", hint: "candidatures envoyées" },
-            { href: "/messages", icon: "💬", label: "Messages", hint: "échanger" },
-            { href: "/profile", icon: "📁", label: "Mon dossier", hint: "identité, revenus, garant" },
+            { href: "/ma-location", icon: "🏠", label: t("home.tile.rental"), hint: t("home.tile.rentalHint") },
+            { href: "/mes-loyers", icon: "💶", label: t("home.tile.rents"), hint: t("home.tile.rentsHint") },
+            { href: "/mes-visites", icon: "📅", label: t("home.tile.visits"), hint: t("home.tile.visitsHint") },
+            { href: "/inquiries", icon: "📨", label: t("home.tile.requests"), hint: t("home.tile.requestsHint") },
+            { href: "/messages", icon: "💬", label: t("home.tile.messages"), hint: t("home.tile.messagesHint") },
+            { href: "/profile", icon: "📁", label: t("home.tile.dossier"), hint: t("home.tile.dossierHint") },
           ].map((t) => (
             <Link
               key={t.href}

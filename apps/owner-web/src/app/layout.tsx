@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { AppNavbar } from "../components/AppNavbar";
 import { AuthProvider } from "../lib/auth-context";
 import { CurrencyProvider } from "../lib/currency-context";
+import { LangProvider } from "../lib/i18n";
 
 export const metadata: Metadata = {
   title: "hwe — Espace propriétaire",
@@ -35,6 +36,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col">
         <AuthProvider>
+          <LangProvider>
           <CurrencyProvider>
             {/* Decorative blob (single, static) */}
             <div
@@ -58,6 +60,7 @@ export default function RootLayout({
               </span>
             </footer>
           </CurrencyProvider>
+          </LangProvider>
         </AuthProvider>
       </body>
     </html>

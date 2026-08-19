@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { AppNavbar } from "../components/AppNavbar";
 import { AuthProvider } from "../lib/auth-context";
 import { CurrencyProvider } from "../lib/currency-context";
+import { LangProvider } from "../lib/i18n";
 
 export const metadata: Metadata = {
   title: "hwe — Trouvez votre logement",
@@ -22,13 +23,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <AuthProvider>
+          <LangProvider>
           <CurrencyProvider>
           <AppNavbar />
           <main className="container-app py-10">{children}</main>
           <footer className="container-app py-10 text-xs text-ink-muted">
             © {new Date().getFullYear()} hwe — Espace locataire / acheteur
           </footer>
-        </CurrencyProvider>
+          </CurrencyProvider>
+          </LangProvider>
         </AuthProvider>
       </body>
     </html>

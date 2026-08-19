@@ -69,3 +69,20 @@ export {
   useTitleFlash,
 } from "./hooks/useBrowserNotifications";
 export type { NotificationPermissionState } from "./hooks/useBrowserNotifications";
+
+export {
+  CurrencyProvider,
+  useCurrency,
+  CurrencySwitch,
+  SUPPORTED_CURRENCIES,
+} from "./components/CurrencyKit";
+export { createI18n, type Lang } from "./components/I18nKit";
+export {
+  IlloSkyline,
+  IlloKeys,
+  IlloSearchHome,
+  IlloVisit,
+  IlloDossier,
+  IlloContract,
+  IlloManage,
+} from "./components/Illustrations";

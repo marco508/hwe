@@ -12,6 +12,8 @@ import {
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { ActionCenter } from "../../components/ActionCenter";
+import { t } from "../../lib/i18n";
+import { IlloManage } from "@hwe/ui";
 import type { Property } from "@hwe/types";
 
 export default function DashboardPage() {
@@ -80,18 +82,19 @@ export default function DashboardPage() {
           <div>
             <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-glow" />
-              Tableau de bord
+              {t("dash.badge")}
             </span>
             <h1 className="font-display text-4xl mb-1">
-              Mes <span className="gradient-text">biens</span>
+              {t("dash.title1")} <span className="gradient-text">{t("dash.title2")}</span>
             </h1>
             <p className="text-ink-muted">
-              Gérez vos annonces à la vente ou à la location en un coup d'œil.
+              {t("dash.sub")}
             </p>
           </div>
+          <IlloManage className="hidden lg:block w-52" />
           <Link href="/dashboard/new">
             <Button variant="gradient" size="lg">
-              <span className="mr-1">＋</span> Ajouter un bien
+              <span className="mr-1">＋</span> {t("dash.add")}
             </Button>
           </Link>
         </div>
@@ -99,9 +102,9 @@ export default function DashboardPage() {
         {/* Mini stats */}
         {totalCount > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 stagger">
-            <StatCard icon="🏠" value={totalCount} label="Biens publiés" />
-            <StatCard icon="🔑" value={rentCount} label="En location" />
-            <StatCard icon="🏷️" value={saleCount} label="À la vente" />
+            <StatCard icon="🏠" value={totalCount} label={t("dash.stat.published")} />
+            <StatCard icon="🔑" value={rentCount} label={t("dash.stat.rent")} />
+            <StatCard icon="🏷️" value={saleCount} label={t("dash.stat.sale")} />
             <StatCard
               icon="💶"
               value={
@@ -112,7 +115,7 @@ export default function DashboardPage() {
                     }).format(avgPrice) + " €"
                   : "—"
               }
-              label="Prix moyen"
+              label={t("dash.stat.avg")}
             />
           </div>
         )}

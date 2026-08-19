@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth-context";
+import { t as tr } from "../lib/i18n";
 
 type Counts = {
   inquiries: number;
@@ -51,11 +52,11 @@ export function ActionCenter() {
   }, [user]);
 
   const tiles = [
-    { href: "/dashboard/inquiries", icon: "📨", label: "Demandes", count: counts?.inquiries, hint: "à traiter" },
-    { href: "/dashboard/visites", icon: "📅", label: "Visites", count: counts?.visits, hint: "à confirmer" },
-    { href: "/dashboard/loyers", icon: "💶", label: "Loyers", count: counts?.rents, hint: "à valider" },
-    { href: "/dashboard/tickets", icon: "🔧", label: "Incidents", count: counts?.tickets, hint: "ouverts" },
-    { href: "/dashboard/messages", icon: "💬", label: "Messages", count: counts?.unread, hint: "non lus" },
+    { href: "/dashboard/inquiries", icon: "📨", label: tr("action.requests"), count: counts?.inquiries, hint: tr("action.requestsHint") },
+    { href: "/dashboard/visites", icon: "📅", label: tr("action.visits"), count: counts?.visits, hint: tr("action.visitsHint") },
+    { href: "/dashboard/loyers", icon: "💶", label: tr("action.rents"), count: counts?.rents, hint: tr("action.rentsHint") },
+    { href: "/dashboard/tickets", icon: "🔧", label: tr("action.tickets"), count: counts?.tickets, hint: tr("action.ticketsHint") },
+    { href: "/dashboard/messages", icon: "💬", label: tr("action.messages"), count: counts?.unread, hint: tr("action.messagesHint") },
   ];
 
   return (
@@ -78,7 +79,7 @@ export function ActionCenter() {
             {t.label}
           </p>
           <p className="text-xs text-ink-muted">
-            {t.count != null && t.count > 0 ? `${t.count} ${t.hint}` : "rien à traiter"}
+            {t.count != null && t.count > 0 ? `${t.count} ${t.hint}` : tr("action.clear")}
           </p>
         </Link>
       ))}
