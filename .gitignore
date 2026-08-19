@@ -14,3 +14,5 @@ coverage
 # Dumps de base (sauvegardes serveur)
 backup_*.sql
 backup_*.sql.gz
+
+*.tsbuildinfo
