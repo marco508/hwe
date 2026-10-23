@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { PropertyStatus, Role } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { MailerService } from "../mail/mailer.service";
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger("Admin");
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailer: MailerService,
+  ) {}
 
   /** Chiffres clés de la plateforme, pour le tableau de bord admin. */
   async overview() {
@@ -24,6 +30,8 @@ export class AdminService {
       ticketsOpen,
       inquiries,
       usersUnverified: unverified,
+      // Sans SMTP, aucun e-mail ne part (vérification, réinitialisation, relances).
+      smtpConfigured: this.mailer.isConfigured,
     };
   }
 
@@ -97,6 +105,7 @@ export class AdminService {
       where: { id: userId },
       data: { emailVerifiedAt: new Date() },
     });
+    this.logger.log(`E-mail du compte ${userId} validé manuellement par un administrateur.`);
     return { ok: true };
   }
 
@@ -104,9 +113,11 @@ export class AdminService {
   async setPropertyStatus(propertyId: string, status: PropertyStatus) {
     const property = await this.prisma.property.findUnique({ where: { id: propertyId } });
     if (!property) throw new NotFoundException("Annonce introuvable");
+    this.logger.log(`Annonce ${propertyId} : statut ${property.status} → ${status} (modération).`);
     return this.prisma.property.update({
       where: { id: propertyId },
       data: { status },
+      select: { id: true, title: true, city: true, status: true, listingType: true, price: true, createdAt: true },
     });
   }
 }

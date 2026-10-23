@@ -41,4 +41,6 @@ EXPOSE 4000
 
 COPY apps/api/docker-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+# Pas de root à l'exécution : l'API ne fait que lire le dépôt.
+USER node
 CMD ["/entrypoint.sh"]

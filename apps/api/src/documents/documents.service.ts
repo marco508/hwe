@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { CreateDocumentDto } from "./dto/create-document.dto";
-import { assertValidDataUrl } from "../common/upload.util";
+import { CreateDocumentDto, UpdateDocumentDto } from "./dto/create-document.dto";
+import { assertDataUrl } from "../common/upload.util";
 
 @Injectable()
 export class DocumentsService {
@@ -31,9 +31,17 @@ export class DocumentsService {
 
   async create(propertyId: string, ownerId: string, dto: CreateDocumentDto) {
     await this.assertOwner(propertyId, ownerId);
-    assertValidDataUrl(dto.fileUrl, "document");
+    const file = assertDataUrl(dto.fileUrl, "document");
     return this.prisma.propertyDocument.create({
-      data: { ...dto, propertyId },
+      data: {
+        propertyId,
+        name: dto.name,
+        documentType: dto.documentType,
+        fileUrl: dto.fileUrl,
+        fileSize: file.size,
+        mimeType: file.mime,
+        notes: dto.notes ?? null,
+      },
     });
   }
 
@@ -41,17 +49,23 @@ export class DocumentsService {
     propertyId: string,
     docId: string,
     ownerId: string,
-    dto: Partial<CreateDocumentDto>,
+    dto: UpdateDocumentDto,
   ) {
     await this.assertOwner(propertyId, ownerId);
-    assertValidDataUrl(dto.fileUrl, "document");
     const doc = await this.prisma.propertyDocument.findUnique({
       where: { id: docId },
     });
-    if (!doc || doc.propertyId !== propertyId) throw new NotFoundException();
+    if (!doc || doc.propertyId !== propertyId) throw new NotFoundException("Document introuvable");
+    // Champs explicites : impossible de déplacer le document vers un autre bien.
+    const file = dto.fileUrl !== undefined ? assertDataUrl(dto.fileUrl, "document") : null;
     return this.prisma.propertyDocument.update({
       where: { id: docId },
-      data: dto,
+      data: {
+        ...(dto.name !== undefined ? { name: dto.name } : {}),
+        ...(dto.documentType !== undefined ? { documentType: dto.documentType } : {}),
+        ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
+        ...(file ? { fileUrl: dto.fileUrl, fileSize: file.size, mimeType: file.mime } : {}),
+      },
     });
   }
 
@@ -60,7 +74,7 @@ export class DocumentsService {
     const doc = await this.prisma.propertyDocument.findUnique({
       where: { id: docId },
     });
-    if (!doc || doc.propertyId !== propertyId) throw new NotFoundException();
+    if (!doc || doc.propertyId !== propertyId) throw new NotFoundException("Document introuvable");
     await this.prisma.propertyDocument.delete({ where: { id: docId } });
     return { ok: true };
   }

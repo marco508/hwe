@@ -3,58 +3,52 @@
 import * as React from "react";
 import {
   PropertyCard,
-  ThemeToggle,
   SearchComposer,
   CategoryRail,
   StepsRail,
   SectionHeading,
   RevealOnScroll,
-  LocationProvider,
   CountryPicker,
   useLocation,
   SUPPORTED_COUNTRIES,
-  CurrencyProvider,
-  CurrencySwitch,
+  ALL_COUNTRIES_CODE,
   useCurrency,
   IlloSkyline,
   IlloSearchHome,
+  SafeImage,
+  ErrorState,
+  toast,
+  tUi,
   countryLabel,
+  TENANT_URL,
+  OWNER_URL,
   type CategoryRailItem,
 } from "@hwe/ui";
-import { t, LangProvider, useLang, LangSwitch } from "../lib/i18n";
-import { LocalizedTitle } from "../components/LocalizedTitle";
+import { t, useLang } from "../lib/i18n";
 import { publicApi } from "../lib/api";
-import type { Property, ListingType, PropertyType } from "@hwe/types";
+import { SiteProviders, SiteHeader, SiteFooter, ArrowRightIcon } from "../components/SiteShell";
+import type { Property, ListingType, PropertyType, PropertyStats, Paginated } from "@hwe/types";
 
-const TENANT_URL =
-  process.env.NEXT_PUBLIC_TENANT_URL ?? "https://tenant.hwe.dkpsolution.tech";
-const OWNER_URL =
-  process.env.NEXT_PUBLIC_OWNER_URL ?? "https://owner.hwe.dkpsolution.tech";
+// Taille de page du catalogue (l'API plafonne à 50, contrat §8).
+const PAGE_SIZE = 24;
+// Index léger pour les villes/destinations : jusqu'à INDEX_PAGES × 50 biens.
+const INDEX_PAGE_SIZE = 50;
+const INDEX_PAGES = 4;
+// Clé de LocationContext (packages/ui) : voir la bascule « Tous les pays » plus bas.
+const LOCATION_STORAGE_KEY = "hwe:location";
 
-// ─── Catégories (traduites au rendu) ────────────────────────────────────────
+// ─── Catégories (traduites au rendu) — « Villas » retirée (doublon de Maisons) ─
 function buildCategories(): CategoryRailItem[] {
   return [
     { id: "ALL", label: t("cats.all"), icon: <IconCompass /> },
     { id: "APARTMENT", label: t("cats.apartments"), icon: <IconBuilding /> },
     { id: "HOUSE", label: t("cats.houses"), icon: <IconHouse /> },
     { id: "STUDIO", label: t("cats.studios"), icon: <IconStudio /> },
-    { id: "VILLA", label: t("cats.villas"), icon: <IconVilla /> },
     { id: "LAND", label: t("cats.land"), icon: <IconLand /> },
     { id: "COMMERCIAL", label: t("cats.commercial"), icon: <IconCity /> },
   ];
 }
 
-const PROPERTY_TYPE_BY_CATEGORY: Record<string, PropertyType | null> = {
-  ALL: null,
-  APARTMENT: "APARTMENT",
-  HOUSE: "HOUSE",
-  STUDIO: "STUDIO",
-  VILLA: "HOUSE",
-  LAND: "LAND",
-  COMMERCIAL: "COMMERCIAL",
-};
-
-// ─── Étapes (traduites au rendu) ─────────────────────────────────────────────
 function buildSteps() {
   return [
     { title: t("steps.1.title"), description: t("steps.1.desc") },
@@ -63,68 +57,104 @@ function buildSteps() {
   ];
 }
 
-// ─── Page wrapper avec Provider ─────────────────────────────────────────────
+// ─── Prépositions de lieu ────────────────────────────────────────────────────
+// « au Bénin », « en France », « aux Pays-Bas », « à Madagascar »…
+function prepEnPays(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower === "madagascar" || lower === "maurice") return `à ${name}`;
+  if (lower === "rd congo") return `en ${name}`;
+  if (lower.startsWith("pays")) return `aux ${name}`;
+  if (/^[aeiouéèêâîôûà]/i.test(name)) return `en ${name}`;
+  if (lower.endsWith("e")) return `en ${name}`;
+  return `au ${name}`;
+}
+
+/** Complément de lieu selon la langue courante (plus de détection par traduction, U4). */
+function placeOf(lang: string, code: string, frName: string, city?: string | null): string {
+  if (city) return lang === "fr" ? `à ${city}` : `in ${city}`;
+  if (code === ALL_COUNTRIES_CODE) return t("place.all");
+  return lang === "fr" ? prepEnPays(frName) : `in ${countryLabel(code, frName)}`;
+}
+
+/** Libellé de pays, « Tous les pays » compris. */
+function countryName(code: string, frName: string): string {
+  return code === ALL_COUNTRIES_CODE ? tUi("ui.allCountries") : countryLabel(code, frName);
+}
+
+function propertyHref(id: string) {
+  return `${TENANT_URL}/properties/${encodeURIComponent(id)}`;
+}
+
+/**
+ * Favoris : la landing n'a pas de session ; le cœur renvoie vers l'espace
+ * locataire qui gère les favoris (plus d'état local perdu au rechargement).
+ */
+function goFavorite(id: string) {
+  toast.info(t("fav.login"));
+  window.location.assign(`${TENANT_URL}/login?next=${encodeURIComponent(`/properties/${id}`)}`);
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <LangProvider>
-      <LocalizedTitle />
-      <CurrencyProvider>
-        <LocationProvider>
-          <LandingInner />
-        </LocationProvider>
-      </CurrencyProvider>
-    </LangProvider>
+    <SiteProviders>
+      <LandingInner />
+    </SiteProviders>
   );
 }
 
-// ─── Page (consomme useLocation) ────────────────────────────────────────────
 function LandingInner() {
-  const { country, countryCode, city, setCity, isAutoDetected, isDetecting } =
-    useLocation();
+  const { country, countryCode, city, setCity, setCountry, isAutoDetected } = useLocation();
   const { lang } = useLang();
   const { format: fmtPrice } = useCurrency();
-  const countryName = countryLabel(country.code, country.name);
-
-  // « à Cotonou » / « au Bénin » en français, « in Cotonou » en anglais.
-  const place = city
-    ? lang === "fr"
-      ? `à ${city}`
-      : `in ${city}`
-    : lang === "fr"
-      ? prepEnPays(country.name)
-      : `in ${countryName}`;
+  const isAll = countryCode === ALL_COUNTRIES_CODE;
+  const cName = countryName(country.code, country.name);
+  const place = placeOf(lang, country.code, country.name, city);
   const plural = (n: number) => (lang === "fr" ? (n !== 1 ? "s" : "") : n !== 1 ? "ies" : "y");
   const CATEGORIES = buildCategories();
   const STEPS = buildSteps();
 
-  const [properties, setProperties] = React.useState<Property[]>([]);
-  const [loading, setLoading] = React.useState(true);
   const [category, setCategory] = React.useState<string>("ALL");
-  const [listingFilter, setListingFilter] =
-    React.useState<"ALL" | ListingType>("ALL");
-  const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
+  const [listingFilter, setListingFilter] = React.useState<"ALL" | ListingType>("ALL");
+
+  // ── Statistiques globales (GET /properties/stats) ─────────────────────────
+  const [stats, setStats] = React.useState<PropertyStats | null>(null);
+  // ── Index léger (villes, destinations, repli des compteurs) ───────────────
+  const [index, setIndex] = React.useState<Property[]>([]);
+  const [indexReady, setIndexReady] = React.useState(false);
 
   React.useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     publicApi
-      .listProperties({ pageSize: 200 })
-      .then((r) => {
-        if (cancelled) return;
-        setProperties(r.items ?? []);
+      .propertyStats()
+      .then((s) => {
+        if (!cancelled && s && typeof s.total === "number") setStats(s);
       })
       .catch(() => {
-        if (!cancelled) setProperties([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        /* repli : calcul local depuis l'index */
       });
+    (async () => {
+      const all: Property[] = [];
+      try {
+        for (let page = 1; page <= INDEX_PAGES; page++) {
+          const r = await publicApi.listProperties({ page, pageSize: INDEX_PAGE_SIZE });
+          const items = r.items ?? [];
+          all.push(...items);
+          if (all.length >= (r.total ?? 0) || items.length < INDEX_PAGE_SIZE) break;
+        }
+      } catch {
+        /* index partiel : le catalogue reste servi par l'API */
+      }
+      if (!cancelled) {
+        setIndex(all);
+        setIndexReady(true);
+      }
+    })();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // ── Index par pays (codes ISO) ────────────────────────────────────────────
   const { citiesByCountry, countsByCountry } = React.useMemo(() => {
     const cbc: Record<string, Set<string>> = {};
     const counts: Record<string, number> = {};
@@ -132,154 +162,157 @@ function LandingInner() {
       cbc[c.code] = new Set();
       counts[c.code] = 0;
     }
-    for (const p of properties) {
+    for (const p of index) {
       const code = (p.country ?? "").trim().toUpperCase();
       if (!code) continue;
-      if (!(code in cbc)) {
-        cbc[code] = new Set();
-        counts[code] = 0;
-      }
-      counts[code]++;
-      if (p.city) cbc[code].add(p.city);
+      const set = (cbc[code] ??= new Set());
+      counts[code] = (counts[code] ?? 0) + 1;
+      if (p.city) set.add(p.city);
+    }
+    // Les compteurs officiels (stats) priment sur l'index partiel.
+    if (stats?.byCountry) {
+      for (const [k, v] of Object.entries(stats.byCountry)) counts[k.toUpperCase()] = v;
     }
     return {
       citiesByCountry: Object.fromEntries(
-        Object.entries(cbc).map(([k, v]) => [
-          k,
-          Array.from(v).sort((a, b) => a.localeCompare(b)),
-        ]),
+        Object.entries(cbc).map(([k, v]) => [k, Array.from(v).sort((a, b) => a.localeCompare(b))]),
       ) as Record<string, string[]>,
       countsByCountry: counts,
     };
-  }, [properties]);
+  }, [index, stats]);
 
-  // ── Biens filtrés par localisation (code ISO) ─────────────────────────────
-  const localizedProperties = React.useMemo(() => {
-    return properties.filter((p) => {
-      const code = (p.country ?? "").trim().toUpperCase();
-      if (code !== countryCode.toUpperCase()) return false;
-      if (city && p.city !== city) return false;
-      return true;
-    });
-  }, [properties, countryCode, city]);
+  // Pays suggéré d'après la langue mais sans aucun bien : on montre tout le
+  // catalogue plutôt qu'une page vide, sans mémoriser ce choix (l'utilisateur
+  // n'a rien choisi : la suggestion sera réévaluée à la prochaine visite).
+  React.useEffect(() => {
+    if (!isAutoDetected || isAll || !indexReady) return;
+    if ((countsByCountry[countryCode] ?? 0) > 0) return;
+    setCountry(ALL_COUNTRIES_CODE);
+    try {
+      window.localStorage.removeItem(LOCATION_STORAGE_KEY);
+    } catch {
+      /* stockage indisponible */
+    }
+  }, [isAutoDetected, isAll, indexReady, countsByCountry, countryCode, setCountry]);
 
-  const visible = localizedProperties.filter((p) => {
-    const cat = PROPERTY_TYPE_BY_CATEGORY[category];
-    if (cat && p.propertyType !== cat) return false;
-    if (listingFilter !== "ALL" && p.listingType !== listingFilter)
-      return false;
-    return true;
-  });
+  // ── Catalogue paginé côté API (filtres pays/ville/type/annonce) ───────────
+  const [catalog, setCatalog] = React.useState<Paginated<Property> | null>(null);
+  const [catalogLoading, setCatalogLoading] = React.useState(true);
+  const [catalogError, setCatalogError] = React.useState<unknown>(null);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+  const [reloadTick, setReloadTick] = React.useState(0);
 
+  const query = React.useMemo(
+    () => ({
+      country: isAll ? undefined : countryCode,
+      city: city ?? undefined,
+      propertyType: category === "ALL" ? undefined : (category as PropertyType),
+      listingType: listingFilter === "ALL" ? undefined : listingFilter,
+      pageSize: PAGE_SIZE,
+    }),
+    [isAll, countryCode, city, category, listingFilter],
+  );
+
+  React.useEffect(() => {
+    const ctrl = new AbortController();
+    setCatalogLoading(true);
+    setCatalogError(null);
+    publicApi
+      .listProperties({ ...query, page: 1 }, { signal: ctrl.signal })
+      .then((r) => setCatalog(r))
+      .catch((e) => {
+        if ((e as Error)?.name !== "AbortError") setCatalogError(e);
+      })
+      .finally(() => {
+        if (!ctrl.signal.aborted) setCatalogLoading(false);
+      });
+    return () => ctrl.abort();
+  }, [query, reloadTick]);
+
+  const loadMore = async () => {
+    if (!catalog) return;
+    setLoadingMore(true);
+    try {
+      const r = await publicApi.listProperties({ ...query, page: (catalog.page ?? 1) + 1 });
+      setCatalog({ ...r, items: [...catalog.items, ...(r.items ?? [])] });
+    } catch (e) {
+      toast.error(e);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  const visible = catalog?.items ?? [];
+  const total = catalog?.total ?? 0;
   const featured = visible[0];
-  const rest = visible.slice(1, 13);
+  const rest = visible.slice(1);
 
-  // ── Destinations dérivées de la DB ────────────────────────────────────────
-  // Pour chaque ville présente en base dans le pays courant : on agrège count,
-  // photo représentative (1ère image du 1er bien), et fourchette de prix.
+  // Nombre de biens pour le lieu courant (indépendant des filtres de type).
+  const localCount = React.useMemo(() => {
+    if (city)
+      return index.filter((p) => p.city === city && (isAll || (p.country ?? "").toUpperCase() === countryCode))
+        .length;
+    if (isAll) return stats?.total ?? index.length;
+    return countsByCountry[countryCode] ?? 0;
+  }, [city, index, isAll, countryCode, stats, countsByCountry]);
+
+  // ── Destinations (villes les plus fournies, pays courant ou monde) ────────
   const destinations = React.useMemo(() => {
-    const byCity = new Map<
-      string,
-      { name: string; count: number; image: string | null }
-    >();
-    for (const p of properties) {
-      if ((p.country ?? "").toUpperCase() !== countryCode.toUpperCase())
-        continue;
+    const byCity = new Map<string, { key: string; name: string; country: string; count: number; image: string | null }>();
+    for (const p of index) {
+      const code = (p.country ?? "").toUpperCase();
+      if (!isAll && code !== countryCode) continue;
       if (!p.city) continue;
-      const existing = byCity.get(p.city);
+      const key = `${code}|${p.city}`;
+      const existing = byCity.get(key);
       const firstImage = p.media?.[0]?.url ?? null;
       if (existing) {
         existing.count++;
         if (!existing.image && firstImage) existing.image = firstImage;
       } else {
-        byCity.set(p.city, {
-          name: p.city,
-          count: 1,
-          image: firstImage,
-        });
+        byCity.set(key, { key, name: p.city, country: code, count: 1, image: firstImage });
       }
     }
-    return Array.from(byCity.values()).sort((a, b) => b.count - a.count);
-  }, [properties, countryCode]);
+    return Array.from(byCity.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+  }, [index, isAll, countryCode]);
 
-  const toggleFav = (id: string) =>
-    setFavorites((s) => {
-      const next = new Set(s);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  // ── Stats globales ─────────────────────────────────────────────────────────
+  const totalProperties = stats?.total ?? index.length;
+  const totalCities =
+    stats?.cities ?? new Set(index.filter((p) => p.city).map((p) => `${p.country}|${p.city}`)).size;
+  const totalCountries = stats?.countries ?? Object.values(countsByCountry).filter((n) => n > 0).length;
 
-  // ── Stats globales (réelles, dérivées de la DB) ──────────────────────────
-  const totalProperties = properties.length;
-  const totalCities = React.useMemo(() => {
-    const s = new Set<string>();
-    for (const p of properties) if (p.city) s.add(`${p.country}|${p.city}`);
-    return s.size;
-  }, [properties]);
-  const totalCountries = Object.values(countsByCountry).filter((n) => n > 0)
-    .length;
+  const goToCatalogue = () =>
+    document.getElementById("catalogue")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const navLinks = [
+    ...(destinations.length > 0 ? [{ label: t("nav.destinations"), href: "#destinations" }] : []),
+    { label: t("nav.catalog"), href: "#catalogue" },
+    { label: t("nav.how"), href: "#etapes" },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* ── Navbar ──────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-cream-50/90 dark:bg-background/85 border-b border-border/60">
-        <div className="container-app flex items-center justify-between h-16 gap-4">
-          <a href="#" className="flex items-center gap-2">
-            <LogoMark />
-            <span className="display-serif text-2xl tracking-tight text-ink">
-              hwe
-            </span>
-          </a>
-          <nav className="hidden lg:flex items-center gap-7 text-sm text-ink-muted">
-            {destinations.length > 0 && (
-              <a
-                href="#destinations"
-                className="hover:text-ink transition-colors"
-              >
-                {t("nav.destinations")}
-              </a>
-            )}
-            <a href="#catalogue" className="hover:text-ink transition-colors">
-              {t("nav.catalog")}
-            </a>
-            <a href="#etapes" className="hover:text-ink transition-colors">
-              {t("nav.how")}
-            </a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <CountryPicker
-              citiesByCountry={citiesByCountry}
-              countsByCountry={countsByCountry}
-            />
-            <LangSwitch className="hidden sm:inline-flex" />
-            <CurrencySwitch className="hidden md:inline-flex" />
-            <ThemeToggle />
-            <a
-              href={`${OWNER_URL}/login`}
-              className="hidden sm:inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 hover:opacity-90 transition-opacity"
-            >
-              {t("nav.owner")}
-            </a>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col overflow-x-clip">
+      <SiteHeader
+        links={navLinks}
+        homeHref="#"
+        extra={<CountryPicker citiesByCountry={citiesByCountry} countsByCountry={countsByCountry} />}
+      />
 
       {/* ── Bandeau de localisation ───────────────────────────────────── */}
       {(isAutoDetected || city) && (
         <div className="border-b border-border/50 bg-cream-100/50 dark:bg-surface/40">
           <div className="container-app py-2.5 text-xs flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-2 text-ink-muted">
+            <div className="flex items-center gap-2 text-ink-muted min-w-0">
               <span className="text-base leading-none" aria-hidden="true">
                 {country.flag}
               </span>
-              <span>
+              <span className="min-w-0 [overflow-wrap:anywhere]">
                 {t("loc.exploring")}{" "}
-                <strong className="text-ink font-medium">
-                  {city ? `${city}, ${countryName}` : countryName}
-                </strong>
-                {isAutoDetected && (
-                  <span className="text-ink-subtle"> {t("loc.auto")}</span>
-                )}
+                <strong className="text-ink font-medium">{city ? `${city}, ${cName}` : cName}</strong>
+                {isAutoDetected && <span className="text-ink-subtle"> {t("loc.auto")}</span>}
               </span>
             </div>
             {city && (
@@ -288,7 +321,7 @@ function LandingInner() {
                 onClick={() => setCity(null)}
                 className="text-ink-muted hover:text-ink transition-colors underline underline-offset-2"
               >
-                {t("loc.seeAll", { country: countryName })}
+                {t("loc.seeAll", { country: cName })}
               </button>
             )}
           </div>
@@ -296,93 +329,69 @@ function LandingInner() {
       )}
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="hero-cinematic pt-16 pb-20 lg:pt-24 lg:pb-28">
+      <section className="hero-cinematic pt-12 pb-16 sm:pt-16 sm:pb-20 lg:pt-24 lg:pb-28">
         <div className="container-app relative">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="eyebrow inline-flex items-center gap-2 mb-6">
-              <span className="relative flex h-2 w-2">
+            <span className="eyebrow inline-flex items-center gap-2 mb-6 max-w-full [overflow-wrap:anywhere]">
+              <span className="relative flex h-2 w-2 shrink-0">
                 <span className="absolute inset-0 rounded-full bg-brand-500 pulse-dot" />
                 <span className="relative h-2 w-2 rounded-full bg-brand-500" />
               </span>
-              {isDetecting
-                ? t("hero.detecting")
-                : loading
+              {!indexReady && !stats
                 ? t("hero.loading")
-                : localizedProperties.length > 0
-                ? t("hero.count", {
-                    n: localizedProperties.length,
-                    s: plural(localizedProperties.length),
-                    place,
-                  })
-                : t("hero.coming", { place })}
+                : localCount > 0
+                  ? t("hero.count", { n: localCount, s: plural(localCount), place })
+                  : t("hero.coming", { place })}
             </span>
 
-            <h1 className="display-serif text-display-md sm:text-display-lg lg:text-display-xl text-ink">
+            <h1 className="display-serif text-[2.5rem] leading-[1.05] sm:text-display-lg lg:text-display-xl text-ink">
               <span className="block">{t("hero.title1")}</span>
-              <span className="block italic gradient-text">{t("hero.title2")}</span>
+              {/* Marge basse : background-clip:text coupait les jambages (g, y) avec un interligne serré. */}
+              <span className="block italic gradient-text pb-[0.14em] pr-[0.06em]">{t("hero.title2")}</span>
             </h1>
 
-            <p className="text-ink-muted text-lg sm:text-xl max-w-2xl mx-auto mt-8 leading-relaxed">
+            <p className="text-ink-muted text-lg sm:text-xl max-w-2xl mx-auto mt-8 leading-relaxed [overflow-wrap:anywhere]">
               {t("hero.sub", { place })}
             </p>
 
             <IlloSkyline className="mx-auto mt-8 w-full max-w-xl" />
           </div>
 
-          <div className="mt-10">
+          <div className="mt-10 max-w-3xl mx-auto">
             <SearchComposer
-              value={{ location: city ?? countryName }}
+              value={{ location: city ?? (isAll ? "" : cName) }}
               onSubmit={(v) => {
-                if (v.listing === "RENT" || v.listing === "SALE")
-                  setListingFilter(v.listing);
+                if (v.listing === "RENT" || v.listing === "SALE") setListingFilter(v.listing);
                 else setListingFilter("ALL");
-                const cities = citiesByCountry[countryCode] ?? [];
-                const match = cities.find(
-                  (c) =>
-                    c.toLowerCase() === v.location.trim().toLowerCase() ||
-                    c.toLowerCase().includes(v.location.trim().toLowerCase()),
-                );
-                if (match) setCity(match);
-                document
-                  .getElementById("catalogue")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                const q = v.location.trim().toLowerCase();
+                if (q) {
+                  const pool = isAll ? Object.values(citiesByCountry).flat() : citiesByCountry[countryCode] ?? [];
+                  const match = pool.find((c) => c.toLowerCase() === q || c.toLowerCase().includes(q));
+                  if (match) setCity(match);
+                }
+                goToCatalogue();
               }}
             />
           </div>
 
-          {/* Stats — dérivées de la DB uniquement */}
+          {/* Stats — /properties/stats, repli sur l'index local */}
           {totalProperties > 0 && (
-            <div className="mt-14 grid grid-cols-3 gap-3 max-w-3xl mx-auto">
-              <FloatingStat
-                kicker={t("stats.props")}
-                value={`${totalProperties}`}
-                hint={t("stats.propsHint")}
-              />
-              <FloatingStat
-                kicker={t("stats.cities")}
-                value={`${totalCities}`}
-                hint={t("stats.citiesHint")}
-              />
-              <FloatingStat
-                kicker={t("stats.countries")}
-                value={`${totalCountries}`}
-                hint={t("stats.countriesHint")}
-              />
+            <div className="mt-14 grid grid-cols-3 gap-2 sm:gap-3 max-w-3xl mx-auto">
+              <FloatingStat kicker={t("stats.props")} value={`${totalProperties}`} hint={t("stats.propsHint")} />
+              <FloatingStat kicker={t("stats.cities")} value={`${totalCities}`} hint={t("stats.citiesHint")} />
+              <FloatingStat kicker={t("stats.countries")} value={`${totalCountries}`} hint={t("stats.countriesHint")} />
             </div>
           )}
         </div>
       </section>
 
-      {/* ── Destinations (dérivées de la DB) ─────────────────────────────── */}
+      {/* ── Destinations ─────────────────────────────────────────────────── */}
       {destinations.length > 0 && (
-        <section
-          id="destinations"
-          className="py-20 border-t border-border/40 bg-cream-100/40 dark:bg-surface/20"
-        >
+        <section id="destinations" className="py-16 sm:py-20 border-t border-border/40 bg-cream-100/40 dark:bg-surface/20">
           <div className="container-app">
             <RevealOnScroll>
               <SectionHeading
-                eyebrow={`${t("dest.eyebrow")} · ${country.flag} ${countryName}`}
+                eyebrow={`${t("dest.eyebrow")} · ${country.flag} ${cName}`}
                 title={
                   <>
                     {t("dest.title1")} <em className="italic">{t("dest.title2")}</em>.
@@ -392,56 +401,42 @@ function LandingInner() {
               />
             </RevealOnScroll>
 
-            <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 stagger">
+            <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 stagger">
               {destinations.map((d) => (
                 <button
-                  key={d.name}
+                  key={d.key}
                   type="button"
                   onClick={() => {
+                    if (isAll && d.country) setCountry(d.country);
                     setCity(d.name);
-                    document
-                      .getElementById("catalogue")
-                      ?.scrollIntoView({ behavior: "smooth" });
+                    goToCatalogue();
                   }}
-                  className="group relative block aspect-[4/5] rounded-3xl overflow-hidden ring-1 ring-border/60 hover-lift text-left"
+                  className="group relative block aspect-[4/5] rounded-3xl overflow-hidden ring-1 ring-border/60 hover-lift text-left min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   {d.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <SafeImage
                       src={d.image}
                       alt={d.name}
                       loading="lazy"
                       decoding="async"
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      fallbackClassName="absolute inset-0 h-full w-full bg-gradient-to-br from-brand-700 via-brand-500 to-accent-500"
+                      fallback={<span />}
                     />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-brand-700 via-brand-500 to-accent-500" />
                   )}
                   <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                  <div className="absolute top-4 right-4 glass-strong rounded-full px-3 py-1 text-[11px] font-medium text-ink">
-                    {lang === "fr"
-                      ? `${d.count} bien${d.count > 1 ? "s" : ""}`
-                      : `${d.count} propert${d.count > 1 ? "ies" : "y"}`}
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 glass-strong rounded-full px-3 py-1 text-[11px] font-medium text-ink">
+                    {t("dest.count", { n: d.count, s: plural(d.count) })}
                   </div>
-                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                    <h3 className="display-serif text-2xl sm:text-3xl text-white leading-none">
+                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 min-w-0">
+                    <h3 className="display-serif text-xl sm:text-3xl text-white leading-tight line-clamp-2 [overflow-wrap:anywhere]">
                       {d.name}
                     </h3>
-                    <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/90">
+                    <div className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/90">
                       <span>{t("dest.discover")}</span>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="transition-transform group-hover:translate-x-1"
-                      >
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                      </svg>
+                      <ArrowRightIcon />
                     </div>
                   </div>
                 </button>
@@ -452,48 +447,36 @@ function LandingInner() {
       )}
 
       {/* ── Catégories + Catalogue ──────────────────────────────────────── */}
-      <section
-        id="catalogue"
-        className="py-16 lg:py-20 border-y border-border/40"
-      >
+      <section id="catalogue" className="py-16 lg:py-20 border-y border-border/40">
         <div className="container-app">
           <RevealOnScroll>
             <SectionHeading
-              eyebrow={`${t("cat.eyebrow")} · ${country.flag} ${countryName}${city ? ` · ${city}` : ""}`}
+              eyebrow={`${t("cat.eyebrow")} · ${country.flag} ${cName}${city ? ` · ${city}` : ""}`}
               title={
                 <>
                   {t("cat.title1")} <em className="italic">{t("cat.title2")}</em>.
                 </>
               }
-              description={
-                city
-                  ? t("cat.descCity", { city })
-                  : t("cat.descCountry", { place })
-              }
+              description={city ? t("cat.descCity", { city }) : t("cat.descCountry", { place })}
             />
           </RevealOnScroll>
 
           <div className="mt-8">
-            <CategoryRail
-              items={CATEGORIES}
-              active={category}
-              onChange={setCategory}
-            />
+            <CategoryRail items={CATEGORIES} active={category} onChange={setCategory} />
           </div>
 
           <div className="flex items-center justify-between mt-6 flex-wrap gap-4">
-            <div className="text-sm text-ink-muted">
-              {loading
-                ? t("cat.loading")
-                : t("cat.selection", { n: visible.length, s: plural(visible.length) })}
+            <div className="text-sm text-ink-muted" aria-live="polite">
+              {catalogLoading ? t("cat.loading") : t("cat.selection", { n: total, s: plural(total) })}
             </div>
-            <div className="inline-flex p-1 rounded-full bg-surface border border-border text-sm">
+            <div className="inline-flex p-1 rounded-full bg-surface border border-border text-sm" role="group">
               {(["ALL", "RENT", "SALE"] as const).map((k) => (
                 <button
                   key={k}
                   type="button"
+                  aria-pressed={listingFilter === k}
                   onClick={() => setListingFilter(k)}
-                  className={`h-8 px-4 rounded-full transition-all ${
+                  className={`h-8 px-3 sm:px-4 rounded-full transition-all ${
                     listingFilter === k
                       ? "bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950"
                       : "text-ink-muted hover:text-ink"
@@ -506,29 +489,29 @@ function LandingInner() {
           </div>
 
           <div className="mt-10">
-            {loading ? (
+            {catalogLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
               </div>
+            ) : catalogError ? (
+              <ErrorState error={catalogError} title={t("cat.error")} onRetry={() => setReloadTick((n) => n + 1)} />
             ) : visible.length === 0 ? (
               <EmptyCountry
-                country={countryName}
+                lang={lang}
+                countryCode={country.code}
+                countryFrName={country.name}
                 flag={country.flag}
                 hasCity={Boolean(city)}
                 onClearCity={() => setCity(null)}
-                hasAnyInCountry={(countsByCountry[countryCode] ?? 0) > 0}
+                hasAnyInCountry={localCount > 0}
               />
             ) : (
               <>
                 {featured && (
                   <RevealOnScroll className="mb-12">
-                    <FeaturedSpread
-                      property={featured}
-                      isFavorite={favorites.has(featured.id)}
-                      onToggleFavorite={() => toggleFav(featured.id)}
-                    />
+                    <FeaturedSpread property={featured} />
                   </RevealOnScroll>
                 )}
 
@@ -538,25 +521,36 @@ function LandingInner() {
                       key={p.id}
                       title={p.title}
                       city={p.city}
-                      price={p.price}
+                      price={p.displayPrice ?? p.price}
                       currency={p.currency}
                       surface={p.surface}
                       rooms={p.rooms}
                       listingType={p.listingType}
                       propertyType={p.propertyType}
-                      images={(p.media ?? []).map((m) => ({
-                        url: m.url,
-                        alt: m.alt ?? p.title,
-                      }))}
-                      thumbnailUrl={p.media?.[0]?.url ?? null}
-                      displayPrice={fmtPrice(p.price, p.currency)}
-                      href={`${TENANT_URL}/properties/${p.id}`}
+                      priceUnit={p.priceUnit}
+                      status={p.status}
+                      images={(p.media ?? []).map((m) => ({ url: m.url, alt: m.alt ?? p.title }))}
+                      displayPrice={fmtPrice(p.displayPrice ?? p.price, p.currency)}
+                      href={propertyHref(p.id)}
                       favoritable
-                      isFavorite={favorites.has(p.id)}
-                      onToggleFavorite={() => toggleFav(p.id)}
+                      onToggleFavorite={() => goFavorite(p.id)}
                     />
                   ))}
                 </div>
+
+                {visible.length < total && (
+                  <div className="mt-12 flex flex-col items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={loadMore}
+                      disabled={loadingMore}
+                      className="inline-flex items-center gap-2 h-11 px-6 rounded-full border border-border bg-surface text-sm font-medium text-ink hover:bg-cream-100 dark:hover:bg-white/5 disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                    >
+                      {loadingMore ? t("cat.loadingMore") : t("cat.more")}
+                    </button>
+                    <span className="text-xs text-ink-subtle">{t("cat.showing", { shown: visible.length, total })}</span>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -588,26 +582,17 @@ function LandingInner() {
       <section className="py-20">
         <div className="container-app">
           <RevealOnScroll>
-            <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 dark:from-brand-950 dark:via-brand-900 dark:to-brand-800 text-cream-50 px-8 sm:px-16 py-16 sm:py-24">
-              <span
-                aria-hidden="true"
-                className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-accent-400/25 blur-3xl"
-              />
-              <span
-                aria-hidden="true"
-                className="absolute -bottom-24 -left-12 w-80 h-80 rounded-full bg-brand-300/15 blur-3xl"
-              />
+            <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 dark:from-brand-950 dark:via-brand-900 dark:to-brand-800 text-cream-50 px-6 sm:px-16 py-14 sm:py-24">
+              <span aria-hidden="true" className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-accent-400/25 blur-3xl" />
+              <span aria-hidden="true" className="absolute -bottom-24 -left-12 w-80 h-80 rounded-full bg-brand-300/15 blur-3xl" />
               <div className="relative max-w-2xl">
                 <span className="eyebrow text-cream-200/80">
                   {t("cta.eyebrow")} {country.flag}
                 </span>
-                <h2 className="display-serif text-5xl sm:text-6xl mt-3 leading-[1.05]">
-                  {t("cta.title")}{" "}
-                  <em className="italic text-accent-200">{place}</em>.
+                <h2 className="display-serif text-4xl sm:text-6xl mt-3 leading-[1.05] [overflow-wrap:anywhere]">
+                  {t("cta.title")} <em className="italic text-accent-200">{place}</em>.
                 </h2>
-                <p className="text-cream-200/80 text-lg mt-6 leading-relaxed">
-                  {t("cta.sub")}
-                </p>
+                <p className="text-cream-200/80 text-lg mt-6 leading-relaxed">{t("cta.sub")}</p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <a
                     href={`${TENANT_URL}/register`}
@@ -629,128 +614,59 @@ function LandingInner() {
         </div>
       </section>
 
-      {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="bg-brand-950 text-cream-200 mt-auto">
-        <div className="container-app py-16">
-          <div className="grid lg:grid-cols-5 gap-10">
-            <div className="lg:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <LogoMark inverted />
-                <span className="display-serif text-2xl text-cream-50">
-                  hwe
-                </span>
-              </div>
-              <p className="text-cream-200/70 text-sm max-w-md leading-relaxed">
-                {t("footer.about")}
-              </p>
-            </div>
-            <FooterCol
-              title={t("footer.explore")}
-              links={[
-                ...(destinations.length > 0
-                  ? [{ label: t("nav.destinations"), href: "#destinations" }]
-                  : []),
-                { label: t("nav.catalog"), href: "#catalogue" },
-                { label: t("nav.how"), href: "#etapes" },
-              ]}
-            />
-            <FooterCol
-              title={t("footer.account")}
-              links={[
-                { label: t("footer.tenant"), href: `${TENANT_URL}` },
-                { label: t("footer.owner"), href: `${OWNER_URL}` },
-                { label: t("footer.signup"), href: `${TENANT_URL}/register` },
-              ]}
-            />
-            <FooterCol
-              title="hwe"
-              links={[
-                { label: t("footer.contact"), href: "#" },
-                { label: t("footer.legal"), href: "#" },
-                { label: t("footer.terms"), href: "#" },
-              ]}
-            />
-          </div>
-          <div className="border-t border-cream-50/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream-200/60">
-            <span>{t("footer.tagline", { year: new Date().getFullYear() })}</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter
+        exploreLinks={[
+          ...(destinations.length > 0 ? [{ label: t("nav.destinations"), href: "#destinations" }] : []),
+          { label: t("nav.catalog"), href: "#catalogue" },
+          { label: t("nav.how"), href: "#etapes" },
+        ]}
+      />
     </div>
   );
 }
 
 // ─── Sous-composants ─────────────────────────────────────────────────────────
 
-// « au Bénin », « en France », « aux Pays-Bas », « à Madagascar »…
-// Un simple `en ${pays}` produit des fautes (« en Bénin ») : la préposition
-// dépend du genre/nombre du pays. Règles vérifiées sur toute la liste supportée.
-function prepEnPays(name: string): string {
-  const lower = name.toLowerCase();
-  if (lower === "madagascar" || lower === "maurice") return `à ${name}`;
-  if (lower === "rd congo") return `en ${name}`;
-  if (lower.startsWith("pays")) return `aux ${name}`;
-  if (/^[aeiouéèêâîôûà]/i.test(name)) return `en ${name}`;
-  if (lower.endsWith("e")) return `en ${name}`;
-  return `au ${name}`;
-}
-
-// Version i18n-consciente de prepEnPays pour les composants hors LandingInner.
-function placeOf(countryName: string): string {
-  return t("hero.title1") === "Rent, buy, sell —" ? `in ${countryName}` : prepEnPays(countryName);
-}
-
-function prepDePays(name: string): string {
-  const lower = name.toLowerCase();
-  if (lower.startsWith("côte")) return `de ${name}`;
-  if (lower.startsWith("le ")) return `du ${name.slice(3)}`;
-  if (lower.endsWith("s") || lower.startsWith("pays")) return `des ${name}`;
-  if (/^[aeiouéèêâîôû]/i.test(name)) return `de l'${name}`;
-  return `de la ${name}`;
-}
-
 function EmptyCountry({
-  country,
+  lang,
+  countryCode,
+  countryFrName,
   flag,
   hasCity,
   onClearCity,
   hasAnyInCountry,
 }: {
-  country: string;
+  lang: string;
+  countryCode: string;
+  countryFrName: string;
   flag: string;
   hasCity: boolean;
   onClearCity: () => void;
   hasAnyInCountry: boolean;
 }) {
-  const ownerUrl = process.env.NEXT_PUBLIC_OWNER_URL ?? "https://owner.hwe.dkpsolution.tech";
+  const isAll = countryCode === ALL_COUNTRIES_CODE;
+  const country = countryName(countryCode, countryFrName);
+  const place = placeOf(lang, countryCode, countryFrName);
   return (
-    <div className="relative rounded-3xl border border-dashed border-border bg-surface/60 p-10 sm:p-16 text-center overflow-hidden">
-      <span
-        aria-hidden="true"
-        className="absolute -top-16 -left-16 w-48 h-48 rounded-full bg-brand-200/40 dark:bg-brand-800/30 blur-3xl"
-      />
-      <span
-        aria-hidden="true"
-        className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-accent-200/40 dark:bg-accent-700/20 blur-3xl"
-      />
+    <div className="relative rounded-3xl border border-dashed border-border bg-surface/60 p-6 sm:p-16 text-center overflow-hidden">
+      <span aria-hidden="true" className="absolute -top-16 -left-16 w-48 h-48 rounded-full bg-brand-200/40 dark:bg-brand-800/30 blur-3xl" />
+      <span aria-hidden="true" className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-accent-200/40 dark:bg-accent-700/20 blur-3xl" />
       <div className="relative">
         <IlloSearchHome className="mx-auto mb-4 w-40" />
         <div className="text-3xl mb-3" aria-hidden="true">
           {flag}
         </div>
-        <div className="display-serif text-3xl text-ink mb-3 leading-tight">
-          {hasCity
-            ? t("empty.city")
-            : hasAnyInCountry
-            ? t("empty.filters")
-            : t("empty.first", { place: placeOf(country) })}
+        <div className="display-serif text-2xl sm:text-3xl text-ink mb-3 leading-tight">
+          {hasCity ? t("empty.city") : hasAnyInCountry ? t("empty.filters") : t("empty.first", { place })}
         </div>
         <p className="text-sm text-ink-muted max-w-md mx-auto mb-6 leading-relaxed">
           {hasCity
             ? t("empty.cityDesc")
             : hasAnyInCountry
-            ? t("empty.filtersDesc", { place: placeOf(country) })
-            : t("empty.firstDesc", { country })}
+              ? t("empty.filtersDesc", { place })
+              : isAll
+                ? t("empty.firstAll")
+                : t("empty.firstDesc", { country })}
         </p>
         <div className="flex flex-wrap gap-3 justify-center">
           {hasCity && (
@@ -763,7 +679,7 @@ function EmptyCountry({
             </button>
           )}
           <a
-            href={`${ownerUrl}/register`}
+            href={`${OWNER_URL}/register`}
             className="inline-flex items-center gap-2 px-5 h-10 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
           >
             {t("cta.publish")}
@@ -775,22 +691,14 @@ function EmptyCountry({
   );
 }
 
-function FloatingStat({
-  kicker,
-  value,
-  hint,
-}: {
-  kicker: string;
-  value: string;
-  hint: string;
-}) {
+function FloatingStat({ kicker, value, hint }: { kicker: string; value: string; hint: string }) {
   return (
-    <div className="glass rounded-2xl px-5 py-5 hover-lift">
-      <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted mb-1">
+    <div className="glass rounded-2xl px-3 py-4 sm:px-5 sm:py-5 hover-lift min-w-0">
+      <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.16em] text-ink-muted mb-1 [overflow-wrap:anywhere]">
         {kicker}
       </div>
-      <div className="display-serif text-3xl text-ink leading-none">{value}</div>
-      <div className="text-[11px] text-ink-muted mt-2">{hint}</div>
+      <div className="display-serif text-2xl sm:text-3xl text-ink leading-none">{value}</div>
+      <div className="text-[10px] sm:text-[11px] text-ink-muted mt-2 [overflow-wrap:anywhere]">{hint}</div>
     </div>
   );
 }
@@ -808,58 +716,43 @@ function SkeletonCard() {
   );
 }
 
-function FeaturedSpread({
-  property,
-  isFavorite,
-  onToggleFavorite,
-}: {
-  property: Property;
-  isFavorite: boolean;
-  onToggleFavorite: () => void;
-}) {
-  const tenantUrl =
-    process.env.NEXT_PUBLIC_TENANT_URL ?? "https://tenant.hwe.dkpsolution.tech";
+function FeaturedSpread({ property }: { property: Property }) {
   const { format: fmtPrice } = useCurrency();
   return (
     <div className="grid lg:grid-cols-5 gap-8 lg:gap-12 items-stretch">
-      <div className="lg:col-span-3 relative">
+      <div className="lg:col-span-3 relative min-w-0">
         <PropertyCard
           title={property.title}
           city={property.city}
-          price={property.price}
+          price={property.displayPrice ?? property.price}
           currency={property.currency}
           surface={property.surface}
           rooms={property.rooms}
           listingType={property.listingType}
           propertyType={property.propertyType}
-          images={(property.media ?? []).map((m) => ({
-            url: m.url,
-            alt: m.alt ?? property.title,
-          }))}
-          thumbnailUrl={property.media?.[0]?.url ?? null}
-          displayPrice={fmtPrice(property.price, property.currency)}
-          href={`${tenantUrl}/properties/${property.id}`}
+          priceUnit={property.priceUnit}
+          status={property.status}
+          images={(property.media ?? []).map((m) => ({ url: m.url, alt: m.alt ?? property.title }))}
+          displayPrice={fmtPrice(property.displayPrice ?? property.price, property.currency)}
+          href={propertyHref(property.id)}
           favoritable
-          isFavorite={isFavorite}
-          onToggleFavorite={onToggleFavorite}
+          onToggleFavorite={() => goFavorite(property.id)}
           eyebrow={t("featured.eyebrow")}
         />
       </div>
-      <div className="lg:col-span-2 flex flex-col justify-center">
+      <div className="lg:col-span-2 flex flex-col justify-center min-w-0">
         <span className="eyebrow">{t("featured.eyebrow")}</span>
-        <h3 className="display-serif text-4xl sm:text-5xl mt-3 leading-[1.05]">
+        <h3 className="display-serif text-3xl sm:text-5xl mt-3 leading-[1.05] line-clamp-3 [overflow-wrap:anywhere]">
           {property.title}
         </h3>
-        <p className="text-ink-muted mt-5 leading-relaxed line-clamp-4">
-          {property.description}
-        </p>
+        <p className="text-ink-muted mt-5 leading-relaxed line-clamp-4 [overflow-wrap:anywhere]">{property.description}</p>
         <div className="mt-8 grid grid-cols-3 gap-4 text-sm">
           <Specced label={t("featured.surface")} value={`${property.surface} m²`} />
           <Specced label={t("featured.rooms")} value={property.rooms || "—"} />
           <Specced label={t("featured.city")} value={property.city} />
         </div>
         <a
-          href={`${tenantUrl}/properties/${property.id}`}
+          href={propertyHref(property.id)}
           className="mt-8 inline-flex items-center gap-2 h-11 w-fit px-6 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
         >
           {t("featured.discover")}
@@ -870,81 +763,19 @@ function FeaturedSpread({
   );
 }
 
-function Specced({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
+function Specced({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div>
-      <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted">
-        {label}
-      </div>
-      <div className="display-serif text-xl mt-1 text-ink">{value}</div>
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted">{label}</div>
+      <div className="display-serif text-xl mt-1 text-ink truncate">{value}</div>
     </div>
-  );
-}
-
-function FooterCol({
-  title,
-  links,
-}: {
-  title: string;
-  links: { label: string; href: string }[];
-}) {
-  return (
-    <div>
-      <div className="eyebrow text-cream-200/70 mb-4">{title}</div>
-      <ul className="space-y-2 text-sm">
-        {links.map((l) => (
-          <li key={l.label}>
-            <a
-              href={l.href}
-              className="text-cream-200/85 hover:text-cream-50 transition-colors"
-            >
-              {l.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function ArrowRightIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M5 12h14M12 5l7 7-7 7" />
-    </svg>
   );
 }
 
 // ─── Icônes catégories ───────────────────────────────────────────────────────
 function IconSvg({ children }: { children: React.ReactNode }) {
   return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {children}
     </svg>
   );
@@ -980,15 +811,6 @@ function IconStudio() {
     </IconSvg>
   );
 }
-function IconVilla() {
-  return (
-    <IconSvg>
-      <path d="M3 11l9-7 9 7" />
-      <path d="M5 10v9h14v-9" />
-      <rect x="9" y="13" width="6" height="6" />
-    </IconSvg>
-  );
-}
 function IconLand() {
   return (
     <IconSvg>
@@ -1003,22 +825,5 @@ function IconCity() {
       <path d="M3 22V8l5-2v16M8 22V4l5 2v16M13 22V10l5-2v14" />
       <path d="M3 22h18" />
     </IconSvg>
-  );
-}
-
-function LogoMark({ inverted = false }: { inverted?: boolean }) {
-  return (
-    <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
-      <defs>
-        <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={inverted ? "#d3f2e2" : "#0b6143"} />
-          <stop offset="100%" stopColor="#e17942" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M6 26 V12 L16 4 L26 12 V26 H20 V18 H12 V26 Z"
-        fill="url(#logo-grad)"
-      />
-    </svg>
   );
 }

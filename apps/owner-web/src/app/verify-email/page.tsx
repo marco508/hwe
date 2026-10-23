@@ -28,13 +28,13 @@ function VerifyContent() {
   }, [token, refresh]);
 
   if (state === "pending") {
-    return <p className="text-sm text-muted-foreground text-center">{t("verify.pending")}</p>;
+    return <p className="text-sm text-ink-muted text-center">{t("verify.pending")}</p>;
   }
   if (state === "ok") {
     return (
       <div className="text-center">
         <h1 className="font-display text-2xl mb-2">{t("verify.okTitle")}</h1>
-        <p className="text-sm text-muted-foreground mb-6">
+        <p className="text-sm text-ink-muted mb-6">
           {t("verify.okSub")}
         </p>
         <Link href="/dashboard">
@@ -46,7 +46,7 @@ function VerifyContent() {
   return (
     <div className="text-center">
       <h1 className="font-display text-2xl mb-2">{t("verify.errTitle")}</h1>
-      <p className="text-sm text-muted-foreground mb-6">
+      <p className="text-sm text-ink-muted mb-6">
         {t("verify.errSub")}
       </p>
       <Link href="/dashboard">
@@ -58,11 +58,11 @@ function VerifyContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-6 px-6 py-12">
+    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-4 px-4 sm:-mx-6 sm:px-6 py-12">
       <div className="max-w-md w-full">
         <Card>
           <CardBody>
-            <React.Suspense fallback={<p className="text-sm text-muted-foreground">{t("common.loading")}</p>}>
+            <React.Suspense fallback={<p className="text-sm text-ink-muted">{t("common.loading")}</p>}>
               <VerifyContent />
             </React.Suspense>
           </CardBody>

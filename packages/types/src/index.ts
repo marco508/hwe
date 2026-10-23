@@ -136,11 +136,38 @@ export interface Property {
   longitude?: number | null;
   // Relations
   ownerId: string;
-  owner?: Pick<User, "id" | "firstName" | "lastName" | "email" | "phone">;
+  /** Propriétaire public : plus d'e-mail ni de téléphone (contact = messagerie). */
+  owner?: PublicOwner;
   media: PropertyMedia[];
   pricingRates?: PricingRate[];
+  /** Unité d'affichage du prix (location) : MONTHS par défaut, sinon unité de la grille la plus courte. */
+  priceUnit?: LeaseDurationUnit | null;
+  /**
+   * Montant correspondant à `priceUnit` (tarif de la grille ou prix mensuel),
+   * à afficher suivi de « / jour », « / semaine » ou « / mois ». null pour une vente.
+   */
+  displayPrice?: number | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Propriétaire tel qu'exposé publiquement par GET /properties/:id. */
+export interface PublicOwner {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string | null;
+  /** Champs historiques : absents des réponses publiques depuis le contrat. */
+  email?: string;
+  phone?: string | null;
+}
+
+/** GET /properties/stats (public) — compteurs de la landing. */
+export interface PropertyStats {
+  total: number;
+  byCountry: Record<string, number>;
+  cities: number;
+  countries: number;
 }
 
 export type InquiryStatus = "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELLED";
@@ -215,7 +242,8 @@ export function toMonthlyRent(
 export interface Inquiry {
   id: string;
   propertyId: string;
-  property?: Pick<Property, "id" | "title" | "city" | "price" | "listingType">;
+  property?: Pick<Property, "id" | "title" | "city" | "price" | "listingType"> &
+    Partial<Pick<Property, "currency" | "status" | "ownerId">>;
   senderId: string;
   sender?: Pick<User, "id" | "firstName" | "lastName" | "email" | "phone" | "avatarUrl">;
   message: string;
@@ -231,6 +259,8 @@ export interface Inquiry {
   resolvedAt?: string | null;
   cancelledAt?: string | null;
   leaseId?: string | null;
+  /** Conversation ouverte avec la demande (lien « Discuter » → /messages?c=…). */
+  conversationId?: string | null;
   createdAt: string;
   shareDossier?: boolean;
 }
@@ -371,6 +401,12 @@ export interface LeaseContract {
   monthlyRent: number;
   charges: number;
   deposit: number;
+  /** Devise du bail (copiée du bien à la création, EUR par défaut). */
+  currency?: string | null;
+  /** Séjour courte durée (demande en jours/semaines) : une seule échéance. */
+  shortStay?: boolean | null;
+  /** Montant total du séjour courte durée. */
+  stayTotal?: number | null;
   startDate: string;
   endDate?: string | null;
   noticePeriod: number;
@@ -396,9 +432,10 @@ export interface LeaseContract {
   insurances?: InsuranceSummary[];
   createdAt: string;
   updatedAt: string;
-  property?: Pick<Property, "id" | "title" | "addressLine" | "city" | "postalCode" | "country" | "surface" | "rooms"> & {
-    owner?: Pick<User, "id" | "firstName" | "lastName" | "email" | "phone">;
-  };
+  property?: Pick<Property, "id" | "title" | "addressLine" | "city" | "postalCode" | "country" | "surface" | "rooms"> &
+    Partial<Pick<Property, "propertyType" | "currency" | "listingType">> & {
+      owner?: Pick<User, "id" | "firstName" | "lastName"> & { email?: string; phone?: string | null };
+    };
 }
 
 // ── États des lieux ──
@@ -523,3 +560,40 @@ export interface ChargeRegularization {
   note?: string | null;
   createdAt: string;
 }
+
+// ── Loyers (échéances) ──
+export type RentStatus = "DUE" | "DECLARED" | "PAID" | "LATE";
+
+/** Échéance de loyer : montants figés à la création, dans la devise du bail. */
+export interface RentPeriod {
+  id: string;
+  leaseId: string;
+  periodYear: number;
+  periodMonth: number;
+  periodLabel: string;
+  dueDate: string;
+  /** Montant dû (loyer + charges) — historique : `amount`, nouveau : `amountDue`. */
+  amount: number;
+  amountDue?: number | null;
+  rentAmount?: number | null;
+  chargesAmount?: number | null;
+  currency?: string | null;
+  status: RentStatus;
+  declaredAt: string | null;
+  declaredMethod: string | null;
+  declaredRef: string | null;
+  proofDataUrl: string | null;
+  tenantNote: string | null;
+  paidAt: string | null;
+  receiptNo: string | null;
+  rejectReason: string | null;
+}
+
+/** Corps d'erreur normalisé de l'API. */
+export interface ApiErrorBody {
+  statusCode: number;
+  message: string | string[];
+  code?: string;
+}
+
+export * from "./lease-contract";

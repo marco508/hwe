@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button, Card, CardBody, Input, Label, AnimatedBackground } from "@hwe/ui";
+import { isApiError, toast } from "@hwe/ui";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
 
@@ -16,23 +17,26 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       await api.forgotPassword(email.trim());
-    } catch {
-      // Anti-énumération : même retour quoi qu'il arrive.
-    } finally {
       setSent(true);
+    } catch (err) {
+      // Anti-énumération : même retour pour un compte inconnu ; seules les
+      // pannes temporaires (réseau, 429, 5xx) sont signalées.
+      if (isApiError(err) && err.retryable) toast.error(err);
+      else setSent(true);
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-6 px-6 py-12">
+    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-4 sm:-mx-6 px-4 sm:px-6 py-12">
       <div className="max-w-md w-full">
         <Card>
           <CardBody>
             {sent ? (
               <div className="text-center">
                 <h1 className="font-display text-2xl mb-2">{t("acc.forgot.sentTitle")}</h1>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-sm text-ink-muted mb-6">
                   {t("acc.forgot.sentText")}
                 </p>
                 <Link href="/login"><Button className="w-full">{t("acc.forgot.backToLogin")}</Button></Link>
@@ -40,7 +44,7 @@ export default function ForgotPasswordPage() {
             ) : (
               <form onSubmit={onSubmit}>
                 <h1 className="font-display text-2xl mb-1">{t("acc.forgot.title")}</h1>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-sm text-ink-muted mb-6">
                   {t("acc.forgot.sub")}
                 </p>
                 <div className="mb-4">
@@ -51,7 +55,7 @@ export default function ForgotPasswordPage() {
                   {loading ? t("acc.forgot.sending") : t("acc.forgot.submit")}
                 </Button>
                 <div className="text-center mt-4">
-                  <Link href="/login" className="text-sm text-muted-foreground hover:underline">{t("acc.forgot.backToLogin")}</Link>
+                  <Link href="/login" className="text-sm text-ink-muted hover:underline">{t("acc.forgot.backToLogin")}</Link>
                 </div>
               </form>
             )}

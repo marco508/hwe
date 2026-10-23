@@ -11,6 +11,9 @@
   }
   body {
     @apply antialiased;
+    /* Un mot très long (titre, URL, message) passe à la ligne au lieu de
+       faire défiler la page horizontalement sur mobile. */
+    overflow-wrap: break-word;
     /* Background statique (plus de fixed + radial = moins de paint coûteux) */
     background-color: theme("colors.background");
   }
@@ -80,8 +83,11 @@
 }
 
 @layer components {
-  .container-app { @apply max-w-7xl mx-auto px-6 lg:px-10; }
-  .container-tight { @apply max-w-5xl mx-auto px-6 lg:px-10; }
+  .container-app { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-10; }
+  /* Contenu saisi par les utilisateurs (titres, descriptions, messages) :
+     coupure possible n'importe où, y compris dans un élément flex/grid. */
+  .text-wrap-anywhere { overflow-wrap: anywhere; min-width: 0; }
+  .container-tight { @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-10; }
 
   /* Editorial type */
   .eyebrow {

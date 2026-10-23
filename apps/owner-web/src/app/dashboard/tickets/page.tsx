@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { Badge, Button, Input, EmptyState } from "@hwe/ui";
+import { Badge, Button, Input, EmptyState, ErrorState, SafeImage, toast, fmtDate as fmtDateShared, useAsync } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -14,9 +13,7 @@ const TONE: Record<TicketStatus, "accent" | "neutral" | "success"> = {
   RESOLVED: "success",
 };
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("fr-FR");
-}
+const fmtDate = (iso: string) => fmtDateShared(iso, "short", { utc: false });
 
 function TicketCard({
   ticket,
@@ -36,22 +33,23 @@ function TicketCard({
         status,
         resolutionNote: status === "RESOLVED" && note ? note : undefined,
       }));
+      toast.success(t("ops.tickets.updated"));
     } catch (e) {
-      alert(t("ops.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="rounded-2xl border border-ink-subtle bg-white p-6 shadow-sm space-y-3">
+    <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6 shadow-sm space-y-3 min-w-0">
       <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-3 mb-1 flex-wrap">
-            <span className="font-semibold">{ticket.title}</span>
+            <span className="font-semibold [overflow-wrap:anywhere] min-w-0">{ticket.title}</span>
             <Badge tone={TONE[ticket.status]}>{t("ops.ticketStatus." + ticket.status)}</Badge>
           </div>
-          <p className="text-sm text-ink-muted">
+          <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">
             {ticket.lease?.property?.title}
             {ticket.lease?.property?.city ? ` — ${ticket.lease.property.city}` : ""} ·{" "}
             {ticket.author
@@ -62,29 +60,31 @@ function TicketCard({
         </div>
       </div>
 
-      <p className="text-sm whitespace-pre-line">{ticket.description}</p>
+      <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere]">{ticket.description}</p>
 
       {ticket.photoDataUrl && (
         <div>
           <button
+            type="button"
+            aria-expanded={showPhoto}
             className="text-sm underline text-ink-muted"
             onClick={() => setShowPhoto((s) => !s)}
           >
             {showPhoto ? t("ops.tickets.hidePhoto") : t("ops.tickets.showPhoto")}
           </button>
           {showPhoto && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <SafeImage
               src={ticket.photoDataUrl}
               alt={t("ops.tickets.photoAlt")}
-              className="mt-2 max-h-80 rounded-xl border border-ink-subtle"
+              className="mt-2 max-h-80 max-w-full rounded-xl border border-border"
+              fallbackClassName="mt-2 h-24 w-40 rounded-xl border border-border"
             />
           )}
         </div>
       )}
 
       {ticket.status === "RESOLVED" ? (
-        <p className="text-sm text-ink-muted">
+        <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">
           {t("ops.tickets.resolvedOn")} {ticket.resolvedAt ? fmtDate(ticket.resolvedAt) : "—"}
           {ticket.resolutionNote ? ` — ${ticket.resolutionNote}` : ""}
         </p>
@@ -96,7 +96,8 @@ function TicketCard({
             </Button>
           )}
           <Input
-            className="flex-1 min-w-[12rem]"
+            className="flex-1 min-w-0 sm:min-w-[12rem]"
+            aria-label={t("ops.tickets.notePlaceholder")}
             placeholder={t("ops.tickets.notePlaceholder")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -111,26 +112,22 @@ function TicketCard({
 }
 
 export default function TicketsPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const [tickets, setTickets] = React.useState<Ticket[] | null>(null);
+  // Session/rôle : dashboard/layout.tsx. Erreur ≠ liste vide (L2).
+  const { user } = useAuth();
   const [filter, setFilter] = React.useState<TicketStatus | "ALL">("ALL");
+  const { data: tickets, setData: setTickets, error, reload } = useAsync(
+    () => api.ownerTickets(),
+    [user?.id],
+    { enabled: !!user },
+  );
 
-  React.useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [user, loading, router]);
-
-  React.useEffect(() => {
-    if (!user) return;
-    api.ownerTickets().then(setTickets).catch(() => setTickets([]));
-  }, [user]);
-
-  if (loading || tickets === null) return <p className="text-ink-muted">{t("ops.loading")}</p>;
+  if (error && !tickets) return <ErrorState error={error} title={t("ops.tickets.loadError")} onRetry={reload} />;
+  if (!tickets) return <p className="text-ink-muted">{t("ops.loading")}</p>;
 
   const shown = filter === "ALL" ? tickets : tickets.filter((t) => t.status === filter);
 
   return (
-    <section>
+    <section className="min-w-0">
       <h1 className="font-display text-3xl mb-2">{t("ops.tickets.title")}</h1>
       <p className="text-ink-muted mb-6">
         {t("ops.tickets.sub")}
@@ -140,6 +137,8 @@ export default function TicketsPage() {
         {(["ALL", "OPEN", "IN_PROGRESS", "RESOLVED"] as const).map((f) => (
           <button
             key={f}
+            type="button"
+            aria-pressed={filter === f}
             onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
               filter === f

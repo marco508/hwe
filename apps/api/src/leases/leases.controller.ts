@@ -26,17 +26,17 @@ import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, JwtPayload } from "../auth/current-user.decorator";
 
-/** Endpoints « côté locataire » : ses propres baux.
- * OWNER inclus — un propriétaire peut aussi être locataire d'un autre bien. */
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.TENANT, Role.OWNER, Role.ADMIN)
+/** Endpoints « côté locataire » : ses propres baux (tout rôle — un
+ * propriétaire peut aussi être locataire d'un autre bien). L'accès est
+ * contrôlé dans le service (e-mail vérifié, partie au bail). */
+@UseGuards(JwtAuthGuard)
 @Controller("leases")
 export class TenantLeasesController {
   constructor(private readonly leases: LeasesService) {}
 
   @Get("my")
   my(@CurrentUser() user: JwtPayload) {
-    return this.leases.findMyLeases(user.email, user.sub);
+    return this.leases.findMyLeases(user.sub);
   }
 
   /** Le locataire signe électroniquement le bail. */
@@ -45,7 +45,7 @@ export class TenantLeasesController {
     @Param("leaseId") leaseId: string,
     @CurrentUser() user: JwtPayload,
   ) {
-    return this.leases.signByTenant(leaseId, user.email, user.sub);
+    return this.leases.signByTenant(leaseId, user);
   }
 
   /** Le locataire donne son préavis (date effective ≥ préavis contractuel). */
@@ -55,7 +55,7 @@ export class TenantLeasesController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: GiveNoticeDto,
   ) {
-    return this.leases.giveNotice(leaseId, user.email, user.sub, dto);
+    return this.leases.giveNotice(leaseId, user, dto);
   }
 
   /** Avenants du bail (les deux parties). */
@@ -64,7 +64,7 @@ export class TenantLeasesController {
     return this.leases.listAmendments(leaseId, user);
   }
 
-  /** Le locataire signe un avenant — appliqué immédiatement. */
+  /** Le locataire principal signe un avenant — appliqué à sa date d'effet. */
   @Post(":leaseId/amendments/:amendmentId/sign")
   signAmendment(
     @Param("leaseId") leaseId: string,
@@ -77,7 +77,7 @@ export class TenantLeasesController {
   /** Le colocataire connecté signe sa ligne. */
   @Post(":leaseId/cotenants/sign")
   signAsCoTenant(@Param("leaseId") leaseId: string, @CurrentUser() user: JwtPayload) {
-    return this.leases.signAsCoTenant(leaseId, user.email, user.sub);
+    return this.leases.signAsCoTenant(leaseId, user.sub);
   }
 
   /** Attestations d'assurance : dépôt (locataire) et liste (les deux). */

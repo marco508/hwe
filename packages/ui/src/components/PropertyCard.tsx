@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "../utils";
 import { ImageCarousel } from "./ImageCarousel";
 import { tUi } from "./I18nKit";
+import { fmtMoney, priceUnitSuffix } from "../client/format";
 
 export interface PropertyCardProps {
   title: string;
@@ -30,21 +31,13 @@ export interface PropertyCardProps {
   favoritable?: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  /** Unité du prix de location (MONTHS par défaut) → « / mois », « / jour »… */
+  priceUnit?: string | null;
+  /** Statut du bien : un badge « Loué » / « Vendu »… s'affiche hors PUBLISHED. */
+  status?: string | null;
 }
 
-const formatPrice = (n: number, currency = "EUR") => {
-  // Try the user's currency. Some platforms refuse exotic codes (rare for ISO 4217
-  // but possible) — we fall back to a plain number + ISO code suffix.
-  try {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(n);
-  } catch {
-    return `${new Intl.NumberFormat("fr-FR").format(n)} ${currency}`;
-  }
-};
+const formatPrice = (n: number, currency = "EUR") => fmtMoney(n, currency);
 
 const PROPERTY_LABEL_KEY: Record<string, string> = {
   APARTMENT: "ui.propertyType.apartment",
@@ -75,8 +68,13 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   favoritable = false,
   isFavorite = false,
   onToggleFavorite,
+  priceUnit,
+  status,
 }) => {
-  const Wrapper: React.ElementType = href ? "a" : "div";
+  // Carte = <div> ; le lien est porté par le titre et étendu à toute la carte
+  // (pseudo-élément). Les boutons (favori, carrousel) et le pied de carte
+  // restent au-dessus : plus de <a> imbriqués ni de <button> dans un <a> (M3).
+  const showStatus = !!status && status !== "PUBLISHED";
 
   const gallery = React.useMemo(() => {
     if (images && images.length > 0) return images;
@@ -85,13 +83,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   }, [images, thumbnailUrl, title]);
 
   return (
-    <Wrapper
-      href={href}
-      className={cn(
-        "group block hover-lift",
-        className,
-      )}
-    >
+    <div className={cn("group relative block hover-lift min-w-0", className)}>
       {/* Image */}
       <div className="relative rounded-2xl overflow-hidden ring-1 ring-border/60 shadow-card">
         <ImageCarousel
@@ -115,6 +107,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           >
             {listingType === "SALE" ? tUi("ui.forSale") : tUi("ui.forRent")}
           </span>
+          {showStatus && (
+            <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-ink/85 text-cream-50 dark:bg-cream-100/95 dark:text-brand-950 backdrop-blur-md">
+              {tUi(`ui.status.${status}`)}
+            </span>
+          )}
           {eyebrow && (
             <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium bg-white/95 text-brand-950 backdrop-blur-md">
               {eyebrow}
@@ -134,7 +131,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               e.stopPropagation();
               onToggleFavorite?.();
             }}
-            className="absolute top-3 right-3 z-10 h-9 w-9 rounded-full bg-white/80 hover:bg-white backdrop-blur-md flex items-center justify-center text-ink dark:bg-black/50 dark:hover:bg-black/70 dark:text-white transition-colors"
+            className="absolute top-3 right-3 z-20 h-9 w-9 rounded-full bg-white/80 hover:bg-white backdrop-blur-md flex items-center justify-center text-ink dark:bg-black/50 dark:hover:bg-black/70 dark:text-white transition-colors"
           >
             <svg
               width="18"
@@ -177,8 +174,17 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       {/* Content */}
       <div className="pt-3 px-1">
         <div className="flex items-start justify-between gap-3 mb-0.5">
-          <h3 className="font-medium text-[15px] text-ink leading-snug line-clamp-1">
-            {title}
+          <h3 className="min-w-0 font-medium text-[15px] text-ink leading-snug line-clamp-2 [overflow-wrap:anywhere]">
+            {href ? (
+              <a
+                href={href}
+                className="text-ink hover:text-ink focus:outline-none after:absolute after:inset-0 after:z-[1] after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-brand-500"
+              >
+                {title}
+              </a>
+            ) : (
+              title
+            )}
           </h3>
           <span className="text-[11px] text-ink-muted shrink-0 mt-0.5">
             {PROPERTY_LABEL_KEY[propertyType]
@@ -186,7 +192,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               : propertyType}
           </span>
         </div>
-        <div className="flex items-center gap-1 text-[13px] text-ink-muted mb-1.5">
+        <div className="flex items-center gap-1 text-[13px] text-ink-muted mb-1.5 min-w-0">
           <svg
             width="11"
             height="11"
@@ -202,28 +208,28 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <span className="truncate">{city}</span>
+          <span className="truncate min-w-0">{city}</span>
           <span className="text-ink-subtle px-1">·</span>
-          <span>
+          <span className="shrink-0">
             {surface} m² ·{" "}
             {rooms > 1
               ? tUi("ui.rooms", { n: rooms })
               : tUi("ui.room", { n: rooms })}
           </span>
         </div>
-        <div className="flex items-baseline gap-1.5">
+        <div className="flex items-baseline gap-1.5 flex-wrap">
           <span className="display-serif text-lg text-ink">
             {displayPrice ?? formatPrice(price, currency)}
           </span>
           {listingType === "RENT" && (
-            <span className="text-xs text-ink-muted">{tUi("ui.perMonth")}</span>
+            <span className="text-xs text-ink-muted">{priceUnitSuffix(priceUnit)}</span>
           )}
         </div>
 
         {footer && (
-          <div className="mt-3 pt-3 border-t border-border/60">{footer}</div>
+          <div className="relative z-10 mt-3 pt-3 border-t border-border/60">{footer}</div>
         )}
       </div>
-    </Wrapper>
+    </div>
   );
 };

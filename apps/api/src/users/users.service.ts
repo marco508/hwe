@@ -1,18 +1,30 @@
-import { Injectable, NotFoundException, ForbiddenException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { randomBytes } from "crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { IdentityDocumentType } from "@prisma/client";
+import {
+  assertDataUrl,
+  IMAGE_MIME,
+  MAX_AVATAR_BYTES,
+} from "../common/upload.util";
+import { avatarUrlFromKey } from "../common/media.util";
 
+// avatarKey → avatarUrl (URL publique) par l'intercepteur de réponse : la
+// data-URL de l'avatar ne part plus jamais dans le JSON.
 const USER_SELECT = {
   id: true,
   email: true,
   firstName: true,
   lastName: true,
   phone: true,
-  avatarUrl: true,
+  avatarKey: true,
   role: true,
+  emailVerifiedAt: true,
   createdAt: true,
   updatedAt: true,
 };
+
+const MAX_USER_DOCUMENTS = 30;
 
 @Injectable()
 export class UsersService {
@@ -23,19 +35,47 @@ export class UsersService {
       where: { id },
       select: USER_SELECT,
     });
-    if (!user) throw new NotFoundException();
+    if (!user) throw new NotFoundException("Compte introuvable.");
     return user;
   }
 
   async update(
     id: string,
-    data: {
+    dto: {
       firstName?: string;
       lastName?: string;
       phone?: string;
-      avatarUrl?: string;
+      avatarUrl?: string | null;
     },
   ) {
+    const data: {
+      firstName?: string;
+      lastName?: string;
+      phone?: string | null;
+      avatarUrl?: string | null;
+      avatarKey?: string | null;
+    } = {};
+    if (dto.firstName !== undefined) data.firstName = dto.firstName;
+    if (dto.lastName !== undefined) data.lastName = dto.lastName;
+    if (dto.phone !== undefined) data.phone = dto.phone || null;
+
+    if (dto.avatarUrl === null || dto.avatarUrl === "") {
+      data.avatarUrl = null;
+      data.avatarKey = null;
+    } else if (dto.avatarUrl !== undefined) {
+      if (dto.avatarUrl.startsWith("data:")) {
+        assertDataUrl(dto.avatarUrl, "avatar", { allowed: IMAGE_MIME, maxBytes: MAX_AVATAR_BYTES });
+        data.avatarUrl = dto.avatarUrl;
+        // Nouvelle clé à chaque image : le cache HTTP immuable reste juste.
+        data.avatarKey = randomBytes(16).toString("hex");
+      } else {
+        // URL renvoyée telle quelle par le front : seule l'URL actuelle est admise (inchangé).
+        const current = await this.prisma.user.findUnique({ where: { id }, select: { avatarKey: true } });
+        if (!current?.avatarKey || dto.avatarUrl !== avatarUrlFromKey(current.avatarKey)) {
+          throw new BadRequestException("L'avatar doit être une image (JPEG, PNG ou WebP) envoyée comme fichier.");
+        }
+      }
+    }
     return this.prisma.user.update({
       where: { id },
       data,
@@ -58,13 +98,24 @@ export class UsersService {
       name: string;
       documentType: IdentityDocumentType;
       fileUrl: string;
-      fileSize?: number;
-      mimeType?: string;
       notes?: string;
     },
   ) {
+    const file = assertDataUrl(data.fileUrl, "document");
+    const count = await this.prisma.userDocument.count({ where: { userId } });
+    if (count >= MAX_USER_DOCUMENTS) {
+      throw new BadRequestException(`Nombre maximum de documents atteint (${MAX_USER_DOCUMENTS}) : supprimez-en un d'abord.`);
+    }
     return this.prisma.userDocument.create({
-      data: { ...data, userId },
+      data: {
+        userId,
+        name: data.name,
+        documentType: data.documentType,
+        fileUrl: data.fileUrl,
+        fileSize: file.size,
+        mimeType: file.mime,
+        notes: data.notes ?? null,
+      },
     });
   }
 
@@ -74,17 +125,21 @@ export class UsersService {
     data: { name?: string; notes?: string },
   ) {
     const doc = await this.prisma.userDocument.findUnique({ where: { id: docId } });
-    if (!doc) throw new NotFoundException();
-    if (doc.userId !== userId) throw new ForbiddenException();
-    return this.prisma.userDocument.update({ where: { id: docId }, data });
+    // 404 aussi pour le document d'autrui : on ne confirme pas son existence.
+    if (!doc || doc.userId !== userId) throw new NotFoundException("Document introuvable.");
+    return this.prisma.userDocument.update({
+      where: { id: docId },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.notes !== undefined ? { notes: data.notes } : {}),
+      },
+    });
   }
 
   async deleteDocument(userId: string, docId: string) {
     const doc = await this.prisma.userDocument.findUnique({ where: { id: docId } });
-    if (!doc) throw new NotFoundException();
-    if (doc.userId !== userId) throw new ForbiddenException();
+    if (!doc || doc.userId !== userId) throw new NotFoundException("Document introuvable.");
     await this.prisma.userDocument.delete({ where: { id: docId } });
     return { ok: true };
   }
 }
-

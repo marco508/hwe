@@ -1,23 +1,63 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { Prisma } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { jwtSecret } from "../common/jwt-secret.util";
+import { normalizeEmail } from "../common/email.util";
+
+/** Champs du compte renvoyés au front (login, register, /auth/me). */
+export const AUTH_USER_SELECT = {
+  id: true,
+  email: true,
+  firstName: true,
+  lastName: true,
+  phone: true,
+  role: true,
+  avatarKey: true,
+  emailVerifiedAt: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
+// Hash factice : un login sur un compte inexistant coûte autant qu'un vrai
+// (pas d'énumération des comptes par le temps de réponse).
+const DUMMY_HASH = bcrypt.hashSync("dummy-password-for-timing", 10);
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
     private readonly mailer: MailerService,
   ) {}
+
+  /**
+   * Recherche par e-mail normalisé. Repli insensible à la casse pour les
+   * rares comptes historiques qui n'ont pas pu être normalisés (doublons de
+   * casse laissés tels quels par la migration).
+   */
+  private async findByEmail(rawEmail: string) {
+    const email = normalizeEmail(rawEmail);
+    if (!email) return null;
+    const exact = await this.prisma.user.findUnique({ where: { email } });
+    if (exact) return exact;
+    return this.prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+      orderBy: { createdAt: "asc" },
+    });
+  }
 
   // Secret de signature du jeton de réinitialisation : LIÉ au hash du mot de
   // passe actuel → le jeton devient invalide dès que le mot de passe change
@@ -34,54 +74,76 @@ export class AuthService {
     return process.env.TENANT_WEB_URL || "https://tenant.hwe.dkpsolution.tech";
   }
 
-  // Demande de réinitialisation : anti-énumération (réponse générique toujours).
+  // Demande de réinitialisation : anti-énumération (réponse générique
+  // toujours, et l'envoi part en arrière-plan : même temps de réponse que le
+  // compte existe ou non).
   async forgotPassword(email: string): Promise<{ ok: true }> {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.findByEmail(email);
     if (user) {
       const token = await this.jwt.signAsync(
         { sub: user.id, scope: "password-reset" },
         { secret: this.resetSigningKey(user.password), expiresIn: "30m" },
       );
       const url = `${this.resetUrlBase(user.role).replace(/\/+$/, "")}/reset-password?token=${encodeURIComponent(token)}`;
-      await this.mailer.passwordReset(user.email, user.firstName, url);
+      this.mailer.passwordReset(user.email, user.firstName, url).catch(() => {});
     }
     return { ok: true };
   }
 
   // Application du nouveau mot de passe à partir du jeton reçu par e-mail.
+  // Incrémente tokenVersion : toutes les sessions ouvertes avant sont closes.
   async resetPassword(token: string, password: string): Promise<{ ok: true }> {
     if (!password || password.length < 8) {
-      throw new UnauthorizedException("Le mot de passe doit faire au moins 8 caractères.");
+      throw new BadRequestException("Le mot de passe doit faire au moins 8 caractères.");
     }
     const decoded: any = this.jwt.decode(token);
     if (!decoded || decoded.scope !== "password-reset" || typeof decoded.sub !== "string") {
-      throw new UnauthorizedException("Lien de réinitialisation invalide ou expiré.");
+      throw new BadRequestException("Lien de réinitialisation invalide ou expiré.");
     }
     const user = await this.prisma.user.findUnique({ where: { id: decoded.sub } });
-    if (!user) throw new UnauthorizedException("Lien de réinitialisation invalide ou expiré.");
+    if (!user) throw new BadRequestException("Lien de réinitialisation invalide ou expiré.");
     try {
       await this.jwt.verifyAsync(token, { secret: this.resetSigningKey(user.password) });
     } catch {
-      throw new UnauthorizedException("Ce lien a expiré ou a déjà été utilisé. Redemandez une réinitialisation.");
+      throw new BadRequestException("Ce lien a expiré ou a déjà été utilisé. Redemandez une réinitialisation.");
     }
     const hash = await bcrypt.hash(password, 10);
-    await this.prisma.user.update({ where: { id: user.id }, data: { password: hash } });
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: hash, tokenVersion: { increment: 1 } },
+    });
+    this.logger.log(`Mot de passe réinitialisé (compte ${user.id}) : sessions précédentes révoquées.`);
     return { ok: true };
   }
 
   async register(dto: RegisterDto) {
-    const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
-    if (existing) throw new ConflictException("Email déjà utilisé");
+    const email = normalizeEmail(dto.email);
+    const existing = await this.findByEmail(email);
+    if (existing) throw new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
 
     const password = await bcrypt.hash(dto.password, 10);
     // Défense en profondeur : le rôle est re-restreint ici même si le DTO
     // était contourné — l'inscription publique ne crée JAMAIS d'ADMIN.
     const role = dto.role === "OWNER" ? "OWNER" : "TENANT";
-    const user = await this.prisma.user.create({
-      data: { ...dto, role, password },
-    });
+    let user;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          password,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          phone: dto.phone || null,
+          role,
+        },
+      });
+    } catch (e) {
+      // Inscription simultanée avec la même adresse (index unique, y compris lower(email)).
+      if ((e as Prisma.PrismaClientKnownRequestError)?.code === "P2002") {
+        throw new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
+      }
+      throw e;
+    }
     // Lien de vérification d'e-mail (best-effort : l'inscription reste valide).
     this.sendVerificationEmail(user).catch(() => {});
     return this.signToken(user);
@@ -117,14 +179,14 @@ export class AuthService {
   async verifyEmail(token: string): Promise<{ ok: true }> {
     const decoded: any = this.jwt.decode(token);
     if (!decoded || decoded.scope !== "email-verify" || typeof decoded.sub !== "string") {
-      throw new UnauthorizedException("Lien de vérification invalide ou expiré.");
+      throw new BadRequestException("Lien de vérification invalide ou expiré.");
     }
     const user = await this.prisma.user.findUnique({ where: { id: decoded.sub } });
-    if (!user) throw new UnauthorizedException("Lien de vérification invalide ou expiré.");
+    if (!user) throw new BadRequestException("Lien de vérification invalide ou expiré.");
     try {
       await this.jwt.verifyAsync(token, { secret: this.verifySigningKey(user.email) });
     } catch {
-      throw new UnauthorizedException("Lien de vérification invalide ou expiré — redemandez-en un.");
+      throw new BadRequestException("Lien de vérification invalide ou expiré — redemandez-en un.");
     }
     if (!user.emailVerifiedAt) {
       await this.prisma.user.update({
@@ -135,27 +197,22 @@ export class AuthService {
     return { ok: true };
   }
 
-  /** Lève une 403 claire si l'e-mail du compte n'est pas vérifié. */
-  async assertEmailVerified(userId: string): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { emailVerifiedAt: true },
-    });
-    if (!user?.emailVerifiedAt) {
-      throw new UnauthorizedException(
-        "Vérifiez d'abord votre adresse e-mail (lien envoyé à l'inscription — bouton « Renvoyer » dans votre espace).",
-      );
-    }
+  async login(dto: LoginDto) {
+    const user = await this.findByEmail(dto.email);
+    // bcrypt exécuté dans tous les cas (temps de réponse identique).
+    const ok = await bcrypt.compare(dto.password, user?.password ?? DUMMY_HASH);
+    if (!user || !ok) throw new UnauthorizedException("Identifiants invalides");
+    return this.signToken(user);
   }
 
-  async login(dto: LoginDto) {
+  /** Profil courant (mêmes champs que la réponse de login). */
+  async me(userId: string) {
     const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { id: userId },
+      select: AUTH_USER_SELECT,
     });
-    if (!user) throw new UnauthorizedException("Identifiants invalides");
-    const ok = await bcrypt.compare(dto.password, user.password);
-    if (!ok) throw new UnauthorizedException("Identifiants invalides");
-    return this.signToken(user);
+    if (!user) throw new UnauthorizedException("Session expirée — reconnectez-vous.");
+    return user;
   }
 
   private signToken(user: {
@@ -165,6 +222,9 @@ export class AuthService {
     firstName: string;
     lastName: string;
     phone: string | null;
+    avatarKey: string | null;
+    emailVerifiedAt: Date | null;
+    tokenVersion: number;
     createdAt: Date;
     updatedAt: Date;
   }) {
@@ -172,19 +232,22 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
+      tv: user.tokenVersion,
     });
-    const { ...rest } = user;
     return {
       accessToken,
+      // avatarKey → avatarUrl (URL publique) par l'intercepteur de réponse
       user: {
-        id: rest.id,
-        email: rest.email,
-        firstName: rest.firstName,
-        lastName: rest.lastName,
-        phone: rest.phone,
-        role: rest.role,
-        createdAt: rest.createdAt,
-        updatedAt: rest.updatedAt,
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role,
+        avatarKey: user.avatarKey,
+        emailVerifiedAt: user.emailVerifiedAt,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     };
   }

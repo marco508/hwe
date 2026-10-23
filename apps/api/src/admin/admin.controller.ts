@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -13,6 +12,13 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
 import { AdminService } from "./admin.service";
+import { IsEnum } from "class-validator";
+
+class PropertyStatusDto {
+  @IsEnum(PropertyStatus) status!: PropertyStatus;
+}
+
+const clip = (q?: string) => (typeof q === "string" && q.trim() ? q.trim().slice(0, 100) : undefined);
 
 /** Interface d'administration : statistiques, comptes, modération d'annonces.
  * Aucun endpoint public ne crée d'ADMIN — le premier compte se crée en base. */
@@ -31,7 +37,7 @@ export class AdminController {
   users(@Query("q") q?: string, @Query("role") role?: string) {
     const parsedRole =
       role && Object.values(Role).includes(role as Role) ? (role as Role) : undefined;
-    return this.admin.users(q, parsedRole);
+    return this.admin.users(clip(q), parsedRole);
   }
 
   @Get("properties")
@@ -40,7 +46,7 @@ export class AdminController {
       status && Object.values(PropertyStatus).includes(status as PropertyStatus)
         ? (status as PropertyStatus)
         : undefined;
-    return this.admin.properties(q, parsed);
+    return this.admin.properties(clip(q), parsed);
   }
 
   @Patch("users/:id/verify-email")
@@ -49,10 +55,7 @@ export class AdminController {
   }
 
   @Patch("properties/:id/status")
-  setPropertyStatus(@Param("id") id: string, @Body("status") status: string) {
-    if (!Object.values(PropertyStatus).includes(status as PropertyStatus)) {
-      throw new BadRequestException("Statut d'annonce invalide");
-    }
-    return this.admin.setPropertyStatus(id, status as PropertyStatus);
+  setPropertyStatus(@Param("id") id: string, @Body() dto: PropertyStatusDto) {
+    return this.admin.setPropertyStatus(id, dto.status);
   }
 }

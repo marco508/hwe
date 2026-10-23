@@ -40,7 +40,13 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 }) => {
   const [index, setIndex] = React.useState(0);
   const [paused, setPaused] = React.useState(false);
+  // URLs en échec de chargement → repli visuel au lieu de l'icône cassée.
+  const [broken, setBroken] = React.useState<Record<string, true>>({});
   const total = images.length;
+
+  React.useEffect(() => {
+    if (index >= total) setIndex(0);
+  }, [index, total]);
 
   const next = React.useCallback(
     () => setIndex((i) => (i + 1) % Math.max(total, 1)),
@@ -112,18 +118,31 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
         className="absolute inset-0 flex transition-transform duration-700 ease-out"
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
-        {images.map((img, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={i}
-            src={img.url}
-            alt={img.alt ?? ""}
-            loading={i === 0 ? "eager" : "lazy"}
-            decoding="async"
-            className="w-full h-full shrink-0 object-cover"
-            draggable={false}
-          />
-        ))}
+        {images.map((img, i) =>
+          broken[img.url] || !img.url ? (
+            <div
+              key={i}
+              role="img"
+              aria-label={img.alt || tUi("ui.imageUnavailable")}
+              className="w-full h-full shrink-0 bg-gradient-to-br from-brand-100 to-brand-200 dark:from-brand-900/40 dark:to-brand-800/40 flex flex-col items-center justify-center gap-1 text-brand-700 dark:text-brand-300"
+            >
+              <span className="font-display text-2xl">{fallback ?? "hwe"}</span>
+              <span className="text-[11px] opacity-80">{tUi("ui.imageUnavailable")}</span>
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={i}
+              src={img.url}
+              alt={img.alt ?? ""}
+              loading={i === 0 ? "eager" : "lazy"}
+              decoding="async"
+              className="w-full h-full shrink-0 object-cover"
+              draggable={false}
+              onError={() => setBroken((b) => ({ ...b, [img.url]: true }))}
+            />
+          ),
+        )}
       </div>
 
       {/* Subtle gradient at the bottom for legibility */}
@@ -147,7 +166,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               e.stopPropagation();
               prev();
             }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
+            className="absolute z-20 left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="15 18 9 12 15 6" />
@@ -161,7 +180,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               e.stopPropagation();
               next();
             }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
+            className="absolute z-20 right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="9 18 15 12 9 6" />
@@ -172,7 +191,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
       {/* Dots */}
       {showDots && total > 1 && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+        <div className="absolute z-20 bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
           {images.map((_, i) => (
             <button
               key={i}

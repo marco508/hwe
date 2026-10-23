@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { tUi } from "./I18nKit";
+import { toast } from "./Toast";
 
 export interface MessageComposerProps {
   onSend: (content: string) => void | Promise<void>;
@@ -37,6 +38,9 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
     try {
       await onSend(trimmed);
       setValue("");
+    } catch (e) {
+      // Le message n'est pas parti : on garde le texte et on le dit (L3).
+      toast.error(e);
     } finally {
       setSending(false);
     }
@@ -65,9 +69,11 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
           }
         }}
         placeholder={placeholder}
+        aria-label={placeholder}
+        maxLength={4000}
         rows={1}
         disabled={disabled || sending}
-        className="flex-1 resize-none bg-transparent text-sm text-ink placeholder:text-ink-subtle outline-none px-2 py-1.5 leading-relaxed max-h-[180px]"
+        className="flex-1 min-w-0 resize-none bg-transparent text-sm text-ink placeholder:text-ink-subtle outline-none px-2 py-1.5 leading-relaxed max-h-[180px]"
       />
       <button
         type="submit"

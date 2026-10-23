@@ -2,7 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  otherParty,
+  partnerName,
   Navbar,
   Button,
   ThemeToggle,
@@ -16,7 +19,11 @@ import { EmailVerifyBanner } from "./EmailVerifyBanner";
 import { t, LangSwitch } from "../lib/i18n";
 
 export function AppNavbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+  // La page messages sonde déjà la liste : la navbar ne double pas l'appel (P1).
+  const onMessagesPage = pathname?.startsWith("/dashboard/messages") ?? false;
   const [unread, setUnread] = React.useState(0);
   const [preview, setPreview] = React.useState<BellPreviewItem[]>([]);
 
@@ -30,20 +37,18 @@ export function AppNavbar() {
       setUnread(count);
       setPreview(
         list.slice(0, 5).map((c) => {
-          const partner = c.otherUser;
+          // F19 : interlocuteur = l'autre partie, que je sois propriétaire ou non.
+          const partner = otherParty(c, user.id);
           const last = c.messages?.[0];
           return {
             id: c.id,
-            partnerName:
-              `${partner?.firstName ?? ""} ${partner?.lastName ?? ""}`.trim() ||
-              partner?.email ||
-              "Anonyme",
+            partnerName: partnerName(partner, t("nav.anonymous")),
             initials:
               partner?.firstName && partner?.lastName
                 ? `${partner.firstName[0]}${partner.lastName[0]}`.toUpperCase()
                 : "?",
             avatarUrl: partner?.avatarUrl ?? null,
-            preview: last?.content ?? "(aucun message)",
+            preview: last?.content ?? t("nav.noMessage"),
             timestamp: c.lastMessageAt,
             unread: (c._count?.messages ?? 0) > 0,
             href: `/dashboard/messages?c=${c.id}`,
@@ -56,17 +61,37 @@ export function AppNavbar() {
   }, [user]);
 
   React.useEffect(() => {
-    if (!user) return;
+    if (!user || onMessagesPage) return;
     refresh();
-    const id = setInterval(refresh, 15000);
-    return () => clearInterval(id);
-  }, [user, refresh]);
+    // Sondage suspendu quand l'onglet est masqué (P1).
+    const tick = () => {
+      if (document.visibilityState === "visible") void refresh();
+    };
+    const id = setInterval(tick, 15000);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [user, refresh, onMessagesPage]);
+
+  const onLogout = () => {
+    logout();
+    router.push("/");
+  };
 
   return (
     <>
     <Navbar
       brand={<Link href="/">hwe</Link>}
-      audienceLabel="Espace propriétaire"
+      audienceLabel={t("nav.audience")}
+      collapseBelow="lg"
+      mobileExtra={
+        <>
+          <LangSwitch />
+          <CurrencySwitch />
+        </>
+      }
       right={
         <>
           {user && (
@@ -77,47 +102,53 @@ export function AppNavbar() {
               onOpen={refresh}
             />
           )}
-          <LangSwitch className="hidden sm:inline-flex" />
-          <CurrencySwitch className="hidden md:inline-flex" />
+          <LangSwitch className="hidden lg:inline-flex" />
+          <CurrencySwitch className="hidden lg:inline-flex" />
           <ThemeToggle />
           {user ? (
             <>
-              <span className="text-sm text-ink-muted hidden sm:inline">
+              <span className="text-sm text-ink-muted hidden xl:inline max-w-[8rem] truncate">
                 {user.firstName}
               </span>
-              <Button variant="ghost" size="sm" onClick={logout}>
+              <Button variant="ghost" size="sm" onClick={onLogout} aria-label={t("nav.logout")}>
                 <span className="hidden sm:inline">{t("nav.logout")}</span>
-                <span className="sm:hidden">⏻</span>
+                <span className="sm:hidden" aria-hidden="true">⏻</span>
               </Button>
             </>
-          ) : (
+          ) : loading ? null : (
             <>
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  {t("nav.login")}
-                </Button>
+              {/* Liens stylés en bouton (pas de <button> dans un <a>). */}
+              <Link
+                href="/login"
+                className="inline-flex items-center h-8 px-3 rounded-md text-sm font-medium text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40"
+              >
+                {t("nav.login")}
               </Link>
-              <Link href="/register">
-                <Button size="sm">{t("nav.signup")}</Button>
+              <Link
+                href="/register"
+                className="hidden sm:inline-flex items-center h-8 px-3 rounded-md text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white dark:bg-brand-500"
+              >
+                {t("nav.signup")}
               </Link>
             </>
           )}
         </>
       }
     >
-      <Link href="/" className="hidden md:inline">{t("nav.market")}</Link>
-      {user && <Link href="/dashboard" className="hidden md:inline">{t("nav.myProperties")}</Link>}
-      {user && <Link href="/dashboard/loyers" className="hidden md:inline">{t("nav.rents")}</Link>}
+      <Link href="/" className="hidden lg:inline">{t("nav.market")}</Link>
+      {user && <Link href="/dashboard" className="hidden lg:inline">{t("nav.myProperties")}</Link>}
+      {user && <Link href="/dashboard/loyers" className="hidden lg:inline">{t("nav.rents")}</Link>}
       {user && (
-        <Link href="/dashboard/inquiries" className="hidden md:inline">
+        <Link href="/dashboard/inquiries" className="hidden lg:inline">
           {t("nav.requests")}
         </Link>
       )}
-      {user && <Link href="/dashboard/visites" className="hidden md:inline">{t("nav.visits")}</Link>}
-      {user && <Link href="/dashboard/messages" className="hidden md:inline">{t("nav.messages")}</Link>}
-      {user && <Link href="/dashboard/tickets" className="hidden md:inline">{t("nav.incidents")}</Link>}
-      {user?.role === "ADMIN" && <Link href="/dashboard/admin" className="hidden md:inline">{t("nav.admin")}</Link>}
-      {user && <Link href="/profile" className="hidden md:inline">{t("nav.profile")}</Link>}
+      {user && <Link href="/dashboard/visites" className="hidden lg:inline">{t("nav.visits")}</Link>}
+      {user && <Link href="/dashboard/messages" className="hidden lg:inline">{t("nav.messages")}</Link>}
+      {user && <Link href="/dashboard/tickets" className="hidden lg:inline">{t("nav.incidents")}</Link>}
+      {user?.role === "ADMIN" && <Link href="/dashboard/admin" className="hidden lg:inline">{t("nav.admin")}</Link>}
+      {!user && !loading && <Link href="/register" className="lg:hidden">{t("nav.signup")}</Link>}
+      {user && <Link href="/profile" className="hidden lg:inline">{t("nav.profile")}</Link>}
     </Navbar>
     <EmailVerifyBanner />
     </>

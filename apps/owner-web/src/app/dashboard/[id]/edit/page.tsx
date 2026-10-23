@@ -6,31 +6,57 @@ import Link from "next/link";
 import { api } from "../../../../lib/api";
 import { useAuth } from "../../../../lib/auth-context";
 import { t } from "../../../../lib/i18n";
-import { PropertyForm, PropertyFormValue } from "../../../../components/PropertyForm";
-import { AnimatedBackground, Button } from "@hwe/ui";
+import { PropertyForm, PropertyFormValue, toPropertyBody } from "../../../../components/PropertyForm";
+import { tUi, AnimatedBackground, ErrorState, isNotFound, toast, EmptyState } from "@hwe/ui";
 import type { Property, PricingRate, LeaseDurationUnit } from "@hwe/types";
+
+// Lien stylé en bouton (pas de <button> dans un <a>).
+const secondaryLink =
+  "inline-flex items-center h-8 px-3 rounded-md text-sm font-medium bg-surface text-ink border border-border hover:border-ink/30";
 
 export default function EditPropertyPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [property, setProperty] = React.useState<Property | null>(null);
   const [rates, setRates] = React.useState<PricingRate[]>([]);
   const [ratesLoaded, setRatesLoaded] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
+  const [loadError, setLoadError] = React.useState<unknown>(null);
+  const [tick, setTick] = React.useState(0);
 
   React.useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [user, loading, router]);
+    if (!params?.id || !user) return;
+    let cancelled = false;
+    setLoadError(null);
+    Promise.all([api.getProperty(params.id), api.getPricingRates(params.id)])
+      .then(([p, r]) => {
+        if (cancelled) return;
+        setProperty(p);
+        setRates(r as unknown as PricingRate[]);
+        setRatesLoaded(true);
+      })
+      .catch((e) => {
+        if (!cancelled) setLoadError(e);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [params?.id, user, tick]);
 
-  React.useEffect(() => {
-    if (!params?.id) return;
-    api.getProperty(params.id).then(setProperty);
-    api.getPricingRates(params.id).then((r) => {
-      setRates(r as unknown as PricingRate[]);
-      setRatesLoaded(true);
-    });
-  }, [params?.id]);
+  if (loadError) {
+    return isNotFound(loadError) ? (
+      <EmptyState title={t("pf.notFound")} />
+    ) : (
+      <ErrorState error={loadError} title={t("pf.loadError")} onRetry={() => setTick((n) => n + 1)} />
+    );
+  }
+
+  // Un bien d'un autre propriétaire (publié) reste lisible publiquement :
+  // on n'ouvre l'édition qu'à son propriétaire.
+  if (property && user && property.ownerId !== user.id && user.role !== "ADMIN") {
+    return <EmptyState title={t("pf.notFound")} />;
+  }
 
   if (!property || !ratesLoaded) {
     return (
@@ -49,31 +75,26 @@ export default function EditPropertyPage() {
         (r) => r.amount !== "" && Number(r.amount) > 0,
       );
 
-      let finalPrice = rest.price;
-      if (rest.listingType === "RENT" && validRates.length > 0 && !rest.price) {
-        const monthly = validRates.find((r) => r.unit === "MONTHS");
-        const fallback = validRates[0];
-        finalPrice = monthly
-          ? Number(monthly.amount)
-          : fallback
-          ? Number(fallback.amount)
-          : rest.price;
-      }
-
+      // F10 : prix facultatif quand la grille est remplie (0 = « voir grille »).
+      // Les photos existantes sont renvoyées par leur URL https (contrat §6).
       await api.updateProperty(property.id, {
-        ...rest,
-        price: finalPrice,
+        ...toPropertyBody(rest),
+        price: Number(rest.price) > 0 ? Number(rest.price) : 0,
         media: mediaUrls.map((url, i) => ({ url, position: i })),
-      } as any);
+      });
 
+      // Grille vidée en vente (aucun tarif) : on envoie une liste vide.
       await api.upsertPricingRates(
         property.id,
-        validRates.map((r) => ({ unit: r.unit, amount: Number(r.amount) })),
+        rest.listingType === "RENT"
+          ? validRates.map((r) => ({ unit: r.unit, amount: Number(r.amount) }))
+          : [],
       );
 
+      toast.success(t("pf.saved"));
       router.push("/dashboard");
     } catch (e) {
-      alert(t("pf.errPrefix") + (e as Error).message);
+      toast.error(e);
       setSubmitting(false);
     }
   };
@@ -91,7 +112,7 @@ export default function EditPropertyPage() {
     <section>
       <AnimatedBackground
         variant="blobs"
-        className="rounded-2xl border border-border/60 px-8 py-8 mb-8"
+        className="rounded-2xl border border-border/60 px-5 sm:px-8 py-8 mb-8"
       >
         <Link
           href="/dashboard"
@@ -103,26 +124,33 @@ export default function EditPropertyPage() {
           {t("pf.back")}
         </Link>
         <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
-          {property.status === "PUBLISHED" ? t("pf.edit.published") : t("pf.edit.draft")}
+          {property.status === "PUBLISHED"
+            ? t("pf.edit.published")
+            : property.status === "DRAFT"
+              ? t("pf.edit.draft")
+              : tUi(`ui.status.${property.status}`)}
         </span>
-        <h1 className="font-display text-4xl mb-2">
+        <h1 className="font-display text-3xl sm:text-4xl mb-2 [overflow-wrap:anywhere]">
           {t("pf.edit.title")} <span className="gradient-text">{property.title}</span>
         </h1>
-        <p className="text-ink-muted">
+        <p className="text-ink-muted [overflow-wrap:anywhere]">
           {property.city}, {property.country} · {property.surface} m² · {property.rooms} {property.rooms > 1 ? t("pf.edit.roomsPlural") : t("pf.edit.room")}
         </p>
 
         <div className="flex flex-wrap gap-2 mt-5">
-          <Link href={`/dashboard/${property.id}/documents`}>
-            <Button variant="secondary" size="sm">{t("pf.edit.docs")}</Button>
+          <Link href={`/dashboard/${property.id}/documents`} className={secondaryLink}>
+            {t("pf.edit.docs")}
           </Link>
           {property.listingType === "RENT" && (
-            <Link href={`/dashboard/${property.id}/lease`}>
-              <Button variant="secondary" size="sm">{t("pf.edit.leases")}</Button>
+            <Link href={`/dashboard/${property.id}/lease`} className={secondaryLink}>
+              {t("pf.edit.leases")}
             </Link>
           )}
-          <Link href={`/properties/${property.id}`}>
-            <Button variant="ghost" size="sm">{t("pf.edit.preview")}</Button>
+          <Link
+            href={`/properties/${property.id}`}
+            className="inline-flex items-center h-8 px-3 rounded-md text-sm font-medium text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40"
+          >
+            {t("pf.edit.preview")}
           </Link>
         </div>
       </AnimatedBackground>

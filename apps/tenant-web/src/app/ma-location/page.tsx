@@ -3,27 +3,31 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Badge, Card, CardBody, CardHeader, EmptyState } from "@hwe/ui";
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  EmptyState,
+  ErrorState,
+  downloadText,
+  fmtDate,
+  fmtMoney,
+  toast,
+  useAsync,
+  useLoginRedirect,
+} from "@hwe/ui";
+import { generateLeaseContract, leaseCurrency } from "@hwe/types";
 import { useAuth } from "../../lib/auth-context";
-import { useCurrency } from "../../lib/currency-context";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
+import { payDayText } from "../../lib/rent-format";
 import { LeaseTenantExtras } from "../../components/LeaseTenantExtras";
 import type { LeaseContract, LeaseStatus } from "@hwe/types";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 
-function fmt(date: string) {
-  return new Date(date).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-function fmtCurrency(amount: number, currency = "EUR") {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(amount);
-}
+const fmt = (date: string) => fmtDate(date);
 
 /** Décompose un nombre de secondes en jours / heures / minutes / secondes */
 function decompose(totalSeconds: number) {
@@ -39,10 +43,11 @@ function decompose(totalSeconds: number) {
 function progress(startDate: string, endDate: string) {
   const start = new Date(startDate).getTime();
   const end = new Date(endDate).getTime();
-  const now = Date.now();
-  return Math.min(100, Math.max(0, ((now - start) / (end - start)) * 100));
+  if (!(end > start)) return 100;
+  return Math.min(100, Math.max(0, ((Date.now() - start) / (end - start)) * 100));
 }
 
+// Contrat §9 : SIGNED (début futur) et ACTIVE sont tous deux « signé / en cours ».
 const STATUS_TONE: Record<LeaseStatus, "neutral" | "success" | "brand" | "accent"> = {
   DRAFT: "neutral",
   SIGNED: "brand",
@@ -55,23 +60,19 @@ const STATUS_TONE: Record<LeaseStatus, "neutral" | "success" | "brand" | "accent
 
 function Countdown({ targetDate }: { targetDate: string }) {
   const end = React.useMemo(() => new Date(targetDate).getTime(), [targetDate]);
-
-  const getRemaining = React.useCallback(
-    () => (end - Date.now()) / 1000,
-    [end],
-  );
-
-  const [remaining, setRemaining] = React.useState(getRemaining);
+  // Valeur initiale identique serveur/client (0) puis mise à jour au montage.
+  const [remaining, setRemaining] = React.useState<number | null>(null);
 
   React.useEffect(() => {
-    const id = setInterval(() => setRemaining(getRemaining()), 1000);
+    const tick = () => setRemaining((end - Date.now()) / 1000);
+    tick();
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [getRemaining]);
+  }, [end]);
 
-  const expired = remaining <= 0;
-  const { days, hours, minutes, seconds } = decompose(remaining);
+  if (remaining === null) return null;
 
-  if (expired) {
+  if (remaining <= 0) {
     return (
       <div className="rounded-lg bg-ink-subtle/10 dark:bg-ink-subtle/20 border border-border px-4 py-3 text-sm text-ink-muted text-center">
         {t("rental.countdown.finished")}
@@ -79,15 +80,8 @@ function Countdown({ targetDate }: { targetDate: string }) {
     );
   }
 
-  const pct = progress(
-    new Date(end - remaining * 1000 - days * 86400000).toISOString(),
-    targetDate,
-  );
-  // Recalculate progress properly using the stored startDate passed from parent
-  // (we'll do it via a wrapper below)
-
+  const { days, hours, minutes, seconds } = decompose(remaining);
   const pad = (n: number) => String(n).padStart(2, "0");
-
   const units = [
     { label: t("rental.countdown.days"), value: days },
     { label: t("rental.countdown.hours"), value: hours },
@@ -100,16 +94,16 @@ function Countdown({ targetDate }: { targetDate: string }) {
       <p className="text-xs font-medium text-ink-muted uppercase tracking-wide">
         {t("rental.countdown.remaining")}
       </p>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
         {units.map(({ label, value }) => (
           <div
             key={label}
-            className="flex flex-col items-center gap-1 rounded-lg bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-800 py-3"
+            className="flex flex-col items-center gap-1 rounded-lg bg-brand-50 dark:bg-brand-900/30 border border-brand-100 dark:border-brand-800 py-3 min-w-0"
           >
-            <span className="font-display text-2xl font-semibold text-brand-700 dark:text-brand-300 tabular-nums">
+            <span className="font-display text-xl sm:text-2xl font-semibold text-brand-700 dark:text-brand-300 tabular-nums">
               {pad(value)}
             </span>
-            <span className="text-[10px] text-ink-muted uppercase tracking-wider">
+            <span className="text-[10px] text-ink-muted uppercase tracking-wider truncate max-w-full px-1">
               {label}
             </span>
           </div>
@@ -120,29 +114,28 @@ function Countdown({ targetDate }: { targetDate: string }) {
 }
 
 /** Wrapper qui calcule le % de progression et l'affiche */
-function LeaseProgress({
-  startDate,
-  endDate,
-}: {
-  startDate: string;
-  endDate: string;
-}) {
-  const [pct, setPct] = React.useState(() => progress(startDate, endDate));
+function LeaseProgress({ startDate, endDate }: { startDate: string; endDate: string }) {
+  const [pct, setPct] = React.useState<number | null>(null);
   React.useEffect(() => {
-    const id = setInterval(() => setPct(progress(startDate, endDate)), 1000);
+    const tick = () => setPct(progress(startDate, endDate));
+    tick();
+    const id = setInterval(tick, 60_000);
     return () => clearInterval(id);
   }, [startDate, endDate]);
 
-  const totalDays = Math.round(
-    (new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000,
+  if (pct === null) return null;
+  const totalDays = Math.max(
+    1,
+    Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000),
   );
-  const elapsedDays = Math.round(
-    (Date.now() - new Date(startDate).getTime()) / 86400000,
+  const elapsedDays = Math.min(
+    totalDays,
+    Math.max(0, Math.round((Date.now() - new Date(startDate).getTime()) / 86400000)),
   );
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-xs text-ink-muted">
+      <div className="flex justify-between gap-2 text-xs text-ink-muted flex-wrap">
         <span>{fmt(startDate)}</span>
         <span>{t("rental.progress.elapsedPct", { pct: Math.round(pct) })}</span>
         <span>{fmt(endDate)}</span>
@@ -154,100 +147,16 @@ function LeaseProgress({
         />
       </div>
       <p className="text-xs text-ink-muted text-center">
+        {/* U4 : « écoulé » s'accorde avec le nombre de jours écoulés. */}
         {t("rental.progress.days", {
-          elapsed: Math.max(0, elapsedDays),
-          sElapsed: elapsedDays !== 1 ? "s" : "",
+          elapsed: elapsedDays,
+          sElapsed: elapsedDays > 1 ? "s" : "",
           total: totalDays,
-          sTotal: totalDays !== 1 ? "s" : "",
+          sTotal: totalDays > 1 ? "s" : "",
         })}
       </p>
     </div>
   );
-}
-
-// ── Contract text generator (tenant copy) ────────────────────────────────────
-
-// Document légal français — non traduit volontairement.
-function generateContractText(lease: LeaseContract): string {
-  const ownerName = lease.property?.owner
-    ? `${lease.property.owner.firstName} ${lease.property.owner.lastName}`
-    : "Le propriétaire";
-  const property = lease.property;
-  const address = property
-    ? `${property.addressLine}, ${property.postalCode} ${property.city}, ${property.country}`
-    : "";
-  const tenantName = `${lease.tenantFirstName} ${lease.tenantLastName}`;
-  const startDateFmt = fmt(lease.startDate);
-  const endDateFmt = lease.endDate ? fmt(lease.endDate) : "indéterminée";
-  const rentTotal = lease.monthlyRent + lease.charges;
-  const leaseDuration = lease.endDate ? "durée déterminée" : "durée indéterminée";
-  const noticeTxt = `${lease.noticePeriod} mois`;
-  const paymentDaySuffix = lease.rentPaymentDay === 1 ? "er" : "";
-
-  return `CONTRAT DE BAIL D'HABITATION
-${lease.furnished ? "MEUBLÉ" : "NON MEUBLÉ"}
-
-Établi conformément à la loi n° 89-462 du 6 juillet 1989 modifiée
-et à la loi n° 2014-366 du 24 mars 2014 (loi ALUR).
-
-═══════════════════════════════════════════════════════════════
-ARTICLE 1 — LES PARTIES
-═══════════════════════════════════════════════════════════════
-
-BAILLEUR (Propriétaire)
-Nom : ${ownerName}
-${lease.property?.owner?.email ? `Email : ${lease.property.owner.email}` : ""}
-
-PRENEUR (Locataire)
-Nom : ${tenantName}
-Email : ${lease.tenantEmail}
-${lease.tenantPhone ? `Téléphone : ${lease.tenantPhone}` : ""}
-
-═══════════════════════════════════════════════════════════════
-ARTICLE 2 — DÉSIGNATION DU BIEN
-═══════════════════════════════════════════════════════════════
-
-Le présent bail porte sur le logement situé à l'adresse suivante :
-${address}
-
-Surface habitable : ${property?.surface ?? "—"} m²
-Nombre de pièces principales : ${property?.rooms ?? "—"}
-Logement ${lease.furnished ? "meublé" : "non meublé"}
-
-═══════════════════════════════════════════════════════════════
-ARTICLE 3 — DURÉE DU BAIL
-═══════════════════════════════════════════════════════════════
-
-Le présent bail est conclu pour une ${leaseDuration}.
-Date de prise d'effet : ${startDateFmt}
-${lease.endDate ? `Date de fin : ${endDateFmt}` : ""}
-
-Préavis : ${noticeTxt} (conformément à la législation en vigueur).
-
-═══════════════════════════════════════════════════════════════
-ARTICLE 4 — CONDITIONS FINANCIÈRES
-═══════════════════════════════════════════════════════════════
-
-Loyer mensuel hors charges : ${fmtCurrency(lease.monthlyRent)}
-Charges mensuelles : ${fmtCurrency(lease.charges)}
-─────────────────────────────────────────────────
-Total mensuel : ${fmtCurrency(rentTotal)}
-
-Le loyer est payable le ${lease.rentPaymentDay}${paymentDaySuffix} de chaque mois.
-
-Dépôt de garantie : ${fmtCurrency(lease.deposit)}
-
-${lease.specialClauses ? `═══════════════════════════════════════════════════════════════\nCLAUSES PARTICULIÈRES\n═══════════════════════════════════════════════════════════════\n\n${lease.specialClauses}` : ""}
-
-═══════════════════════════════════════════════════════════════
-SIGNATURES
-═══════════════════════════════════════════════════════════════
-
-Le Bailleur                              Le Locataire
-${ownerName}                             ${tenantName}
-
-${lease.ownerSignedAt ? `✅ Signé électroniquement le ${fmt(lease.ownerSignedAt)}` : "En attente de signature du propriétaire"}    ${lease.tenantSignedAt ? `✅ Signé électroniquement le ${fmt(lease.tenantSignedAt)}` : "En attente de signature du locataire"}
-`;
 }
 
 // ── Lease card ───────────────────────────────────────────────────────────────
@@ -259,23 +168,33 @@ function LeaseCard({
   lease: LeaseContract;
   onUpdate: (updated: LeaseContract) => void;
 }) {
-  const { format: fmtCurrencyUser } = useCurrency();
+  // F2 : montants toujours dans la devise du bail (jamais d'EUR implicite).
+  const currency = leaseCurrency(lease);
+  const money = (n: number) => fmtMoney(n, currency);
   const property = lease.property;
+  const shortStay = Boolean(lease.shortStay);
   const hasTimer = !!lease.endDate;
   const isActive = lease.status === "ACTIVE" || lease.status === "SIGNED";
   const [showContract, setShowContract] = React.useState(false);
   const [signing, setSigning] = React.useState(false);
 
+  const { user } = useAuth();
+  // Principal = e-mail du bail ; sinon colocataire (signe via /cotenants/sign).
+  const isPrimary =
+    !!user && lease.tenantEmail.trim().toLowerCase() === user.email.trim().toLowerCase();
   const hasTenantSigned = !!lease.tenantSignedAt;
+  // F7 : même générateur que l'espace propriétaire (signatures, devise, séjour).
+  const contractText = React.useMemo(() => generateLeaseContract({ lease }), [lease]);
 
   const handleSign = async () => {
     if (!confirm(t("rental.sign.confirm"))) return;
     setSigning(true);
     try {
       const updated = await api.signLease(lease.id);
-      onUpdate(updated);
+      onUpdate({ ...lease, ...updated });
+      toast.success(t("fix.lease.signed"));
     } catch (e) {
-      alert(t("rental.sign.error", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setSigning(false);
     }
@@ -286,11 +205,11 @@ function LeaseCard({
       {/* Header */}
       <CardHeader>
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h2 className="font-display text-xl font-semibold text-ink">
+          <div className="min-w-0">
+            <h2 className="font-display text-xl font-semibold text-ink [overflow-wrap:anywhere]">
               {property?.title ?? t("rental.lease.propertyFallback")}
             </h2>
-            <p className="text-sm text-ink-muted mt-0.5">
+            <p className="text-sm text-ink-muted mt-0.5 [overflow-wrap:anywhere]">
               {property?.addressLine}, {property?.postalCode} {property?.city},{" "}
               {property?.country}
             </p>
@@ -318,35 +237,36 @@ function LeaseCard({
             </h3>
             <div className="flex gap-2 flex-wrap">
               <button
+                type="button"
+                aria-expanded={showContract}
                 onClick={() => setShowContract((v) => !v)}
                 className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
               >
                 {showContract ? t("rental.contract.hide") : t("rental.contract.read")}
               </button>
-              {lease.pdfUrl && (
-                <a
-                  href={lease.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
-                >
-                  {t("rental.contract.pdf")}
-                </a>
-              )}
+              {/* S3 : plus de lien `pdfUrl` (non contrôlé) ; le contrat est généré
+                  localement par le générateur partagé, identique côté propriétaire. */}
+              <button
+                type="button"
+                onClick={() => downloadText(contractText, `contrat-bail-${lease.id.slice(0, 8)}.txt`)}
+                className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
+              >
+                {t("fix.lease.download")}
+              </button>
             </div>
           </div>
 
           {showContract && (
-            <div className="rounded-xl border border-ink-subtle bg-white dark:bg-ink/5 p-6 shadow-sm max-h-96 overflow-y-auto">
-              <pre className="text-xs font-mono whitespace-pre-wrap text-ink leading-relaxed">
-                {generateContractText(lease)}
+            <div className="rounded-xl border border-ink-subtle bg-surface dark:bg-ink/5 p-3 sm:p-6 shadow-sm max-h-96 overflow-y-auto">
+              <pre className="text-xs font-mono whitespace-pre-wrap text-ink leading-relaxed [overflow-wrap:anywhere]">
+                {contractText}
               </pre>
             </div>
           )}
 
           {/* Statut de signature */}
           <div className="flex flex-wrap gap-4 text-sm">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 min-w-0">
               <span>{lease.ownerSignedAt ? "✅" : "⏳"}</span>
               <span className="text-ink-muted">
                 {t("rental.sign.owner")}{" "}
@@ -367,8 +287,9 @@ function LeaseCard({
           </div>
 
           {/* Bouton de signature — disparaît après signature */}
-          {!hasTenantSigned && (
+          {!hasTenantSigned && isPrimary && (
             <button
+              type="button"
               onClick={handleSign}
               disabled={signing}
               className="inline-flex items-center gap-2 rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-semibold px-5 py-2.5 transition-colors"
@@ -410,6 +331,15 @@ function LeaseCard({
           <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-3">
             {t("rental.section.period")}
           </h3>
+          {shortStay && (
+            <p className="mb-3 text-sm font-medium text-ink">
+              {t("fix.lease.stay", {
+                start: fmt(lease.startDate),
+                end: lease.endDate ? fmt(lease.endDate) : "—",
+                total: money(lease.stayTotal ?? lease.monthlyRent + lease.charges),
+              })}
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <Detail label={t("rental.period.start")} value={fmt(lease.startDate)} />
             <Detail
@@ -425,39 +355,43 @@ function LeaseCard({
             {t("rental.section.finance")}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <Detail label={t("rental.finance.rent")} value={fmtCurrencyUser(lease.monthlyRent, "EUR")} />
-            <Detail label={t("rental.finance.charges")} value={fmtCurrencyUser(lease.charges, "EUR")} />
-            <Detail
-              label={t("rental.finance.total")}
-              value={fmtCurrencyUser(lease.monthlyRent + lease.charges, "EUR")}
-            />
-            <Detail label={t("rental.finance.deposit")} value={fmtCurrencyUser(lease.deposit, "EUR")} />
-            {lease.endDate && (() => {
-              const start = new Date(lease.startDate).getTime();
-              const end = new Date(lease.endDate).getTime();
-              const totalMonths = (end - start) / (1000 * 60 * 60 * 24 * 30.44);
+            {shortStay ? (
+              // Séjour courte durée : une échéance unique du montant total.
+              <Detail
+                label={t("fix.lease.stayTotal")}
+                value={money(lease.stayTotal ?? lease.monthlyRent + lease.charges)}
+              />
+            ) : (
+              <>
+                <Detail label={t("rental.finance.rent")} value={money(lease.monthlyRent)} />
+                <Detail label={t("rental.finance.charges")} value={money(lease.charges)} />
+                <Detail label={t("rental.finance.total")} value={money(lease.monthlyRent + lease.charges)} />
+              </>
+            )}
+            <Detail label={t("rental.finance.deposit")} value={money(lease.deposit)} />
+            {!shortStay && lease.endDate && (() => {
+              // Mois calendaires (fin = dernier jour inclus : 25 oct. → 24 oct. = 12 mois),
+              // reste au prorata ; à ±1 jour près on arrondit au mois entier.
+              const s = new Date(lease.startDate);
+              const e = new Date(new Date(lease.endDate).getTime() + 86400000);
+              const whole = (e.getUTCFullYear() - s.getUTCFullYear()) * 12 + (e.getUTCMonth() - s.getUTCMonth());
+              const raw = Math.max(0, whole + (e.getUTCDate() - s.getUTCDate()) / 30);
+              const totalMonths = Math.abs(raw - Math.round(raw)) <= 1 / 30 ? Math.round(raw) : raw;
               const total = (lease.monthlyRent + lease.charges) * totalMonths;
-              return (
-                <Detail
-                  label={t("rental.finance.grandTotal")}
-                  value={fmtCurrencyUser(Math.round(total), "EUR")}
-                />
-              );
+              return <Detail label={t("rental.finance.grandTotal")} value={money(Math.round(total))} />;
             })()}
-            <Detail
-              label={t("rental.finance.paymentDay")}
-              value={t("rental.finance.paymentDayValue", {
-                day: lease.rentPaymentDay,
-                suffix: lease.rentPaymentDay === 1 ? "er" : "ème",
-              })}
-            />
-            <Detail
-              label={t("rental.finance.notice")}
-              value={t(
-                lease.noticePeriod === 1 ? "rental.months.one" : "rental.months.other",
-                { n: lease.noticePeriod },
-              )}
-            />
+            {!shortStay && (
+              <Detail label={t("rental.finance.paymentDay")} value={payDayText(lease.rentPaymentDay)} />
+            )}
+            {!shortStay && (
+              <Detail
+                label={t("rental.finance.notice")}
+                value={t(
+                  lease.noticePeriod === 1 ? "rental.months.one" : "rental.months.other",
+                  { n: lease.noticePeriod },
+                )}
+              />
+            )}
             <Detail
               label={t("rental.finance.furnished")}
               value={lease.furnished ? t("rental.yes") : t("rental.no")}
@@ -489,7 +423,9 @@ function LeaseCard({
                 label={t("rental.owner.name")}
                 value={`${property.owner.firstName} ${property.owner.lastName}`}
               />
-              <Detail label={t("rental.owner.email")} value={property.owner.email} />
+              {property.owner.email && (
+                <Detail label={t("rental.owner.email")} value={property.owner.email} />
+              )}
               {property.owner.phone && (
                 <Detail label={t("rental.owner.phone")} value={property.owner.phone} />
               )}
@@ -503,13 +439,13 @@ function LeaseCard({
             <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
               {t("rental.section.clauses")}
             </h3>
-            <p className="text-sm text-ink whitespace-pre-line leading-relaxed">
+            <p className="text-sm text-ink whitespace-pre-line leading-relaxed [overflow-wrap:anywhere]">
               {lease.specialClauses}
             </p>
           </section>
         )}
 
-        <LeaseTenantExtras lease={lease} onLeaseUpdate={onUpdate} />
+        <LeaseTenantExtras lease={lease} onLeaseUpdate={onUpdate} isPrimary={isPrimary} />
 
       </CardBody>
     </Card>
@@ -518,11 +454,11 @@ function LeaseCard({
 
 function Detail({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="min-w-0">
       <p className="text-[11px] text-ink-subtle uppercase tracking-wide mb-0.5">
         {label}
       </p>
-      <p className="text-sm font-medium text-ink">{value}</p>
+      <p className="text-sm font-medium text-ink [overflow-wrap:anywhere]">{value}</p>
     </div>
   );
 }
@@ -530,34 +466,20 @@ function Detail({ label, value }: { label: string; value: string }) {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MaLocationPage() {
-  const { user, loading } = useAuth();
+  const auth = useAuth();
+  const { user, loading } = auth;
   const router = useRouter();
-  const [leases, setLeases] = React.useState<LeaseContract[]>([]);
-  const [working, setWorking] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  useLoginRedirect(auth, router);
+  const { data, setData, error, reload } = useAsync<LeaseContract[]>(() => api.myLeases(), [user?.id], {
+    enabled: !!user,
+  });
+  const leases = data ?? [];
 
-  React.useEffect(() => {
-    if (loading) return;
-    if (!user) { router.replace("/login"); return; }
-    api
-      .myLeases()
-      .then(setLeases)
-      .catch((e) => setError((e as Error).message))
-      .finally(() => setWorking(false));
-  }, [user, loading, router]);
-
-  if (loading || working)
-    return <p className="text-ink-muted">{t("rental.loading")}</p>;
-
-  if (error)
-    return (
-      <p className="text-danger">
-        {t("rental.page.loadError", { message: error })}
-      </p>
-    );
+  if (error && !data) return <ErrorState error={error} onRetry={reload} />;
+  if (loading || !user || !data) return <p className="text-ink-muted">{t("rental.loading")}</p>;
 
   return (
-    <section>
+    <section className="min-w-0">
       <h1 className="font-display text-3xl mb-2">{t("rental.page.title")}</h1>
       <p className="text-ink-muted mb-8">
         {t("rental.page.sub")}
@@ -580,7 +502,8 @@ export default function MaLocationPage() {
               key={lease.id}
               lease={lease}
               onUpdate={(updated) =>
-                setLeases((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
+                // F8 : fusion (une réponse partielle n'efface pas assurances/avenants).
+                setData((prev) => (prev ?? []).map((l) => (l.id === updated.id ? { ...l, ...updated } : l)))
               }
             />
           ))}

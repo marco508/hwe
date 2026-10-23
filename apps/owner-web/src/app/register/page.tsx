@@ -12,6 +12,7 @@ import {
   AnimatedBackground,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
+import { errorText, isApiError } from "@hwe/ui";
 import { t } from "../../lib/i18n";
 import { IlloKeys } from "@hwe/ui";
 
@@ -37,15 +38,14 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      await register(form);
+      await register({ ...form, phone: form.phone.trim() || undefined });
       router.push("/dashboard");
     } catch (err) {
-      const msg = (err as Error).message;
-      setError(
-        msg.includes("409")
-          ? t("register.errTaken")
-          : t("register.errFail"),
-      );
+      // 409 = adresse déjà utilisée ; sinon message lisible (validation, réseau…).
+      if (isApiError(err) && err.status === 409) setError(t("register.errTaken"));
+      else if (isApiError(err) && err.status === 400 && err.messages.length) setError(errorText(err));
+      else if (isApiError(err)) setError(errorText(err));
+      else setError(t("register.errFail"));
       setLoading(false);
     }
   };
@@ -53,7 +53,7 @@ export default function RegisterPage() {
   return (
     <AnimatedBackground
       variant="aurora"
-      className="min-h-[70vh] flex items-center justify-center -mx-6 px-6 py-12"
+      className="min-h-[70vh] flex items-center justify-center -mx-4 px-4 sm:-mx-6 sm:px-6 py-12"
     >
       <div className="max-w-md w-full">
         <div className="text-center mb-6">
@@ -73,7 +73,7 @@ export default function RegisterPage() {
         <Card className="glass-strong border-brand-200 dark:border-brand-800/50 shadow-card-hover">
           <CardBody>
             <form onSubmit={onSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label htmlFor="firstName">{t("register.firstName")}</Label>
                   <Input
@@ -84,7 +84,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="lastName">Nom</Label>
+                  <Label htmlFor="lastName">{t("register.lastName")}</Label>
                   <Input
                     id="lastName"
                     value={form.lastName}
@@ -94,10 +94,11 @@ export default function RegisterPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("login.email")}</Label>
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   value={form.email}
                   onChange={set("email")}
                   required
@@ -112,6 +113,7 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type="password"
+                  autoComplete="new-password"
                   value={form.password}
                   onChange={set("password")}
                   minLength={8}
@@ -119,7 +121,7 @@ export default function RegisterPage() {
                 />
               </div>
               {error && (
-                <div className="rounded-md border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-900/40 text-danger dark:text-red-300 text-sm px-3 py-2">
+                <div role="alert" className="rounded-md border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-900/40 text-danger dark:text-red-300 text-sm px-3 py-2">
                   {error}
                 </div>
               )}
@@ -134,7 +136,7 @@ export default function RegisterPage() {
               <p className="text-sm text-ink-muted text-center">
                 {t("register.already")}{" "}
                 <Link href="/login" className="font-medium">
-                  Connexion
+                  {t("nav.login")}
                 </Link>
               </p>
             </form>

@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { Badge, Button, Input, EmptyState, IlloVisit } from "@hwe/ui";
+import { Badge, Button, Input, EmptyState, ErrorState, IlloVisit, toast, intlLocale, useAsync } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -15,9 +14,14 @@ const TONE: Record<VisitStatus, "accent" | "success" | "danger" | "neutral"> = {
   CANCELLED: "neutral",
 };
 
+// Créneau traduit (U4) : plus de « à » codé en dur.
 function fmtSlot(iso: string) {
   const d = new Date(iso);
-  return `${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} à ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+  const loc = intlLocale();
+  return t("ops.visits.slot", {
+    date: d.toLocaleDateString(loc, { weekday: "long", day: "numeric", month: "long" }),
+    time: d.toLocaleTimeString(loc, { hour: "2-digit", minute: "2-digit" }),
+  });
 }
 
 function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => void }) {
@@ -28,32 +32,33 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
     setBusy(true);
     try {
       onUpdate(await api.answerVisit(visit.id, { status, ownerNote: note || undefined }));
+      toast.success(t("ops.visits.answered"));
     } catch (e) {
-      alert(t("ops.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="rounded-2xl border border-ink-subtle bg-white p-6 shadow-sm space-y-3">
+    <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6 shadow-sm space-y-3 min-w-0">
       <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
+        <div className="min-w-0">
           <div className="flex items-center gap-3 mb-1 flex-wrap">
             <span className="font-semibold">{fmtSlot(visit.proposedAt)}</span>
             <Badge tone={TONE[visit.status]}>{t("ops.visitStatus." + visit.status)}</Badge>
           </div>
-          <p className="text-sm text-ink-muted">
+          <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">
             {visit.property?.title} — {visit.property?.addressLine}, {visit.property?.city}
           </p>
-          <p className="text-sm mt-1">
+          <p className="text-sm mt-1 [overflow-wrap:anywhere]">
             {visit.requester
               ? `${visit.requester.firstName} ${visit.requester.lastName} · ${visit.requester.email}${visit.requester.phone ? ` · ${visit.requester.phone}` : ""}`
               : ""}
           </p>
-          {visit.note && <p className="text-sm text-ink-muted mt-1">« {visit.note} »</p>}
+          {visit.note && <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">« {visit.note} »</p>}
           {visit.ownerNote && (
-            <p className="text-sm text-ink-muted mt-1">{t("ops.visits.yourReply")} {visit.ownerNote}</p>
+            <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">{t("ops.visits.yourReply")} {visit.ownerNote}</p>
           )}
         </div>
       </div>
@@ -61,7 +66,8 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
       {visit.status === "REQUESTED" && (
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <Input
-            className="flex-1 min-w-[12rem]"
+            className="flex-1 min-w-0 sm:min-w-[12rem]"
+            aria-label={t("ops.visits.msgPlaceholder")}
             placeholder={t("ops.visits.msgPlaceholder")}
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -79,21 +85,17 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
 }
 
 export default function VisitesPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const [visits, setVisits] = React.useState<Visit[] | null>(null);
+  // Session/rôle : dashboard/layout.tsx. Erreur ≠ liste vide (L2).
+  const { user } = useAuth();
   const [filter, setFilter] = React.useState<VisitStatus | "ALL">("REQUESTED");
+  const { data: visits, setData: setVisits, error, reload } = useAsync(
+    () => api.ownerVisits(),
+    [user?.id],
+    { enabled: !!user },
+  );
 
-  React.useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [user, loading, router]);
-
-  React.useEffect(() => {
-    if (!user) return;
-    api.ownerVisits().then(setVisits).catch(() => setVisits([]));
-  }, [user]);
-
-  if (loading || visits === null) return <p className="text-ink-muted">{t("ops.loading")}</p>;
+  if (error && !visits) return <ErrorState error={error} title={t("ops.visits.loadError")} onRetry={reload} />;
+  if (!visits) return <p className="text-ink-muted">{t("ops.loading")}</p>;
 
   const shown = filter === "ALL" ? visits : visits.filter((v) => v.status === filter);
 
@@ -108,6 +110,8 @@ export default function VisitesPage() {
         {(["REQUESTED", "CONFIRMED", "ALL"] as const).map((f) => (
           <button
             key={f}
+            type="button"
+            aria-pressed={filter === f}
             onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
               filter === f

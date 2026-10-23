@@ -17,7 +17,7 @@ export const fr: Record<string, string> = {
   "rental.page.loadError": "Erreur lors du chargement de vos baux : {message}",
   "rental.empty.title": "Aucune location active",
   "rental.empty.desc":
-    "Vous n'avez pas de bail actif enregistré à votre adresse email. Si vous venez de signer un bail, contactez votre propriétaire.",
+    "Vous n'avez pas de bail actif enregistré à votre adresse e-mail. Si vous venez de signer un bail, contactez votre propriétaire.",
   "rental.empty.cta": "Parcourir les annonces",
 
   // ── Statuts de bail ──
@@ -35,7 +35,7 @@ export const fr: Record<string, string> = {
   "rental.countdown.min": "min",
   "rental.countdown.sec": "sec",
   "rental.progress.elapsedPct": "{pct}% écoulé",
-  "rental.progress.days": "{elapsed} jour{sElapsed} sur {total} écoulé{sTotal}",
+  "rental.progress.days": "{elapsed} jour{sElapsed} écoulé{sElapsed} sur {total}",
   "rental.timer.title": "⏱ Location à durée limitée",
 
   // ── Carte de bail ──
@@ -98,7 +98,7 @@ export const fr: Record<string, string> = {
   "rental.property.surface": "Surface",
   "rental.property.rooms": "Pièces",
   "rental.owner.name": "Nom",
-  "rental.owner.email": "Email",
+  "rental.owner.email": "E-mail",
   "rental.owner.phone": "Téléphone",
 
   // ── Caution ──

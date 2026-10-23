@@ -1,25 +1,28 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Badge,
   Card,
   CardBody,
   CardHeader,
+  EmptyState,
+  ErrorState,
   ImageCarousel,
+  SafeImage,
+  isNotFound,
+  priceUnitSuffix,
+  tUi,
+  useAsync,
 } from "@hwe/ui";
+import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { useCurrency } from "../../../lib/currency-context";
 import { t } from "../../../lib/i18n";
 import type { Property } from "@hwe/types";
 
-const formatPrice = (n: number, currency = "EUR") =>
-  new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(n);
 
 const FEATURE_ICONS: Record<string, string> = {
   surface: "📐",
@@ -37,12 +40,22 @@ const FEATURE_ICONS: Record<string, string> = {
 
 export default function PropertyDetailPage() {
   const params = useParams<{ id: string }>();
+  // U6 : prix converti dans la devise d'affichage (comme le reste de l'app).
   const { format: fmtPrice } = useCurrency();
-  const [p, setP] = React.useState<Property | null>(null);
+  const { user } = useAuth();
+  const { data: p, error, reload } = useAsync<Property>(
+    () => api.getProperty(params!.id),
+    [params?.id],
+    { enabled: !!params?.id },
+  );
 
-  React.useEffect(() => {
-    if (params?.id) api.getProperty(params.id).then(setP);
-  }, [params?.id]);
+  if (error && !p) {
+    return isNotFound(error) ? (
+      <EmptyState title={t("prop.notFound")} />
+    ) : (
+      <ErrorState error={error} title={t("prop.loadError")} onRetry={reload} />
+    );
+  }
 
   if (!p) {
     return (
@@ -86,19 +99,20 @@ export default function PropertyDetailPage() {
 
   return (
     <article className="grid lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-6">
+      <div className="lg:col-span-2 space-y-6 min-w-0">
         <header className="animate-fade-in-up">
           <div className="flex flex-wrap gap-2 mb-3">
             <Badge tone={p.listingType === "SALE" ? "accent" : "brand"} glow>
               {p.listingType === "SALE" ? t("acc.prop.forSale") : t("acc.prop.forRent")}
             </Badge>
-            <Badge tone="ocean">{p.propertyType}</Badge>
+            <Badge tone="ocean">{t("pf.type." + p.propertyType)}</Badge>
+            {p.status !== "PUBLISHED" && <Badge tone="neutral">{tUi(`ui.status.${p.status}`)}</Badge>}
           </div>
-          <h1 className="font-display text-4xl mb-2 leading-tight">
+          <h1 className="font-display text-3xl sm:text-4xl mb-2 leading-tight [overflow-wrap:anywhere]">
             {p.title}
           </h1>
-          <div className="flex items-center gap-1.5 text-ink-muted">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-start gap-1.5 text-ink-muted [overflow-wrap:anywhere] min-w-0">
+            <svg aria-hidden="true" className="shrink-0 mt-1" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
@@ -129,7 +143,7 @@ export default function PropertyDetailPage() {
             </h2>
           </CardHeader>
           <CardBody>
-            <p className="whitespace-pre-line text-sm leading-relaxed">
+            <p className="whitespace-pre-line text-sm leading-relaxed [overflow-wrap:anywhere]">
               {p.description}
             </p>
           </CardBody>
@@ -152,7 +166,7 @@ export default function PropertyDetailPage() {
                   <span aria-hidden="true" className="text-base">
                     {FEATURE_ICONS[f.key] ?? "•"}
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-[11px] text-ink-muted">
                       {f.label}
                     </div>
@@ -166,17 +180,17 @@ export default function PropertyDetailPage() {
       </div>
 
       {/* Sidebar */}
-      <aside className="space-y-4 lg:sticky lg:top-24 self-start">
+      <aside className="space-y-4 lg:sticky lg:top-24 self-start min-w-0">
         <Card className="glass-strong border-brand-200 dark:border-brand-800/50">
           <CardBody>
             <div className="text-[11px] uppercase tracking-wider text-ink-muted mb-1">
-              {p.listingType === "SALE" ? t("acc.prop.salePrice") : t("acc.prop.monthlyRent")}
+              {p.listingType === "SALE" ? t("acc.prop.salePrice") : p.priceUnit && p.priceUnit !== "MONTHS" ? t("acc.prop.rate") : t("acc.prop.monthlyRent")}
             </div>
-            <div className="text-3xl font-display gradient-text leading-none">
-              {formatPrice(p.price, p.currency)}
-              {p.listingType === "RENT" && (
+            <div className="text-3xl font-display gradient-text leading-tight [overflow-wrap:anywhere]">
+              {(p.displayPrice ?? p.price) > 0 ? fmtPrice(p.displayPrice ?? p.price, p.currency) : t("prop.priceOnGrid")}
+              {p.listingType === "RENT" && (p.displayPrice ?? p.price) > 0 && (
                 <span className="text-sm font-normal text-ink-muted ml-1">
-                  {t("acc.prop.perMonth")}
+                  {priceUnitSuffix(p.priceUnit)}
                 </span>
               )}
             </div>
@@ -197,28 +211,34 @@ export default function PropertyDetailPage() {
             </CardHeader>
             <CardBody className="text-sm space-y-2">
               <div className="flex items-center gap-3">
-                <span className="h-10 w-10 rounded-full bg-gradient-to-br from-brand-500 to-accent-500 text-white flex items-center justify-center font-display">
-                  {(p.owner.firstName?.[0] ?? "") + (p.owner.lastName?.[0] ?? "")}
+                <span className="h-10 w-10 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-brand-500 to-accent-500 text-white flex items-center justify-center font-display">
+                  <SafeImage
+                    src={p.owner.avatarUrl}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    fallbackClassName="h-full w-full bg-transparent text-white"
+                    fallback={(p.owner.firstName?.[0] ?? "") + (p.owner.lastName?.[0] ?? "")}
+                  />
                 </span>
-                <div>
-                  <div className="font-medium">
+                <div className="min-w-0">
+                  <div className="font-medium [overflow-wrap:anywhere]">
                     {p.owner.firstName} {p.owner.lastName}
-                  </div>
-                  <div className="text-ink-muted text-xs">
-                    {p.owner.email}
                   </div>
                 </div>
               </div>
-              {p.owner.phone && (
-                <div className="text-ink-muted flex items-center gap-1.5">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.97.36 1.92.7 2.83a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.25-1.27a2 2 0 0 1 2.11-.45c.91.34 1.86.57 2.83.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                  {p.owner.phone}
-                </div>
-              )}
+              {/* Contrat §8 : plus d'e-mail ni de téléphone publics. */}
+              <p className="text-ink-muted text-xs">{t("prop.contactHint")}</p>
             </CardBody>
           </Card>
+        )}
+
+        {user && p.ownerId === user.id && (
+          <Link
+            href={`/dashboard/${p.id}/edit`}
+            className="flex items-center justify-center h-11 rounded-md text-sm font-medium text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md"
+          >
+            {t("prop.editMine")}
+          </Link>
         )}
 
         <div className="rounded-2xl glass p-5 text-sm text-ink-muted">

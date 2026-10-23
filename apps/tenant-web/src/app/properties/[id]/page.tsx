@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 import {
   Badge,
   Button,
@@ -13,8 +13,20 @@ import {
   Label,
   Textarea,
   ImageCarousel,
+  errorText,
   Stepper,
   EnergyClassBadge,
+  EmailVerifyNotice,
+  ErrorState,
+  SafeImage,
+  OWNER_URL,
+  countryLabel,
+  isNotFound,
+  loginHref,
+  priceUnitSuffix,
+  toast,
+  tUi,
+  useAsync,
   type StepperItem,
   type EnergyClassLetter,
 } from "@hwe/ui";
@@ -26,39 +38,57 @@ import type {
   Property,
   PricingRate,
   LeaseDurationUnit,
+  User,
 } from "@hwe/types";
 import { computeRentalTotal } from "@hwe/types";
 
 type DurationUnit = "DAYS" | "WEEKS" | "MONTHS" | "YEARS";
 
-const formatPrice = (n: number, currency = "EUR", decimals = 0) =>
-  new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(n);
+/**
+ * Montant affiché « à partir de » : le prix du bien, ou — location tarifée
+ * uniquement par la grille (F10, contrat §8) — le tarif de l'unité `priceUnit`.
+ */
+function headlinePrice(p: Property, rates: PricingRate[]): number {
+  // `displayPrice` (API) = montant correspondant à `priceUnit`.
+  if (p.listingType === "RENT" && p.displayPrice != null) return p.displayPrice;
+  if (p.price) return p.price;
+  const unit = p.priceUnit ?? "MONTHS";
+  return rates.find((r) => r.unit === unit)?.amount ?? rates[0]?.amount ?? 0;
+}
+
+/** Libellé lisible d'un pays stocké en code ISO. */
+function countryName(code: string) {
+  return /^[A-Za-z]{2}$/.test(code ?? "") ? countryLabel(code.toUpperCase(), code.toUpperCase()) : code;
+}
 
 export default function PropertyDetailPage() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
   const { format: fmtPrice } = useCurrency();
-  const [p, setP] = React.useState<Property | null>(null);
+  // Jeton optionnel : le propriétaire voit aussi son brouillon (contrat §8).
+  const { data: p, error, reload } = useAsync<Property>(
+    () => api.getProperty(params!.id),
+    [params?.id, user?.id],
+    { enabled: !!params?.id },
+  );
   const [rates, setRates] = React.useState<PricingRate[]>([]);
   const [isFav, setIsFav] = React.useState(false);
   const [favLoading, setFavLoading] = React.useState(false);
 
   React.useEffect(() => {
     if (!params?.id) return;
-    api.getProperty(params.id).then(setP);
     api
       .getPricingRates(params.id)
-      .then((r) => setRates(r as unknown as PricingRate[]));
+      .then((r) => setRates(r as unknown as PricingRate[]))
+      .catch(() => setRates([]));
   }, [params?.id]);
 
   React.useEffect(() => {
     if (!user || !params?.id) return;
-    api.favoriteIds().then((r) => setIsFav(r.ids.includes(params.id)));
+    api
+      .favoriteIds()
+      .then((r) => setIsFav(r.ids.includes(params.id)))
+      .catch(() => {});
   }, [user, params?.id]);
 
   const toggleFav = async () => {
@@ -72,10 +102,22 @@ export default function PropertyDetailPage() {
         await api.addFavorite(p.id);
         setIsFav(true);
       }
+    } catch (e) {
+      toast.error(e);
     } finally {
       setFavLoading(false);
     }
   };
+
+  // Lien mort (bien supprimé, brouillon d'un autre) → page introuvable propre.
+  if (error && isNotFound(error)) notFound();
+  if (error && !p) {
+    return (
+      <div className="max-w-6xl mx-auto">
+        <ErrorState error={error} onRetry={reload} />
+      </div>
+    );
+  }
 
   if (!p) {
     return (
@@ -94,7 +136,7 @@ export default function PropertyDetailPage() {
   const isOwner = !!user && user.id === p.ownerId;
 
   return (
-    <article className="max-w-6xl mx-auto pb-12">
+    <article className="max-w-6xl mx-auto pb-12 min-w-0">
       <PropertyDetailInner
         property={p}
         rates={rates}
@@ -129,11 +171,16 @@ function PropertyDetailInner({
   isFav: boolean;
   favLoading: boolean;
   onToggleFav: () => void;
-  currentUser: { id: string; email: string; phone?: string | null } | null;
+  currentUser: User | null;
   fmtPrice: (n: number, currency?: string) => string;
 }) {
   // ── Steps du wizard ──────────────────────────────────────────────────────
   const { lang } = useLang();
+  // Contrat §8 : un bien loué / vendu reste consultable mais n'accepte plus
+  // de candidature, d'offre ni de visite (F16).
+  const isOpen = (p.status ?? "PUBLISHED") === "PUBLISHED";
+  const unitSuffix = priceUnitSuffix(p.priceUnit);
+  const mainPrice = headlinePrice(p, rates);
   const STEPS: StepperItem[] = React.useMemo(() => {
     const base: StepperItem[] = [
       { id: "overview", title: t("prop.step.overview"), icon: "👁" },
@@ -146,17 +193,15 @@ function PropertyDetailInner({
       base.push({ id: "rent-info", title: t("prop.step.rentInfo"), icon: "🔑" });
     }
     base.push({ id: "location", title: t("prop.step.location"), icon: "📍" });
-    base.push(
-      isOwner
-        ? { id: "your-bien", title: t("prop.step.yourBien"), icon: "👤" }
-        : {
-            id: "contact",
-            title: isSale ? t("prop.step.offer") : t("prop.step.apply"),
-            icon: "✉️",
-          },
-    );
+    if (isOwner) base.push({ id: "your-bien", title: t("prop.step.yourBien"), icon: "👤" });
+    else if (isOpen)
+      base.push({
+        id: "contact",
+        title: isSale ? t("prop.step.offer") : t("prop.step.apply"),
+        icon: "✉️",
+      });
     return base;
-  }, [isSale, isOwner, lang]);
+  }, [isSale, isOwner, isOpen, lang]);
 
   const [activeStep, setActiveStep] = React.useState<string>("overview");
 
@@ -209,10 +254,11 @@ function PropertyDetailInner({
               disabled={favLoading}
               onClick={onToggleFav}
               aria-label={isFav ? t("prop.fav.remove") : t("prop.fav.add")}
+              aria-pressed={isFav}
               className={`shrink-0 h-9 w-9 rounded-full flex items-center justify-center text-xl transition-all ${
                 isFav
-                  ? "bg-red-50 text-red-500 hover:bg-red-100"
-                  : "bg-surface text-ink-muted hover:bg-cream-100 hover:text-red-400"
+                  ? "bg-danger/10 text-danger hover:bg-danger/20"
+                  : "bg-surface text-ink-muted hover:bg-cream-100 dark:hover:bg-white/5 hover:text-danger"
               } border border-border disabled:opacity-50`}
             >
               {isFav ? "♥" : "♡"}
@@ -222,8 +268,11 @@ function PropertyDetailInner({
 
         {/* Hero — titre + listing badge + prix */}
         <div className="flex flex-col lg:flex-row lg:items-end gap-6 lg:justify-between">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex flex-wrap gap-2 mb-3">
+              {!isOpen && (
+                <Badge tone="danger">{tUi(`ui.status.${p.status}`)}</Badge>
+              )}
               <Badge tone={isSale ? "accent" : "brand"} glow>
                 {isSale ? t("prop.badge.sale") : t("prop.badge.rent")}
               </Badge>
@@ -245,10 +294,10 @@ function PropertyDetailInner({
                 </span>
               )}
             </div>
-            <h1 className="display-serif text-4xl sm:text-5xl leading-[1.05] mb-2 text-ink">
+            <h1 className="display-serif text-3xl sm:text-5xl leading-[1.05] mb-2 text-ink [overflow-wrap:anywhere]">
               {p.title}
             </h1>
-            <div className="text-ink-muted flex items-center gap-1.5">
+            <div className="text-ink-muted flex items-start gap-1.5 min-w-0 [overflow-wrap:anywhere]">
               <svg
                 width="14"
                 height="14"
@@ -258,24 +307,24 @@ function PropertyDetailInner({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                className="shrink-0 mt-1"
+                aria-hidden="true"
               >
                 <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              {p.addressLine}, {p.postalCode} {p.city}
+              <span className="min-w-0">{p.addressLine}, {p.postalCode} {p.city}</span>
             </div>
           </div>
 
           <div className="lg:text-right">
             <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted mb-1">
-              {isSale ? t("prop.price.sale") : t("prop.price.rent")}
+              {isSale ? t("prop.price.sale") : p.priceUnit && p.priceUnit !== "MONTHS" ? t("prop.price.rate") : t("prop.price.rent")}
             </div>
-            <div className="display-serif text-4xl gradient-text leading-none">
-              {fmtPrice(p.price, p.currency)}
+            <div className="display-serif text-3xl sm:text-4xl gradient-text leading-none">
+              {fmtPrice(mainPrice, p.currency)}
               {!isSale && (
-                <span className="text-sm font-normal text-ink-muted ml-1">
-                  {t("prop.perMonth")}
-                </span>
+                <span className="text-sm font-normal text-ink-muted ml-1">{unitSuffix}</span>
               )}
             </div>
             {!isSale && p.chargesIncluded === false && p.chargesAmount && (
@@ -294,9 +343,16 @@ function PropertyDetailInner({
         </div>
       </header>
 
+      {/* ── Bien loué / vendu : plus de candidature ni de visite (F16) ─── */}
+      {!isOpen && !isOwner && (
+        <div role="status" className="mb-6 rounded-2xl border border-border bg-cream-100 dark:bg-white/5 px-5 py-4 text-sm text-ink">
+          {t(p.status === "SOLD" ? "fix.prop.closedSold" : "fix.prop.closedRent")}
+        </div>
+      )}
+
       {/* ── Bannière "votre bien" ────────────────────────────────────────── */}
       {isOwner && (
-        <div className="mb-6 rounded-2xl border border-accent-300 bg-accent-50 dark:bg-accent-900/20 px-5 py-4 flex items-center gap-4 flex-wrap">
+        <div className="mb-6 rounded-2xl border border-accent-300 dark:border-accent-700/40 bg-accent-50 dark:bg-accent-700/15 px-5 py-4 flex items-center gap-4 flex-wrap">
           <span className="text-3xl shrink-0">👤</span>
           <div className="flex-1 min-w-0">
             <div className="font-medium text-ink">
@@ -307,10 +363,8 @@ function PropertyDetailInner({
             </div>
           </div>
           <a
-            href={
-              (process.env.NEXT_PUBLIC_OWNER_URL ?? "http://localhost:3004") +
-              `/dashboard/${p.id}/edit`
-            }
+            // F3 : URL publique de l'espace propriétaire (repli prod, jamais localhost).
+            href={`${OWNER_URL}/dashboard/${p.id}/edit`}
             className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity"
           >
             {t("prop.owner.edit")}
@@ -319,14 +373,21 @@ function PropertyDetailInner({
       )}
 
       {/* ── Wizard Stepper ───────────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-border bg-surface/60 p-3 mb-6 sticky top-20 z-20 backdrop-blur">
+      <div className="rounded-2xl border border-border bg-surface/90 p-2 sm:p-3 mb-6 sticky top-20 z-20 backdrop-blur max-w-full overflow-x-auto">
         <Stepper steps={STEPS} activeId={activeStep} onChange={setActiveStep} />
       </div>
 
       {/* ── Contenu de l'étape active ────────────────────────────────────── */}
       <div className="min-h-[400px] animate-fade-in">
         {activeStep === "overview" && (
-          <StepOverview property={p} fmtPrice={fmtPrice} isSale={isSale} />
+          <StepOverview
+            property={p}
+            fmtPrice={fmtPrice}
+            isSale={isSale}
+            mainPrice={mainPrice}
+            unitSuffix={unitSuffix}
+            onContact={isOpen && !isOwner ? () => setActiveStep("contact") : undefined}
+          />
         )}
         {activeStep === "gallery" && <StepGallery property={p} />}
         {activeStep === "features" && <StepFeatures property={p} />}
@@ -344,7 +405,7 @@ function PropertyDetailInner({
         {activeStep === "your-bien" && isOwner && (
           <StepYourBien property={p} />
         )}
-        {activeStep === "contact" && !isOwner && (
+        {activeStep === "contact" && !isOwner && isOpen && (
           <StepContact
             property={p}
             rates={rates}
@@ -377,7 +438,7 @@ function PropertyDetailInner({
           </svg>
           {t("prop.nav.prev")}
         </Button>
-        <div className="text-xs text-ink-muted">
+        <div className="text-xs text-ink-muted order-first w-full text-center sm:order-none sm:w-auto">
           {t("prop.nav.progress", {
             n: activeIndex + 1,
             total: STEPS.length,
@@ -412,18 +473,26 @@ function PropertyDetailInner({
 // ÉTAPES
 // ════════════════════════════════════════════════════════════════════════════
 
+// U7 : la première étape montre l'essentiel (photos, prix, description,
+// caractéristiques) sans obliger à parcourir tout l'assistant.
 function StepOverview({
   property: p,
   fmtPrice,
   isSale,
+  mainPrice,
+  unitSuffix,
+  onContact,
 }: {
   property: Property;
   fmtPrice: (n: number, currency?: string) => string;
   isSale: boolean;
+  mainPrice: number;
+  unitSuffix: string;
+  onContact?: () => void;
 }) {
   return (
-    <div className="grid lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
+    <div className="grid lg:grid-cols-3 gap-6 min-w-0">
+      <div className="lg:col-span-2 space-y-6 min-w-0">
         {/* Photo principale */}
         <div className="aspect-[16/10] rounded-2xl overflow-hidden border border-border">
           <ImageCarousel
@@ -446,25 +515,27 @@ function StepOverview({
             <h2 className="font-display text-lg">{t("prop.description")}</h2>
           </CardHeader>
           <CardBody>
-            <p className="whitespace-pre-line text-sm leading-relaxed">
+            <p className="whitespace-pre-line text-sm leading-relaxed [overflow-wrap:anywhere]">
               {p.description}
             </p>
           </CardBody>
         </Card>
+        <StepFeatures property={p} />
       </div>
 
       {/* Récap rapide */}
-      <aside className="space-y-4">
+      <aside className="space-y-4 min-w-0">
         <Card className="glass-strong">
           <CardBody className="space-y-4">
             <div>
               <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted mb-1">
-                {isSale ? t("prop.price.sale") : t("prop.price.rent")}
+                {isSale ? t("prop.price.sale") : p.priceUnit && p.priceUnit !== "MONTHS" ? t("prop.price.rate") : t("prop.price.rent")}
               </div>
               <div className="display-serif text-3xl gradient-text leading-none">
-                {fmtPrice(p.price, p.currency)}
+                {fmtPrice(mainPrice, p.currency)}
+                {!isSale && <span className="text-sm font-sans text-ink-muted ml-1">{unitSuffix}</span>}
               </div>
-              {isSale && p.surface && (
+              {isSale && p.surface > 0 && (
                 <div className="text-xs text-ink-muted mt-1">
                   {t("prop.pricePerSqm", {
                     amount: fmtPrice(
@@ -481,6 +552,11 @@ function StepOverview({
               <Mini label={t("prop.rooms")} value={p.rooms || "—"} />
               <Mini label={t("prop.bedrooms")} value={p.bedrooms || "—"} />
             </div>
+            {onContact && (
+              <Button variant="gradient" className="w-full" onClick={onContact}>
+                {isSale ? t("prop.step.offer") : t("prop.step.apply")}
+              </Button>
+            )}
           </CardBody>
         </Card>
 
@@ -526,11 +602,11 @@ function Mini({
   value: React.ReactNode;
 }) {
   return (
-    <div>
-      <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted">
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted truncate">
         {label}
       </div>
-      <div className="display-serif text-lg mt-0.5">{value}</div>
+      <div className="display-serif text-lg mt-0.5 [overflow-wrap:anywhere]">{value}</div>
     </div>
   );
 }
@@ -568,14 +644,13 @@ function StepGallery({ property: p }: { property: Property }) {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {p.media.map((m) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <SafeImage
             key={m.id}
             src={m.url}
             alt={m.alt ?? p.title}
             loading="lazy"
             decoding="async"
-            className="aspect-[4/3] w-full object-cover rounded-xl border border-border hover-lift cursor-pointer"
+            className="aspect-[4/3] w-full object-cover rounded-xl border border-border hover-lift"
           />
         ))}
       </div>
@@ -612,13 +687,13 @@ function StepFeatures({ property: p }: { property: Property }) {
         {items.map((it) => (
           <div
             key={it.label}
-            className="rounded-xl border border-border/60 bg-cream-50/60 dark:bg-surface/60 px-4 py-3"
+            className="rounded-xl border border-border/60 bg-cream-50/60 dark:bg-surface/60 px-3 sm:px-4 py-3 min-w-0"
           >
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 min-w-0">
               <span className="text-lg" aria-hidden="true">
                 {it.icon}
               </span>
-              <span className="text-[11px] uppercase tracking-[0.14em] text-ink-muted">
+              <span className="text-[11px] uppercase tracking-[0.14em] text-ink-muted truncate">
                 {it.label}
               </span>
             </div>
@@ -885,14 +960,14 @@ function StepRentInfo({
                   return (
                     <div
                       key={unit}
-                      className="rounded-xl border border-brand-200 bg-brand-50 dark:bg-brand-900/20 p-4 text-center"
+                      className="rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/20 p-3 sm:p-4 text-center min-w-0"
                     >
                       <div className="text-[11px] text-ink-muted mb-1 uppercase tracking-[0.14em]">
                         {t("prop.rates.per", {
                           unit: t("prop.unit." + unit).replace("(s)", ""),
                         })}
                       </div>
-                      <div className="display-serif text-xl gradient-text">
+                      <div className="display-serif text-lg sm:text-xl gradient-text [overflow-wrap:anywhere]">
                         {fmtPrice(rate.amount, p.currency)}
                       </div>
                     </div>
@@ -915,12 +990,12 @@ function StepLocation({ property: p }: { property: Property }) {
           <h2 className="font-display text-lg">{t("prop.loc.address")}</h2>
         </CardHeader>
         <CardBody className="space-y-3">
-          <div className="text-base">
+          <div className="text-base [overflow-wrap:anywhere]">
             {p.addressLine}
             <br />
             {p.postalCode} {p.city}
             <br />
-            {p.country}
+            {countryName(p.country)}
           </div>
           {hasGeo && (
             <div className="text-xs text-ink-subtle font-mono">
@@ -953,8 +1028,8 @@ function StepLocation({ property: p }: { property: Property }) {
                   <span className="absolute inset-0 rounded-full bg-brand-500/30 animate-ping" />
                 </div>
               </div>
-              <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-surface text-xs text-ink-muted shadow-card">
-                {p.city}, {p.country}
+              <div className="absolute bottom-3 left-3 right-3 w-fit max-w-full truncate px-3 py-1.5 rounded-full bg-surface text-xs text-ink-muted shadow-card">
+                {p.city}, {countryName(p.country)}
               </div>
             </div>
           </CardBody>
@@ -971,7 +1046,8 @@ function StepLocation({ property: p }: { property: Property }) {
 }
 
 function StepYourBien({ property: p }: { property: Property }) {
-  const ownerUrl = process.env.NEXT_PUBLIC_OWNER_URL ?? "http://localhost:3004";
+  // F3 : URL publique de l'espace propriétaire (repli prod).
+  const ownerUrl = OWNER_URL;
   return (
     <Card>
       <CardHeader>
@@ -1024,7 +1100,7 @@ function ActionTile({
   return (
     <a
       href={href}
-      className="group rounded-xl border border-border bg-surface px-5 py-4 hover:border-brand-300 hover:bg-cream-50 transition-colors flex items-start gap-3"
+      className="group rounded-xl border border-border bg-surface px-5 py-4 hover:border-brand-300 hover:bg-cream-50 dark:hover:bg-white/5 transition-colors flex items-start gap-3 min-w-0"
     >
       <span className="text-2xl shrink-0 group-hover:scale-110 transition-transform">
         {icon}
@@ -1047,10 +1123,12 @@ function StepContact({
 }: {
   property: Property;
   rates: PricingRate[];
-  currentUser: { id: string; email: string; phone?: string | null } | null;
+  currentUser: User | null;
   isSale: boolean;
   fmtPrice: (n: number, currency?: string) => string;
 }) {
+  const router = useRouter();
+  const uid = React.useId();
   const [step, setStep] = React.useState<1 | 2 | 3>(1);
   const [form, setForm] = React.useState({
     contactEmail: currentUser?.email ?? "",
@@ -1064,6 +1142,8 @@ function StepContact({
   });
   const [submitting, setSubmitting] = React.useState(false);
   const [sent, setSent] = React.useState(false);
+  // Conversation ouverte avec la demande (contrat §11), pour « Discuter ».
+  const [conversationId, setConversationId] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
   // Sync auth → form on mount
@@ -1098,7 +1178,7 @@ function StepContact({
     setError(null);
     setSubmitting(true);
     try {
-      await api.sendInquiry({
+      const created = await api.sendInquiry({
         propertyId: p.id,
         message: form.message,
         contactEmail: form.contactEmail,
@@ -1115,8 +1195,19 @@ function StepContact({
             : undefined,
       });
       setSent(true);
+      let convo = created?.conversationId ?? null;
+      if (!convo) {
+        try {
+          const mine = await api.inquiriesSent();
+          convo = mine.find((i) => i.id === created?.id)?.conversationId ?? null;
+        } catch {
+          /* non bloquant */
+        }
+      }
+      setConversationId(convo);
     } catch (e) {
-      setError((e as Error).message || t("prop.form.errSend"));
+      toast.error(e);
+      setError(errorText(e));
     } finally {
       setSubmitting(false);
     }
@@ -1133,17 +1224,23 @@ function StepContact({
           <p className="text-sm text-ink-muted mb-6 max-w-md mx-auto">
             {t("prop.form.loginSub")}
           </p>
-          <div className="flex gap-3 justify-center">
-            <Link href="/register">
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Link href={`/register?next=${encodeURIComponent(`/properties/${p.id}`)}`}>
               <Button variant="gradient">{t("prop.form.signup")}</Button>
             </Link>
-            <Link href="/login">
+            <Link href={loginHref(`/properties/${p.id}`)}>
               <Button variant="secondary">{t("prop.form.login")}</Button>
             </Link>
           </div>
         </CardBody>
       </Card>
     );
+  }
+
+  // Contrat §2 : e-mail non confirmé → encart de vérification au lieu du
+  // formulaire (pas de saisie perdue sur un refus 403).
+  if (!currentUser.emailVerifiedAt) {
+    return <EmailVerifyNotice />;
   }
 
   if (sent) {
@@ -1157,14 +1254,19 @@ function StepContact({
           <p className="text-sm text-ink-muted mb-2 max-w-md mx-auto">
             {t("prop.form.sentSub")}
           </p>
-          <div className="mt-6 inline-flex items-center gap-2 text-xs text-ink-muted bg-cream-100 dark:bg-surface/60 px-4 py-2 rounded-full">
-            <span className="h-2 w-2 rounded-full bg-success" />
-            {t("prop.form.sentConvo")}
-          </div>
+          {/* U7 : annoncé seulement si la conversation existe réellement. */}
+          {conversationId && (
+            <div className="mt-6 inline-flex items-center gap-2 text-xs text-ink-muted bg-cream-100 dark:bg-surface/60 px-4 py-2 rounded-full">
+              <span className="h-2 w-2 rounded-full bg-success" />
+              {t("prop.form.sentConvo")}
+            </div>
+          )}
           <div className="mt-6 flex flex-wrap gap-3 justify-center">
-            <Link href="/messages">
-              <Button variant="gradient">{t("prop.form.openChat")}</Button>
-            </Link>
+            {conversationId && (
+              <Link href={`/messages?c=${encodeURIComponent(conversationId)}`}>
+                <Button variant="gradient">{t("prop.form.openChat")}</Button>
+              </Link>
+            )}
             <Link href="/inquiries">
               <Button variant="secondary">
                 {t("prop.form.viewRequests")}
@@ -1200,16 +1302,12 @@ function StepContact({
           onClick={async () => {
             try {
               const convo = await api.startConversation(p.id);
-              window.location.href = `/messages?c=${convo.id}`;
+              router.push(`/messages?c=${encodeURIComponent(convo.id)}`);
             } catch (e) {
-              alert(
-                t("prop.form.errChat", {
-                  msg: (e as Error).message ?? t("prop.form.errUnknown"),
-                }),
-              );
+              toast.error(e);
             }
           }}
-          className="mt-4 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border bg-cream-50 dark:bg-surface/60 text-sm font-medium text-ink hover:border-brand-400 transition-colors"
+          className="mt-4 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border bg-cream-50 dark:bg-surface/60 text-sm font-medium text-ink hover:border-brand-400 transition-colors max-w-full"
         >
           {t("prop.form.directChat")}
         </button>
@@ -1229,8 +1327,9 @@ function StepContact({
           {step === 1 && (
             <div className="space-y-3 animate-fade-in">
               <div className="space-y-1">
-                <Label>{t("prop.form.email")}</Label>
+                <Label htmlFor={`${uid}-email`}>{t("prop.form.email")}</Label>
                 <Input
+                  id={`${uid}-email`}
                   type="email"
                   value={form.contactEmail}
                   onChange={(e) =>
@@ -1240,8 +1339,9 @@ function StepContact({
                 />
               </div>
               <div className="space-y-1">
-                <Label>{t("prop.form.phone")}</Label>
+                <Label htmlFor={`${uid}-phone`}>{t("prop.form.phone")}</Label>
                 <Input
+                  id={`${uid}-phone`}
                   value={form.contactPhone}
                   onChange={(e) =>
                     setForm({ ...form, contactPhone: e.target.value })
@@ -1258,13 +1358,14 @@ function StepContact({
           {step === 2 && (
             <div className="space-y-4 animate-fade-in">
               <div className="space-y-1">
-                <Label>
+                <Label htmlFor={`${uid}-date`}>
                   {isSale ? t("prop.form.dateSale") : t("prop.form.dateRent")}
                   <span className="text-ink-subtle ml-1">
                     {t("prop.form.optional")}
                   </span>
                 </Label>
                 <Input
+                  id={`${uid}-date`}
                   type="date"
                   value={form.desiredStartDate}
                   min={new Date().toISOString().split("T")[0]}
@@ -1294,8 +1395,9 @@ function StepContact({
 
                   {form.isDurationLimited && (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <Input
+                          aria-label={t("fix.prop.durationValue")}
                           type="number"
                           min={1}
                           max={9999}
@@ -1307,6 +1409,7 @@ function StepContact({
                           className="w-24"
                         />
                         <select
+                          aria-label={t("fix.prop.durationUnit")}
                           value={form.leaseDurationUnit}
                           onChange={(e) =>
                             setForm({
@@ -1314,7 +1417,7 @@ function StepContact({
                               leaseDurationUnit: e.target.value as DurationUnit,
                             })
                           }
-                          className="h-10 rounded-md border border-border bg-surface px-3 text-sm"
+                          className="h-10 rounded-md border border-border bg-surface text-ink px-3 text-sm"
                         >
                           {(rates.length > 0
                             ? (rates.map((r) => r.unit) as DurationUnit[])
@@ -1328,7 +1431,7 @@ function StepContact({
                       </div>
 
                       {simulatedTotal !== null && (
-                        <div className="rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 px-4 py-3">
+                        <div className="rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 px-4 py-3">
                           <div className="text-xs text-ink-muted mb-1">
                             {t("prop.form.simTotal")}
                           </div>
@@ -1353,8 +1456,10 @@ function StepContact({
           {step === 3 && (
             <div className="space-y-3 animate-fade-in">
               <div className="space-y-1">
-                <Label>{t("prop.form.message")}</Label>
+                <Label htmlFor={`${uid}-msg`}>{t("prop.form.message")}</Label>
                 <Textarea
+                  id={`${uid}-msg`}
+                  maxLength={4000}
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   minLength={10}
@@ -1386,7 +1491,7 @@ function StepContact({
                 </label>
               )}
               {error && (
-                <div className="rounded-md border border-red-200 bg-red-50 text-danger text-sm px-3 py-2">
+                <div role="alert" className="rounded-md border border-danger/30 bg-danger/10 text-danger dark:text-red-300 text-sm px-3 py-2 [overflow-wrap:anywhere]">
                   {error}
                 </div>
               )}
@@ -1394,7 +1499,7 @@ function StepContact({
           )}
 
           {/* Navigation entre sous-étapes */}
-          <div className="flex items-center justify-between pt-4 border-t border-border">
+          <div className="flex items-center justify-between gap-2 flex-wrap pt-4 border-t border-border">
             <Button
               type="button"
               variant="secondary"
@@ -1461,6 +1566,11 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [done, setDone] = React.useState(false);
+  // Créneau minimum = maintenant (heure locale, format datetime-local).
+  const minSlot = React.useMemo(() => {
+    const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000);
+    return d.toISOString().slice(0, 16);
+  }, []);
 
   if (done) {
     return (
@@ -1492,8 +1602,9 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
     try {
       await api.requestVisit({ propertyId, proposedAt: new Date(slot).toISOString(), note: note || undefined });
       setDone(true);
+      toast.success(t("fix.prop.visitSent"));
     } catch (e) {
-      alert(t("prop.visit.err", { msg: (e as Error).message }));
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -1505,11 +1616,15 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
       <div className="flex flex-wrap gap-2 items-center">
         <Input
           type="datetime-local"
+          aria-label={t("prop.visit.title")}
           value={slot}
+          min={minSlot}
           onChange={(e) => setSlot(e.target.value)}
           className="max-w-[15rem]"
         />
         <Input
+          aria-label={t("prop.visit.note")}
+          maxLength={500}
           placeholder={t("prop.visit.note")}
           value={note}
           onChange={(e) => setNote(e.target.value)}

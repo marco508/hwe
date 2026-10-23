@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Button,
@@ -11,12 +11,23 @@ import {
   Label,
   AnimatedBackground,
 } from "@hwe/ui";
-import { useAuth } from "../../lib/auth-context";
+import { useAuth, WRONG_ROLE } from "../../lib/auth-context";
+import { errorText, isApiError, safeNext } from "@hwe/ui";
 import { t } from "../../lib/i18n";
 import { IlloKeys } from "@hwe/ui";
 
 export default function LoginPage() {
+  // useSearchParams exige une frontière Suspense (prérendu).
+  return (
+    <React.Suspense fallback={null}>
+      <LoginInner />
+    </React.Suspense>
+  );
+}
+
+function LoginInner() {
   const router = useRouter();
+  const params = useSearchParams();
   const { login } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -28,21 +39,20 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const u = await login(email, password);
-      if (u.role !== "OWNER" && u.role !== "ADMIN") {
-        setError(t("login.errRole"));
-        setLoading(false);
-        return;
-      }
-      router.push("/dashboard");
-    } catch {
-      setError(t("login.errCreds"));
+      // Le rôle est vérifié avant tout stockage du jeton (F4).
+      await login(email, password);
+      router.push(safeNext(params.get("next"), "/dashboard"));
+    } catch (err) {
+      // A5 : message adapté à la cause réelle de l'échec.
+      if (isApiError(err) && err.code === WRONG_ROLE) setError(t("login.errRole"));
+      else if (isApiError(err) && (err.status === 401 || err.status === 400)) setError(t("login.errCreds"));
+      else setError(errorText(err));
       setLoading(false);
     }
   };
 
   return (
-    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-6 px-6 py-12">
+    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-4 px-4 sm:-mx-6 sm:px-6 py-12">
       <div className="max-w-md w-full">
         <div className="text-center mb-6">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
@@ -62,10 +72,11 @@ export default function LoginPage() {
           <CardBody>
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-1">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("login.email")}</Label>
                 <Input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -74,20 +85,21 @@ export default function LoginPage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">{t("login.password")}</Label>
-                  <Link href="/forgot-password" className="text-xs text-muted-foreground hover:underline">
-                    Mot de passe oublié ?
+                  <Link href="/forgot-password" className="text-xs text-ink-muted hover:underline">
+                    {t("login.forgot")}
                   </Link>
                 </div>
                 <Input
                   id="password"
                   type="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
               {error && (
-                <div className="rounded-md border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-900/40 text-danger dark:text-red-300 text-sm px-3 py-2">
+                <div role="alert" className="rounded-md border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-900/40 text-danger dark:text-red-300 text-sm px-3 py-2">
                   {error}
                 </div>
               )}
@@ -102,7 +114,7 @@ export default function LoginPage() {
               <p className="text-sm text-ink-muted text-center">
                 {t("login.noAccount")}{" "}
                 <Link href="/register" className="font-medium">
-                  Créer un compte propriétaire
+                  {t("login.createOwner")}
                 </Link>
               </p>
             </form>

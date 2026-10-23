@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -11,7 +12,7 @@ import { assertEmailVerified } from "../common/email-verified.util";
 import { assertValidDataUrl } from "../common/upload.util";
 import { CreateTicketDto, ReviewTicketDto } from "./dto/ticket.dto";
 
-type AuthUser = { sub: string; email: string };
+type AuthUser = { sub: string };
 
 @Injectable()
 export class TicketsService {
@@ -27,6 +28,9 @@ export class TicketsService {
       throw new ForbiddenException("Seul le locataire signale un incident");
     }
     await assertEmailVerified(this.prisma, user.sub);
+    if (lease.status !== "SIGNED" && lease.status !== "ACTIVE") {
+      throw new ConflictException("Les incidents se signalent sur un bail signé et en cours.");
+    }
     assertValidDataUrl(dto.photoDataUrl, "photo");
 
     const ticket = await this.prisma.ticket.create({
@@ -61,6 +65,7 @@ export class TicketsService {
     return this.prisma.ticket.findMany({
       where: { leaseId },
       orderBy: { createdAt: "desc" },
+      take: 200,
     });
   }
 
@@ -72,6 +77,7 @@ export class TicketsService {
         lease: { select: { property: { select: { id: true, title: true } } } },
       },
       orderBy: { createdAt: "desc" },
+      take: 500,
     });
   }
 
@@ -94,6 +100,7 @@ export class TicketsService {
         author: { select: { firstName: true, lastName: true, email: true } },
       },
       orderBy: { createdAt: "desc" },
+      take: 500,
     });
   }
 
@@ -102,7 +109,7 @@ export class TicketsService {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id: ticketId },
       include: {
-        lease: { include: { property: true } },
+        lease: { include: { property: { select: { ownerId: true } } } },
         author: { select: { email: true, firstName: true } },
       },
     });

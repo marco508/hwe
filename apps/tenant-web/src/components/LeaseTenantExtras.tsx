@@ -1,7 +1,24 @@
 "use client";
 
 import * as React from "react";
-import { Badge, Button, Input, Label, Textarea } from "@hwe/ui";
+import {
+  Badge,
+  Button,
+  Input,
+  Label,
+  Textarea,
+  DOC_ACCEPT,
+  IMAGE_ACCEPT,
+  IMAGE_MIME_TYPES,
+  DOC_MIME_TYPES,
+  fmtDate as fmtDateShared,
+  fmtMoney as fmtMoneyShared,
+  openDataUrl,
+  compressImage,
+  readFileAsDataUrl,
+  toast,
+} from "@hwe/ui";
+import { leaseCurrency } from "@hwe/types";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth-context";
 import { t } from "../lib/i18n";
@@ -15,16 +32,47 @@ import type {
   ChargeRegularization,
 } from "@hwe/types";
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("fr-FR");
+const fmtDate = (iso: string) => fmtDateShared(iso, "medium");
+
+/** Montant dans la devise du bail (F2) — jamais d'EUR implicite. */
+const money = (n: number, lease: LeaseContract) => fmtMoneyShared(n, leaseCurrency(lease));
+
+/**
+ * État constaté d'un élément d'état des lieux : valeur stockée (code stable ou
+ * ancien libellé français) → libellé traduit (U4).
+ */
+const CONDITION_KEYS: Record<string, string> = {
+  GOOD: "good",
+  Bon: "good",
+  WORN: "worn",
+  Usé: "worn",
+  TO_REPAIR: "repair",
+  REPAIR: "repair",
+  "À réparer": "repair",
+  NEW: "new",
+  Neuf: "new",
+};
+function conditionLabel(c: string) {
+  const k = CONDITION_KEYS[c];
+  return k ? t("fix.condition." + k) : c;
 }
 
-function fmtMoney(n: number) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(n);
+/** Lit un fichier après contrôle du type et de la taille ; null si refusé (toast). */
+async function pickFile(f: File, allowed: readonly string[], maxBytes: number, tooBigKey: string) {
+  if (!allowed.includes(f.type)) {
+    toast.error(t(allowed.includes("application/pdf") ? "fix.file.docType" : "fix.file.imageType"));
+    return null;
+  }
+  if (f.size > maxBytes) {
+    toast.error(t(tooBigKey));
+    return null;
+  }
+  try {
+    return await readFileAsDataUrl(f);
+  } catch (e) {
+    toast.error(e);
+    return null;
+  }
 }
 
 const TICKET_TONE: Record<TicketStatus, "neutral" | "accent" | "success"> = {
@@ -49,7 +97,7 @@ function DepositInfo({ lease }: { lease: LeaseContract }) {
         {t("rental.deposit.returnedOn")} <strong>{fmtDate(lease.depositReturnedAt)}</strong>
         {lease.depositRetained ? (
           <span>
-            {" "}{t("rental.deposit.retained")} <strong>{fmtMoney(lease.depositRetained)}</strong>
+            {" "}{t("rental.deposit.retained")} <strong>{money(lease.depositRetained, lease)}</strong>
             {lease.depositNote ? ` (${lease.depositNote})` : ""}
           </span>
         ) : (
@@ -61,13 +109,13 @@ function DepositInfo({ lease }: { lease: LeaseContract }) {
   if (lease.depositPaidAt) {
     return (
       <p className="text-sm">
-        {t("rental.deposit.paidOn")} <strong>{fmtDate(lease.depositPaidAt)}</strong> ({fmtMoney(lease.deposit)})
+        {t("rental.deposit.paidOn")} <strong>{fmtDate(lease.depositPaidAt)}</strong> ({money(lease.deposit, lease)})
       </p>
     );
   }
   return (
     <p className="text-sm text-ink-muted">
-      {t("rental.deposit.notPaid", { amount: fmtMoney(lease.deposit) })}
+      {t("rental.deposit.notPaid", { amount: money(lease.deposit, lease) })}
     </p>
   );
 }
@@ -91,8 +139,9 @@ function InspectionView({
     setBusy(true);
     try {
       onChange(await api.signInspection(leaseId, inspection.type));
+      toast.success(t("fix.inspection.signed"));
     } catch (e) {
-      alert(t("rental.error", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -106,6 +155,8 @@ function InspectionView({
         <span title={t("rental.inspection.ownerTitle")}>{inspection.ownerSignedAt ? "✅" : "⏳"} {t("rental.inspection.ownerShort")}</span>
         <span title={t("rental.inspection.youTitle")}>{inspection.tenantSignedAt ? "✅" : "⏳"} {t("rental.inspection.youShort")}</span>
         <button
+          type="button"
+          aria-expanded={openDetail}
           className="underline text-ink-muted"
           onClick={() => setOpenDetail((o) => !o)}
         >
@@ -122,8 +173,8 @@ function InspectionView({
           {(inspection.items ?? []).length > 0 && (
             <ul className="space-y-1">
               {(inspection.items ?? []).map((it, i) => (
-                <li key={i}>
-                  <strong>{it.label}</strong> — {it.condition}
+                <li key={i} className="[overflow-wrap:anywhere]">
+                  <strong>{it.label}</strong> — {conditionLabel(it.condition)}
                   {it.note ? <span className="text-ink-muted"> · {it.note}</span> : null}
                 </li>
               ))}
@@ -136,7 +187,7 @@ function InspectionView({
             {inspection.keysCount != null && <span>{t(inspection.keysCount > 1 ? "rental.inspection.keys.other" : "rental.inspection.keys.one", { n: inspection.keysCount })}</span>}
           </div>
           {inspection.generalNote && (
-            <p className="whitespace-pre-line">{inspection.generalNote}</p>
+            <p className="whitespace-pre-line [overflow-wrap:anywhere]">{inspection.generalNote}</p>
           )}
         </div>
       )}
@@ -158,16 +209,20 @@ function TicketForm({
   const [photo, setPhoto] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
 
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
+    e.target.value = "";
     if (!f) return;
-    if (f.size > 8 * 1024 * 1024) {
-      alert(t("rental.ticket.photoTooBig"));
+    if (!(IMAGE_MIME_TYPES as readonly string[]).includes(f.type)) {
+      toast.error(t("fix.file.imageType"));
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setPhoto(String(reader.result));
-    reader.readAsDataURL(f);
+    try {
+      // Photo compressée avant envoi (corps JSON limité côté API).
+      setPhoto(await compressImage(f));
+    } catch {
+      toast.error(t("fix.file.openError"));
+    }
   };
 
   const submit = async (e: React.FormEvent) => {
@@ -183,8 +238,9 @@ function TicketForm({
       setTitle("");
       setDescription("");
       setPhoto(null);
+      toast.success(t("fix.ticket.created"));
     } catch (err) {
-      alert(t("rental.error", { message: (err as Error).message }));
+      toast.error(err);
     } finally {
       setBusy(false);
     }
@@ -219,10 +275,11 @@ function TicketForm({
         <input
           id={`tp-${leaseId}`}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept={IMAGE_ACCEPT}
           onChange={onFile}
-          className="block text-sm"
+          className="block w-full max-w-full text-sm"
         />
+        {photo && <p className="text-xs text-ink-muted mt-1">✓ {t("fix.file.ready")}</p>}
       </div>
       <Button type="submit" size="sm" disabled={busy}>
         {busy ? t("rental.sending") : t("rental.ticket.submit")}
@@ -251,7 +308,7 @@ function NoticeBlock({ lease, onUpdate }: { lease: LeaseContract; onUpdate: (l: 
       <p className="text-sm">
         {t("rental.notice.givenOn")} <strong>{fmtDate(lease.noticeGivenAt)}</strong> {t("rental.notice.leaseEndsOn")}{" "}
         <strong>{lease.noticeEffectiveDate ? fmtDate(lease.noticeEffectiveDate) : "—"}</strong>.
-        {lease.noticeNote ? <span className="text-ink-muted"> {lease.noticeNote}</span> : null}
+        {lease.noticeNote ? <span className="text-ink-muted [overflow-wrap:anywhere]"> {lease.noticeNote}</span> : null}
       </p>
     );
   }
@@ -279,8 +336,9 @@ function NoticeBlock({ lease, onUpdate }: { lease: LeaseContract; onUpdate: (l: 
       });
       onUpdate({ ...lease, ...updated });
       setOpen(false);
+      toast.success(t("fix.notice.sent"));
     } catch (e) {
-      alert(t("rental.error", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -290,16 +348,16 @@ function NoticeBlock({ lease, onUpdate }: { lease: LeaseContract; onUpdate: (l: 
     <div className="space-y-3 max-w-lg text-sm">
       <p className="text-ink-muted">
         {t("rental.notice.info1", { n: lease.noticePeriod })}{" "}
-        <strong>{minDate.toLocaleDateString("fr-FR")}</strong>. {t("rental.notice.info2")}
+        <strong>{fmtDateShared(minDate, "long", { utc: false })}</strong>. {t("rental.notice.info2")}
       </p>
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
-          <Label>{t("rental.notice.desiredDate")}</Label>
-          <Input type="date" value={desired} onChange={(e) => setDesired(e.target.value)} />
+          <Label htmlFor={`nd-${lease.id}`}>{t("rental.notice.desiredDate")}</Label>
+          <Input id={`nd-${lease.id}`} type="date" value={desired} onChange={(e) => setDesired(e.target.value)} />
         </div>
         <div>
-          <Label>{t("rental.notice.message")}</Label>
-          <Input value={note} onChange={(e) => setNote(e.target.value)} />
+          <Label htmlFor={`nm-${lease.id}`}>{t("rental.notice.message")}</Label>
+          <Input id={`nm-${lease.id}`} value={note} maxLength={1000} onChange={(e) => setNote(e.target.value)} />
         </div>
       </div>
       <div className="flex gap-2">
@@ -316,7 +374,7 @@ function NoticeBlock({ lease, onUpdate }: { lease: LeaseContract; onUpdate: (l: 
 
 // ─── Avenants ─────────────────────────────────────────────────────
 
-function AmendmentsBlock({ lease }: { lease: LeaseContract }) {
+function AmendmentsBlock({ lease, canSign }: { lease: LeaseContract; canSign: boolean }) {
   const [amendments, setAmendments] = React.useState<LeaseAmendment[] | null>(
     lease.amendments ?? null,
   );
@@ -337,9 +395,10 @@ function AmendmentsBlock({ lease }: { lease: LeaseContract }) {
     setBusy(id);
     try {
       const signed = await api.signAmendment(lease.id, id);
-      setAmendments((arr) => (arr ?? []).map((a) => (a.id === signed.id ? signed : a)));
+      setAmendments((arr) => (arr ?? []).map((a) => (a.id === signed.id ? { ...a, ...signed } : a)));
+      toast.success(t("fix.amendment.signed"));
     } catch (e) {
-      alert(t("rental.error", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setBusy(null);
     }
@@ -349,19 +408,27 @@ function AmendmentsBlock({ lease }: { lease: LeaseContract }) {
     <ul className="space-y-2 text-sm">
       {amendments.map((a) => (
         <li key={a.id} className="flex flex-wrap items-center gap-2">
-          <span>
+          <span className="min-w-0 [overflow-wrap:anywhere]">
             {t("rental.amendments.on")} <strong>{fmtDate(a.effectiveDate)}</strong> :
-            {a.newMonthlyRent != null && <> {t("rental.amendments.rent")} <strong>{fmtMoney(a.newMonthlyRent)}</strong></>}
-            {a.newCharges != null && <> {t("rental.amendments.charges")} <strong>{fmtMoney(a.newCharges)}</strong></>}
+            {a.newMonthlyRent != null && <> {t("rental.amendments.rent")} <strong>{money(a.newMonthlyRent, lease)}</strong></>}
+            {a.newCharges != null && <> {t("rental.amendments.charges")} <strong>{money(a.newCharges, lease)}</strong></>}
             {a.newEndDate != null && <> {t("rental.amendments.end")} <strong>{fmtDate(a.newEndDate)}</strong></>}
           </span>
-          {a.note && <span className="text-ink-muted">— {a.note}</span>}
+          {a.note && <span className="text-ink-muted [overflow-wrap:anywhere]">— {a.note}</span>}
           {a.tenantSignedAt ? (
             <Badge tone="success">{t("rental.amendments.signedOn", { date: fmtDate(a.tenantSignedAt) })}</Badge>
-          ) : (
+          ) : canSign ? (
             <Button size="sm" disabled={busy === a.id} onClick={() => sign(a.id)}>
               {t("rental.sign.button")}
             </Button>
+          ) : (
+            <Badge tone="neutral">{t("fix.amendment.awaitPrimary")}</Badge>
+          )}
+          {/* Avenant appliqué à sa date d'effet seulement (contrat §9). */}
+          {a.tenantSignedAt && !a.appliedAt && (
+            <span className="text-xs text-ink-muted">
+              {t("fix.amendment.pendingApply", { date: fmtDate(a.effectiveDate) })}
+            </span>
           )}
         </li>
       ))}
@@ -371,7 +438,7 @@ function AmendmentsBlock({ lease }: { lease: LeaseContract }) {
 
 // ─── Colocataires ─────────────────────────────────────────────────
 
-function CoTenantsBlock({ lease }: { lease: LeaseContract }) {
+function CoTenantsBlock({ lease, onMerge }: { lease: LeaseContract; onMerge?: (l: LeaseContract) => void }) {
   const { user } = useAuth();
   const [coTenants, setCoTenants] = React.useState(lease.coTenants ?? []);
   const [busy, setBusy] = React.useState(false);
@@ -379,16 +446,21 @@ function CoTenantsBlock({ lease }: { lease: LeaseContract }) {
   if (coTenants.length === 0)
     return <p className="text-sm text-ink-muted">{t("rental.coTenants.empty")}</p>;
 
-  const mine = coTenants.find((c) => c.email === user?.email);
+  const me = user?.email?.trim().toLowerCase();
+  const mine = coTenants.find((c) => c.email.trim().toLowerCase() === me);
 
   const sign = async () => {
     if (!confirm(t("rental.coTenants.signConfirm"))) return;
     setBusy(true);
     try {
       const signed = await api.signAsCoTenant(lease.id);
-      setCoTenants((arr) => arr.map((c) => (c.id === signed.id ? signed : c)));
+      // Sous-ressource renvoyée : fusionnée dans le bail (contrat / signatures à jour).
+      const next = coTenants.map((c) => (c.id === signed.id ? { ...c, ...signed } : c));
+      setCoTenants(next);
+      onMerge?.({ ...lease, coTenants: next });
+      toast.success(t("fix.lease.signed"));
     } catch (e) {
-      alert(t("rental.error", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -401,7 +473,7 @@ function CoTenantsBlock({ lease }: { lease: LeaseContract }) {
           <li key={c.id} className="flex flex-wrap items-center gap-2">
             <span>{c.signedAt ? "✅" : "⏳"}</span>
             <span className="font-medium">{c.firstName} {c.lastName}</span>
-            <span className="text-ink-muted">{c.email}</span>
+            <span className="text-ink-muted [overflow-wrap:anywhere] min-w-0">{c.email}</span>
             {c.signedAt && <span className="text-ink-muted">{t("rental.coTenants.signedOn", { date: fmtDate(c.signedAt) })}</span>}
           </li>
         ))}
@@ -417,7 +489,7 @@ function CoTenantsBlock({ lease }: { lease: LeaseContract }) {
 
 // ─── Assurance habitation ─────────────────────────────────────────
 
-function InsuranceBlock({ lease }: { lease: LeaseContract }) {
+function InsuranceBlock({ lease, onMerge }: { lease: LeaseContract; onMerge?: (l: LeaseContract) => void }) {
   const [certs, setCerts] = React.useState<InsuranceSummary[]>(lease.insurances ?? []);
   const [file, setFile] = React.useState<string | null>(null);
   const [validUntil, setValidUntil] = React.useState("");
@@ -433,16 +505,11 @@ function InsuranceBlock({ lease }: { lease: LeaseContract }) {
         ? { text: t("rental.insurance.expiring", { date: fmtDate(latest.validUntil) }), tone: "accent" as const }
         : { text: t("rental.insurance.valid", { date: fmtDate(latest.validUntil) }), tone: "success" as const };
 
-  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
+    e.target.value = "";
     if (!f) return;
-    if (f.size > 8 * 1024 * 1024) {
-      alert(t("rental.insurance.fileTooBig"));
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => setFile(String(reader.result));
-    reader.readAsDataURL(f);
+    setFile(await pickFile(f, DOC_MIME_TYPES, 8 * 1024 * 1024, "rental.insurance.fileTooBig"));
   };
 
   const submit = async () => {
@@ -450,11 +517,14 @@ function InsuranceBlock({ lease }: { lease: LeaseContract }) {
     setBusy(true);
     try {
       const created = await api.addInsurance(lease.id, { fileUrl: file, validUntil });
-      setCerts((arr) => [created, ...arr]);
+      const next = [created, ...certs];
+      setCerts(next);
+      onMerge?.({ ...lease, insurances: next });
       setFile(null);
       setValidUntil("");
+      toast.success(t("fix.insurance.sent"));
     } catch (e) {
-      alert(t("rental.error", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -466,18 +536,19 @@ function InsuranceBlock({ lease }: { lease: LeaseContract }) {
         <Badge tone={status.tone}>{status.text}</Badge>
       </p>
       <div className="flex flex-wrap items-end gap-2">
-        <div>
-          <Label>{t("rental.insurance.file")}</Label>
+        <div className="min-w-0 max-w-full">
+          <Label htmlFor={`if-${lease.id}`}>{t("rental.insurance.file")}</Label>
           <input
+            id={`if-${lease.id}`}
             type="file"
-            accept="application/pdf,image/jpeg,image/png,image/webp"
+            accept={DOC_ACCEPT}
             onChange={onFile}
-            className="block text-sm"
+            className="block w-full max-w-full text-sm"
           />
         </div>
         <div>
-          <Label>{t("rental.insurance.validUntil")}</Label>
-          <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+          <Label htmlFor={`iv-${lease.id}`}>{t("rental.insurance.validUntil")}</Label>
+          <Input id={`iv-${lease.id}`} type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
         </div>
         <Button size="sm" disabled={busy || !file || !validUntil} onClick={submit}>
           {busy ? t("rental.sending") : t("rental.insurance.submit")}
@@ -490,7 +561,8 @@ function InsuranceBlock({ lease }: { lease: LeaseContract }) {
 
 // ─── Régularisations de charges (lecture) ───────────────────────────
 
-function ChargeRegsBlock({ leaseId }: { leaseId: string }) {
+function ChargeRegsBlock({ lease }: { lease: LeaseContract }) {
+  const leaseId = lease.id;
   const [regs, setRegs] = React.useState<ChargeRegularization[] | null>(null);
 
   React.useEffect(() => {
@@ -508,18 +580,18 @@ function ChargeRegsBlock({ leaseId }: { leaseId: string }) {
           <span className="font-medium">{r.periodLabel}</span>
           <span className="text-ink-muted">
             {t("rental.charges.detail", {
-              provisions: fmtMoney(r.provisionsCollected),
-              actual: fmtMoney(r.actualCharges),
+              provisions: money(r.provisionsCollected, lease),
+              actual: money(r.actualCharges, lease),
             })}
           </span>
           {r.balance > 0 ? (
-            <Badge tone="accent">{t("rental.charges.toPay", { amount: fmtMoney(r.balance) })}</Badge>
+            <Badge tone="accent">{t("rental.charges.toPay", { amount: money(r.balance, lease) })}</Badge>
           ) : r.balance < 0 ? (
-            <Badge tone="brand">{t("rental.charges.toRefund", { amount: fmtMoney(-r.balance) })}</Badge>
+            <Badge tone="brand">{t("rental.charges.toRefund", { amount: money(-r.balance, lease) })}</Badge>
           ) : (
             <Badge tone="success">{t("rental.charges.balanced")}</Badge>
           )}
-          {r.note && <span className="text-ink-muted">— {r.note}</span>}
+          {r.note && <span className="text-ink-muted [overflow-wrap:anywhere]">— {r.note}</span>}
         </li>
       ))}
     </ul>
@@ -531,9 +603,12 @@ function ChargeRegsBlock({ leaseId }: { leaseId: string }) {
 export function LeaseTenantExtras({
   lease,
   onLeaseUpdate,
+  isPrimary = true,
 }: {
   lease: LeaseContract;
   onLeaseUpdate?: (l: LeaseContract) => void;
+  /** Locataire principal ? (sinon colocataire : ni préavis ni signature d'avenant). */
+  isPrimary?: boolean;
 }) {
   const [inspections, setInspections] = React.useState<Inspection[] | null>(null);
   const [tickets, setTickets] = React.useState<Ticket[] | null>(null);
@@ -591,7 +666,7 @@ export function LeaseTenantExtras({
           {t("rental.ownerNotice.given")} <strong>{fmtDate(lease.ownerNoticeGivenAt)}</strong>{" "}
           ({noticeReasonLabel(lease.ownerNoticeReason)}) {t("rental.ownerNotice.endOn")}{" "}
           <strong>{lease.ownerNoticeEffectiveDate ? fmtDate(lease.ownerNoticeEffectiveDate) : "—"}</strong>.
-          {lease.ownerNoticeNote ? <span className="text-ink-muted"> {lease.ownerNoticeNote}</span> : null}
+          {lease.ownerNoticeNote ? <span className="text-ink-muted [overflow-wrap:anywhere]"> {lease.ownerNoticeNote}</span> : null}
         </div>
       )}
 
@@ -599,39 +674,43 @@ export function LeaseTenantExtras({
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.notice")}
         </h3>
-        <NoticeBlock lease={lease} onUpdate={(l) => onLeaseUpdate?.(l)} />
+        {isPrimary ? (
+          <NoticeBlock lease={lease} onUpdate={(l) => onLeaseUpdate?.(l)} />
+        ) : (
+          <p className="text-sm text-ink-muted">{t("fix.coTenant.noticeByPrimary")}</p>
+        )}
       </section>
 
       <section>
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.amendments")}
         </h3>
-        <AmendmentsBlock lease={lease} />
+        <AmendmentsBlock lease={lease} canSign={isPrimary} />
       </section>
 
       <section>
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.coTenants")}
         </h3>
-        <CoTenantsBlock lease={lease} />
+        <CoTenantsBlock lease={lease} onMerge={onLeaseUpdate} />
       </section>
 
       <section>
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.charges")}
         </h3>
-        <ChargeRegsBlock leaseId={lease.id} />
+        <ChargeRegsBlock lease={lease} />
       </section>
 
       <section>
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.insurance")}
         </h3>
-        <InsuranceBlock lease={lease} />
+        <InsuranceBlock lease={lease} onMerge={onLeaseUpdate} />
       </section>
 
       <section>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
           <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
             {t("rental.section.tickets")}
           </h3>
@@ -657,12 +736,23 @@ export function LeaseTenantExtras({
         ) : (
           <ul className="space-y-2">
             {tickets.map((ticket) => (
-              <li key={ticket.id} className="text-sm flex flex-wrap items-center gap-2">
+              <li key={ticket.id} className="text-sm flex flex-wrap items-center gap-2 min-w-0">
                 <Badge tone={TICKET_TONE[ticket.status]}>{t("rental.ticket." + ticket.status)}</Badge>
-                <span className="font-medium">{ticket.title}</span>
+                <span className="font-medium min-w-0 [overflow-wrap:anywhere]">{ticket.title}</span>
                 <span className="text-ink-muted">· {fmtDate(ticket.createdAt)}</span>
+                {ticket.photoDataUrl && (
+                  <button
+                    type="button"
+                    className="underline text-ink-muted"
+                    onClick={() => {
+                      if (!openDataUrl(ticket.photoDataUrl, "incident")) toast.error(t("fix.file.openError"));
+                    }}
+                  >
+                    {t("fix.ticket.photo")}
+                  </button>
+                )}
                 {ticket.status === "RESOLVED" && ticket.resolutionNote && (
-                  <span className="text-ink-muted">— {ticket.resolutionNote}</span>
+                  <span className="text-ink-muted min-w-0 [overflow-wrap:anywhere]">— {ticket.resolutionNote}</span>
                 )}
               </li>
             ))}

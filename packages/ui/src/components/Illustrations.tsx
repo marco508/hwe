@@ -139,36 +139,6 @@ export function IlloVisit({ className = "" }: IlloProps) {
   );
 }
 
-/** Dossier & documents — profil, candidatures. */
-export function IlloDossier({ className = "" }: IlloProps) {
-  return (
-    <svg viewBox="0 0 220 150" fill="none" className={className} aria-hidden="true">
-      <path d="M40 46 H92 L106 62 H180 V122 A8 8 0 0 1 172 130 H48 A8 8 0 0 1 40 122 Z" fill={BRAND} opacity="0.9" />
-      <rect x="58" y="30" width="88" height="70" rx="6" fill={CREAM} stroke={BRAND_DARK} strokeWidth="3" />
-      <path d="M70 48 H134 M70 62 H134 M70 76 H112" stroke={BRAND} strokeWidth="5" strokeLinecap="round" opacity="0.7" />
-      <circle cx="166" cy="52" r="18" fill={ACCENT} />
-      <path d="M158 52 L163 58 L175 45" stroke={CREAM} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  );
-}
-
-/** Contrat signé — baux, avenants. */
-export function IlloContract({ className = "" }: IlloProps) {
-  return (
-    <svg viewBox="0 0 220 150" fill="none" className={className} aria-hidden="true">
-      <rect x="64" y="18" width="92" height="114" rx="8" fill={CREAM} stroke={BRAND_DARK} strokeWidth="3.5" />
-      <path d="M80 40 H140 M80 56 H140 M80 72 H124 M80 88 H140" stroke={BRAND} strokeWidth="5" strokeLinecap="round" opacity="0.6" />
-      <path d="M80 110 C92 100 96 116 108 106" stroke={ACCENT} strokeWidth="4" strokeLinecap="round" fill="none" />
-      <g transform="rotate(24 160 108)">
-        <rect x="150" y="72" width="14" height="52" rx="4" fill={ACCENT_LIGHT} />
-        <path d="M150 124 L157 138 L164 124 Z" fill={BRAND_DARK} />
-      </g>
-      <circle cx="48" cy="44" r="4" fill={BRAND_LIGHT} />
-      <circle cx="178" cy="34" r="4" fill={ACCENT_LIGHT} opacity="0.8" />
-    </svg>
-  );
-}
-
 /** Gestion sereine — dashboard propriétaire. */
 export function IlloManage({ className = "" }: IlloProps) {
   return (

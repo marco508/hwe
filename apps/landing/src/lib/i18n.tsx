@@ -13,10 +13,9 @@ const fr = {
   "nav.owner": "Propriétaire",
 
   "loc.exploring": "Vous explorez",
-  "loc.auto": "· détecté automatiquement",
+  "loc.auto": "· suggéré d'après la langue de votre navigateur",
   "loc.seeAll": "Voir tout {country}",
 
-  "hero.detecting": "Détection de votre position…",
   "hero.loading": "Chargement du catalogue…",
   "hero.count": "{n} bien{s} {place}",
   "hero.coming": "La plateforme arrive {place}",
@@ -53,7 +52,6 @@ const fr = {
   "cats.apartments": "Appartements",
   "cats.houses": "Maisons",
   "cats.studios": "Studios",
-  "cats.villas": "Villas",
   "cats.land": "Terrains",
   "cats.commercial": "Locaux",
 
@@ -62,7 +60,7 @@ const fr = {
   "steps.title2": "zéro agence",
   "steps.desc": "De la recherche à la remise des clés.",
   "steps.1.title": "Cherchez",
-  "steps.1.desc": "Filtrez par ville, budget et type de bien. Gardez vos favoris.",
+  "steps.1.desc": "Filtrez par ville, budget et type de bien. Gardez vos favoris dans votre espace.",
   "steps.2.title": "Contactez",
   "steps.2.desc": "Photos, détails du bien, message direct au propriétaire. Sans intermédiaire.",
   "steps.3.title": "Signez",
@@ -97,6 +95,20 @@ const fr = {
   "footer.legal": "Mentions légales",
   "footer.terms": "Conditions d'utilisation",
   "footer.tagline": "© {year} hwe — Habiter avec élégance.",
+
+  "nav.menu": "Menu",
+  "footer.privacy": "Confidentialité",
+  "place.all": "partout dans le monde",
+  "cat.more": "Voir plus de biens",
+  "cat.loadingMore": "Chargement…",
+  "cat.error": "Le catalogue n'a pas pu être chargé.",
+  "cat.showing": "{shown} sur {total}",
+  "empty.firstAll": "Le catalogue démarre. Publiez votre bien : il sera visible immédiatement.",
+  "fav.login": "Connectez-vous à votre espace locataire pour enregistrer ce bien en favori.",
+  "legal.updated": "Dernière mise à jour :",
+  "legal.toc": "Sommaire",
+  "legal.todo": "[À compléter]",
+  "legal.back": "Retour à l'accueil",
 };
 
 const en: typeof fr = {
@@ -109,10 +121,9 @@ const en: typeof fr = {
   "nav.owner": "Landlord",
 
   "loc.exploring": "You're browsing",
-  "loc.auto": "· detected automatically",
+  "loc.auto": "· suggested from your browser language",
   "loc.seeAll": "See all of {country}",
 
-  "hero.detecting": "Detecting your location…",
   "hero.loading": "Loading listings…",
   "hero.count": "{n} propert{s} {place}",
   "hero.coming": "The platform is coming {place}",
@@ -149,7 +160,6 @@ const en: typeof fr = {
   "cats.apartments": "Apartments",
   "cats.houses": "Houses",
   "cats.studios": "Studios",
-  "cats.villas": "Villas",
   "cats.land": "Land",
   "cats.commercial": "Commercial",
 
@@ -158,7 +168,7 @@ const en: typeof fr = {
   "steps.title2": "zero agency",
   "steps.desc": "From the search to the keys.",
   "steps.1.title": "Search",
-  "steps.1.desc": "Filter by city, budget and property type. Save your favorites.",
+  "steps.1.desc": "Filter by city, budget and property type. Save your favorites in your space.",
   "steps.2.title": "Reach out",
   "steps.2.desc": "Photos, full details, direct message to the landlord. No middleman.",
   "steps.3.title": "Sign",
@@ -193,6 +203,20 @@ const en: typeof fr = {
   "footer.legal": "Legal notice",
   "footer.terms": "Terms of use",
   "footer.tagline": "© {year} hwe — Living, elegantly.",
+
+  "nav.menu": "Menu",
+  "footer.privacy": "Privacy",
+  "place.all": "worldwide",
+  "cat.more": "See more properties",
+  "cat.loadingMore": "Loading…",
+  "cat.error": "The listings couldn't be loaded.",
+  "cat.showing": "{shown} of {total}",
+  "empty.firstAll": "The catalog is just starting. List your property: it will be visible immediately.",
+  "fav.login": "Sign in to your tenant space to save this property as a favorite.",
+  "legal.updated": "Last updated:",
+  "legal.toc": "Contents",
+  "legal.todo": "[To be completed]",
+  "legal.back": "Back to home",
 };
 
 export const { t, LangProvider, useLang, LangSwitch } = createI18n({ fr, en });

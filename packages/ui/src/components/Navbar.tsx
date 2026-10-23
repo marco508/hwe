@@ -8,16 +8,29 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   brand: React.ReactNode;
   audienceLabel?: string;
   right?: React.ReactNode;
+  /** Contrôles ajoutés en bas du tiroir mobile (langue, devise…) (M4). */
+  mobileExtra?: React.ReactNode;
+  /** Largeur sous laquelle les liens passent dans le tiroir (lg si beaucoup de liens). */
+  collapseBelow?: "md" | "lg";
 }
+
+// Classes littérales (Tailwind ne génère que ce qu'il voit en clair).
+const BP = {
+  md: { burger: "md:hidden", nav: "hidden md:flex", drawer: "md:hidden" },
+  lg: { burger: "lg:hidden", nav: "hidden lg:flex", drawer: "lg:hidden" },
+} as const;
 
 export const Navbar: React.FC<NavbarProps> = ({
   brand,
   audienceLabel,
   right,
+  mobileExtra,
+  collapseBelow = "md",
   className,
   children,
   ...props
 }) => {
+  const bp = BP[collapseBelow];
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const childArray = React.Children.toArray(children).filter(
     (c) => React.isValidElement(c),
@@ -42,15 +55,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       {...props}
     >
       <div className="container-app flex h-16 items-center justify-between gap-3 sm:gap-6">
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-3 min-w-0 shrink-0">
           {/* Burger mobile (uniquement si on a au moins un lien) */}
-          {childArray.length > 0 && (
+          {(childArray.length > 0 || mobileExtra) && (
             <button
               type="button"
               aria-label={tUi("ui.menu")}
               aria-expanded={mobileOpen}
               onClick={() => setMobileOpen((v) => !v)}
-              className="md:hidden h-9 w-9 inline-flex items-center justify-center rounded-full border border-border bg-surface hover:bg-cream-100 text-ink shrink-0"
+              className={cn(
+                bp.burger,
+                "h-9 w-9 inline-flex items-center justify-center rounded-full border border-border bg-surface hover:bg-cream-100 dark:hover:bg-white/5 text-ink shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
+              )}
+              aria-controls="hwe-mobile-nav"
             >
               {mobileOpen ? (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -66,18 +83,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
           )}
-          <div className="font-display text-xl font-semibold gradient-text truncate">
+          <div className="font-display text-xl font-semibold gradient-text shrink-0 whitespace-nowrap">
             {brand}
           </div>
           {audienceLabel && (
-            <span className="hidden sm:inline-block rounded-full bg-brand-50 dark:bg-brand-900/50 px-2.5 py-0.5 text-[11px] font-medium text-brand-700 dark:text-brand-300 border border-brand-100 dark:border-brand-800 shrink-0">
+            <span
+              className={cn(
+                // Beaucoup de liens (repli en lg) : le badge ne s'affiche que sur très grand écran.
+                collapseBelow === "lg" ? "hidden 2xl:inline-block" : "hidden sm:inline-block",
+                "rounded-full bg-brand-50 dark:bg-brand-900/50 px-2.5 py-0.5 text-[11px] font-medium text-brand-700 dark:text-brand-300 border border-brand-100 dark:border-brand-800 shrink-0",
+              )}
+            >
               {audienceLabel}
             </span>
           )}
         </div>
 
         {/* Liens desktop */}
-        <nav className="hidden md:flex items-center gap-5 text-sm text-ink-muted">
+        <nav className={cn(bp.nav, "items-center gap-3 xl:gap-4 text-sm text-ink-muted whitespace-nowrap min-w-0")}>
           {childArray.map((child, i) =>
             React.cloneElement(child, {
               key: i,
@@ -94,20 +117,30 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Drawer mobile */}
-      {mobileOpen && childArray.length > 0 && (
-        <div className="md:hidden border-t border-border bg-surface/95 backdrop-blur-xl">
+      {mobileOpen && (childArray.length > 0 || mobileExtra) && (
+        <div id="hwe-mobile-nav" className={cn(bp.drawer, "border-t border-border bg-surface/95 backdrop-blur-xl max-h-[calc(100vh-4rem)] overflow-y-auto")}>
           <nav className="container-app py-4 grid gap-1">
-            {childArray.map((child, i) =>
-              React.cloneElement(child, {
+            {childArray.map((child, i) => {
+              const own = (child as any).props?.onClick as ((e: unknown) => void) | undefined;
+              return React.cloneElement(child, {
                 key: `m-${i}`,
-                onClick: () => setMobileOpen(false),
+                // On conserve le onClick du lien (ex. déconnexion) puis on ferme.
+                onClick: (e: unknown) => {
+                  own?.(e);
+                  setMobileOpen(false);
+                },
                 className: cn(
                   "block px-3 py-2.5 rounded-lg text-sm text-ink hover:bg-cream-100 dark:hover:bg-white/[0.04] transition-colors",
-                  (child as any).props?.className?.replace(/hidden md:inline/g, "") ?? "",
+                  ((child as any).props?.className ?? "").replace(/hidden (md|lg):inline(-flex)?/g, ""),
                 ),
-              }),
-            )}
+              });
+            })}
           </nav>
+          {mobileExtra && (
+            <div className="container-app pb-4 pt-1 flex flex-wrap items-center gap-2 border-t border-border/60">
+              {mobileExtra}
+            </div>
+          )}
         </div>
       )}
     </header>

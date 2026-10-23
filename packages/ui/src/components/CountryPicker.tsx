@@ -5,7 +5,7 @@ import { cn } from "../utils";
 import {
   useLocation,
   groupCountriesByRegion,
-  type Country,
+  ALL_COUNTRIES_CODE,
 } from "./LocationContext";
 import { tUi, countryLabel } from "./I18nKit";
 
@@ -79,7 +79,12 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
       .filter((g) => g.countries.length > 0);
   }, [groups, query]);
 
-  const cities = citiesByCountry?.[countryCode] ?? [];
+  const cities = countryCode === ALL_COUNTRIES_CODE ? [] : citiesByCountry?.[countryCode] ?? [];
+  const label = (code: string, name: string) =>
+    code === ALL_COUNTRIES_CODE ? tUi("ui.allCountries") : countryLabel(code, name);
+  const totalCount = countsByCountry
+    ? Object.values(countsByCountry).reduce((a, b) => a + b, 0)
+    : 0;
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
@@ -98,7 +103,8 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
         title={isAutoDetected ? tUi("ui.detectedViaIp") : tUi("ui.changeLocation")}
       >
         <span aria-hidden="true" className="text-base leading-none">{country.flag}</span>
-        <span className="hidden sm:inline">{countryLabel(country.code, country.name)}</span>
+        <span className="hidden sm:inline max-w-[10rem] truncate">{label(country.code, country.name)}</span>
+        <span className="sr-only sm:hidden">{label(country.code, country.name)}</span>
         {city && (
           <>
             <span className="text-ink-subtle">·</span>
@@ -117,7 +123,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
         <div
           role="dialog"
           aria-label={tUi("ui.chooseLocation")}
-          className="absolute right-0 mt-2 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-surface shadow-elevated z-50 overflow-hidden animate-scale-in origin-top-right"
+          className="fixed inset-x-4 top-[4.5rem] sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2 sm:w-[360px] rounded-2xl border border-border bg-surface shadow-elevated z-50 overflow-hidden animate-scale-in origin-top-right"
         >
           {/* Tabs */}
           <div className="flex border-b border-border bg-cream-100/40 dark:bg-surface/60">
@@ -165,7 +171,32 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                 </div>
               </div>
 
-              <div className="max-h-[400px] overflow-y-auto pb-1">
+              <div className="max-h-[min(400px,60vh)] overflow-y-auto pb-1">
+                {!query.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCountry(ALL_COUNTRIES_CODE);
+                      setOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors",
+                      countryCode === ALL_COUNTRIES_CODE
+                        ? "bg-cream-200/50 dark:bg-brand-900/30 text-ink"
+                        : "text-ink-muted hover:bg-cream-100 dark:hover:bg-white/[0.04] hover:text-ink",
+                    )}
+                  >
+                    <span aria-hidden="true" className="text-xl leading-none shrink-0">🌍</span>
+                    <span className="flex-1 text-left">{tUi("ui.allCountries")}</span>
+                    {totalCount > 0 && (
+                      <span className="text-[11px] text-ink-subtle whitespace-nowrap">
+                        {totalCount > 1
+                          ? tUi("ui.countProperties", { n: totalCount })
+                          : tUi("ui.countProperty", { n: totalCount })}
+                      </span>
+                    )}
+                  </button>
+                )}
                 {filteredGroups.length === 0 && (
                   <div className="px-4 py-6 text-center text-sm text-ink-muted">
                     {tUi("ui.noCountryMatch", { query })}
@@ -205,7 +236,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                               <span aria-hidden="true" className="text-xl leading-none shrink-0">
                                 {c.flag}
                               </span>
-                              <span className="flex-1 text-left">
+                              <span className="flex-1 min-w-0 text-left">
                                 {countryLabel(c.code, c.name)}
                                 <span className="block text-[10px] text-ink-subtle">
                                   {c.currency}
@@ -238,7 +269,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
 
           {tab === "city" && (
             <div>
-              <div className="max-h-[400px] overflow-y-auto py-1">
+              <div className="max-h-[min(400px,60vh)] overflow-y-auto py-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -254,7 +285,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                 >
                   <span aria-hidden="true">🌍</span>
                   <span className="flex-1 text-left">
-                    {tUi("ui.wholeCountry", { name: countryLabel(country.code, country.name) })}
+                    {tUi("ui.wholeCountry", { name: label(country.code, country.name) })}
                   </span>
                   {city === null && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -280,7 +311,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                       )}
                     >
                       <span aria-hidden="true">📍</span>
-                      <span className="flex-1 text-left">{c}</span>
+                      <span className="flex-1 min-w-0 text-left [overflow-wrap:anywhere]">{c}</span>
                       {active && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />

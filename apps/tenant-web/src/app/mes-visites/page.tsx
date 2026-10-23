@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Badge, Button, EmptyState, IlloVisit } from "@hwe/ui";
+import { Badge, Button, EmptyState, ErrorState, IlloVisit, intlLocale, toast, useAsync, useLoginRedirect } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
@@ -16,31 +16,43 @@ const TONE: Record<VisitStatus, "accent" | "success" | "danger" | "neutral"> = {
   CANCELLED: "neutral",
 };
 
+// Créneau dans la langue courante (« à » / « at » via com.visits.at).
 function fmtSlot(iso: string) {
   const d = new Date(iso);
-  return `${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} ${t("com.visits.at")} ${d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+  const loc = intlLocale();
+  return `${d.toLocaleDateString(loc, { weekday: "long", day: "numeric", month: "long" })} ${t("com.visits.at")} ${d.toLocaleTimeString(loc, { hour: "2-digit", minute: "2-digit" })}`;
 }
 
 export default function MesVisitesPage() {
-  const { user, loading } = useAuth();
+  const auth = useAuth();
+  const { user, loading } = auth;
   const router = useRouter();
-  const [visits, setVisits] = React.useState<Visit[] | null>(null);
+  useLoginRedirect(auth, router);
+  const { data: visits, setData: setVisits, error, reload } = useAsync<Visit[]>(
+    () => api.myVisits(),
+    [user?.id],
+    { enabled: !!user },
+  );
 
-  React.useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-    api.myVisits().then(setVisits).catch(() => setVisits([]));
-  }, [user, loading, router]);
-
-  if (loading || visits === null) return <p className="text-ink-muted">{t("com.loading")}</p>;
+  if (error && !visits) {
+    return (
+      <section>
+        <h1 className="font-display text-3xl mb-6">{t("com.visits.title")}</h1>
+        <ErrorState error={error} onRetry={reload} />
+      </section>
+    );
+  }
+  if (loading || !visits) return <p className="text-ink-muted">{t("com.loading")}</p>;
 
   const cancel = async (id: string) => {
     if (!confirm(t("com.visits.confirmCancel"))) return;
-    const updated = await api.cancelVisit(id);
-    setVisits((arr) => (arr ?? []).map((v) => (v.id === updated.id ? { ...v, ...updated } : v)));
+    try {
+      const updated = await api.cancelVisit(id);
+      setVisits((arr) => (arr ?? []).map((v) => (v.id === updated.id ? { ...v, ...updated } : v)));
+      toast.success(t("fix.visits.cancelled"));
+    } catch (e) {
+      toast.error(e);
+    }
   };
 
   return (
@@ -68,22 +80,22 @@ export default function MesVisitesPage() {
           {visits.map((v) => (
             <div
               key={v.id}
-              className="rounded-2xl border border-ink-subtle bg-surface p-6 shadow-sm"
+              className="rounded-2xl border border-ink-subtle bg-surface p-4 sm:p-6 shadow-sm"
             >
               <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-3 mb-1 flex-wrap">
                     <span className="font-semibold">{fmtSlot(v.proposedAt)}</span>
                     <Badge tone={TONE[v.status]}>{t("com.visitStatus." + v.status)}</Badge>
                   </div>
                   <Link
                     href={`/properties/${v.propertyId}`}
-                    className="text-sm text-brand-600 dark:text-brand-300 hover:underline"
+                    className="text-sm text-brand-600 dark:text-brand-300 hover:underline [overflow-wrap:anywhere]"
                   >
                     {v.property?.title} — {v.property?.city}
                   </Link>
                   {v.ownerNote && (
-                    <p className="text-sm text-ink-muted mt-1">
+                    <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">
                       {t("com.visits.ownerNote", { note: v.ownerNote })}
                     </p>
                   )}

@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -28,8 +30,17 @@ import { RentsService } from "./rents.service";
 class PaymentMethodDto {
   @IsString() @MinLength(2) @MaxLength(60) label!: string;
   @IsString() @MinLength(2) @MaxLength(120) value!: string;
-  @IsOptional() @IsString() @MaxLength(80) holder?: string;
-  @IsOptional() @IsString() @MaxLength(300) instructions?: string;
+  @IsOptional() @IsString() @MaxLength(80) holder?: string | null;
+  @IsOptional() @IsString() @MaxLength(300) instructions?: string | null;
+  @IsOptional() @IsBoolean() active?: boolean;
+}
+
+/** PATCH partiel : chaque champ est facultatif. */
+class UpdatePaymentMethodDto {
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(60) label?: string;
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(120) value?: string;
+  @IsOptional() @IsString() @MaxLength(80) holder?: string | null;
+  @IsOptional() @IsString() @MaxLength(300) instructions?: string | null;
   @IsOptional() @IsBoolean() active?: boolean;
 }
 
@@ -37,17 +48,22 @@ class DeclareRentDto {
   @IsString() @MinLength(2) @MaxLength(60) method!: string;
   // Identifiant de transaction (référence du virement ou de l'opérateur).
   @IsString() @MinLength(4) @MaxLength(80) reference!: string;
-  // Capture du reçu, en data URL (même mécanique que les documents existants).
-  @IsOptional() @IsString() proofDataUrl?: string;
-  @IsOptional() @IsString() @MaxLength(500) note?: string;
+  // Capture du reçu, en data URL (image ou PDF ≤ 8 Mo, vérifiée).
+  @IsOptional() @IsString() proofDataUrl?: string | null;
+  @IsOptional() @IsString() @MaxLength(500) note?: string | null;
 }
 
 class ReviewRentDto {
   @IsBoolean() accept!: boolean;
-  @IsOptional() @IsString() @MaxLength(300) reason?: string;
+  @IsOptional() @IsString() @MaxLength(300) reason?: string | null;
 }
 
 type AuthUser = { sub: string; role: Role };
+
+const statusPipe = new ParseEnumPipe(RentStatus, {
+  optional: true,
+  exceptionFactory: () => new BadRequestException("Statut de loyer invalide."),
+});
 
 @Controller("rents")
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -70,7 +86,7 @@ export class RentsController {
 
   @Patch("payment-methods/:id")
   @Roles(Role.OWNER, Role.ADMIN)
-  updateMethod(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: PaymentMethodDto) {
+  updateMethod(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: UpdatePaymentMethodDto) {
     return this.rents.updateMethod(user.sub, id, dto);
   }
 
@@ -80,7 +96,7 @@ export class RentsController {
     return this.rents.removeMethod(user.sub, id);
   }
 
-  // ── Locataire ──
+  // ── Locataire (et colocataires) ──
 
   @Get("my")
   my(@CurrentUser() user: AuthUser) {
@@ -96,14 +112,15 @@ export class RentsController {
 
   @Get("owner")
   @Roles(Role.OWNER, Role.ADMIN)
-  owner(@CurrentUser() user: AuthUser, @Query("status") status?: RentStatus) {
+  owner(@CurrentUser() user: AuthUser, @Query("status", statusPipe) status?: RentStatus) {
     return this.rents.ownerRents(user.sub, status);
   }
 
+  /** Validation : le propriétaire du bien uniquement (pas l'administrateur). */
   @Post(":periodId/review")
   @Roles(Role.OWNER, Role.ADMIN)
   review(@CurrentUser() user: AuthUser, @Param("periodId") periodId: string, @Body() dto: ReviewRentDto) {
-    return this.rents.review(user.sub, user.role, periodId, dto.accept, dto.reason);
+    return this.rents.review(user.sub, periodId, dto.accept, dto.reason);
   }
 
   // ── Quittance (les deux parties) ──
@@ -113,6 +130,7 @@ export class RentsController {
     const { buffer, filename } = await this.rents.receiptPdf(user.sub, user.role, periodId);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Cache-Control", "private, no-store");
     res.send(buffer);
   }
 }

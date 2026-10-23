@@ -1,7 +1,8 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { UnreadBadge } from "./UnreadBadge";
-import { tUi } from "./I18nKit";
+import { SafeImage } from "./SafeImage";
+import { timeAgo } from "../client/format";
 
 export interface ConversationListItemProps {
   partnerName: string;
@@ -21,22 +22,6 @@ export interface ConversationListItemProps {
   active?: boolean;
   onClick?: () => void;
 }
-
-const timeAgo = (iso?: string | null) => {
-  if (!iso) return "";
-  const diff = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return tUi("ui.time.now");
-  if (min < 60) return tUi("ui.time.min", { n: min });
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return tUi("ui.time.hours", { n: hr });
-  const days = Math.floor(hr / 24);
-  if (days < 7) return tUi("ui.time.days", { n: days });
-  return new Date(iso).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "short",
-  });
-};
 
 export const ConversationListItem: React.FC<ConversationListItemProps> = ({
   partnerName,
@@ -65,16 +50,13 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
       {/* Avatar */}
       <span className="relative shrink-0">
         <span className="block h-11 w-11 rounded-full bg-gradient-to-br from-brand-500 to-accent-500 text-white text-sm font-bold flex items-center justify-center overflow-hidden">
-          {partnerAvatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={partnerAvatarUrl}
-              alt={partnerName}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            partnerInitials
-          )}
+          <SafeImage
+            src={partnerAvatarUrl}
+            alt={partnerName}
+            className="h-full w-full object-cover"
+            fallbackClassName="h-full w-full bg-transparent text-white"
+            fallback={partnerInitials}
+          />
         </span>
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1">
@@ -125,12 +107,12 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
       </div>
 
       {propertyImageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <SafeImage
           src={propertyImageUrl}
           alt={propertyTitle ?? ""}
           loading="lazy"
           className="h-12 w-12 rounded-lg object-cover ring-1 ring-border shrink-0"
+          fallback={<span className="text-[10px] font-display">hwe</span>}
         />
       )}
     </button>

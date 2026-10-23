@@ -6,12 +6,14 @@ import { api } from "../lib/api";
 import { useAuth } from "../lib/auth-context";
 import { t as tr } from "../lib/i18n";
 
+// null = compteur indisponible (erreur réseau/API) : on ne prétend pas
+// « rien à traiter » quand on ne sait pas (L2).
 type Counts = {
-  inquiries: number;
-  visits: number;
-  rents: number;
-  tickets: number;
-  unread: number;
+  inquiries: number | null;
+  visits: number | null;
+  rents: number | null;
+  tickets: number | null;
+  unread: number | null;
 };
 
 /** Ce qui attend une action du propriétaire, en tête de tableau de bord.
@@ -33,20 +35,20 @@ export function ActionCenter() {
         inquiries:
           inq.status === "fulfilled"
             ? inq.value.filter((i) => i.status === "PENDING").length
-            : 0,
+            : null,
         visits:
           vis.status === "fulfilled"
             ? vis.value.filter((v) => v.status === "REQUESTED").length
-            : 0,
+            : null,
         rents:
           rents.status === "fulfilled"
             ? rents.value.filter((r) => r.status === "DECLARED").length
-            : 0,
+            : null,
         tickets:
           tick.status === "fulfilled"
             ? tick.value.filter((t) => t.status !== "RESOLVED").length
-            : 0,
-        unread: unread.status === "fulfilled" ? unread.value.count : 0,
+            : null,
+        unread: unread.status === "fulfilled" ? unread.value.count : null,
       });
     });
   }, [user]);
@@ -65,7 +67,7 @@ export function ActionCenter() {
         <Link
           key={t.href}
           href={t.href}
-          className="group rounded-2xl border border-border bg-surface p-4 hover:border-brand-400 transition-colors"
+          className="group min-w-0 rounded-2xl border border-border bg-surface p-4 hover:border-brand-400 transition-colors text-ink"
         >
           <div className="flex items-center justify-between">
             <span className="text-2xl">{t.icon}</span>
@@ -79,7 +81,11 @@ export function ActionCenter() {
             {t.label}
           </p>
           <p className="text-xs text-ink-muted">
-            {t.count != null && t.count > 0 ? `${t.count} ${t.hint}` : tr("action.clear")}
+            {counts && t.count === null
+              ? tr("action.unavailable")
+              : t.count != null && t.count > 0
+                ? `${t.count} ${t.hint}`
+                : tr("action.clear")}
           </p>
         </Link>
       ))}

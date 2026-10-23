@@ -3,60 +3,57 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AnimatedBackground } from "@hwe/ui";
+import { AnimatedBackground, EmailVerifyNotice, toast } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
-import { PropertyForm, PropertyFormValue } from "../../../components/PropertyForm";
+import { PropertyForm, PropertyFormValue, toPropertyBody } from "../../../components/PropertyForm";
 
 export default function NewPropertyPage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  // Session et rôle garantis par dashboard/layout.tsx.
+  const { user, emailVerified } = useAuth();
   const [submitting, setSubmitting] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [user, loading, router]);
 
   if (!user) return null;
 
   const onSubmit = async (v: PropertyFormValue) => {
     setSubmitting(true);
+    const { mediaUrls, pricingRates, ...rest } = v;
+    const validRates = pricingRates.filter((r) => r.amount !== "" && Number(r.amount) > 0);
+
+    let createdId: string;
     try {
-      const { mediaUrls, pricingRates, ...rest } = v;
-      const validRates = pricingRates.filter(
-        (r) => r.amount !== "" && Number(r.amount) > 0,
-      );
-
-      let finalPrice = rest.price;
-      if (rest.listingType === "RENT" && validRates.length > 0 && !rest.price) {
-        const monthly = validRates.find((r) => r.unit === "MONTHS");
-        const fallback = validRates[0];
-        finalPrice = monthly
-          ? Number(monthly.amount)
-          : fallback
-          ? Number(fallback.amount)
-          : rest.price;
-      }
-
+      // F10 : prix facultatif si la grille est remplie (l'API dérive priceUnit).
       const created = await api.createProperty({
-        ...rest,
-        price: finalPrice,
+        ...toPropertyBody(rest),
+        price: Number(rest.price) > 0 ? Number(rest.price) : undefined,
         media: mediaUrls.map((url, i) => ({ url, position: i })),
-      } as any);
+      });
+      createdId = created.id;
+    } catch (e) {
+      toast.error(e);
+      setSubmitting(false);
+      return;
+    }
 
-      if (validRates.length > 0) {
+    // F9 : le bien existe désormais ; un échec de grille ne doit jamais
+    // conduire à une nouvelle soumission (doublon) → on bascule en édition.
+    if (validRates.length > 0) {
+      try {
         await api.upsertPricingRates(
-          created.id,
+          createdId,
           validRates.map((r) => ({ unit: r.unit, amount: Number(r.amount) })),
         );
+      } catch (e) {
+        toast.error(e);
+        toast.info(t("pf.ratesFailed"), { durationMs: 9000 });
+        router.replace(`/dashboard/${createdId}/edit`);
+        return;
       }
-
-      router.push(`/properties/${created.id}`);
-    } catch (e) {
-      alert(t("pf.errPrefix") + (e as Error).message);
-      setSubmitting(false);
     }
+    toast.success(t("pf.created"));
+    router.push(`/properties/${createdId}`);
   };
 
   return (
@@ -64,10 +61,10 @@ export default function NewPropertyPage() {
       {/* ── Hero d'introduction ──────────────────────────────────────────── */}
       <AnimatedBackground
         variant="blobs"
-        className="rounded-2xl border border-border/60 px-8 py-8 mb-8"
+        className="rounded-2xl border border-border/60 px-5 sm:px-8 py-8 mb-8"
       >
         <div className="flex items-start justify-between gap-6 flex-wrap">
-          <div className="max-w-2xl">
+          <div className="max-w-2xl min-w-0">
             <Link
               href="/dashboard"
               className="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink mb-3 transition-colors"
@@ -89,7 +86,7 @@ export default function NewPropertyPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 max-w-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm w-full">
             <TipCard icon="📸" text={t("pf.new.tip1")} />
             <TipCard icon="📍" text={t("pf.new.tip2")} />
             <TipCard icon="💶" text={t("pf.new.tip3")} />
@@ -98,7 +95,12 @@ export default function NewPropertyPage() {
         </div>
       </AnimatedBackground>
 
-      <PropertyForm onSubmit={onSubmit} submitting={submitting} />
+      {/* F5 / contrat §2 : e-mail non confirmé → encart au lieu du formulaire. */}
+      {emailVerified ? (
+        <PropertyForm onSubmit={onSubmit} submitting={submitting} />
+      ) : (
+        <EmailVerifyNotice />
+      )}
     </section>
   );
 }

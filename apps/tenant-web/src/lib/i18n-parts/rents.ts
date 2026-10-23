@@ -66,7 +66,7 @@ export const fr: Record<string, string> = {
   "rent.page.schedule": "Échéances",
 
   "rent.empty.title": "Aucun loyer à afficher",
-  "rent.empty.desc": "Vous n'avez pas de bail actif enregistré à votre adresse email. Si vous venez de signer un bail, contactez votre propriétaire.",
+  "rent.empty.desc": "Vous n'avez pas de bail actif enregistré à votre adresse e-mail. Si vous venez de signer un bail, contactez votre propriétaire.",
   "rent.empty.cta": "Parcourir les annonces",
 };
 

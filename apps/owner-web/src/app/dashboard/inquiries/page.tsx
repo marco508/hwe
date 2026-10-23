@@ -2,8 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
+  SafeImage,
+  ErrorState,
+  toast,
+  errorText,
+  fmtDate,
+  fmtDateTime,
+  openDataUrl,
+  useAsync,
   Card,
   CardBody,
   CardHeader,
@@ -18,6 +25,15 @@ import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
 import type { Inquiry, InquiryStatus } from "@hwe/types";
+
+/** F18 : « Discuter » ouvre la conversation liée à la demande. */
+const chatHref = (i: Inquiry) =>
+  i.conversationId ? `/dashboard/messages?c=${encodeURIComponent(i.conversationId)}` : "/dashboard/messages";
+
+// Lien stylé en bouton (évite <button> dans <a>).
+const LINK_BTN =
+  "inline-flex items-center justify-center h-8 px-3 rounded-md text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500";
+const LINK_GRADIENT = `${LINK_BTN} text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md`;
 
 const STATUS_TONE: Record<
   InquiryStatus,
@@ -112,16 +128,13 @@ function SenderAvatar({
     <div
       className={`${sizeClass} rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-brand-500 to-accent-500 text-white font-bold flex items-center justify-center shadow-card`}
     >
-      {avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={avatarUrl}
-          alt={`${firstName} ${lastName}`}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <span className="select-none">{initials}</span>
-      )}
+      <SafeImage
+        src={avatarUrl}
+        alt={`${firstName ?? ""} ${lastName ?? ""}`.trim()}
+        className="w-full h-full object-cover"
+        fallbackClassName="w-full h-full bg-transparent text-white select-none"
+        fallback={initials}
+      />
     </div>
   );
 }
@@ -141,7 +154,16 @@ function InquiryDetailModal({
   const isPending = inquiry.status === "PENDING";
   const isLoading = processing === inquiry.id;
   const backdropRef = React.useRef<HTMLDivElement>(null);
+  const closeRef = React.useRef<HTMLButtonElement>(null);
+  const titleId = React.useId();
   const { steps, activeId } = getTransactionSteps(inquiry);
+
+  // M2 : focus initial dans la fenêtre, restitué à la fermeture.
+  React.useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    return () => previous?.focus?.();
+  }, []);
   const isSale = inquiry.property?.listingType === "SALE";
 
   React.useEffect(() => {
@@ -182,28 +204,35 @@ function InquiryDetailModal({
   return (
     <div
       ref={backdropRef}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
       onClick={(e) => {
         if (e.target === backdropRef.current) onClose();
       }}
     >
-      <div className="bg-surface rounded-3xl shadow-elevated w-full max-w-2xl max-h-[92vh] overflow-y-auto animate-scale-in">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="bg-surface text-ink rounded-3xl shadow-elevated w-full max-w-2xl max-h-[92vh] overflow-y-auto animate-scale-in"
+      >
         {/* Header avec gradient */}
         <div
-          className={`relative px-8 py-6 ${
+          className={`relative px-5 sm:px-8 py-6 ${
             isSale
               ? "bg-gradient-to-br from-accent-500/20 to-sand-200/40"
               : "bg-gradient-to-br from-brand-500/20 to-ocean-200/40"
           }`}
         >
           <button
+            ref={closeRef}
+            type="button"
             onClick={onClose}
             className="absolute top-4 right-4 h-8 w-8 rounded-full bg-surface/80 hover:bg-surface flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
             aria-label={t("com.close")}
           >
             ✕
           </button>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap pr-8">
             <SenderAvatar
               avatarUrl={inquiry.sender?.avatarUrl}
               firstName={inquiry.sender?.firstName}
@@ -211,10 +240,10 @@ function InquiryDetailModal({
               size="lg"
             />
             <div className="flex-1 min-w-0">
-              <div className="display-serif text-2xl text-ink leading-tight">
+              <div id={titleId} className="display-serif text-2xl text-ink leading-tight [overflow-wrap:anywhere]">
                 {inquiry.sender?.firstName} {inquiry.sender?.lastName}
               </div>
-              <div className="text-sm text-ink-muted">
+              <div className="text-sm text-ink-muted [overflow-wrap:anywhere]">
                 {inquiry.contactEmail}
               </div>
               {inquiry.contactPhone && (
@@ -230,14 +259,14 @@ function InquiryDetailModal({
         </div>
 
         {/* Stepper transaction */}
-        <div className="px-8 pt-6">
+        <div className="px-5 sm:px-8 pt-6 overflow-x-auto">
           <Stepper steps={steps} activeId={activeId} onChange={() => {}} />
         </div>
 
         {/* Body */}
-        <div className="p-8 space-y-6">
+        <div className="p-5 sm:p-8 space-y-6">
           {/* Bien concerné */}
-          <div className="flex items-center gap-3 p-4 rounded-2xl border border-border bg-cream-50/60">
+          <div className="flex items-center gap-3 p-4 rounded-2xl border border-border bg-cream-50/60 dark:bg-white/5">
             <div
               className={`h-12 w-12 rounded-xl flex items-center justify-center text-xl ${
                 isSale
@@ -255,7 +284,7 @@ function InquiryDetailModal({
               {inquiry.property && (
                 <Link
                   href={`/properties/${inquiry.property.id}`}
-                  className="font-medium text-ink hover:text-brand-700 transition-colors"
+                  className="font-medium text-ink hover:text-brand-700 transition-colors [overflow-wrap:anywhere]"
                 >
                   {inquiry.property.title}
                 </Link>
@@ -271,7 +300,7 @@ function InquiryDetailModal({
             <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted mb-2">
               {t("com.message")}
             </div>
-            <p className="text-sm whitespace-pre-line rounded-xl p-4 bg-cream-50/60 border border-border leading-relaxed">
+            <p className="text-sm whitespace-pre-line rounded-xl p-4 bg-cream-50/60 dark:bg-white/5 border border-border leading-relaxed [overflow-wrap:anywhere]">
               {inquiry.message}
             </p>
           </div>
@@ -284,8 +313,8 @@ function InquiryDetailModal({
             <div
               className={`p-4 rounded-xl border ${
                 isSale
-                  ? "bg-accent-50/50 dark:bg-accent-900/15 border-accent-200"
-                  : "bg-brand-50 dark:bg-brand-900/20 border-brand-200"
+                  ? "bg-accent-50/50 dark:bg-accent-700/15 border-accent-200 dark:border-accent-700/40"
+                  : "bg-brand-50 dark:bg-brand-900/20 border-brand-200 dark:border-brand-800"
               }`}
             >
               <div
@@ -303,10 +332,7 @@ function InquiryDetailModal({
                     {isSale ? t("com.visitDateWanted") : t("com.entryDateWanted")}
                   </span>
                   <span className="font-medium">
-                    {new Date(inquiry.desiredStartDate).toLocaleDateString(
-                      "fr-FR",
-                      { day: "numeric", month: "long", year: "numeric" },
-                    )}
+                    {fmtDate(inquiry.desiredStartDate)}
                   </span>
                 </div>
                 {/* Durée et fin prévue : uniquement pour les locations */}
@@ -325,11 +351,7 @@ function InquiryDetailModal({
                       <div className="flex justify-between">
                         <span className="text-ink-muted">{t("com.plannedEnd")}</span>
                         <span className="font-medium text-brand-700 dark:text-brand-300">
-                          {endDate.toLocaleDateString("fr-FR", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
+                          {fmtDate(endDate)}
                         </span>
                       </div>
                     )}
@@ -351,12 +373,12 @@ function InquiryDetailModal({
           <div className="text-xs text-ink-muted space-y-0.5 pt-2 border-t border-border/60">
             <div>
               {t("com.receivedOn")}{" "}
-              {new Date(inquiry.createdAt).toLocaleString("fr-FR")}
+              {fmtDateTime(inquiry.createdAt)}
             </div>
             {inquiry.resolvedAt && (
               <div>
                 {t("com.processedOn")}{" "}
-                {new Date(inquiry.resolvedAt).toLocaleString("fr-FR")}
+                {fmtDateTime(inquiry.resolvedAt)}
               </div>
             )}
           </div>
@@ -388,13 +410,11 @@ function InquiryDetailModal({
               </Button>
             </div>
           ) : inquiry.status === "ACCEPTED" && !isSale && inquiry.leaseId ? (
-            <Link href={`/dashboard/${inquiry.propertyId}/lease`}>
-              <Button variant="gradient" className="w-full">
-                {t("com.viewLease")}
-              </Button>
+            <Link href={`/dashboard/${inquiry.propertyId}/lease`} className={`${LINK_GRADIENT} w-full h-10`}>
+              {t("com.viewLease")}
             </Link>
           ) : inquiry.status === "ACCEPTED" && isSale ? (
-            <div className="rounded-xl border border-accent-200 bg-accent-50/50 dark:bg-accent-900/15 p-4 text-sm">
+            <div className="rounded-xl border border-accent-200 dark:border-accent-700/40 bg-accent-50/50 dark:bg-accent-700/15 p-4 text-sm">
               <div className="font-medium text-ink mb-1">
                 {t("com.buyerAccepted")}
               </div>
@@ -406,7 +426,7 @@ function InquiryDetailModal({
                 {t("com.buyerAcceptedBody2")}
               </p>
               <Link
-                href={`/dashboard/messages`}
+                href={chatHref(inquiry)}
                 className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-xs font-medium hover:opacity-90 transition-opacity"
               >
                 {t("com.openDiscussion")}
@@ -440,28 +460,28 @@ function InquiryCard({
     <Card className="hover-lift overflow-hidden">
       <CardHeader className="border-b-0 pb-0">
         <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <SenderAvatar
               avatarUrl={i.sender?.avatarUrl}
               firstName={i.sender?.firstName}
               lastName={i.sender?.lastName}
             />
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                <span className="font-display text-lg">
+                <span className="font-display text-lg [overflow-wrap:anywhere]">
                   {i.sender?.firstName} {i.sender?.lastName}
                 </span>
                 <Badge tone={STATUS_TONE[i.status]}>
                   {t("com.status." + i.status)}
                 </Badge>
               </div>
-              <div className="text-sm text-ink-muted">
+              <div className="text-sm text-ink-muted [overflow-wrap:anywhere]">
                 {i.contactEmail}
                 {i.contactPhone && ` · ${i.contactPhone}`}
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
             <Badge tone={isSale ? "accent" : "brand"}>
               {isSale ? t("com.saleBadge") : t("com.rentalBadge")}
             </Badge>
@@ -475,22 +495,18 @@ function InquiryCard({
         </div>
       </CardHeader>
       <CardBody>
-        <p className="text-sm whitespace-pre-line mb-4 line-clamp-2 text-ink-muted">
+        <p className="text-sm whitespace-pre-line mb-4 line-clamp-2 text-ink-muted [overflow-wrap:anywhere]">
           {i.message}
         </p>
 
         {i.desiredStartDate && (
-          <div className="flex flex-wrap gap-4 text-xs mb-4 p-3 rounded-lg bg-cream-50/60 border border-border">
+          <div className="flex flex-wrap gap-4 text-xs mb-4 p-3 rounded-lg bg-cream-50/60 dark:bg-white/5 border border-border">
             <div>
               <span className="text-ink-muted">
                 {isSale ? t("com.visitWanted") : t("com.entryWanted")}{" "}
               </span>
               <span className="font-medium">
-                {new Date(i.desiredStartDate).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
+                {fmtDate(i.desiredStartDate, "medium")}
               </span>
             </div>
             {/* Durée — uniquement pour les locations */}
@@ -510,7 +526,7 @@ function InquiryCard({
 
         {/* Mini-stepper transaction */}
         {i.status !== "CANCELLED" && i.status !== "REJECTED" && (
-          <div className="mb-4 p-3 rounded-xl border border-border bg-cream-50/40 dark:bg-surface/40">
+          <div className="mb-4 p-3 rounded-xl border border-border bg-cream-50/40 dark:bg-surface/40 overflow-x-auto">
             <Stepper
               steps={steps}
               activeId={activeId}
@@ -532,10 +548,8 @@ function InquiryCard({
             >
               {t("com.details")}
             </Button>
-            <Link href="/dashboard/messages">
-              <Button size="sm" variant="ghost">
-                {t("com.discuss")}
-              </Button>
+            <Link href={chatHref(i)} className={`${LINK_BTN} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}>
+              {t("com.discuss")}
             </Link>
             {isPending ? (
               <>
@@ -557,16 +571,8 @@ function InquiryCard({
                 </Button>
               </>
             ) : i.status === "ACCEPTED" && !isSale && i.leaseId ? (
-              <Link href={`/dashboard/${i.propertyId}/lease`}>
-                <Button size="sm" variant="gradient">
-                  {t("com.contract")}
-                </Button>
-              </Link>
-            ) : i.status === "ACCEPTED" && isSale ? (
-              <Link href={`/dashboard/messages`}>
-                <Button size="sm" variant="gradient">
-                  {t("com.discuss")}
-                </Button>
+              <Link href={`/dashboard/${i.propertyId}/lease`} className={LINK_GRADIENT}>
+                {t("com.contract")}
               </Link>
             ) : null}
           </div>
@@ -585,15 +591,20 @@ function timeAgo(dateStr: string): string {
   if (hr < 24) return t("com.hrAgo", { n: hr });
   const days = Math.floor(hr / 24);
   if (days < 7) return t("com.dayAgo", { n: days });
-  return new Date(dateStr).toLocaleDateString("fr-FR");
+  return fmtDate(dateStr, "short", { utc: false });
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function ReceivedInquiriesPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const [items, setItems] = React.useState<Inquiry[]>([]);
-  const [working, setWorking] = React.useState(true);
+  // Session/rôle : dashboard/layout.tsx.
+  const { user } = useAuth();
+  const { data, setData, error, loading: working, reload } = useAsync(
+    () => api.inquiriesReceived(),
+    [user?.id],
+    { enabled: !!user },
+  );
+  const items: Inquiry[] = data ?? [];
+  const setItems = (fn: (prev: Inquiry[]) => Inquiry[]) => setData((cur) => fn(cur ?? []));
   const [processing, setProcessing] = React.useState<string | null>(null);
   const [activeTab, setActiveTab] = React.useState<InquiryStatus | "ALL">(
     "ALL",
@@ -602,34 +613,35 @@ export default function ReceivedInquiriesPage() {
     null,
   );
 
-  React.useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-    api.inquiriesReceived().then((r) => {
-      setItems(r);
-      setWorking(false);
-    });
-  }, [user, loading, router]);
-
   const respond = async (id: string, decision: "ACCEPTED" | "REJECTED") => {
+    const target = items.find((i) => i.id === id);
+    // U3 / contrat §10 : la confirmation annonce les vraies conséquences.
     const question =
-      decision === "ACCEPTED" ? t("com.confirmAccept") : t("com.confirmReject");
+      decision === "ACCEPTED"
+        ? target?.property?.listingType === "SALE"
+          ? t("com.confirmAcceptSale")
+          : t("com.confirmAcceptRent")
+        : t("com.confirmReject");
     if (!confirm(question)) return;
     setProcessing(id);
     try {
       const updated = await api.respondToInquiry(id, decision);
-      setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+      setItems((prev) => prev.map((i) => (i.id === updated.id ? { ...i, ...updated } : i)));
+      toast.success(decision === "ACCEPTED" ? t("com.accepted") : t("com.rejected"));
+      // Les autres demandes du bien ont pu être déclinées côté API : on recharge.
+      if (decision === "ACCEPTED") reload();
     } catch (e) {
-      alert(t("com.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setProcessing(null);
     }
   };
 
-  if (loading || working) {
+  if (error && !data) {
+    return <ErrorState error={error} title={t("com.loadError")} onRetry={reload} />;
+  }
+
+  if (working && !data) {
     return (
       <div className="space-y-6">
         <div className="h-32 rounded-2xl skeleton" />
@@ -659,7 +671,7 @@ export default function ReceivedInquiriesPage() {
       {/* Hero */}
       <AnimatedBackground
         variant="aurora"
-        className="rounded-2xl border border-border/60 px-8 py-8 mb-8"
+        className="rounded-2xl border border-border/60 px-5 sm:px-8 py-8 mb-8"
       >
         <h1 className="display-serif text-4xl mb-2">
           {t("com.heroTitle1")}{" "}
@@ -706,20 +718,22 @@ export default function ReceivedInquiriesPage() {
           return (
             <button
               key={key}
+              type="button"
+              aria-pressed={isActive}
               onClick={() => setActiveTab(key)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                 isActive
-                  ? "border-brand-600 text-brand-700"
+                  ? "border-brand-600 text-brand-700 dark:text-brand-300"
                   : "border-transparent text-ink-muted hover:text-ink hover:border-border"
               }`}
             >
-              <span>{emoji}</span>
+              <span aria-hidden="true">{emoji}</span>
               <span>{t(labelKey)}</span>
               <span
                 className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
                   isActive
-                    ? "bg-brand-100 text-brand-700"
-                    : "bg-cream-100 text-ink-muted"
+                    ? "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
+                    : "bg-cream-100 dark:bg-white/5 text-ink-muted"
                 }`}
               >
                 {count}
@@ -813,13 +827,14 @@ function DossierBlock({ inquiryId }: { inquiryId: string }) {
     try {
       setDocs(await api.getInquiryDossier(inquiryId));
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorText(e));
     }
   };
 
-  const view = (fileUrl: string) => {
-    const w = window.open();
-    if (w) w.document.write(`<iframe src="${fileUrl}" style="width:100%;height:100%;border:0"></iframe>`);
+  // S1 : jamais de document.write d'une donnée fournie par le candidat :
+  // data-URL → Blob → URL.createObjectURL, ouverte avec noopener.
+  const view = (fileUrl: string, name: string) => {
+    if (!openDataUrl(fileUrl, name)) toast.error(t("com.dossierOpenError"));
   };
 
   return (
@@ -827,7 +842,7 @@ function DossierBlock({ inquiryId }: { inquiryId: string }) {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <p className="text-sm font-medium">{t("com.dossierShared")}</p>
         {!open && (
-          <button className="text-sm underline" onClick={load}>
+          <button type="button" className="text-sm underline" onClick={load}>
             {t("com.dossierView")}
           </button>
         )}
@@ -844,11 +859,11 @@ function DossierBlock({ inquiryId }: { inquiryId: string }) {
             <ul className="space-y-1.5">
               {docs.map((d) => (
                 <li key={d.id} className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">{d.name}</span>
+                  <span className="font-medium [overflow-wrap:anywhere]">{d.name}</span>
                   <span className="text-ink-muted">
                     {t("com.docType." + d.documentType)}
                   </span>
-                  <button className="underline text-ink-muted" onClick={() => view(d.fileUrl)}>
+                  <button type="button" className="underline text-ink-muted" onClick={() => view(d.fileUrl, d.name)}>
                     {t("com.open")}
                   </button>
                 </li>

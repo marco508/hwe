@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { Badge, Button, Input, Select } from "@hwe/ui";
+import { Badge, Button, Input, Select, ErrorState, toast, fmtDate as fmtDateShared } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -14,6 +13,8 @@ type Overview = {
   ticketsOpen: number;
   inquiries: number;
   usersUnverified: number;
+  /** false → les e-mails transactionnels ne partent pas. */
+  smtpConfigured?: boolean;
 };
 
 type AdminUser = {
@@ -48,13 +49,11 @@ function statusLabel(code: string) {
     : code;
 }
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("fr-FR");
-}
+const fmtDate = (iso: string) => fmtDateShared(iso, "short", { utc: false });
 
 function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-ink-subtle bg-white p-4">
+    <div className="rounded-2xl border border-border bg-surface p-4 min-w-0">
       <p className="text-xs uppercase tracking-wide text-ink-muted mb-1">{label}</p>
       <p className="font-display text-2xl font-semibold">{value}</p>
     </div>
@@ -62,8 +61,9 @@ function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export default function AdminPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+  // Accès réservé ADMIN : garde dans dashboard/layout.tsx.
+  const { user } = useAuth();
+  const [error, setError] = React.useState<unknown>(null);
   const [overview, setOverview] = React.useState<Overview | null>(null);
   const [tab, setTab] = React.useState<"users" | "properties">("users");
   const [q, setQ] = React.useState("");
@@ -71,10 +71,6 @@ export default function AdminPage() {
   const [properties, setProperties] = React.useState<AdminProperty[]>([]);
 
   const isAdmin = user?.role === "ADMIN";
-
-  React.useEffect(() => {
-    if (!loading && !user) router.replace("/login");
-  }, [user, loading, router]);
 
   const load = React.useCallback(async () => {
     if (!isAdmin) return;
@@ -88,13 +84,32 @@ export default function AdminPage() {
     setProperties(p as unknown as AdminProperty[]);
   }, [isAdmin, q]);
 
+  // Recherche différée (300 ms) : pas une requête par frappe.
   React.useEffect(() => {
-    load().catch(() => {});
+    const id = setTimeout(() => {
+      load()
+        .then(() => setError(null))
+        .catch((e) => setError(e));
+    }, 300);
+    return () => clearTimeout(id);
   }, [load]);
 
-  if (loading) return <p className="text-ink-muted">{t("ops.loading")}</p>;
+  /** Mutation admin : toast d'erreur/succès + rechargement (L3). */
+  const mutate = async (fn: () => Promise<unknown>) => {
+    try {
+      await fn();
+      toast.success(t("ops.admin.done"));
+    } catch (e) {
+      toast.error(e);
+    }
+    load().catch((e) => setError(e));
+  };
+
   if (user && !isAdmin) {
     return <p className="text-ink-muted">{t("ops.admin.adminsOnly")}</p>;
+  }
+  if (error && !overview) {
+    return <ErrorState error={error} title={t("ops.admin.loadError")} onRetry={() => load().then(() => setError(null)).catch(setError)} />;
   }
   if (!overview) return <p className="text-ink-muted">{t("ops.loading")}</p>;
 
@@ -103,6 +118,12 @@ export default function AdminPage() {
   return (
     <section>
       <h1 className="font-display text-3xl mb-6">{t("ops.admin.title")}</h1>
+
+      {overview.smtpConfigured === false && (
+        <div role="alert" className="mb-6 rounded-xl border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-ink">
+          ⚠️ {t("ops.admin.smtpOff")}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
         <StatTile label={t("ops.admin.statAccounts")} value={totalUsers} />
@@ -119,28 +140,34 @@ export default function AdminPage() {
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <div className="flex gap-2">
           <button
+            type="button"
+            aria-pressed={tab === "users"}
             onClick={() => setTab("users")}
             className={`px-3 py-1.5 rounded-full text-sm border ${
               tab === "users"
                 ? "bg-brand-600 text-white border-brand-600"
-                : "border-ink-subtle text-ink-muted"
+                : "border-border text-ink-muted"
             }`}
           >
             {t("ops.admin.tabUsers")} ({totalUsers})
           </button>
           <button
+            type="button"
+            aria-pressed={tab === "properties"}
             onClick={() => setTab("properties")}
             className={`px-3 py-1.5 rounded-full text-sm border ${
               tab === "properties"
                 ? "bg-brand-600 text-white border-brand-600"
-                : "border-ink-subtle text-ink-muted"
+                : "border-border text-ink-muted"
             }`}
           >
             {t("ops.admin.tabProperties")}
           </button>
         </div>
         <Input
-          className="max-w-xs"
+          className="w-full sm:max-w-xs"
+          type="search"
+          aria-label={t("ops.admin.searchPlaceholder")}
           placeholder={t("ops.admin.searchPlaceholder")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -148,7 +175,7 @@ export default function AdminPage() {
       </div>
 
       {tab === "users" ? (
-        <div className="overflow-x-auto rounded-2xl border border-ink-subtle">
+        <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full text-sm">
             <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
               <tr>
@@ -162,7 +189,7 @@ export default function AdminPage() {
             </thead>
             <tbody>
               {users.map((u) => (
-                <tr key={u.id} className="border-t border-ink-subtle">
+                <tr key={u.id} className="border-t border-border">
                   <td className="px-4 py-3">
                     <p className="font-medium">
                       {u.firstName} {u.lastName}
@@ -184,10 +211,7 @@ export default function AdminPage() {
                       <Button
                         size="sm"
                         variant="secondary"
-                        onClick={async () => {
-                          await api.adminVerifyUserEmail(u.id);
-                          load().catch(() => {});
-                        }}
+                        onClick={() => mutate(() => api.adminVerifyUserEmail(u.id))}
                       >
                         {t("ops.admin.verifyEmail")}
                       </Button>
@@ -199,7 +223,7 @@ export default function AdminPage() {
           </table>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-ink-subtle">
+        <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full text-sm">
             <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
               <tr>
@@ -213,9 +237,9 @@ export default function AdminPage() {
             </thead>
             <tbody>
               {properties.map((p) => (
-                <tr key={p.id} className="border-t border-ink-subtle">
+                <tr key={p.id} className="border-t border-border">
                   <td className="px-4 py-3">
-                    <p className="font-medium">{p.title}</p>
+                    <p className="font-medium max-w-[16rem] [overflow-wrap:anywhere]">{p.title}</p>
                     <p className="text-ink-muted">{p.city}</p>
                   </td>
                   <td className="px-4 py-3 text-ink-muted">{p.owner.email}</td>
@@ -231,12 +255,10 @@ export default function AdminPage() {
                   <td className="px-4 py-3 text-right">
                     <Select
                       value={p.status}
-                      onChange={async (e) => {
-                        await api.adminSetPropertyStatus(
-                          p.id,
-                          e.target.value as (typeof PROPERTY_STATUSES)[number],
-                        );
-                        load().catch(() => {});
+                      aria-label={t("ops.admin.statusAria", { title: p.title })}
+                      onChange={(e) => {
+                        const status = e.target.value as (typeof PROPERTY_STATUSES)[number];
+                        void mutate(() => api.adminSetPropertyStatus(p.id, status));
                       }}
                     >
                       {PROPERTY_STATUSES.map((s) => (

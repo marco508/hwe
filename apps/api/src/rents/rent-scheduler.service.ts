@@ -1,19 +1,23 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { RentsService, periodLabel } from "./rents.service";
+import { addDays, APP_TIME_ZONE, today as todayDay } from "../common/dates";
+import { withAdvisoryLock } from "../common/advisory-lock";
 
 /**
- * Tâches planifiées liées aux loyers :
- *  - génération de l'échéance du mois courant pour chaque bail actif
- *    (le rattrapage des mois passés est fait à la volée par RentsService) ;
- *  - passage DUE → LATE des échéances dépassées ;
+ * Tâches planifiées liées aux loyers (07:00, heure de Paris) :
+ *  - génération des échéances manquantes de chaque bail signé (une requête
+ *    par bail, idempotente) ;
+ *  - passage DUE → LATE des échéances dont le JOUR d'échéance est passé
+ *    (jamais le jour même) ;
  *  - rappels e-mail au locataire (J-3 avant échéance, puis en retard),
  *    avec `remindedAt` pour ne pas relancer plus d'une fois par semaine.
+ * Verrou consultatif PostgreSQL : jamais deux exécutions simultanées.
  */
 @Injectable()
-export class RentSchedulerService {
+export class RentSchedulerService implements OnApplicationBootstrap {
   private readonly logger = new Logger(RentSchedulerService.name);
 
   constructor(
@@ -22,42 +26,46 @@ export class RentSchedulerService {
     private readonly mailer: MailerService,
   ) {}
 
-  @Cron("0 7 * * *")
+  /**
+   * Au démarrage : uniquement la génération des échéances (idempotente,
+   * sans e-mail), pour qu'un déploiement ne laisse pas de mois manquant
+   * jusqu'au prochain passage du planificateur.
+   */
+  onApplicationBootstrap() {
+    if (process.env.DISABLE_SCHEDULERS === "1") return;
+    setTimeout(() => {
+      withAdvisoryLock(this.prisma, "rents-generate", async () => {
+        const n = await this.rents.generateAll();
+        if (n > 0) this.logger.log(`${n} échéance(s) de loyer générée(s) au démarrage.`);
+      }).catch((e) => this.logger.error(`Génération au démarrage : ${(e as Error).message}`));
+    }, 5_000).unref();
+  }
+
+  @Cron("0 7 * * *", { timeZone: APP_TIME_ZONE })
   async runDaily(): Promise<void> {
-    await this.generateCurrentPeriods();
-    await this.markLate();
-    await this.sendReminders();
-  }
-
-  private async generateCurrentPeriods(): Promise<void> {
-    const now = new Date();
-    const leases = await this.prisma.leaseContract.findMany({
-      where: {
-        status: { in: ["ACTIVE", "SIGNED"] },
-        startDate: { lte: now },
-        OR: [{ endDate: null }, { endDate: { gte: now } }],
-      },
-      select: { id: true },
+    if (process.env.DISABLE_SCHEDULERS === "1") return;
+    await withAdvisoryLock(this.prisma, "rents-daily", async () => {
+      const day = todayDay();
+      const created = await this.rents.generateAll(day);
+      if (created > 0) this.logger.log(`${created} échéance(s) de loyer générée(s).`);
+      await this.markLate(day);
+      await this.sendReminders(day);
     });
-    let created = 0;
-    for (const lease of leases) {
-      const p = await this.rents.ensurePeriod(lease.id, now.getUTCFullYear(), now.getUTCMonth() + 1);
-      if (p) created++;
-    }
-    if (created > 0) this.logger.log(`${created} échéance(s) de loyer générée(s) pour ${periodLabel(now.getUTCFullYear(), now.getUTCMonth() + 1)}.`);
   }
 
-  private async markLate(): Promise<void> {
+  /** En retard le LENDEMAIN du jour d'échéance. */
+  async markLate(day: Date = todayDay()): Promise<number> {
     const { count } = await this.prisma.rentPeriod.updateMany({
-      where: { status: "DUE", dueDate: { lt: new Date() } },
+      where: { status: "DUE", dueDate: { lt: day } },
       data: { status: "LATE" },
     });
     if (count > 0) this.logger.log(`${count} loyer(s) passé(s) en retard.`);
+    return count;
   }
 
-  private async sendReminders(): Promise<void> {
+  private async sendReminders(day: Date): Promise<void> {
     const now = new Date();
-    const soon = new Date(now.getTime() + 3 * 24 * 3600 * 1000);
+    const soon = addDays(day, 3);
     const weekAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
 
     const periods = await this.prisma.rentPeriod.findMany({
@@ -70,23 +78,25 @@ export class RentSchedulerService {
         lease: { status: { in: ["ACTIVE", "SIGNED"] } },
       },
       include: {
-        lease: { select: { tenantEmail: true, tenantFirstName: true, tenantLastName: true } },
+        lease: { select: { tenantEmail: true, tenantFirstName: true, tenantLastName: true, currency: true } },
       },
       take: 200,
     });
 
     for (const p of periods) {
+      // Marqueur posé AVANT l'envoi : jamais de doublon, même en cas de reprise.
+      await this.prisma.rentPeriod.update({
+        where: { id: p.id },
+        data: { remindedAt: now },
+      });
       await this.mailer.rentReminder(
         p.lease.tenantEmail,
         `${p.lease.tenantFirstName} ${p.lease.tenantLastName}`.trim(),
         periodLabel(p.periodYear, p.periodMonth),
         p.amount,
         p.status === "LATE",
+        p.lease.currency,
       );
-      await this.prisma.rentPeriod.update({
-        where: { id: p.id },
-        data: { remindedAt: now },
-      });
     }
     if (periods.length > 0) this.logger.log(`${periods.length} rappel(s) de loyer envoyé(s).`);
   }

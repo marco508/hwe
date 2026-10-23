@@ -97,8 +97,24 @@ export const SUPPORTED_COUNTRIES: Country[] = [
   { code: "NL", name: "Pays-Bas", flag: "🇳🇱", currency: "EUR", propertyCountry: "Pays-Bas", region: "europe" },
 ];
 
-/** Default country before IP detection. Côte d'Ivoire since the app's primary audience is African. */
-export const DEFAULT_COUNTRY_CODE = "CI";
+/** Code spécial « tous les pays » (aucun filtre géographique). */
+export const ALL_COUNTRIES_CODE = "ALL";
+
+/** Pseudo-pays « Tous les pays ». */
+export const ALL_COUNTRIES: Country = {
+  code: ALL_COUNTRIES_CODE,
+  name: "Tous les pays",
+  flag: "🌍",
+  currency: "EUR",
+  propertyCountry: "",
+  region: "europe",
+};
+
+/**
+ * Pays par défaut avant toute préférence : « tous les pays » (même rendu
+ * serveur et client → pas d'erreur d'hydratation, aucun bien masqué).
+ */
+export const DEFAULT_COUNTRY_CODE = ALL_COUNTRIES_CODE;
 
 /** Helper: group countries by region in display order. */
 export function groupCountriesByRegion(): {
@@ -142,10 +158,7 @@ const LocationContext = React.createContext<LocationState | null>(null);
 const STORAGE_KEY = "hwe:location";
 
 function findCountry(code: string): Country {
-  return (
-    SUPPORTED_COUNTRIES.find((c) => c.code === code.toUpperCase()) ??
-    SUPPORTED_COUNTRIES.find((c) => c.code === DEFAULT_COUNTRY_CODE)!
-  );
+  return SUPPORTED_COUNTRIES.find((c) => c.code === code.toUpperCase()) ?? ALL_COUNTRIES;
 }
 
 // ─── Provider ────────────────────────────────────────────────────────────────
@@ -162,13 +175,14 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
     React.useState<string>(initialCountry);
   const [city, setCityRaw] = React.useState<string | null>(null);
   const [isAutoDetected, setIsAutoDetected] = React.useState(false);
-  const [isDetecting, setIsDetecting] = React.useState(false);
-  const [detectedCity, setDetectedCity] = React.useState<string | null>(null);
+  // Conservés pour compatibilité d'API : plus de détection réseau.
+  const isDetecting = false;
+  const detectedCity: string | null = null;
 
-  // 1. Hydrate from localStorage on mount; if nothing saved, run IP detection
+  // Préférence appliquée APRÈS le montage (pas d'écart serveur/client) :
+  // 1. choix mémorisé ; 2. sinon région de la langue du navigateur, si elle
+  // fait partie des pays supportés. Aucun appel réseau tiers (S6).
   React.useEffect(() => {
-    let cancelled = false;
-
     const fromStorage = readStored();
     if (fromStorage?.countryCode) {
       setCountryCodeRaw(fromStorage.countryCode);
@@ -176,28 +190,11 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
       setIsAutoDetected(false);
       return;
     }
-
-    setIsDetecting(true);
-    detectFromIp()
-      .then((res) => {
-        if (cancelled || !res) return;
-        const known = SUPPORTED_COUNTRIES.find(
-          (c) => c.code === res.countryCode,
-        );
-        if (known) {
-          setCountryCodeRaw(known.code);
-          setIsAutoDetected(true);
-          if (res.city) setDetectedCity(res.city);
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setIsDetecting(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    const fromBrowser = countryFromBrowser();
+    if (fromBrowser) {
+      setCountryCodeRaw(fromBrowser);
+      setIsAutoDetected(true);
+    }
   }, []);
 
   const setCountry = React.useCallback((code: string) => {
@@ -273,55 +270,17 @@ function writeStored(s: Stored) {
   } catch {}
 }
 
-async function detectFromIp(): Promise<{
-  countryCode: string;
-  city: string | null;
-} | null> {
+/** Région de la langue du navigateur (« fr-SN » → « SN ») si elle est supportée. */
+function countryFromBrowser(): string | null {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3500);
-    const res = await fetch("https://ipapi.co/json/", {
-      signal: controller.signal,
-      headers: { Accept: "application/json" },
-    });
-    clearTimeout(timeout);
-    if (res.ok) {
-      const data = (await res.json()) as {
-        country_code?: string;
-        city?: string;
-      };
-      if (data?.country_code) {
-        return {
-          countryCode: data.country_code.toUpperCase(),
-          city: data.city ?? null,
-        };
-      }
+    if (typeof navigator === "undefined") return null;
+    const langs = navigator.languages?.length ? navigator.languages : [navigator.language];
+    for (const l of langs) {
+      const region = l?.split("-")[1]?.toUpperCase();
+      if (region && SUPPORTED_COUNTRIES.some((c) => c.code === region)) return region;
     }
-  } catch {}
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2500);
-    const res = await fetch("https://api.country.is/", {
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    if (res.ok) {
-      const data = (await res.json()) as { country?: string };
-      if (data?.country) {
-        return { countryCode: data.country.toUpperCase(), city: null };
-      }
-    }
-  } catch {}
-
-  try {
-    if (typeof navigator !== "undefined" && navigator.language) {
-      const parts = navigator.language.split("-");
-      if (parts.length > 1 && parts[1]) {
-        return { countryCode: parts[1].toUpperCase(), city: null };
-      }
-    }
-  } catch {}
-
+  } catch {
+    /* rien */
+  }
   return null;
 }

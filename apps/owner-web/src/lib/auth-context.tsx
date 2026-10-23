@@ -1,81 +1,20 @@
 "use client";
 
+// Session partagée (@hwe/ui) : rôle vérifié AVANT d'enregistrer le jeton (F4),
+// seul un 401 déconnecte (A1), /auth/me rechargé après connexion (F5, F6).
 import * as React from "react";
-import type { User } from "@hwe/types";
-import { api, tokenStore } from "./api";
+import { createAuth, useAuth, WRONG_ROLE } from "@hwe/ui";
 
-type Ctx = {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
-  register: (input: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    phone?: string;
-  }) => Promise<User>;
-  logout: () => void;
-  refresh: () => Promise<void>;
-};
+const auth = createAuth({
+  allowedRoles: ["OWNER", "ADMIN"],
+  registerRole: "OWNER",
+});
 
-const AuthContext = React.createContext<Ctx | null>(null);
-
+// Export nommé simple (pas de déstructuration) : le layout serveur importe ce
+// module « use client » et Next ne détecte pas les exports déstructurés
+// (sinon « Unsupported Server Component type: undefined » au prérendu).
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<User | null>(null);
-  const [loading, setLoading] = React.useState(true);
-
-  const refresh = React.useCallback(async () => {
-    const t = tokenStore.get();
-    if (!t) {
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-    try {
-      const me = await api.me();
-      setUser(me);
-    } catch {
-      tokenStore.clear();
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const login: Ctx["login"] = async (email, password) => {
-    const r = await api.login({ email, password });
-    tokenStore.set(r.accessToken);
-    setUser(r.user);
-    return r.user;
-  };
-
-  // Owner-web hardcodes role to OWNER
-  const register: Ctx["register"] = async (input) => {
-    const r = await api.register({ ...input, role: "OWNER" });
-    tokenStore.set(r.accessToken);
-    setUser(r.user);
-    return r.user;
-  };
-
-  const logout = () => {
-    tokenStore.clear();
-    setUser(null);
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refresh }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <auth.AuthProvider>{children}</auth.AuthProvider>;
 }
 
-export function useAuth() {
-  const ctx = React.useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
-}
+export { useAuth, WRONG_ROLE };

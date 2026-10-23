@@ -1,7 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { Button, Input, Label, Textarea, Badge } from "@hwe/ui";
+import {
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Badge,
+  toast,
+  tUi,
+  openDataUrl,
+  fmtMoney,
+  fmtDate as fmtDateShared,
+} from "@hwe/ui";
+import { leaseCurrency } from "@hwe/types";
 import { api } from "../lib/api";
 import { t } from "../lib/i18n";
 import type {
@@ -14,17 +26,8 @@ import type {
   ChargeRegularization,
 } from "@hwe/types";
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("fr-FR");
-}
-
-function fmtMoney(n: number) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
+// Dates civiles en UTC, montants TOUJOURS dans la devise du bail (F2).
+const fmtDate = (iso: string) => fmtDateShared(iso, "short");
 
 // ─── Caution ──────────────────────────────────────────────────────────────
 
@@ -37,6 +40,7 @@ function DepositBlock({
   lease: LeaseContract;
   onUpdate: (l: LeaseContract) => void;
 }) {
+  const cur = leaseCurrency(lease);
   const [retained, setRetained] = React.useState("0");
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -49,9 +53,10 @@ function DepositBlock({
         retained: action === "RETURNED" ? parseFloat(retained) || 0 : undefined,
         note: note || undefined,
       });
-      onUpdate(updated);
+      onUpdate({ ...lease, ...updated });
+      toast.success(t("lease.saved"));
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -67,7 +72,7 @@ function DepositBlock({
           {lease.depositRetained ? (
             <span>
               {" "}
-              — {t("lease.deposit.retained")} <strong>{fmtMoney(lease.depositRetained)}</strong>
+              — {t("lease.deposit.retained")} <strong>{fmtMoney(lease.depositRetained, cur)}</strong>
             </span>
           ) : (
             <span> — {t("lease.deposit.noRetention")}</span>
@@ -82,11 +87,11 @@ function DepositBlock({
     return (
       <div className="text-sm space-y-3">
         <p>
-          {t("lease.deposit.paidOn")} <strong>{fmtDate(lease.depositPaidAt)}</strong> ({fmtMoney(lease.deposit)})
+          {t("lease.deposit.paidOn")} <strong>{fmtDate(lease.depositPaidAt)}</strong> ({fmtMoney(lease.deposit, cur)})
         </p>
         <div className="grid sm:grid-cols-2 gap-3 max-w-lg">
           <div>
-            <Label htmlFor={`ret-${lease.id}`}>{t("lease.deposit.retainedLabel")}</Label>
+            <Label htmlFor={`ret-${lease.id}`}>{t("lease.deposit.retainedLabel", { cur: lease.currency || "EUR" })}</Label>
             <Input
               id={`ret-${lease.id}`}
               type="number"
@@ -117,7 +122,7 @@ function DepositBlock({
   return (
     <div className="text-sm space-y-3">
       <p className="text-ink-muted">
-        {fmtMoney(lease.deposit)} — {t("lease.deposit.notReceived")}
+        {fmtMoney(lease.deposit, cur)} — {t("lease.deposit.notReceived")}
       </p>
       <Button size="sm" disabled={busy} onClick={() => act("PAID")}>
         {t("lease.deposit.markPaid")}
@@ -143,6 +148,7 @@ function InspectionEditor({
   onSaved: (i: Inspection) => void;
   onCancel: () => void;
 }) {
+  const uid = React.useId();
   const [date, setDate] = React.useState(
     (initial?.date ?? new Date().toISOString()).split("T")[0] ?? "",
   );
@@ -173,7 +179,7 @@ function InspectionEditor({
       });
       onSaved(saved);
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -183,12 +189,12 @@ function InspectionEditor({
     <div className="space-y-4 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20">
       <div className="grid sm:grid-cols-3 gap-3">
         <div>
-          <Label>{t("lease.inspection.date")}</Label>
-          <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <Label htmlFor={`${uid}-1`}>{t("lease.inspection.date")}</Label>
+          <Input id={`${uid}-1`} type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </div>
         <div>
-          <Label>{t("lease.inspection.keys")}</Label>
-          <Input
+          <Label htmlFor={`${uid}-2`}>{t("lease.inspection.keys")}</Label>
+          <Input id={`${uid}-2`}
             type="number"
             min="0"
             value={keys}
@@ -198,32 +204,34 @@ function InspectionEditor({
       </div>
       <div className="grid sm:grid-cols-3 gap-3">
         <div>
-          <Label>{t("lease.inspection.meterElec")}</Label>
-          <Input value={elec} onChange={(e) => setElec(e.target.value)} />
+          <Label htmlFor={`${uid}-3`}>{t("lease.inspection.meterElec")}</Label>
+          <Input id={`${uid}-3`} value={elec} onChange={(e) => setElec(e.target.value)} />
         </div>
         <div>
-          <Label>{t("lease.inspection.meterWater")}</Label>
-          <Input value={water} onChange={(e) => setWater(e.target.value)} />
+          <Label htmlFor={`${uid}-4`}>{t("lease.inspection.meterWater")}</Label>
+          <Input id={`${uid}-4`} value={water} onChange={(e) => setWater(e.target.value)} />
         </div>
         <div>
-          <Label>{t("lease.inspection.meterGas")}</Label>
-          <Input value={gas} onChange={(e) => setGas(e.target.value)} />
+          <Label htmlFor={`${uid}-5`}>{t("lease.inspection.meterGas")}</Label>
+          <Input id={`${uid}-5`} value={gas} onChange={(e) => setGas(e.target.value)} />
         </div>
       </div>
 
       <div>
-        <Label>{t("lease.inspection.roomByRoom")}</Label>
+        <p className="text-sm font-medium text-ink">{t("lease.inspection.roomByRoom")}</p>
         <div className="space-y-2 mt-1">
           {items.map((it, i) => (
             <div key={i} className="flex flex-wrap gap-2 items-center">
               <Input
                 className="flex-1 min-w-[10rem]"
+                aria-label={t("lease.inspection.itemLabel", { n: i + 1 })}
                 placeholder={t("lease.inspection.itemPlaceholder")}
                 value={it.label}
                 onChange={(e) => setItem(i, { label: e.target.value })}
               />
               <select
-                className="h-10 rounded-lg border border-ink-subtle bg-white px-2 text-sm"
+                aria-label={t("lease.inspection.conditionLabel", { n: i + 1 })}
+                className="h-10 rounded-lg border border-border bg-surface text-ink px-2 text-sm"
                 value={it.condition}
                 onChange={(e) => setItem(i, { condition: e.target.value })}
               >
@@ -235,13 +243,15 @@ function InspectionEditor({
               </select>
               <Input
                 className="flex-1 min-w-[8rem]"
+                aria-label={t("lease.inspection.noteLabel", { n: i + 1 })}
                 placeholder={t("lease.inspection.notePlaceholder")}
                 value={it.note ?? ""}
                 onChange={(e) => setItem(i, { note: e.target.value })}
               />
               <button
                 type="button"
-                className="text-ink-muted hover:text-red-500 px-1"
+                aria-label={t("lease.removeLine", { n: i + 1 })}
+                className="text-ink-muted hover:text-red-500 px-2 h-10"
                 onClick={() => setItems((arr) => arr.filter((_, j) => j !== i))}
               >
                 ✕
@@ -261,8 +271,8 @@ function InspectionEditor({
       </div>
 
       <div>
-        <Label>{t("lease.inspection.generalNotes")}</Label>
-        <Textarea
+        <Label htmlFor={`${uid}-6`}>{t("lease.inspection.generalNotes")}</Label>
+        <Textarea id={`${uid}-6`}
           rows={3}
           value={generalNote}
           onChange={(e) => setGeneralNote(e.target.value)}
@@ -306,7 +316,7 @@ function InspectionRow({
     try {
       onChange(await api.signInspection(leaseId, type));
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -373,6 +383,8 @@ function InspectionRow({
 // ─── Avenants (création côté propriétaire) ─────────────────────────
 
 function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: LeaseContract }) {
+  const uid = React.useId();
+  const cur = leaseCurrency(lease);
   const [amendments, setAmendments] = React.useState<LeaseAmendment[]>(lease.amendments ?? []);
   const [open, setOpen] = React.useState(false);
   const [form, setForm] = React.useState({ effectiveDate: "", rent: "", charges: "", endDate: "", note: "" });
@@ -381,7 +393,7 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
   const submit = async () => {
     if (!form.effectiveDate) return;
     if (!form.rent && !form.charges && !form.endDate) {
-      alert(t("lease.amendment.atLeastOne"));
+      toast.error(t("lease.amendment.atLeastOne"));
       return;
     }
     setBusy(true);
@@ -394,10 +406,11 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
         note: form.note || undefined,
       });
       setAmendments((arr) => [created, ...arr]);
+      toast.success(t("lease.amendment.created"));
       setForm({ effectiveDate: "", rent: "", charges: "", endDate: "", note: "" });
       setOpen(false);
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -413,12 +426,15 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
             <li key={a.id} className="flex flex-wrap items-center gap-2">
               <span>
                 {t("lease.amendment.asOf")} <strong>{fmtDate(a.effectiveDate)}</strong> :
-                {a.newMonthlyRent != null && <> {t("lease.amendment.rentWord")} <strong>{fmtMoney(a.newMonthlyRent)}</strong></>}
-                {a.newCharges != null && <> · {t("lease.amendment.chargesWord")} <strong>{fmtMoney(a.newCharges)}</strong></>}
+                {a.newMonthlyRent != null && <> {t("lease.amendment.rentWord")} <strong>{fmtMoney(a.newMonthlyRent, cur)}</strong></>}
+                {a.newCharges != null && <> · {t("lease.amendment.chargesWord")} <strong>{fmtMoney(a.newCharges, cur)}</strong></>}
                 {a.newEndDate != null && <> · {t("lease.amendment.endWord")} <strong>{fmtDate(a.newEndDate)}</strong></>}
               </span>
-              {a.tenantSignedAt ? (
+              {a.tenantSignedAt && a.appliedAt ? (
                 <Badge tone="success">{t("lease.amendment.signedApplied")}</Badge>
+              ) : a.tenantSignedAt ? (
+                // Avenant signé mais appliqué seulement à sa date d'effet.
+                <Badge tone="ocean">{t("lease.amendment.pendingApplication", { date: fmtDate(a.effectiveDate) })}</Badge>
               ) : (
                 <Badge tone="accent">{t("lease.amendment.awaitingSignature")}</Badge>
               )}
@@ -430,25 +446,25 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
         <div className="space-y-3 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20 max-w-xl">
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <Label>{t("lease.amendment.effectiveDate")}</Label>
-              <Input type="date" value={form.effectiveDate} onChange={(e) => setForm({ ...form, effectiveDate: e.target.value })} />
+              <Label htmlFor={`${uid}-7`}>{t("lease.amendment.effectiveDate")}</Label>
+              <Input id={`${uid}-7`} type="date" value={form.effectiveDate} onChange={(e) => setForm({ ...form, effectiveDate: e.target.value })} />
             </div>
             <div>
-              <Label>{t("lease.amendment.newRent")}</Label>
-              <Input type="number" min="0" step="0.01" value={form.rent} onChange={(e) => setForm({ ...form, rent: e.target.value })} />
+              <Label htmlFor={`${uid}-8`}>{t("lease.amendment.newRent", { cur: lease.currency || "EUR" })}</Label>
+              <Input id={`${uid}-8`} type="number" min="0" step="0.01" value={form.rent} onChange={(e) => setForm({ ...form, rent: e.target.value })} />
             </div>
             <div>
-              <Label>{t("lease.amendment.newCharges")}</Label>
-              <Input type="number" min="0" step="0.01" value={form.charges} onChange={(e) => setForm({ ...form, charges: e.target.value })} />
+              <Label htmlFor={`${uid}-9`}>{t("lease.amendment.newCharges", { cur: lease.currency || "EUR" })}</Label>
+              <Input id={`${uid}-9`} type="number" min="0" step="0.01" value={form.charges} onChange={(e) => setForm({ ...form, charges: e.target.value })} />
             </div>
             <div>
-              <Label>{t("lease.amendment.newEndDate")}</Label>
-              <Input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
+              <Label htmlFor={`${uid}-10`}>{t("lease.amendment.newEndDate")}</Label>
+              <Input id={`${uid}-10`} type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
             </div>
           </div>
           <div>
-            <Label>{t("lease.amendment.reason")}</Label>
-            <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+            <Label htmlFor={`${uid}-11`}>{t("lease.amendment.reason")}</Label>
+            <Input id={`${uid}-11`} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
           </div>
           <div className="flex gap-2">
             <Button size="sm" disabled={busy || !form.effectiveDate} onClick={submit}>
@@ -489,7 +505,7 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
       setForm({ firstName: "", lastName: "", email: "", phone: "" });
       setOpen(false);
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -501,7 +517,7 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
       await api.removeCoTenant(propertyId, lease.id, id);
       setCoTenants((arr) => arr.filter((c) => c.id !== id));
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     }
   };
 
@@ -513,11 +529,16 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
         <ul className="space-y-1">
           {coTenants.map((c) => (
             <li key={c.id} className="flex flex-wrap items-center gap-2">
-              <span>{c.signedAt ? "✅" : "⏳"}</span>
-              <span className="font-medium">{c.firstName} {c.lastName}</span>
-              <span className="text-ink-muted">{c.email}</span>
+              <span aria-hidden="true">{c.signedAt ? "✅" : "⏳"}</span>
+              <span className="font-medium [overflow-wrap:anywhere]">{c.firstName} {c.lastName}</span>
+              <span className="text-ink-muted [overflow-wrap:anywhere]">{c.email}</span>
               {!c.signedAt && (
-                <button className="text-ink-muted hover:text-red-500" onClick={() => remove(c.id)}>
+                <button
+                  type="button"
+                  className="text-ink-muted hover:text-red-500 px-1"
+                  aria-label={t("lease.coTenant.removeAria", { name: `${c.firstName} ${c.lastName}` })}
+                  onClick={() => remove(c.id)}
+                >
                   ✕
                 </button>
               )}
@@ -527,9 +548,9 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
       )}
       {open ? (
         <div className="flex flex-wrap gap-2 items-end max-w-2xl">
-          <Input placeholder={t("lease.coTenant.firstName")} value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="max-w-[9rem]" />
-          <Input placeholder={t("lease.coTenant.lastName")} value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="max-w-[9rem]" />
-          <Input placeholder={t("lease.coTenant.email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="max-w-[14rem]" />
+          <Input aria-label={t("lease.coTenant.firstName")} placeholder={t("lease.coTenant.firstName")} value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} className="w-full sm:max-w-[9rem]" />
+          <Input aria-label={t("lease.coTenant.lastName")} placeholder={t("lease.coTenant.lastName")} value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} className="w-full sm:max-w-[9rem]" />
+          <Input aria-label={t("lease.coTenant.email")} placeholder={t("lease.coTenant.email")} type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full sm:max-w-[14rem]" />
           <Button size="sm" disabled={busy} onClick={add}>{t("lease.add")}</Button>
           <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>{t("lease.cancel")}</Button>
         </div>
@@ -554,11 +575,11 @@ function InsuranceStatus({ lease }: { lease: LeaseContract }) {
 
   const view = async (id: string) => {
     try {
+      // S1 : plus de document.write — Blob + URL.createObjectURL + noopener.
       const { fileUrl } = await api.getInsuranceFile(lease.id, id);
-      const w = window.open();
-      if (w) w.document.write(`<iframe src="${fileUrl}" style="width:100%;height:100%;border:0"></iframe>`);
+      if (!openDataUrl(fileUrl, "attestation-assurance")) toast.error(tUi("ui.err.openDoc"));
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     }
   };
 
@@ -573,7 +594,7 @@ function InsuranceStatus({ lease }: { lease: LeaseContract }) {
           ? t("lease.insurance.expiredOn", { date: fmtDate(latest.validUntil) })
           : t("lease.insurance.validUntil", { date: fmtDate(latest.validUntil) })}
       </Badge>
-      <button className="underline text-ink-muted" onClick={() => view(latest.id)}>
+      <button type="button" className="underline text-ink-muted" onClick={() => view(latest.id)}>
         {t("lease.insurance.view")}
       </button>
     </div>
@@ -592,6 +613,7 @@ function OwnerNoticeBlock({
   lease: LeaseContract;
   onUpdate: (l: LeaseContract) => void;
 }) {
+  const uid = React.useId();
   const [open, setOpen] = React.useState(false);
   const [reason, setReason] = React.useState<"SALE" | "REPOSSESSION" | "OTHER">("SALE");
   const [desired, setDesired] = React.useState("");
@@ -639,9 +661,10 @@ function OwnerNoticeBlock({
         note: note || undefined,
       });
       onUpdate({ ...lease, ...updated });
+      toast.success(t("lease.notice.sent"));
       setOpen(false);
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -657,9 +680,9 @@ function OwnerNoticeBlock({
       </p>
       <div className="grid sm:grid-cols-2 gap-3">
         <div>
-          <Label>{t("lease.notice.legalReason")}</Label>
-          <select
-            className="h-10 w-full rounded-lg border border-ink-subtle bg-white px-2 text-sm"
+          <Label htmlFor={`${uid}-12`}>{t("lease.notice.legalReason")}</Label>
+          <select id={`${uid}-12`}
+            className="h-10 w-full rounded-lg border border-border bg-surface text-ink px-2 text-sm"
             value={reason}
             onChange={(e) => setReason(e.target.value as typeof reason)}
           >
@@ -669,13 +692,13 @@ function OwnerNoticeBlock({
           </select>
         </div>
         <div>
-          <Label>{t("lease.notice.desiredEnd")}</Label>
-          <Input type="date" value={desired} onChange={(e) => setDesired(e.target.value)} />
+          <Label htmlFor={`${uid}-13`}>{t("lease.notice.desiredEnd")}</Label>
+          <Input id={`${uid}-13`} type="date" value={desired} onChange={(e) => setDesired(e.target.value)} />
         </div>
       </div>
       <div>
-        <Label>{t("lease.notice.detail")}</Label>
-        <Input value={note} onChange={(e) => setNote(e.target.value)} />
+        <Label htmlFor={`${uid}-14`}>{t("lease.notice.detail")}</Label>
+        <Input id={`${uid}-14`} value={note} onChange={(e) => setNote(e.target.value)} />
       </div>
       <div className="flex gap-2">
         <Button size="sm" disabled={busy} onClick={submit}>
@@ -690,6 +713,8 @@ function OwnerNoticeBlock({
 // ─── Régularisation des charges ───────────────────────────────────
 
 function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; lease: LeaseContract }) {
+  const uid = React.useId();
+  const cur = leaseCurrency(lease);
   const [regs, setRegs] = React.useState<ChargeRegularization[] | null>(null);
   const [open, setOpen] = React.useState(false);
   const [form, setForm] = React.useState({ periodLabel: "", provisions: "", actual: "", note: "" });
@@ -715,7 +740,7 @@ function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; 
       setForm({ periodLabel: "", provisions: "", actual: "", note: "" });
       setOpen(false);
     } catch (e) {
-      alert(t("lease.errorPrefix") + (e as Error).message);
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -733,13 +758,13 @@ function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; 
             <li key={r.id} className="flex flex-wrap items-center gap-2">
               <span className="font-medium">{r.periodLabel}</span>
               <span className="text-ink-muted">
-                {t("lease.reg.provisionsWord")} {fmtMoney(r.provisionsCollected)} ·{" "}
-                {t("lease.reg.actualWord")} {fmtMoney(r.actualCharges)}
+                {t("lease.reg.provisionsWord")} {fmtMoney(r.provisionsCollected, cur)} ·{" "}
+                {t("lease.reg.actualWord")} {fmtMoney(r.actualCharges, cur)}
               </span>
               {r.balance > 0 ? (
-                <Badge tone="accent">+{fmtMoney(r.balance)} {t("lease.reg.dueByTenant")}</Badge>
+                <Badge tone="accent">+{fmtMoney(r.balance, cur)} {t("lease.reg.dueByTenant")}</Badge>
               ) : r.balance < 0 ? (
-                <Badge tone="brand">{fmtMoney(-r.balance)} {t("lease.reg.toRefund")}</Badge>
+                <Badge tone="brand">{fmtMoney(-r.balance, cur)} {t("lease.reg.toRefund")}</Badge>
               ) : (
                 <Badge tone="success">{t("lease.reg.balanced")}</Badge>
               )}
@@ -751,21 +776,21 @@ function ChargeRegularizationBlock({ propertyId, lease }: { propertyId: string; 
         <div className="space-y-3 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20 max-w-xl">
           <div className="grid sm:grid-cols-3 gap-3">
             <div>
-              <Label>{t("lease.reg.period")}</Label>
-              <Input placeholder="2026" value={form.periodLabel} onChange={(e) => setForm({ ...form, periodLabel: e.target.value })} />
+              <Label htmlFor={`${uid}-15`}>{t("lease.reg.period")}</Label>
+              <Input id={`${uid}-15`} placeholder="2026" value={form.periodLabel} onChange={(e) => setForm({ ...form, periodLabel: e.target.value })} />
             </div>
             <div>
-              <Label>{t("lease.reg.provisionsCollected")}</Label>
-              <Input type="number" min="0" step="0.01" value={form.provisions} onChange={(e) => setForm({ ...form, provisions: e.target.value })} />
+              <Label htmlFor={`${uid}-16`}>{t("lease.reg.provisionsCollected", { cur: lease.currency || "EUR" })}</Label>
+              <Input id={`${uid}-16`} type="number" min="0" step="0.01" value={form.provisions} onChange={(e) => setForm({ ...form, provisions: e.target.value })} />
             </div>
             <div>
-              <Label>{t("lease.reg.actualCharges")}</Label>
-              <Input type="number" min="0" step="0.01" value={form.actual} onChange={(e) => setForm({ ...form, actual: e.target.value })} />
+              <Label htmlFor={`${uid}-17`}>{t("lease.reg.actualCharges", { cur: lease.currency || "EUR" })}</Label>
+              <Input id={`${uid}-17`} type="number" min="0" step="0.01" value={form.actual} onChange={(e) => setForm({ ...form, actual: e.target.value })} />
             </div>
           </div>
           <div>
-            <Label>{t("lease.reg.detail")}</Label>
-            <Input value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+            <Label htmlFor={`${uid}-18`}>{t("lease.reg.detail")}</Label>
+            <Input id={`${uid}-18`} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
           </div>
           <div className="flex gap-2">
             <Button size="sm" disabled={busy} onClick={submit}>
@@ -815,8 +840,10 @@ export function LeaseExtras({
     });
 
   return (
-    <div className="mt-4 pt-4 border-t border-ink-subtle">
+    <div className="mt-4 pt-4 border-t border-border">
       <button
+        type="button"
+        aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
       >

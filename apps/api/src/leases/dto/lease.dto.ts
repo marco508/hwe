@@ -1,9 +1,7 @@
-import { LeaseStatus } from "@prisma/client";
 import {
   IsBoolean,
   IsDateString,
   IsEmail,
-  IsEnum,
   IsIn,
   IsInt,
   IsNumber,
@@ -12,88 +10,124 @@ import {
   Max,
   MaxLength,
   Min,
+  MinLength,
 } from "class-validator";
+import { NormalizeEmail, Trim } from "../../common/email.util";
+
+const MAX_AMOUNT = 1_000_000_000;
 
 export class CreateLeaseDto {
   // Tenant
+  @Trim()
   @IsString()
+  @MinLength(1)
   @MaxLength(100)
   tenantFirstName!: string;
 
+  @Trim()
   @IsString()
+  @MinLength(1)
   @MaxLength(100)
   tenantLastName!: string;
 
+  @NormalizeEmail()
   @IsEmail()
+  @MaxLength(254)
   tenantEmail!: string;
 
   @IsOptional()
   @IsString()
-  tenantPhone?: string;
+  @MaxLength(30)
+  tenantPhone?: string | null;
 
   @IsOptional()
   @IsString()
-  tenantAddress?: string;
+  @MaxLength(255)
+  tenantAddress?: string | null;
 
   // Financial
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   @Min(0)
+  @Max(MAX_AMOUNT)
   monthlyRent!: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   @Min(0)
-  charges?: number;
+  @Max(MAX_AMOUNT)
+  charges?: number | null;
 
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   @Min(0)
+  @Max(MAX_AMOUNT)
   deposit!: number;
 
-  // Dates
+  // Dates (jours calendaires) — fin > début, contrôlé dans le service
   @IsDateString()
   startDate!: string;
 
   @IsOptional()
   @IsDateString()
-  endDate?: string;
+  endDate?: string | null;
 
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(36)
-  noticePeriod?: number;
+  noticePeriod?: number | null;
 
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(28)
-  rentPaymentDay?: number;
+  rentPaymentDay?: number | null;
 
   @IsOptional()
   @IsBoolean()
-  furnished?: boolean;
+  furnished?: boolean | null;
 
   @IsOptional()
   @IsString()
-  specialClauses?: string;
+  @MaxLength(10000)
+  specialClauses?: string | null;
 }
 
+/**
+ * Modification d'un bail : UNIQUEMENT tant qu'aucune partie n'a signé (sinon
+ * 409, passer par un avenant). Plus de `status` ni de `pdfUrl` : le statut est
+ * géré par le serveur (signatures, planificateur, congés).
+ */
 export class UpdateLeaseDto {
   @IsOptional()
-  @IsEnum(LeaseStatus)
-  status?: LeaseStatus;
-
-  @IsOptional()
   @IsString()
-  pdfUrl?: string;
-
-  @IsOptional()
-  @IsString()
-  specialClauses?: string;
+  @MaxLength(10000)
+  specialClauses?: string | null;
 
   @IsOptional()
   @IsDateString()
-  endDate?: string;
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string | null;
+
+  @IsOptional()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Min(0)
+  @Max(MAX_AMOUNT)
+  monthlyRent?: number;
+
+  @IsOptional()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Min(0)
+  @Max(MAX_AMOUNT)
+  charges?: number;
+
+  @IsOptional()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
+  @Min(0)
+  @Max(MAX_AMOUNT)
+  deposit?: number;
 }
 
 /** Suivi de la caution : marquer versée ou restituée (retenue éventuelle). */
@@ -103,14 +137,15 @@ export class LeaseDepositDto {
 
   // Montant retenu à la restitution (dégradations, loyers impayés…).
   @IsOptional()
-  @IsNumber()
+  @IsNumber({ allowNaN: false, allowInfinity: false })
   @Min(0)
-  retained?: number;
+  @Max(MAX_AMOUNT)
+  retained?: number | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  note?: string;
+  note?: string | null;
 }
 
 /** Préavis donné par le locataire. */
@@ -118,12 +153,12 @@ export class GiveNoticeDto {
   // Date de départ souhaitée ; ramenée au minimum légal si trop proche.
   @IsOptional()
   @IsDateString()
-  desiredDate?: string;
+  desiredDate?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  note?: string;
+  note?: string | null;
 }
 
 /** Avenant proposé par le propriétaire (au moins un champ modifié). */
@@ -131,22 +166,23 @@ export class CreateAmendmentDto {
   @IsDateString()
   effectiveDate!: string;
 
-  @IsOptional() @IsNumber() @Min(0) newMonthlyRent?: number;
-  @IsOptional() @IsNumber() @Min(0) newCharges?: number;
-  @IsOptional() @IsDateString() newEndDate?: string;
-  @IsOptional() @IsString() @MaxLength(1000) note?: string;
+  @IsOptional() @IsNumber({ allowNaN: false, allowInfinity: false }) @Min(0) @Max(MAX_AMOUNT) newMonthlyRent?: number | null;
+  @IsOptional() @IsNumber({ allowNaN: false, allowInfinity: false }) @Min(0) @Max(MAX_AMOUNT) newCharges?: number | null;
+  @IsOptional() @IsDateString() newEndDate?: string | null;
+  @IsOptional() @IsString() @MaxLength(1000) note?: string | null;
 }
 
 /** Colocataire ajouté au bail par le propriétaire. */
 export class CoTenantDto {
-  @IsString() @MaxLength(100) firstName!: string;
-  @IsString() @MaxLength(100) lastName!: string;
-  @IsEmail() email!: string;
-  @IsOptional() @IsString() phone?: string;
+  @Trim() @IsString() @MinLength(1) @MaxLength(100) firstName!: string;
+  @Trim() @IsString() @MinLength(1) @MaxLength(100) lastName!: string;
+  @NormalizeEmail() @IsEmail() @MaxLength(254) email!: string;
+  @IsOptional() @IsString() @MaxLength(30) phone?: string | null;
 }
 
 /** Attestation d'assurance habitation déposée par le locataire. */
 export class InsuranceDto {
+  // data-URL (image ou PDF ≤ 8 Mo), vérifiée strictement dans le service
   @IsString() fileUrl!: string;
   @IsDateString() validUntil!: string;
 }
@@ -158,18 +194,18 @@ export class OwnerNoticeDto {
 
   @IsOptional()
   @IsDateString()
-  desiredDate?: string;
+  desiredDate?: string | null;
 
   @IsOptional()
   @IsString()
   @MaxLength(1000)
-  note?: string;
+  note?: string | null;
 }
 
 /** Régularisation annuelle des charges (solde informatif). */
 export class ChargeRegularizationDto {
-  @IsString() @MaxLength(60) periodLabel!: string;
-  @IsNumber() @Min(0) provisionsCollected!: number;
-  @IsNumber() @Min(0) actualCharges!: number;
-  @IsOptional() @IsString() @MaxLength(1000) note?: string;
+  @Trim() @IsString() @MinLength(1) @MaxLength(60) periodLabel!: string;
+  @IsNumber({ allowNaN: false, allowInfinity: false }) @Min(0) @Max(MAX_AMOUNT) provisionsCollected!: number;
+  @IsNumber({ allowNaN: false, allowInfinity: false }) @Min(0) @Max(MAX_AMOUNT) actualCharges!: number;
+  @IsOptional() @IsString() @MaxLength(1000) note?: string | null;
 }

@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import { PrismaModule } from "./prisma/prisma.module";
@@ -17,6 +18,10 @@ import { InspectionsModule } from "./inspections/inspections.module";
 import { TicketsModule } from "./tickets/tickets.module";
 import { AdminModule } from "./admin/admin.module";
 import { VisitsModule } from "./visits/visits.module";
+import { MediaModule } from "./media/media.module";
+import { HealthController } from "./health/health.controller";
+import { AllExceptionsFilter } from "./common/all-exceptions.filter";
+import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interceptor";
 
 @Module({
   imports: [
@@ -38,6 +43,14 @@ import { VisitsModule } from "./visits/visits.module";
     TicketsModule,
     AdminModule,
     VisitsModule,
+    MediaModule,
+  ],
+  controllers: [HealthController],
+  providers: [
+    // Format d'erreur unique + erreurs Prisma mappées (jamais de 500 sur entrée invalide)
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    // Défense en profondeur : aucune clé password/tokenVersion ne sort, médias en URL
+    { provide: APP_INTERCEPTOR, useClass: ResponseSanitizerInterceptor },
   ],
 })
 export class AppModule {}

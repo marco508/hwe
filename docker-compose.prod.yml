@@ -33,6 +33,9 @@ services:
       CORS_ORIGINS: https://hwe.dkpsolution.tech,https://owner.hwe.dkpsolution.tech,https://tenant.hwe.dkpsolution.tech
       OWNER_WEB_URL: https://owner.hwe.dkpsolution.tech
       TENANT_WEB_URL: https://tenant.hwe.dkpsolution.tech
+      # Préfixe des URL publiques des photos et avatars (servis par l'API).
+      PUBLIC_API_URL: https://hwe.dkpsolution.tech/api
+      APP_TIME_ZONE: Europe/Paris
       NODE_ENV: production
       # E-mails (rappels de loyers, quittances, fins de bail). Sans SMTP_HOST,
       # les messages sont journalisés au lieu d'être envoyés.
@@ -80,6 +83,7 @@ services:
     build:
       args:
         NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
+        NEXT_PUBLIC_TENANT_URL: https://tenant.hwe.dkpsolution.tech
     environment:
       NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
       NODE_ENV: production
@@ -99,6 +103,7 @@ services:
     build:
       args:
         NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
+        NEXT_PUBLIC_OWNER_URL: https://owner.hwe.dkpsolution.tech
     environment:
       NEXT_PUBLIC_API_URL: https://hwe.dkpsolution.tech
       NODE_ENV: production

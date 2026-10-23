@@ -18,10 +18,13 @@ import type {
   LeaseDurationUnit,
   EnergyClass,
   RentalKind,
+  PropertyType,
+  PropertyStatus,
 } from "@hwe/types";
 import { ENERGY_CLASS_COLORS } from "@hwe/types";
 import { t } from "../lib/i18n";
 import { ImageUploader } from "./ImageUploader";
+import type { CreatePropertyBody } from "../lib/api";
 
 export type PropertyFormValue = Omit<
   Property,
@@ -79,6 +82,27 @@ const empty: PropertyFormValue = {
   mediaUrls: [],
   pricingRates: [],
 };
+
+/** Valeur du formulaire → corps API (sans médias ni grille, gérés à part). */
+export function toPropertyBody(
+  v: Omit<PropertyFormValue, "mediaUrls" | "pricingRates">,
+): CreatePropertyBody {
+  // Liste blanche : l'objet d'édition contient aussi id, owner, media…
+  const keys = [
+    "title", "description", "listingType", "propertyType", "status", "currency",
+    "surface", "rooms", "bedrooms", "bathrooms", "floor", "yearBuilt", "furnished",
+    "hasParking", "hasBalcony", "hasGarden", "hasElevator", "addressLine", "city",
+    "postalCode", "country", "latitude", "longitude", "coOwnershipFees", "propertyTax",
+    "energyClass", "notaryFeesRate", "isNew", "rentalKind", "chargesIncluded",
+    "chargesAmount", "deposit", "noticeMonths", "petsAllowed",
+  ] as const;
+  const out: Record<string, unknown> = {};
+  for (const k of keys) out[k] = (v as Record<string, unknown>)[k];
+  // Le formulaire ne gère que DRAFT / PUBLISHED : un bien loué, vendu ou
+  // archivé garde son statut (on n'envoie pas le champ).
+  if (out.status !== "DRAFT" && out.status !== "PUBLISHED") delete out.status;
+  return out as unknown as CreatePropertyBody;
+}
 
 // ── Pays + devises ──────────────────────────────────────────────────────────
 const COUNTRIES: { code: string; name: string; currency: string }[] = [
@@ -282,9 +306,11 @@ const COUNTRY_TO_CURRENCY: Record<string, string> = Object.fromEntries(
 function CountrySelect({
   value,
   onChange,
+  labelledBy,
 }: {
   value: string;
   onChange: (code: string) => void;
+  labelledBy?: string;
 }) {
   const [query, setQuery] = React.useState("");
   const [open, setOpen] = React.useState(false);
@@ -305,8 +331,15 @@ function CountrySelect({
       if (ref.current && !ref.current.contains(e.target as Node))
         setOpen(false);
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", onKey);
+    };
   }, []);
 
   return (
@@ -317,13 +350,16 @@ function CountrySelect({
           setOpen((o) => !o);
           setQuery("");
         }}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-labelledby={labelledBy}
         className="flex h-10 w-full items-center justify-between rounded-lg border border-border bg-surface px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand-500"
       >
-        <span>{selected ? countryLabel(selected.code, selected.name) : t("pf.country.select")}</span>
+        <span className="truncate">{selected ? countryLabel(selected.code, selected.name) : t("pf.country.select")}</span>
         <span className="text-ink-muted ml-2">▾</span>
       </button>
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-white shadow-lg">
+        <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-surface shadow-lg">
           <div className="p-2 border-b border-border">
             <input
               autoFocus
@@ -331,29 +367,33 @@ function CountrySelect({
               placeholder={t("pf.country.search")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-lg border border-border px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              aria-label={t("pf.country.search")}
+              className="w-full rounded-lg border border-border bg-surface text-ink px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
-          <ul className="max-h-56 overflow-y-auto py-1">
+          <ul className="max-h-56 overflow-y-auto py-1" role="listbox" aria-labelledby={labelledBy}>
             {filtered.length === 0 ? (
               <li className="px-3 py-2 text-sm text-ink-muted">{t("pf.country.noResult")}</li>
             ) : (
               filtered.map((c) => (
-                <li
-                  key={c.code}
-                  onClick={() => {
-                    onChange(c.code);
-                    setOpen(false);
-                    setQuery("");
-                  }}
-                  className={`cursor-pointer px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 ${
-                    c.code === value
-                      ? "bg-brand-50 font-medium text-brand-700"
-                      : "text-ink"
-                  }`}
-                >
-                  {countryLabel(c.code, c.name)}
-                  <span className="ml-1 text-xs text-ink-muted">{c.currency}</span>
+                <li key={c.code} role="option" aria-selected={c.code === value}>
+                  {/* Vrai bouton : sélection au clavier (Tab + Entrée) — M1. */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange(c.code);
+                      setOpen(false);
+                      setQuery("");
+                    }}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-900/30 dark:hover:text-brand-200 focus:outline-none focus-visible:bg-brand-50 dark:focus-visible:bg-brand-900/30 ${
+                      c.code === value
+                        ? "bg-brand-50 dark:bg-brand-900/30 font-medium text-brand-700 dark:text-brand-200"
+                        : "text-ink"
+                    }`}
+                  >
+                    {countryLabel(c.code, c.name)}
+                    <span className="ml-1 text-xs text-ink-muted">{c.currency}</span>
+                  </button>
                 </li>
               ))
             )}
@@ -377,18 +417,27 @@ export function PropertyForm({
   submitLabel?: string;
 }) {
   const [v, setV] = React.useState<PropertyFormValue>({ ...empty, ...initial });
+  const [formError, setFormError] = React.useState<string | null>(null);
 
   const set = <K extends keyof PropertyFormValue>(
     k: K,
     val: PropertyFormValue[K],
   ) => setV((s) => ({ ...s, [k]: val }));
 
+  const isSale = v.listingType === "SALE";
+  const validRates = v.pricingRates.filter((r) => r.amount !== "" && Number(r.amount) > 0);
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    // F10 : en location, un prix OU une grille tarifaire suffit.
+    if (isSale && !(Number(v.price) > 0)) return setFormError(t("pf.err.salePrice"));
+    if (!isSale && !(Number(v.price) > 0) && validRates.length === 0)
+      return setFormError(t("pf.err.priceOrRates"));
+    if (!isSale && validRates.length !== v.pricingRates.length)
+      return setFormError(t("pf.err.rateUnits"));
     onSubmit(v);
   };
-
-  const isSale = v.listingType === "SALE";
 
   return (
     <form onSubmit={submit} className="space-y-6">
@@ -456,6 +505,7 @@ export function PropertyForm({
             <Label htmlFor="title">{t("pf.title")}</Label>
             <Input
               id="title"
+              maxLength={120}
               value={v.title}
               onChange={(e) => set("title", e.target.value)}
               placeholder={
@@ -468,6 +518,7 @@ export function PropertyForm({
             <Label htmlFor="description">{t("pf.description")}</Label>
             <Textarea
               id="description"
+              maxLength={5000}
               value={v.description}
               onChange={(e) => set("description", e.target.value)}
               placeholder={
@@ -479,10 +530,10 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.propertyType")}</Label>
+            <Label htmlFor="pf-f1">{t("pf.propertyType")}</Label>
             <Select
-              value={v.propertyType}
-              onChange={(e) => set("propertyType", e.target.value as any)}
+              id="pf-f1"value={v.propertyType}
+              onChange={(e) => set("propertyType", e.target.value as PropertyType)}
             >
               <option value="APARTMENT">{t("pf.type.APARTMENT")}</option>
               <option value="HOUSE">{t("pf.type.HOUSE")}</option>
@@ -502,9 +553,9 @@ export function PropertyForm({
         </CardHeader>
         <CardBody className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <div className="space-y-1">
-            <Label>{t("pf.surface")}</Label>
+            <Label htmlFor="pf-f2">{t("pf.surface")}</Label>
             <Input
-              type="number"
+              id="pf-f2"type="number"
               min={0}
               value={v.surface}
               onChange={(e) => set("surface", Number(e.target.value))}
@@ -512,9 +563,9 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.rooms")}</Label>
+            <Label htmlFor="pf-f3">{t("pf.rooms")}</Label>
             <Input
-              type="number"
+              id="pf-f3"type="number"
               min={0}
               value={v.rooms}
               onChange={(e) => set("rooms", Number(e.target.value))}
@@ -522,27 +573,27 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.bedrooms")}</Label>
+            <Label htmlFor="pf-f4">{t("pf.bedrooms")}</Label>
             <Input
-              type="number"
+              id="pf-f4"type="number"
               min={0}
               value={v.bedrooms}
               onChange={(e) => set("bedrooms", Number(e.target.value))}
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.bathrooms")}</Label>
+            <Label htmlFor="pf-f5">{t("pf.bathrooms")}</Label>
             <Input
-              type="number"
+              id="pf-f5"type="number"
               min={0}
               value={v.bathrooms}
               onChange={(e) => set("bathrooms", Number(e.target.value))}
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.floor")}</Label>
+            <Label htmlFor="pf-f6">{t("pf.floor")}</Label>
             <Input
-              type="number"
+              id="pf-f6"type="number"
               value={v.floor ?? ""}
               onChange={(e) =>
                 set("floor", e.target.value === "" ? null : Number(e.target.value))
@@ -550,9 +601,9 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.yearBuilt")}</Label>
+            <Label htmlFor="pf-f7">{t("pf.yearBuilt")}</Label>
             <Input
-              type="number"
+              id="pf-f7"type="number"
               value={v.yearBuilt ?? ""}
               onChange={(e) =>
                 set(
@@ -590,34 +641,35 @@ export function PropertyForm({
         <CardHeader>
           <h2 className="font-display text-lg">{t("pf.location")}</h2>
         </CardHeader>
-        <CardBody className="grid grid-cols-2 gap-3">
-          <div className="space-y-1 col-span-2">
-            <Label>{t("pf.address")}</Label>
+        <CardBody className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1 sm:col-span-2">
+            <Label htmlFor="pf-f8">{t("pf.address")}</Label>
             <Input
-              value={v.addressLine}
+              id="pf-f8"value={v.addressLine}
               onChange={(e) => set("addressLine", e.target.value)}
               required
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.postalCode")}</Label>
+            <Label htmlFor="pf-f9">{t("pf.postalCode")}</Label>
             <Input
-              value={v.postalCode}
+              id="pf-f9"value={v.postalCode}
               onChange={(e) => set("postalCode", e.target.value)}
               required
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.city")}</Label>
+            <Label htmlFor="pf-f10">{t("pf.city")}</Label>
             <Input
-              value={v.city}
+              id="pf-f10"value={v.city}
               onChange={(e) => set("city", e.target.value)}
               required
             />
           </div>
-          <div className="space-y-1 col-span-2 md:col-span-1">
-            <Label>{t("pf.country")}</Label>
+          <div className="space-y-1">
+            <span id="pf-country-label" className="text-sm font-medium text-ink">{t("pf.country")}</span>
             <CountrySelect
+              labelledBy="pf-country-label"
               value={v.country}
               onChange={(code) => {
                 const currency = COUNTRY_TO_CURRENCY[code] ?? "EUR";
@@ -626,15 +678,15 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.currency")}</Label>
+            <p className="text-sm font-medium text-ink">{t("pf.currency")}</p>
             <div className="flex h-10 items-center rounded-lg border border-border bg-surface/60 px-3 text-sm text-ink-muted select-none">
               {v.currency || "—"}
             </div>
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.latitude")}</Label>
+            <Label htmlFor="pf-f11">{t("pf.latitude")}</Label>
             <Input
-              type="number"
+              id="pf-f11"type="number"
               step="any"
               value={v.latitude ?? ""}
               onChange={(e) =>
@@ -646,9 +698,9 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <Label>{t("pf.longitude")}</Label>
+            <Label htmlFor="pf-f12">{t("pf.longitude")}</Label>
             <Input
-              type="number"
+              id="pf-f12"type="number"
               step="any"
               value={v.longitude ?? ""}
               onChange={(e) =>
@@ -674,7 +726,7 @@ export function PropertyForm({
         </CardHeader>
         <CardBody>
           <div className="flex items-end gap-3">
-            <div className="space-y-1 flex-1">
+            <div className="space-y-1 flex-1 min-w-0">
               <Label htmlFor="price">
                 {isSale ? t("pf.price.sale") : t("pf.price.rent")}
               </Label>
@@ -682,19 +734,26 @@ export function PropertyForm({
                 id="price"
                 type="number"
                 min={0}
+                max={1000000000}
                 step="0.01"
                 value={v.price || ""}
                 onChange={(e) => set("price", Number(e.target.value))}
-                required
+                required={isSale || validRates.length === 0}
+                aria-describedby={!isSale ? "pf-price-help" : undefined}
               />
             </div>
-            <div className="space-y-1 w-32">
-              <Label>{t("pf.currency")}</Label>
-              <div className="flex h-10 items-center justify-center rounded-lg border border-border bg-cream-100/50 px-3 text-sm font-medium text-ink-muted">
+            <div className="space-y-1 w-24 sm:w-32 shrink-0">
+              <p className="text-sm font-medium text-ink">{t("pf.currency")}</p>
+              <div className="flex h-10 items-center justify-center rounded-lg border border-border bg-cream-100/50 dark:bg-white/5 px-3 text-sm font-medium text-ink-muted">
                 {v.currency || "—"}
               </div>
             </div>
           </div>
+          {!isSale && (
+            <p id="pf-price-help" className="text-xs text-ink-muted mt-2">
+              {t("pf.price.optional")}
+            </p>
+          )}
         </CardBody>
       </Card>
 
@@ -714,7 +773,7 @@ export function PropertyForm({
           <CardBody className="space-y-5">
             {/* DPE */}
             <div>
-              <Label>{t("pf.dpe")}</Label>
+              <p className="text-sm font-medium text-ink">{t("pf.dpe")}</p>
               <p className="text-xs text-ink-muted mb-2">
                 {t("pf.dpe.help")}
               </p>
@@ -730,6 +789,7 @@ export function PropertyForm({
                       onClick={() =>
                         set("energyClass", active ? null : c)
                       }
+                      aria-pressed={active}
                       className={`h-10 w-10 rounded-lg font-semibold text-white transition-transform ${
                         active
                           ? "ring-2 ring-offset-2 ring-ink scale-110"
@@ -756,9 +816,9 @@ export function PropertyForm({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>{t("pf.coOwnershipFees")}</Label>
+                <Label htmlFor="pf-f13">{t("pf.coOwnershipFees")}</Label>
                 <Input
-                  type="number"
+                  id="pf-f13"type="number"
                   min={0}
                   step="0.01"
                   value={v.coOwnershipFees ?? ""}
@@ -772,9 +832,9 @@ export function PropertyForm({
                 />
               </div>
               <div className="space-y-1">
-                <Label>{t("pf.propertyTax")}</Label>
+                <Label htmlFor="pf-f14">{t("pf.propertyTax")}</Label>
                 <Input
-                  type="number"
+                  id="pf-f14"type="number"
                   min={0}
                   step="0.01"
                   value={v.propertyTax ?? ""}
@@ -788,9 +848,9 @@ export function PropertyForm({
                 />
               </div>
               <div className="space-y-1">
-                <Label>{t("pf.notaryFees")}</Label>
+                <Label htmlFor="pf-f15">{t("pf.notaryFees")}</Label>
                 <Input
-                  type="number"
+                  id="pf-f15"type="number"
                   min={0}
                   max={20}
                   step="0.1"
@@ -808,7 +868,7 @@ export function PropertyForm({
                 </p>
               </div>
               <div className="space-y-1">
-                <Label>{t("pf.isNew")}</Label>
+                <p className="text-sm font-medium text-ink">{t("pf.isNew")}</p>
                 <label className="flex items-center gap-2 h-10 px-3 rounded-lg border border-border cursor-pointer hover:border-ink/30">
                   <input
                     type="checkbox"
@@ -840,7 +900,7 @@ export function PropertyForm({
           <CardBody className="space-y-5">
             {/* Type de bail */}
             <div>
-              <Label>{t("pf.rentalKind")}</Label>
+              <p className="text-sm font-medium text-ink">{t("pf.rentalKind")}</p>
               <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(
                   ["BARE", "FURNISHED", "SEASONAL", "STUDENT"] as RentalKind[]
@@ -851,8 +911,14 @@ export function PropertyForm({
                       key={k}
                       type="button"
                       onClick={() =>
-                        set("rentalKind", active ? null : k)
+                        setV((s) => ({
+                          ...s,
+                          rentalKind: active ? null : k,
+                          // « Location meublée » ⇒ bien meublé (case cochée) ; « nue » ⇒ non meublé.
+                          furnished: !active && k === "FURNISHED" ? true : !active && k === "BARE" ? false : s.furnished,
+                        }))
                       }
+                      aria-pressed={active}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
                         active
                           ? "bg-brand-50 dark:bg-brand-900/30 border-brand-500 text-ink ring-2 ring-brand-500/30"
@@ -868,11 +934,12 @@ export function PropertyForm({
 
             {/* Charges */}
             <div>
-              <Label>{t("pf.charges")}</Label>
+              <p className="text-sm font-medium text-ink">{t("pf.charges")}</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => set("chargesIncluded", true)}
+                  aria-pressed={v.chargesIncluded === true}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
                     v.chargesIncluded === true
                       ? "bg-brand-50 dark:bg-brand-900/30 border-brand-500 text-ink ring-2 ring-brand-500/30"
@@ -884,6 +951,7 @@ export function PropertyForm({
                 <button
                   type="button"
                   onClick={() => set("chargesIncluded", false)}
+                  aria-pressed={v.chargesIncluded === false}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
                     v.chargesIncluded === false
                       ? "bg-brand-50 dark:bg-brand-900/30 border-brand-500 text-ink ring-2 ring-brand-500/30"
@@ -895,9 +963,9 @@ export function PropertyForm({
               </div>
               {v.chargesIncluded === false && (
                 <div className="mt-3 space-y-1">
-                  <Label>{t("pf.charges.amount")}</Label>
+                  <Label htmlFor="pf-f16">{t("pf.charges.amount")}</Label>
                   <Input
-                    type="number"
+                    id="pf-f16"type="number"
                     min={0}
                     step="0.01"
                     value={v.chargesAmount ?? ""}
@@ -915,9 +983,9 @@ export function PropertyForm({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label>{t("pf.deposit")}</Label>
+                <Label htmlFor="pf-f17">{t("pf.deposit")}</Label>
                 <Input
-                  type="number"
+                  id="pf-f17"type="number"
                   min={0}
                   step="0.01"
                   value={v.deposit ?? ""}
@@ -940,9 +1008,9 @@ export function PropertyForm({
                 </p>
               </div>
               <div className="space-y-1">
-                <Label>{t("pf.notice")}</Label>
+                <Label htmlFor="pf-f18">{t("pf.notice")}</Label>
                 <Input
-                  type="number"
+                  id="pf-f18"type="number"
                   min={0}
                   max={12}
                   value={v.noticeMonths ?? ""}
@@ -961,11 +1029,12 @@ export function PropertyForm({
             </div>
 
             <div>
-              <Label>{t("pf.pets")}</Label>
+              <p className="text-sm font-medium text-ink">{t("pf.pets")}</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => set("petsAllowed", true)}
+                  aria-pressed={v.petsAllowed === true}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
                     v.petsAllowed === true
                       ? "bg-brand-50 dark:bg-brand-900/30 border-brand-500 text-ink ring-2 ring-brand-500/30"
@@ -977,6 +1046,7 @@ export function PropertyForm({
                 <button
                   type="button"
                   onClick={() => set("petsAllowed", false)}
+                  aria-pressed={v.petsAllowed === false}
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
                     v.petsAllowed === false
                       ? "bg-brand-50 dark:bg-brand-900/30 border-brand-500 text-ink ring-2 ring-brand-500/30"
@@ -1017,7 +1087,7 @@ export function PropertyForm({
                     key={unit}
                     className={`rounded-xl border px-4 py-3 transition-colors ${
                       checked
-                        ? "border-brand-300 bg-white"
+                        ? "border-brand-300 bg-brand-50/40 dark:bg-brand-900/20"
                         : "border-border bg-surface"
                     }`}
                   >
@@ -1054,6 +1124,7 @@ export function PropertyForm({
                             min={0}
                             step="0.01"
                             placeholder={t("pf.ph", { v: 100 })}
+                            aria-label={t("pf.rates.per", { unit: UNIT_SINGULAR[unit] })}
                             value={displayVal}
                             onChange={(e) =>
                               set(
@@ -1092,7 +1163,7 @@ export function PropertyForm({
           <ImageUploader
             value={v.mediaUrls}
             onChange={(urls) => set("mediaUrls", urls)}
-            maxImages={10}
+            maxImages={20}
           />
         </CardBody>
       </Card>
@@ -1125,7 +1196,8 @@ export function PropertyForm({
                 <button
                   key={opt.val}
                   type="button"
-                  onClick={() => set("status", opt.val as any)}
+                  onClick={() => set("status", opt.val as PropertyStatus)}
+                  aria-pressed={active}
                   className={`text-left rounded-xl border px-4 py-3 transition-all ${
                     active
                       ? "border-brand-500 bg-brand-50/50 dark:bg-brand-900/20 ring-2 ring-brand-500/30"
@@ -1150,6 +1222,11 @@ export function PropertyForm({
         </CardBody>
       </Card>
 
+      {formError && (
+        <div role="alert" className="rounded-md border border-danger/30 bg-danger/5 text-danger dark:text-red-300 text-sm px-3 py-2">
+          {formError}
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row justify-end gap-3">
         <Button
           type="submit"
@@ -1189,11 +1266,12 @@ function ListingTypeChoice({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`relative text-left rounded-xl border p-4 transition-all ${
         active
           ? tone === "accent"
-            ? "border-accent-500 bg-accent-50/40 ring-2 ring-accent-500/30"
-            : "border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/30"
+            ? "border-accent-500 bg-accent-50/40 dark:bg-accent-700/15 ring-2 ring-accent-500/30"
+            : "border-brand-500 bg-brand-50/40 dark:bg-brand-900/20 ring-2 ring-brand-500/30"
           : "border-border bg-surface hover:border-ink/30"
       }`}
     >

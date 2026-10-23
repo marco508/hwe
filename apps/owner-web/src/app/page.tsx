@@ -5,25 +5,23 @@ import Link from "next/link";
 import {
   PropertyCard,
   EmptyState,
+  ErrorState,
   AnimatedBackground,
-  Button,
+  countryLabel,
+  useAsync,
+  useCurrency,
 } from "@hwe/ui";
 import { api } from "../lib/api";
 import type { Property } from "@hwe/types";
 import { t } from "../lib/i18n";
 
 export default function HomePage() {
-  const [items, setItems] = React.useState<Property[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  // Erreur API ≠ catalogue vide (L2). pageSize ≤ 50 (contrat §8).
+  const { data, error, loading, reload } = useAsync(() => api.listProperties({ pageSize: 48 }), []);
+  const items: Property[] = data?.items ?? [];
+  const { format } = useCurrency();
   const [query, setQuery] = React.useState("");
   const [country, setCountry] = React.useState<string>("");
-
-  React.useEffect(() => {
-    api
-      .listProperties({ pageSize: 60 })
-      .then((r) => setItems(r.items))
-      .finally(() => setLoading(false));
-  }, []);
 
   const visible = items.filter((p) => {
     if (country && p.country !== country) return false;
@@ -32,7 +30,8 @@ export default function HomePage() {
     return (
       p.title.toLowerCase().includes(q) ||
       p.city.toLowerCase().includes(q) ||
-      p.propertyType.toLowerCase().includes(q)
+      p.propertyType.toLowerCase().includes(q) ||
+      t("pf.type." + p.propertyType).toLowerCase().includes(q)
     );
   });
 
@@ -51,33 +50,35 @@ export default function HomePage() {
     <section>
       <AnimatedBackground
         variant="blobs"
-        className="rounded-2xl border border-border/60 px-8 py-10 mb-10"
+        className="rounded-2xl border border-border/60 px-5 sm:px-8 py-10 mb-10"
       >
         <div className="flex flex-col lg:flex-row lg:items-end gap-6 lg:justify-between">
-          <div className="max-w-2xl">
+          <div className="max-w-2xl min-w-0">
             <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
               <span className="h-1.5 w-1.5 rounded-full bg-accent-500 pulse-dot" />
-              Marché immobilier · temps réel
+              {t("market.badge")}
             </span>
             <h1 className="font-display text-4xl mb-2">
-              Le marché <span className="gradient-text">immobilier</span>
+              {t("market.title1")} <span className="gradient-text">{t("market.title2")}</span>
             </h1>
             <p className="text-ink-muted">
-              Tous les biens publiés sur la plateforme — comparez les prix et les annonces.
+              {t("market.sub")}
             </p>
           </div>
           <div className="lg:w-80">
-            <label className="block text-xs font-medium text-ink-muted mb-1">
-              Recherche rapide
+            <label htmlFor="market-search" className="block text-xs font-medium text-ink-muted mb-1">
+              {t("market.search")}
             </label>
             <div className="relative">
               <input
+                id="market-search"
+                type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ville, type, titre…"
-                className="h-11 w-full pl-10 pr-3 rounded-lg glass-strong text-sm outline-none focus-visible:shadow-focus focus-visible:ring-2 focus-visible:ring-brand-400"
+                placeholder={t("market.searchPh")}
+                className="h-11 w-full pl-10 pr-3 rounded-lg glass-strong text-sm text-ink outline-none focus-visible:shadow-focus focus-visible:ring-2 focus-visible:ring-brand-400"
               />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted">
+              <span aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.3-4.3" />
@@ -92,6 +93,7 @@ export default function HomePage() {
           <div className="mt-6 flex flex-wrap gap-2">
             <button
               type="button"
+              aria-pressed={country === ""}
               onClick={() => setCountry("")}
               className={`h-8 px-3 rounded-full text-xs font-medium transition-all border ${
                 country === ""
@@ -99,12 +101,13 @@ export default function HomePage() {
                   : "bg-surface text-ink-muted border-border hover:text-ink"
               }`}
             >
-              Tous les pays · {items.length}
+              {t("market.allCountries", { n: items.length })}
             </button>
             {countriesSeen.map(([code, count]) => (
               <button
                 key={code}
                 type="button"
+                aria-pressed={country === code}
                 onClick={() => setCountry(country === code ? "" : code)}
                 className={`h-8 px-3 rounded-full text-xs font-medium transition-all border ${
                   country === code
@@ -112,14 +115,16 @@ export default function HomePage() {
                     : "bg-surface text-ink-muted border-border hover:text-ink"
                 }`}
               >
-                {code} · {count}
+                {countryLabel(code, code)} · {count}
               </button>
             ))}
           </div>
         )}
       </AnimatedBackground>
 
-      {loading ? (
+      {error && !data ? (
+        <ErrorState error={error} title={t("market.loadError")} onRetry={reload} />
+      ) : loading && !data ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
@@ -137,20 +142,15 @@ export default function HomePage() {
         </div>
       ) : visible.length === 0 ? (
         <EmptyState
-          title={
-            items.length === 0
-              ? "Le catalogue ouvre ses portes"
-              : "Aucun bien ne correspond à votre recherche"
-          }
-          description={
-            items.length === 0
-              ? "Publiez votre première annonce — visible immédiatement sur la page publique."
-              : "Modifiez les filtres ou essayez d'autres mots-clés."
-          }
+          title={items.length === 0 ? t("market.emptyTitle") : t("market.noMatchTitle")}
+          description={items.length === 0 ? t("market.emptyDesc") : t("market.noMatchDesc")}
           action={
             items.length === 0 ? (
-              <Link href="/dashboard/new">
-                <Button variant="gradient">{t("dash.addFirst")}</Button>
+              <Link
+                href="/dashboard/new"
+                className="inline-flex items-center justify-center h-10 px-4 rounded-md text-sm font-medium text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md"
+              >
+                {t("dash.addFirst")}
               </Link>
             ) : null
           }
@@ -162,7 +162,7 @@ export default function HomePage() {
               key={p.id}
               title={p.title}
               city={p.city}
-              price={p.price}
+              price={p.displayPrice ?? p.price}
               currency={p.currency}
               surface={p.surface}
               rooms={p.rooms}
@@ -173,6 +173,10 @@ export default function HomePage() {
                 alt: m.alt ?? p.title,
               }))}
               thumbnailUrl={p.media?.[0]?.url ?? null}
+              // displayPrice = montant de l'unité priceUnit (contrat API) ; vente : prix.
+              displayPrice={(p.displayPrice ?? p.price) > 0 ? format(p.displayPrice ?? p.price, p.currency) : "—"}
+              priceUnit={p.priceUnit}
+              status={p.status}
               href={`/properties/${p.id}`}
             />
           ))}

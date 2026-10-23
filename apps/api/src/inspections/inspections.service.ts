@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -8,8 +9,13 @@ import { InspectionType, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { resolveLeaseParty } from "../common/lease-party.util";
 import { UpsertInspectionDto } from "./dto/inspection.dto";
+import { toDay } from "../common/dates";
 
-type AuthUser = { sub: string; email: string };
+type AuthUser = { sub: string };
+
+// États des lieux possibles sur un bail signé (y compris terminé : la sortie
+// se fait souvent le dernier jour ou juste après).
+const INSPECTABLE = ["SIGNED", "ACTIVE", "EXPIRED", "TERMINATED"];
 
 @Injectable()
 export class InspectionsService {
@@ -35,10 +41,24 @@ export class InspectionsService {
     user: AuthUser,
     dto: UpsertInspectionDto,
   ) {
-    const { isOwner } = await resolveLeaseParty(this.prisma, leaseId, user);
+    const { lease, isOwner } = await resolveLeaseParty(this.prisma, leaseId, user);
     if (!isOwner) {
       throw new ForbiddenException("Seul le propriétaire rédige l'état des lieux");
     }
+    if (!INSPECTABLE.includes(lease.status)) {
+      throw new ConflictException("L'état des lieux se fait sur un bail signé.");
+    }
+    if (type === "EXIT") {
+      const entry = await this.prisma.inspection.findUnique({
+        where: { leaseId_type: { leaseId, type: "ENTRY" } },
+        select: { id: true },
+      });
+      if (!entry) {
+        throw new ConflictException("Rédigez d'abord l'état des lieux d'entrée.");
+      }
+    }
+    const date = toDay(dto.date);
+    if (!date) throw new BadRequestException("Date de l'état des lieux invalide.");
 
     const existing = await this.prisma.inspection.findUnique({
       where: { leaseId_type: { leaseId, type } },
@@ -50,7 +70,7 @@ export class InspectionsService {
     }
 
     const data = {
-      date: new Date(dto.date),
+      date,
       items: (dto.items ?? []) as unknown as Prisma.InputJsonValue,
       generalNote: dto.generalNote ?? null,
       meterElectricity: dto.meterElectricity ?? null,
@@ -68,7 +88,10 @@ export class InspectionsService {
 
   /** Signature électronique horodatée, chaque partie signe pour elle-même. */
   async sign(leaseId: string, type: InspectionType, user: AuthUser) {
-    const { isOwner } = await resolveLeaseParty(this.prisma, leaseId, user);
+    const { lease, isOwner } = await resolveLeaseParty(this.prisma, leaseId, user);
+    if (!INSPECTABLE.includes(lease.status)) {
+      throw new ConflictException("L'état des lieux se signe sur un bail signé.");
+    }
     const inspection = await this.prisma.inspection.findUnique({
       where: { leaseId_type: { leaseId, type } },
     });

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button, Card, CardBody, Input, Label, AnimatedBackground } from "@hwe/ui";
+import { Button, Card, CardBody, Input, Label, AnimatedBackground, isApiError, errorText } from "@hwe/ui";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
 
@@ -25,8 +25,8 @@ function ResetForm() {
     try {
       await api.resetPassword(token, password);
       setDone(true);
-    } catch {
-      setError(t("acc.rp.errExpired"));
+    } catch (err) {
+      setError(isApiError(err) && err.retryable ? errorText(err) : t("acc.rp.errExpired"));
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,7 @@ function ResetForm() {
     return (
       <div className="text-center">
         <h1 className="font-display text-2xl mb-2">{t("acc.rp.doneTitle")}</h1>
-        <p className="text-sm text-muted-foreground mb-6">{t("acc.rp.doneSub")}</p>
+        <p className="text-sm text-ink-muted mb-6">{t("acc.rp.doneSub")}</p>
         <Button className="w-full" onClick={() => router.push("/login")}>{t("acc.rp.login")}</Button>
       </div>
     );
@@ -52,7 +52,7 @@ function ResetForm() {
   return (
     <form onSubmit={onSubmit}>
       <h1 className="font-display text-2xl mb-1">{t("acc.rp.title")}</h1>
-      <p className="text-sm text-muted-foreground mb-6">{t("acc.rp.sub")}</p>
+      <p className="text-sm text-ink-muted mb-6">{t("acc.rp.sub")}</p>
       {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
       <div className="mb-4">
         <Label>{t("acc.rp.title")}</Label>
@@ -69,11 +69,11 @@ function ResetForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-6 px-6 py-12">
+    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-4 px-4 sm:-mx-6 sm:px-6 py-12">
       <div className="max-w-md w-full">
         <Card>
           <CardBody>
-            <React.Suspense fallback={<p className="text-sm text-muted-foreground">{t("acc.loading")}</p>}>
+            <React.Suspense fallback={<p className="text-sm text-ink-muted">{t("acc.loading")}</p>}>
               <ResetForm />
             </React.Suspense>
           </CardBody>

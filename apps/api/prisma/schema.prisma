@@ -69,6 +69,12 @@ model User {
   /// bien, envoyer une demande et accéder à son bail/ses loyers : le
   /// rattachement locataire↔bail repose sur l'e-mail.
   emailVerifiedAt DateTime?
+  /// Version des jetons : incrémentée à chaque réinitialisation de mot de
+  /// passe → les JWT émis avant deviennent invalides (401).
+  tokenVersion Int @default(0)
+  /// Clé publique (non devinable) de l'avatar, servi par GET /api/media/avatar/<clé>.
+  /// Change à chaque nouvel avatar (cache HTTP immuable), null sans avatar.
+  avatarKey String? @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -372,8 +378,15 @@ enum LeaseStatus {
 model LeaseContract {
   id           String      @id @default(cuid())
   propertyId   String
-  property     Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  // Restrict : supprimer un bien ne doit jamais détruire l'historique des
+  // baux et quittances (le bien s'archive).
+  property     Property    @relation(fields: [propertyId], references: [id], onDelete: Restrict)
   status       LeaseStatus @default(DRAFT)
+  /// Devise du bail (copiée du bien à la création) : loyers et quittances.
+  currency     String      @default("EUR")
+  /// Location courte durée (jours/semaines) : une seule échéance du total.
+  shortStay    Boolean     @default(false)
+  stayTotal    Float?
 
   // Tenant info
   tenantFirstName  String
@@ -401,6 +414,12 @@ model LeaseContract {
   // Signatures (electronic — timestamped acceptance)
   ownerSignedAt    DateTime?
   tenantSignedAt   DateTime?
+  /// Empreinte SHA-256 du contenu au moment de la double signature.
+  contentHash      String?
+
+  /// Marqueurs d'envoi des alertes de fin de bail (une seule fois chacune).
+  expiryReminder7At DateTime?
+  expiryReminder1At DateTime?
 
   // ── Caution (dépôt de garantie) — suivi du cycle complet ──────────────
   /// Versement de la caution confirmé par le propriétaire
@@ -559,7 +578,11 @@ model RentPeriod {
   periodYear  Int
   periodMonth Int // 1..12
   dueDate     DateTime
+  /// Total dû (= rentAmount + chargesAmount), figé à la génération.
   amount      Float
+  /// Loyer et charges figés de la période (quittance juste après avenant).
+  rentAmount    Float
+  chargesAmount Float
   status      RentStatus    @default(DUE)
 
   // Déclaration du locataire
@@ -603,8 +626,12 @@ model LeaseAmendment {
   /// Le propriétaire signe en créant l'avenant
   ownerSignedAt  DateTime  @default(now())
   tenantSignedAt DateTime?
-  /// Date d'application effective au bail (= signature locataire)
+  /// Date d'application effective au bail (à effectiveDate, une fois signé)
   appliedAt      DateTime?
+  /// Valeurs du bail avant application (calcul des échéances passées)
+  prevMonthlyRent Float?
+  prevCharges     Float?
+  prevEndDate     DateTime?
 
   createdAt DateTime @default(now())
 
@@ -702,4 +729,15 @@ model ChargeRegularization {
   createdAt DateTime @default(now())
 
   @@index([leaseId])
+}
+
+// ─────────────────────────────────────────────
+// NUMÉROTATION DES QUITTANCES — un compteur par année d'émission, incrémenté
+// atomiquement (INSERT … ON CONFLICT … RETURNING) : pas de doublon ni de trou
+// en cas de validations simultanées.
+// ─────────────────────────────────────────────
+
+model ReceiptCounter {
+  year Int @id
+  last Int @default(0)
 }

@@ -1,10 +1,25 @@
 import "./globals.css";
 import type { Metadata } from "next";
 
+const SITE_URL = (process.env.NEXT_PUBLIC_LANDING_URL || "https://hwe.dkpsolution.tech").replace(/\/+$/, "");
+const DESCRIPTION =
+  "Trouvez un logement, gérez vos biens ou vendez sans agence. Une plateforme éditoriale qui connecte locataires et propriétaires avec soin.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "hwe — Habiter avec élégance",
-  description:
-    "Trouvez un logement, gérez vos biens ou vendez sans agence. Une plateforme éditoriale qui connecte locataires et propriétaires avec soin.",
+  description: DESCRIPTION,
+  // U8 : aperçu de lien (WhatsApp, Facebook, LinkedIn…).
+  openGraph: {
+    type: "website",
+    siteName: "hwe",
+    title: "hwe — Habiter avec élégance",
+    description: DESCRIPTION,
+    url: SITE_URL,
+    locale: "fr_FR",
+    alternateLocale: ["en_GB"],
+  },
+  twitter: { card: "summary", title: "hwe — Habiter avec élégance", description: DESCRIPTION },
 };
 
 export default function RootLayout({

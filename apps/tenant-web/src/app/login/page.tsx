@@ -1,15 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AnimatedBackground, Button, Card, CardBody, Input, Label } from "@hwe/ui";
+import { AnimatedBackground, Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 import { IlloKeys } from "@hwe/ui";
 
+// useSearchParams exige une frontière Suspense au prérendu.
 export default function LoginPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <LoginInner />
+    </React.Suspense>
+  );
+}
+
+function LoginInner() {
   const router = useRouter();
+  const params = useSearchParams();
+  // Retour à la page demandée après connexion (A3) — chemin relatif uniquement.
+  const next = safeNext(params.get("next"), "/");
   const { login } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -22,9 +34,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/");
-    } catch {
-      setError(t("login.errCreds"));
+      router.push(next);
+    } catch (err) {
+      // A5 : seul un 401 signifie « identifiants invalides ».
+      setError(isApiError(err) && err.status === 401 ? t("login.errCreds") : errorText(err));
       setLoading(false);
     }
   };
@@ -68,13 +81,13 @@ export default function LoginPage() {
                 required
               />
             </div>
-            {error && <p className="text-sm text-danger">{error}</p>}
+            {error && <p role="alert" className="text-sm text-danger [overflow-wrap:anywhere]">{error}</p>}
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? t("login.submitting") : t("login.submit")}
             </Button>
             <p className="text-sm text-ink-muted text-center">
               {t("login.noAccount")}{" "}
-              <Link href="/register" className="font-medium">
+              <Link href={next !== "/" ? `/register?next=${encodeURIComponent(next)}` : "/register"} className="font-medium">
                 {t("login.signup")}
               </Link>
             </p>

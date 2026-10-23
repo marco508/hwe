@@ -4,16 +4,19 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
+import { assertEmailVerified } from "../common/email-verified.util";
+import { MEDIA_SELECT, USER_PUBLIC_SELECT, withMediaUrl } from "../common/media.util";
 
-const userPublicSelect = {
-  id: true,
-  firstName: true,
-  lastName: true,
-  email: true,
-  avatarUrl: true,
-} as const;
+// Interlocuteur : nom et avatar (URL) seulement — ni e-mail ni téléphone :
+// démarrer une conversation ne doit pas suffire à récupérer les coordonnées
+// du propriétaire.
+const userPublicSelect = USER_PUBLIC_SELECT;
+
+/** Nombre maximum de messages renvoyés par fil (les plus récents). */
+const MAX_MESSAGES = 500;
 
 const messageInclude = {
   sender: { select: userPublicSelect },
@@ -33,11 +36,20 @@ const conversationInclude = {
       media: {
         orderBy: { position: "asc" as const },
         take: 1,
-        select: { url: true },
+        select: MEDIA_SELECT,
       },
     },
   },
 } as const;
+
+/** Photo du bien : URL publique au lieu du contenu. */
+function shapeConvo<T extends { property: { media: Array<{ id: string }> } }>(c: T): T {
+  return { ...c, property: { ...c.property, media: c.property.media.map(withMediaUrl) } };
+}
+
+function isUniqueViolation(e: unknown): boolean {
+  return (e as Prisma.PrismaClientKnownRequestError)?.code === "P2002";
+}
 
 @Injectable()
 export class ConversationsService {
@@ -73,16 +85,39 @@ export class ConversationsService {
       },
       include: conversationInclude,
     });
-    if (existing) return existing;
+    if (existing) return shapeConvo(existing);
 
-    return this.prisma.conversation.create({
-      data: {
-        propertyId,
-        ownerId: property.ownerId,
-        otherUserId: currentUserId,
-      },
-      include: conversationInclude,
-    });
+    // Nouveau fil : e-mail vérifié et annonce publiée (anti-spam des propriétaires).
+    await assertEmailVerified(this.prisma, currentUserId);
+    if (property.status !== "PUBLISHED") {
+      throw new NotFoundException("Annonce introuvable ou plus disponible.");
+    }
+    try {
+      return shapeConvo(
+        await this.prisma.conversation.create({
+          data: {
+            propertyId,
+            ownerId: property.ownerId,
+            otherUserId: currentUserId,
+          },
+          include: conversationInclude,
+        }),
+      );
+    } catch (e) {
+      // Double clic : le fil vient d'être créé par la requête concurrente.
+      if (!isUniqueViolation(e)) throw e;
+      const again = await this.prisma.conversation.findUniqueOrThrow({
+        where: {
+          ownerId_otherUserId_propertyId: {
+            ownerId: property.ownerId,
+            otherUserId: currentUserId,
+            propertyId,
+          },
+        },
+        include: conversationInclude,
+      });
+      return shapeConvo(again);
+    }
   }
 
   /**
@@ -107,17 +142,26 @@ export class ConversationsService {
       include: conversationInclude,
     });
 
-    const convo =
-      existing ??
-      (await this.prisma.conversation.create({
-        data: {
-          propertyId,
-          ownerId,
-          otherUserId,
-          inquiryId,
-        },
-        include: conversationInclude,
-      }));
+    let convo = existing;
+    if (!convo) {
+      try {
+        convo = await this.prisma.conversation.create({
+          data: { propertyId, ownerId, otherUserId, inquiryId },
+          include: conversationInclude,
+        });
+      } catch (e) {
+        if (!isUniqueViolation(e)) throw e;
+        convo = await this.prisma.conversation.findUniqueOrThrow({
+          where: { ownerId_otherUserId_propertyId: { ownerId, otherUserId, propertyId } },
+          include: conversationInclude,
+        });
+      }
+    } else if (!convo.inquiryId) {
+      // Fil ouvert avant la demande : on le rattache à celle-ci.
+      await this.prisma.conversation
+        .updateMany({ where: { id: convo.id, inquiryId: null }, data: { inquiryId } })
+        .catch(() => {});
+    }
 
     // Si la conversation n'a pas encore de message, on insère le message
     // initial de l'inquiry comme premier message.
@@ -130,12 +174,12 @@ export class ConversationsService {
       });
     }
 
-    return convo;
+    return shapeConvo(convo);
   }
 
   /** Liste les conversations de l'utilisateur (en tant que owner ou other). */
   async listMine(userId: string) {
-    return this.prisma.conversation.findMany({
+    const items = await this.prisma.conversation.findMany({
       where: {
         OR: [{ ownerId: userId }, { otherUserId: userId }],
       },
@@ -158,7 +202,9 @@ export class ConversationsService {
         },
       },
       orderBy: [{ lastMessageAt: "desc" }, { createdAt: "desc" }],
+      take: 500,
     });
+    return items.map(shapeConvo);
   }
 
   /** Récupère le détail (auth check) avec les messages. */
@@ -167,8 +213,10 @@ export class ConversationsService {
       where: { id: conversationId },
       include: {
         ...conversationInclude,
+        // Les plus récents (bornés), remis ensuite dans l'ordre chronologique.
         messages: {
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: "desc" },
+          take: MAX_MESSAGES,
           include: messageInclude,
         },
       },
@@ -177,7 +225,7 @@ export class ConversationsService {
     if (convo.ownerId !== userId && convo.otherUserId !== userId) {
       throw new ForbiddenException("Vous n'avez pas accès à ce fil.");
     }
-    return convo;
+    return shapeConvo({ ...convo, messages: [...convo.messages].reverse() });
   }
 
   /** Envoie un message. */

@@ -12,7 +12,6 @@ export { EmptyState } from "./components/EmptyState";
 export { ThemeToggle } from "./components/ThemeToggle";
 export { AnimatedBackground } from "./components/AnimatedBackground";
 export { ImageCarousel } from "./components/ImageCarousel";
-export { RangeSlider } from "./components/RangeSlider";
 export { SectionHeading } from "./components/SectionHeading";
 export { SearchComposer } from "./components/SearchComposer";
 export type {
@@ -21,9 +20,6 @@ export type {
 } from "./components/SearchComposer";
 export { CategoryRail } from "./components/CategoryRail";
 export type { CategoryRailItem } from "./components/CategoryRail";
-export { DestinationCard } from "./components/DestinationCard";
-export { TestimonialCarousel } from "./components/TestimonialCarousel";
-export type { Testimonial } from "./components/TestimonialCarousel";
 export { StepsRail } from "./components/StepsRail";
 export type { StepsRailItem } from "./components/StepsRail";
 export { RevealOnScroll } from "./components/RevealOnScroll";
@@ -32,6 +28,8 @@ export {
   useLocation,
   SUPPORTED_COUNTRIES,
   DEFAULT_COUNTRY_CODE,
+  ALL_COUNTRIES_CODE,
+  ALL_COUNTRIES,
   REGION_LABELS,
   REGION_ORDER,
   groupCountriesByRegion,
@@ -75,14 +73,31 @@ export {
   useCurrency,
   CurrencySwitch,
   SUPPORTED_CURRENCIES,
+  INDICATIVE_RATES,
+  RATES_DATE,
+  convertAmount,
 } from "./components/CurrencyKit";
-export { createI18n, tUi, setUiLang, UI_DICT, countryLabel, type Lang } from "./components/I18nKit";
+export { createI18n, tUi, setUiLang, getUiLang, UI_DICT, countryLabel, type Lang } from "./components/I18nKit";
+export { Toaster, toast, type ToastTone } from "./components/Toast";
+export { SafeImage, type SafeImageProps } from "./components/SafeImage";
+export {
+  ErrorState,
+  isNotFound,
+  EmailVerifyNotice,
+  SessionBanners,
+  NotFoundView,
+  ErrorView,
+} from "./components/Feedback";
+export { IdentityDocuments, docTypeLabel, type IdentityDocumentsProps } from "./components/IdentityDocuments";
+export { AvatarUploader, type AvatarUploaderProps } from "./components/AvatarUploader";
+export { MessagesView, type MessagesViewProps } from "./components/MessagesView";
+
+// Client API, session, formatteurs, fichiers (partagés owner/tenant/landing).
+export * from "./client";
 export {
   IlloSkyline,
   IlloKeys,
   IlloSearchHome,
   IlloVisit,
-  IlloDossier,
-  IlloContract,
   IlloManage,
 } from "./components/Illustrations";

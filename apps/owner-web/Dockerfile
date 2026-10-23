@@ -15,8 +15,12 @@ COPY packages/types packages/types
 COPY packages/ui packages/ui
 COPY apps/owner-web apps/owner-web
 
-ARG NEXT_PUBLIC_API_URL=http://localhost:4005
+ARG NEXT_PUBLIC_API_URL=https://hwe.dkpsolution.tech
+ARG NEXT_PUBLIC_TENANT_URL=https://tenant.hwe.dkpsolution.tech
+ARG NEXT_PUBLIC_LANDING_URL=https://hwe.dkpsolution.tech
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_LANDING_URL=${NEXT_PUBLIC_LANDING_URL}
+ENV NEXT_PUBLIC_TENANT_URL=${NEXT_PUBLIC_TENANT_URL}
 
 RUN pnpm install --filter @hwe/owner-web...
 

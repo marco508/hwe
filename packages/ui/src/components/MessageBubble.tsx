@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { tUi } from "./I18nKit";
+import { SafeImage } from "./SafeImage";
+import { intlLocale } from "../client/format";
 
 export interface MessageBubbleProps {
   content: string;
@@ -24,8 +26,8 @@ const formatTime = (iso?: string) => {
   const now = new Date();
   const sameDay = d.toDateString() === now.toDateString();
   return sameDay
-    ? d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
-    : d.toLocaleDateString("fr-FR", {
+    ? d.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" })
+    : d.toLocaleDateString(intlLocale(), {
         day: "numeric",
         month: "short",
         hour: "2-digit",
@@ -45,27 +47,24 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   return (
     <div
       className={cn(
-        "flex items-end gap-2 max-w-[85%]",
+        "flex items-end gap-2 max-w-[85%] min-w-0",
         fromMe ? "ml-auto flex-row-reverse" : "mr-auto",
       )}
     >
       {/* Avatar */}
       {!fromMe && (
         <span className="shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-brand-500 to-accent-500 text-white text-xs font-bold flex items-center justify-center overflow-hidden">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={avatarUrl}
-              alt={authorName ?? ""}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            initials
-          )}
+          <SafeImage
+            src={avatarUrl}
+            alt={authorName ?? ""}
+            className="h-full w-full object-cover"
+            fallbackClassName="h-full w-full bg-transparent text-white"
+            fallback={initials}
+          />
         </span>
       )}
 
-      <div className={cn("flex flex-col", fromMe ? "items-end" : "items-start")}>
+      <div className={cn("flex flex-col min-w-0", fromMe ? "items-end" : "items-start")}>
         {!fromMe && authorName && (
           <span className="text-[10px] text-ink-subtle mb-0.5 px-1">
             {authorName}
@@ -73,7 +72,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
         <div
           className={cn(
-            "px-4 py-2.5 rounded-2xl text-sm whitespace-pre-line leading-relaxed shadow-sm",
+            "max-w-full px-4 py-2.5 rounded-2xl text-sm whitespace-pre-line leading-relaxed shadow-sm [overflow-wrap:anywhere]",
             fromMe
               ? "bg-gradient-to-br from-brand-600 to-brand-500 text-cream-50 rounded-br-md"
               : "bg-surface border border-border text-ink rounded-bl-md",

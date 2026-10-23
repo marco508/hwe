@@ -1,18 +1,9 @@
 import type {
-  AuthResponse,
   Property,
-  Paginated,
-  PropertyQuery,
   Inquiry,
-  User,
   PropertyDocument,
   DocumentType,
   LeaseContract,
-  LeaseStatus,
-  UserDocument,
-  IdentityDocumentType,
-  Conversation,
-  Message,
   Inspection,
   InspectionType,
   InspectionItem,
@@ -25,41 +16,24 @@ import type {
   VisitStatus,
   ChargeRegularization,
   UserDocument as ApplicantDocument,
+  User,
+  RentPeriod,
+  RentStatus,
+  ListingType,
+  PropertyType,
+  PropertyStatus,
 } from "@hwe/types";
+import { commonApi, request as coreRequest, tokenStore } from "@hwe/ui";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-
-const TOKEN_KEY = "hwe.token";
-
-export const tokenStore = {
-  get: () =>
-    typeof window === "undefined" ? null : window.localStorage.getItem(TOKEN_KEY),
-  set: (t: string) => window.localStorage.setItem(TOKEN_KEY, t),
-  clear: () => window.localStorage.removeItem(TOKEN_KEY),
-};
-
-async function request<T>(
-  path: string,
-  init: RequestInit = {},
-  auth = false,
-): Promise<T> {
-  const headers = new Headers(init.headers);
-  headers.set("Content-Type", "application/json");
-  if (auth) {
-    const t = tokenStore.get();
-    if (t) headers.set("Authorization", `Bearer ${t}`);
-  }
-  const res = await fetch(`${API_URL}/api${path}`, { ...init, headers });
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`${res.status} ${txt}`);
-  }
-  if (res.status === 204) return undefined as T;
-  return res.json();
+/** Appel API (cœur partagé @hwe/ui : erreurs JSON, 401 → reconnexion, 403 e-mail…). */
+function request<T>(path: string, init: RequestInit = {}, auth = false): Promise<T> {
+  return coreRequest<T>(path, { ...init, auth });
 }
 
+export { tokenStore };
+
 // ── Loyers ──────────────────────────────────────────────────────────────
-export type RentStatus = "DUE" | "DECLARED" | "PAID" | "LATE";
+export type { RentStatus };
 
 export interface OwnerPaymentMethod {
   id: string;
@@ -71,34 +45,17 @@ export interface OwnerPaymentMethod {
   position: number;
 }
 
-export interface OwnerRentPeriod {
-  id: string;
-  leaseId: string;
-  periodYear: number;
-  periodMonth: number;
-  periodLabel: string;
-  dueDate: string;
-  amount: number;
-  status: RentStatus;
-  declaredAt: string | null;
-  declaredMethod: string | null;
-  declaredRef: string | null;
-  proofDataUrl: string | null;
-  tenantNote: string | null;
-  paidAt: string | null;
-  receiptNo: string | null;
-  rejectReason: string | null;
+/** Échéance vue par le propriétaire (montants figés + devise du bail). */
+export interface OwnerRentPeriod extends RentPeriod {
   lease: {
     id: string;
     tenantName: string;
     tenantEmail: string;
-    property: { id: string; title: string; addressLine: string; city: string };
+    currency?: string | null;
+    property: { id: string; title: string; addressLine: string; city: string; currency?: string };
   };
 }
 
-type ListingType = "SALE" | "RENT";
-type PropertyType = "APARTMENT" | "HOUSE" | "LAND" | "COMMERCIAL" | "OTHER";
-type PropertyStatus = "DRAFT" | "PUBLISHED" | "RENTED" | "SOLD" | "ARCHIVED";
 
 interface MediaInput {
   url: string;
@@ -106,20 +63,39 @@ interface MediaInput {
   position?: number;
 }
 
-interface CreatePropertyBody {
+/** Champs spécifiques vente / location (null = non renseigné). */
+type SaleRentFields = Partial<
+  Pick<
+    Property,
+    | "coOwnershipFees"
+    | "propertyTax"
+    | "energyClass"
+    | "notaryFeesRate"
+    | "isNew"
+    | "rentalKind"
+    | "chargesIncluded"
+    | "chargesAmount"
+    | "deposit"
+    | "noticeMonths"
+    | "petsAllowed"
+  >
+>;
+
+export interface CreatePropertyBody extends SaleRentFields {
   title: string;
   description: string;
   listingType: ListingType;
   propertyType: PropertyType;
   status?: PropertyStatus;
-  price: number;
+  /** Facultatif pour une location tarifée uniquement par la grille (F10). */
+  price?: number;
   currency?: string;
   surface: number;
   rooms: number;
   bedrooms: number;
   bathrooms: number;
-  floor?: number;
-  yearBuilt?: number;
+  floor?: number | null;
+  yearBuilt?: number | null;
   furnished?: boolean;
   hasParking?: boolean;
   hasBalcony?: boolean;
@@ -129,71 +105,17 @@ interface CreatePropertyBody {
   city: string;
   postalCode: string;
   country?: string;
-  latitude?: number;
-  longitude?: number;
+  latitude?: number | null;
+  longitude?: number | null;
   media?: MediaInput[];
 }
 
 type UpdatePropertyBody = Partial<CreatePropertyBody>;
 
 export const api = {
-  // auth
-  register: (body: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    phone?: string;
-    role: "OWNER" | "TENANT";
-  }) =>
-    request<AuthResponse>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-  login: (body: { email: string; password: string }) =>
-    request<AuthResponse>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-  forgotPassword: (email: string) =>
-    request<{ ok: true }>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
-  resetPassword: (token: string, password: string) =>
-    request<{ ok: true }>("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }) }),
-  me: () => request<User>("/auth/me", {}, true),
-  verifyEmail: (token: string) =>
-    request<{ ok: true }>("/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),
-  sendVerification: () =>
-    request<{ ok: true; alreadyVerified?: boolean }>("/auth/send-verification", { method: "POST" }, true),
-  updateMe: (body: Partial<Pick<User, "firstName" | "lastName" | "phone" | "avatarUrl">>) =>
-    request<User>("/users/me", { method: "PATCH", body: JSON.stringify(body) }, true),
-
-  // identity documents
-  listMyDocuments: () =>
-    request<UserDocument[]>("/users/me/documents", {}, true),
-  createMyDocument: (body: {
-    name: string;
-    documentType: IdentityDocumentType;
-    fileUrl: string;
-    fileSize?: number;
-    mimeType?: string;
-    notes?: string;
-  }) =>
-    request<UserDocument>("/users/me/documents", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }, true),
-  deleteMyDocument: (docId: string) =>
-    request<{ ok: true }>(`/users/me/documents/${docId}`, { method: "DELETE" }, true),
+  ...commonApi,
 
   // properties
-  listProperties: (q: PropertyQuery = {}) => {
-    const search = new URLSearchParams();
-    Object.entries(q).forEach(([k, v]) => {
-      if (v !== undefined && v !== null && v !== "") search.set(k, String(v));
-    });
-    return request<Paginated<Property>>(`/properties?${search.toString()}`);
-  },
-  getProperty: (id: string) => request<Property>(`/properties/${id}`),
   listMine: () => request<Property[]>("/properties/mine/list", {}, true),
   createProperty: (body: CreatePropertyBody) =>
     request<Property>(`/properties`, {
@@ -209,17 +131,6 @@ export const api = {
     request<{ ok: true }>(`/properties/${id}`, { method: "DELETE" }, true),
 
   // inquiries
-  sendInquiry: (body: {
-    propertyId: string;
-    message: string;
-    contactEmail: string;
-    contactPhone?: string;
-  }) =>
-    request<Inquiry>("/inquiries", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }, true),
-  inquiriesSent: () => request<Inquiry[]>("/inquiries/sent", {}, true),
   inquiriesReceived: () => request<Inquiry[]>("/inquiries/received", {}, true),
   respondToInquiry: (id: string, decision: "ACCEPTED" | "REJECTED") =>
     request<Inquiry>(`/inquiries/${id}/respond`, {
@@ -262,8 +173,6 @@ export const api = {
   // contrats de location
   listLeases: (propertyId: string) =>
     request<LeaseContract[]>(`/properties/${propertyId}/leases`, {}, true),
-  getLease: (propertyId: string, leaseId: string) =>
-    request<LeaseContract>(`/properties/${propertyId}/leases/${leaseId}`, {}, true),
   createLease: (
     propertyId: string,
     body: {
@@ -290,7 +199,15 @@ export const api = {
   updateLease: (
     propertyId: string,
     leaseId: string,
-    body: { status?: LeaseStatus; pdfUrl?: string; specialClauses?: string; endDate?: string },
+    // Contrat §9 : modifiable seulement tant qu'aucune partie n'a signé.
+    body: {
+      specialClauses?: string;
+      startDate?: string;
+      endDate?: string;
+      monthlyRent?: number;
+      charges?: number;
+      deposit?: number;
+    },
   ) =>
     request<LeaseContract>(`/properties/${propertyId}/leases/${leaseId}`, {
       method: "PATCH",
@@ -353,6 +270,7 @@ export const api = {
       ticketsOpen: number;
       inquiries: number;
       usersUnverified: number;
+      smtpConfigured?: boolean;
     }>("/admin/overview", {}, true),
   adminUsers: (q?: string, role?: string) => {
     const search = new URLSearchParams();
@@ -388,8 +306,6 @@ export const api = {
     request<Visit>(`/visits/${id}`, { method: "PATCH", body: JSON.stringify(body) }, true),
 
   // ── Avenants ──
-  listAmendments: (leaseId: string) =>
-    request<LeaseAmendment[]>(`/leases/${leaseId}/amendments`, {}, true),
   createAmendment: (
     propertyId: string,
     leaseId: string,
@@ -416,8 +332,6 @@ export const api = {
     }, true),
 
   // ── Assurance ──
-  listInsurances: (leaseId: string) =>
-    request<InsuranceSummary[]>(`/leases/${leaseId}/insurances`, {}, true),
   getInsuranceFile: (leaseId: string, insuranceId: string) =>
     request<{ fileUrl: string }>(`/leases/${leaseId}/insurances/${insuranceId}/file`, {}, true),
 
@@ -477,7 +391,7 @@ export const api = {
     }, true),
   updatePaymentMethod: (
     id: string,
-    body: { label: string; value: string; holder?: string; instructions?: string; active?: boolean },
+    body: { label?: string; value?: string; holder?: string; instructions?: string; active?: boolean },
   ) =>
     request<OwnerPaymentMethod>(`/rents/payment-methods/${id}`, {
       method: "PATCH",
@@ -492,46 +406,5 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ accept, reason }),
     }, true),
-  downloadReceipt: async (periodId: string) => {
-    const t = tokenStore.get();
-    const res = await fetch(`${API_URL}/api/rents/${periodId}/receipt`, {
-      headers: t ? { Authorization: `Bearer ${t}` } : undefined,
-    });
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-    const blob = await res.blob();
-    const cd = res.headers.get("Content-Disposition") ?? "";
-    const name = /filename="([^"]+)"/.exec(cd)?.[1] ?? "quittance.pdf";
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
-  },
-
-  // ── Messagerie ────────────────────────────────────────────────────────
-  listConversations: () =>
-    request<Conversation[]>("/conversations", {}, true),
-  unreadMessagesCount: () =>
-    request<{ count: number }>("/conversations/unread-count", {}, true),
-  startConversation: (propertyId: string) =>
-    request<Conversation>(
-      "/conversations/start",
-      { method: "POST", body: JSON.stringify({ propertyId }) },
-      true,
-    ),
-  getConversation: (id: string) =>
-    request<Conversation>(`/conversations/${id}`, {}, true),
-  sendMessage: (conversationId: string, content: string) =>
-    request<Message>(
-      `/conversations/${conversationId}/messages`,
-      { method: "POST", body: JSON.stringify({ content }) },
-      true,
-    ),
-  markConversationRead: (conversationId: string) =>
-    request<{ marked: number }>(
-      `/conversations/${conversationId}/read`,
-      { method: "POST" },
-      true,
-    ),
+  // Quittances, messagerie : voir commonApi.
 };

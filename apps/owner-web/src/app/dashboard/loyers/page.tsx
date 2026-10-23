@@ -1,9 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
+  ErrorState,
+  SafeImage,
+  toast,
+  tUi,
+  fmtMoney,
+  fmtDate as fmtDateShared,
+  openDataUrl,
+  useAsync,
   AnimatedBackground,
   Badge,
   Button,
@@ -17,13 +24,27 @@ import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
 import type { OwnerRentPeriod, RentStatus } from "../../../lib/api";
 
-function fmtEUR(n: number) {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
+// F2 : chaque échéance est dans la devise de SON bail (montant figé, contrat §9).
+function periodCurrency(p: OwnerRentPeriod): string {
+  return (p.currency ?? p.lease.currency ?? p.lease.property.currency ?? "EUR").toUpperCase();
+}
+function periodAmount(p: OwnerRentPeriod): number {
+  return p.amountDue ?? p.amount;
+}
+function fmtPeriod(p: OwnerRentPeriod): string {
+  return fmtMoney(periodAmount(p), periodCurrency(p));
+}
+/** Somme par devise (jamais d'addition entre devises) : « 1 200 € + 300 000 F CFA ». */
+function sumByCurrency(list: OwnerRentPeriod[]): string {
+  const by = new Map<string, number>();
+  for (const p of list) by.set(periodCurrency(p), (by.get(periodCurrency(p)) ?? 0) + periodAmount(p));
+  if (by.size === 0) return fmtMoney(0, "EUR");
+  return Array.from(by.entries())
+    .map(([cur, n]) => fmtMoney(n, cur))
+    .join(" + ");
 }
 
-function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
-}
+const fmtDate = (d: string) => fmtDateShared(d);
 
 const STATUS_TONE: Record<RentStatus, "neutral" | "success" | "brand" | "accent"> = {
   DUE: "accent",
@@ -60,11 +81,11 @@ function LoadingSkeleton() {
 
 function StatCard({ icon, value, label, highlight }: { icon: string; value: React.ReactNode; label: string; highlight?: boolean }) {
   return (
-    <div className={"glass rounded-xl px-4 py-3 hover-lift" + (highlight ? " ring-2 ring-brand-500/40" : "")}>
-      <div className="flex items-center gap-3">
+    <div className={"glass rounded-xl px-4 py-3 hover-lift min-w-0" + (highlight ? " ring-2 ring-brand-500/40" : "")}>
+      <div className="flex items-center gap-3 min-w-0">
         <span className="text-2xl" aria-hidden="true">{icon}</span>
-        <div>
-          <div className="font-display text-xl leading-none gradient-text">{value}</div>
+        <div className="min-w-0">
+          <div className="font-display text-xl leading-tight gradient-text [overflow-wrap:anywhere]">{value}</div>
           <div className="text-[11px] text-ink-muted mt-0.5">{label}</div>
         </div>
       </div>
@@ -91,7 +112,7 @@ function PeriodCard({
     if (accept) {
       const ok = confirm(
         t("rent.confirmReceive", {
-          amount: fmtEUR(period.amount),
+          amount: fmtPeriod(period),
           tenant: period.lease.tenantName,
           period: period.periodLabel,
         }),
@@ -102,8 +123,9 @@ function PeriodCard({
     try {
       const updated = await api.reviewRent(period.id, accept, accept ? undefined : reason.trim() || undefined);
       onReviewed(updated);
+      toast.success(accept ? t("rent.validated") : t("rent.rejectedToast"));
     } catch (e) {
-      alert(t("rent.error", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setBusy(false);
     }
@@ -114,7 +136,7 @@ function PeriodCard({
     try {
       await api.downloadReceipt(period.id);
     } catch (e) {
-      alert(t("rent.downloadError", { message: (e as Error).message }));
+      toast.error(e);
     } finally {
       setDownloading(false);
     }
@@ -125,17 +147,17 @@ function PeriodCard({
       <CardBody className="space-y-3">
         {/* Ligne de synthèse : qui, quoi, combien, statut */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <div className="min-w-52">
+          <div className="min-w-0 sm:min-w-52">
             <p className="text-sm font-semibold text-ink capitalize leading-tight">
-              {period.periodLabel} — <span className="display-serif">{fmtEUR(period.amount)}</span>
+              {period.periodLabel} — <span className="display-serif">{fmtPeriod(period)}</span>
             </p>
-            <p className="text-xs text-ink-muted mt-0.5">
+            <p className="text-xs text-ink-muted mt-0.5 [overflow-wrap:anywhere]">
               {period.lease.property.title}, {period.lease.property.city}
             </p>
           </div>
-          <div className="text-xs text-ink-muted">
-            <p className="font-medium text-ink">{period.lease.tenantName}</p>
-            <p>{period.lease.tenantEmail}</p>
+          <div className="text-xs text-ink-muted min-w-0">
+            <p className="font-medium text-ink [overflow-wrap:anywhere]">{period.lease.tenantName}</p>
+            <p className="[overflow-wrap:anywhere]">{period.lease.tenantEmail}</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
             <p className="text-xs text-ink-muted hidden sm:block">{t("rent.dueOn", { date: fmtDate(period.dueDate) })}</p>
@@ -149,35 +171,49 @@ function PeriodCard({
             <div className="text-sm text-ink space-y-1">
               <p>
                 {t("rent.declaredOn", { date: period.declaredAt ? fmtDate(period.declaredAt) : "—" })}
-                {period.declaredMethod ? <> {t("rent.via")} <strong>{period.declaredMethod}</strong></> : null}
+                {period.declaredMethod ? <> {t("rent.via")} <strong>{methodLabel(period.declaredMethod)}</strong></> : null}
               </p>
               {period.declaredRef && (
                 <p>
                   {t("rent.txId")}{" "}
-                  <code className="font-mono text-xs bg-surface border border-border rounded px-1.5 py-0.5">
+                  <code className="font-mono text-xs bg-surface border border-border rounded px-1.5 py-0.5 [overflow-wrap:anywhere]">
                     {period.declaredRef}
                   </code>
                 </p>
               )}
               {period.tenantNote && (
-                <p className="text-ink-muted italic">« {period.tenantNote} »</p>
+                <p className="text-ink-muted italic [overflow-wrap:anywhere]">« {period.tenantNote} »</p>
               )}
             </div>
 
             {period.proofDataUrl && (
               <div>
-                <button
-                  onClick={() => setShowProof((v) => !v)}
-                  className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
-                >
-                  {showProof ? t("rent.hideProof") : t("rent.showProof")}
-                </button>
+                <div className="flex flex-wrap gap-4">
+                  <button
+                    type="button"
+                    aria-expanded={showProof}
+                    onClick={() => setShowProof((v) => !v)}
+                    className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
+                  >
+                    {showProof ? t("rent.hideProof") : t("rent.showProof")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!openDataUrl(period.proofDataUrl, "justificatif")) toast.error(tUi("ui.err.openDoc"));
+                    }}
+                    className="text-sm font-medium text-ink-muted hover:underline"
+                  >
+                    {t("rent.openProof")}
+                  </button>
+                </div>
                 {showProof && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={period.proofDataUrl}
+                  <SafeImage
+                    src={period.proofDataUrl.startsWith("data:image/") ? period.proofDataUrl : null}
                     alt={t("rent.proofAlt")}
-                    className="mt-2 max-h-96 rounded-lg border border-border shadow-card"
+                    className="mt-2 max-h-96 max-w-full rounded-lg border border-border shadow-card"
+                    fallbackClassName="mt-2 h-24 w-40 rounded-lg border border-border"
+                    fallback={<span className="text-2xl">📄</span>}
                   />
                 )}
               </div>
@@ -200,6 +236,7 @@ function PeriodCard({
             ) : (
               <div className="space-y-2">
                 <Input
+                  aria-label={t("rent.rejectPlaceholder")}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder={t("rent.rejectPlaceholder")}
@@ -223,7 +260,7 @@ function PeriodCard({
           <div className="flex flex-wrap items-center gap-3 text-sm text-ink-muted">
             <span>
               {t("rent.paidOn", { date: period.paidAt ? fmtDate(period.paidAt) : "—" })}
-              {period.declaredMethod ? ` ${t("rent.via")} ${period.declaredMethod}` : ""}
+              {period.declaredMethod ? ` ${t("rent.via")} ${methodLabel(period.declaredMethod)}` : ""}
             </span>
             {period.receiptNo && (
               <Button size="sm" variant="secondary" onClick={download} disabled={downloading}>
@@ -243,27 +280,25 @@ function PeriodCard({
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-export default function LoyersPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const [periods, setPeriods] = React.useState<OwnerRentPeriod[]>([]);
-  const [filter, setFilter] = React.useState<RentStatus | "ALL">("DECLARED");
-  const [working, setWorking] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+/** « OTHER » (choix « Autre » du locataire) → libellé traduit. */
+const methodLabel = (m: string) => (m === "OTHER" || m === "Autre" ? t("rent.methodOther") : m);
 
-  React.useEffect(() => {
-    if (loading) return;
-    if (!user) { router.replace("/login"); return; }
-    api
-      .ownerRents()
-      .then((r) => {
-        setPeriods(r);
-        // S'il n'y a rien à vérifier, ouvrir directement sur « Tout ».
-        if (!r.some((p) => p.status === "DECLARED")) setFilter("ALL");
-      })
-      .catch((e) => setError((e as Error).message))
-      .finally(() => setWorking(false));
-  }, [user, loading, router]);
+export default function LoyersPage() {
+  // Session/rôle : dashboard/layout.tsx.
+  const { user } = useAuth();
+  const [filter, setFilter] = React.useState<RentStatus | "ALL">("DECLARED");
+  const { data, setData, error, loading: working, reload } = useAsync(
+    async () => {
+      const r = await api.ownerRents();
+      // S'il n'y a rien à vérifier, ouvrir directement sur « Tout ».
+      if (!r.some((p) => p.status === "DECLARED")) setFilter("ALL");
+      return r;
+    },
+    [user?.id],
+    { enabled: !!user },
+  );
+  const periods: OwnerRentPeriod[] = data ?? [];
+  const setPeriods = (fn: (prev: OwnerRentPeriod[]) => OwnerRentPeriod[]) => setData((cur) => fn(cur ?? []));
 
   const counts = React.useMemo(() => {
     const now = new Date();
@@ -274,15 +309,15 @@ export default function LoyersPage() {
     return {
       declared: periods.filter((p) => p.status === "DECLARED").length,
       late: periods.filter((p) => p.status === "LATE").length,
-      collectedMonth: periods.filter((p) => p.status === "PAID" && inMonth(p)).reduce((s, p) => s + p.amount, 0),
-      expectedMonth: periods.filter(inMonth).reduce((s, p) => s + p.amount, 0),
+      collectedMonth: sumByCurrency(periods.filter((p) => p.status === "PAID" && inMonth(p))),
+      expectedMonth: sumByCurrency(periods.filter(inMonth)),
     };
   }, [periods]);
 
   const shown = periods.filter((p) => filter === "ALL" || p.status === filter);
 
-  if (loading || working) return <LoadingSkeleton />;
-  if (error) return <p className="text-danger">{t("rent.loadError", { message: error })}</p>;
+  if (error && !data) return <ErrorState error={error} title={t("rent.loadErrorTitle")} onRetry={reload} />;
+  if (working && !data) return <LoadingSkeleton />;
 
   return (
     <section className="space-y-6">
@@ -307,8 +342,8 @@ export default function LoyersPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 stagger">
             <StatCard icon="🔍" value={counts.declared} label={t("rent.stat.declared")} highlight={counts.declared > 0} />
             <StatCard icon="⏰" value={counts.late} label={t("rent.stat.late")} />
-            <StatCard icon="✅" value={fmtEUR(counts.collectedMonth)} label={t("rent.stat.collected")} />
-            <StatCard icon="📆" value={fmtEUR(counts.expectedMonth)} label={t("rent.stat.expected")} />
+            <StatCard icon="✅" value={counts.collectedMonth} label={t("rent.stat.collected")} />
+            <StatCard icon="📆" value={counts.expectedMonth} label={t("rent.stat.expected")} />
           </div>
         )}
       </AnimatedBackground>
@@ -321,6 +356,8 @@ export default function LoyersPage() {
           return (
             <button
               key={f.value}
+              type="button"
+              aria-pressed={filter === f.value}
               onClick={() => setFilter(f.value)}
               className={
                 "rounded-full px-4 py-1.5 text-sm font-medium border transition-colors " +

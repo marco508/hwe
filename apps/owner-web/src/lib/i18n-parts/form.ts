@@ -118,7 +118,7 @@ export const fr: Record<string, string> = {
 
   // ── Photos ──
   "pf.photos.title": "Photos",
-  "pf.photos.sub": "Jusqu'à 10 photos. La première sera la photo principale.",
+  "pf.photos.sub": "Jusqu'à 20 photos. La première sera la photo principale.",
 
   // ── Publication ──
   "pf.publish.title": "Publication",
@@ -287,7 +287,7 @@ export const en: Record<string, string> = {
 
   // ── Photos ──
   "pf.photos.title": "Photos",
-  "pf.photos.sub": "Up to 10 photos. The first one will be the main photo.",
+  "pf.photos.sub": "Up to 20 photos. The first one will be the main photo.",
 
   // ── Publication ──
   "pf.publish.title": "Publication",

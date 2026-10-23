@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -24,40 +25,42 @@ export class PricingService {
   }
 
   /**
-   * Crée ou met à jour les tarifs d'un bien.
-   * Remplace la grille complète (upsert sur propertyId+unit).
+   * Remplace la grille complète, en une transaction (upsert par unité puis
+   * suppression des unités retirées). Unités en double → 400.
    * Seul le propriétaire du bien peut modifier.
    */
   async upsertMany(propertyId: string, ownerId: string, rates: UpsertRateDto[]) {
+    const units = rates.map((r) => r.unit);
+    if (new Set(units).size !== units.length) {
+      throw new BadRequestException("Chaque unité (jour, semaine, mois, année) ne peut apparaître qu'une fois.");
+    }
     const property = await this.prisma.property.findUnique({ where: { id: propertyId } });
     if (!property) throw new NotFoundException("Bien introuvable");
-    if (property.ownerId !== ownerId) throw new ForbiddenException();
+    if (property.ownerId !== ownerId) throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
 
-    // Upsert chaque ligne
-    const upserted = await Promise.all(
-      rates.map((r) =>
-        this.prisma.pricingRate.upsert({
-          where: { propertyId_unit: { propertyId, unit: r.unit } },
-          create: { propertyId, unit: r.unit, amount: r.amount },
-          update: { amount: r.amount },
-        }),
-      ),
-    );
-
-    // Supprimer les unités retirées de la grille
-    const keptUnits = rates.map((r) => r.unit);
-    await this.prisma.pricingRate.deleteMany({
-      where: { propertyId, unit: { notIn: keptUnits } },
+    return this.prisma.$transaction(async (tx) => {
+      const upserted = [];
+      for (const r of rates) {
+        upserted.push(
+          await tx.pricingRate.upsert({
+            where: { propertyId_unit: { propertyId, unit: r.unit } },
+            create: { propertyId, unit: r.unit, amount: r.amount },
+            update: { amount: r.amount },
+          }),
+        );
+      }
+      await tx.pricingRate.deleteMany({
+        where: { propertyId, unit: { notIn: units } },
+      });
+      return upserted;
     });
-
-    return upserted;
   }
 
   /** Supprime un tarif spécifique. */
   async remove(propertyId: string, unit: LeaseDurationUnit, ownerId: string) {
     const property = await this.prisma.property.findUnique({ where: { id: propertyId } });
     if (!property) throw new NotFoundException("Bien introuvable");
-    if (property.ownerId !== ownerId) throw new ForbiddenException();
+    if (property.ownerId !== ownerId) throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
 
     await this.prisma.pricingRate.deleteMany({ where: { propertyId, unit } });
     return { ok: true };

@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "../utils";
 import { UnreadBadge } from "./UnreadBadge";
 import { tUi } from "./I18nKit";
+import { intlLocale } from "../client/format";
 
 export interface BellPreviewItem {
   id: string;
@@ -47,7 +48,7 @@ const timeAgo = (iso?: string | null) => {
   if (hr < 24) return tUi("ui.time.hours", { n: hr });
   const days = Math.floor(hr / 24);
   if (days < 7) return tUi("ui.time.days", { n: days });
-  return new Date(iso).toLocaleDateString("fr-FR", {
+  return new Date(iso).toLocaleDateString(intlLocale(), {
     day: "numeric",
     month: "short",
   });

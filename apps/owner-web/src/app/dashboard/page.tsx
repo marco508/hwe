@@ -2,12 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Button,
   EmptyState,
+  ErrorState,
   PropertyCard,
   AnimatedBackground,
+  isApiError,
+  toast,
+  useAsync,
+  useCurrency,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
@@ -16,31 +20,50 @@ import { t } from "../../lib/i18n";
 import { IlloManage } from "@hwe/ui";
 import type { Property } from "@hwe/types";
 
-export default function DashboardPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const [items, setItems] = React.useState<Property[]>([]);
-  const [working, setWorking] = React.useState(true);
+// Lien stylé en bouton (évite <button> dans <a>, HTML invalide — M3).
+const linkBtn =
+  "inline-flex items-center justify-center h-8 px-3 rounded-md text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500";
 
-  React.useEffect(() => {
-    if (loading) return;
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
-    api.listMine().then((r) => {
-      setItems(r);
-      setWorking(false);
-    });
-  }, [user, loading, router]);
+export default function DashboardPage() {
+  // La garde de rôle/session est dans dashboard/layout.tsx.
+  const { user } = useAuth();
+  const { convert, canConvert, format, userCurrency } = useCurrency();
+  const { data, setData, error, loading: working, reload } = useAsync(
+    () => api.listMine(),
+    [user?.id],
+    { enabled: !!user },
+  );
+  const items: Property[] = data ?? [];
+  const setItems = (fn: (s: Property[]) => Property[]) => setData((cur) => fn(cur ?? []));
 
   const onDelete = async (id: string) => {
     if (!confirm(t("acc.confirmDeleteProperty"))) return;
-    await api.deleteProperty(id);
-    setItems((s) => s.filter((p) => p.id !== id));
+    try {
+      await api.deleteProperty(id);
+      setItems((s) => s.filter((p) => p.id !== id));
+      toast.success(t("dash.deleted"));
+    } catch (e) {
+      // Contrat §8 : bien ayant eu un bail → 409, on propose l'archivage.
+      if (isApiError(e) && e.status === 409) {
+        if (!confirm(t("dash.archiveInstead"))) return;
+        try {
+          const updated = await api.updateProperty(id, { status: "ARCHIVED" });
+          setItems((s) => s.map((p) => (p.id === id ? { ...p, ...updated } : p)));
+          toast.success(t("dash.archived"));
+        } catch (e2) {
+          toast.error(e2);
+        }
+        return;
+      }
+      toast.error(e);
+    }
   };
 
-  if (loading || working) {
+  if (error && !data) {
+    return <ErrorState error={error} title={t("dash.loadError")} onRetry={reload} />;
+  }
+
+  if (working && !data) {
     return (
       <div className="space-y-6">
         <div className="h-32 rounded-2xl skeleton" />
@@ -66,9 +89,12 @@ export default function DashboardPage() {
   const totalCount = items.length;
   const rentCount = items.filter((p) => p.listingType === "RENT").length;
   const saleCount = items.filter((p) => p.listingType === "SALE").length;
+  // Moyenne convertie dans la devise d'affichage, sur les seuls biens
+  // convertibles (jamais de taux implicite entre devises — F2).
+  const convertible = items.filter((p) => p.price > 0 && canConvert(p.currency));
   const avgPrice =
-    items.length > 0
-      ? Math.round(items.reduce((s, p) => s + p.price, 0) / items.length)
+    convertible.length > 0
+      ? Math.round(convertible.reduce((s, p) => s + convert(p.price, p.currency), 0) / convertible.length)
       : 0;
 
   return (
@@ -76,10 +102,10 @@ export default function DashboardPage() {
       {/* Hero header */}
       <AnimatedBackground
         variant="aurora"
-        className="rounded-2xl border border-border/60 px-8 py-8 mb-8"
+        className="rounded-2xl border border-border/60 px-5 sm:px-8 py-8 mb-8"
       >
         <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
+          <div className="min-w-0">
             <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-glow" />
               {t("dash.badge")}
@@ -92,10 +118,11 @@ export default function DashboardPage() {
             </p>
           </div>
           <IlloManage className="hidden lg:block w-52" />
-          <Link href="/dashboard/new">
-            <Button variant="gradient" size="lg">
-              <span className="mr-1">＋</span> {t("dash.add")}
-            </Button>
+          <Link
+            href="/dashboard/new"
+            className="inline-flex items-center justify-center h-12 px-6 rounded-md text-base font-medium text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md hover:shadow-glow"
+          >
+            <span className="mr-1" aria-hidden="true">＋</span> {t("dash.add")}
           </Link>
         </div>
 
@@ -107,14 +134,8 @@ export default function DashboardPage() {
             <StatCard icon="🏷️" value={saleCount} label={t("dash.stat.sale")} />
             <StatCard
               icon="💶"
-              value={
-                avgPrice
-                  ? new Intl.NumberFormat("fr-FR", {
-                      notation: "compact",
-                      maximumFractionDigits: 1,
-                    }).format(avgPrice) + " €"
-                  : "—"
-              }
+              value={avgPrice ? format(avgPrice, userCurrency) : "—"}
+              title={t("dash.avgNote")}
               label={t("dash.stat.avg")}
             />
           </div>
@@ -128,8 +149,11 @@ export default function DashboardPage() {
           title={t("acc.dash.emptyTitle")}
           description={t("acc.dash.emptySub")}
           action={
-            <Link href="/dashboard/new">
-              <Button variant="gradient">{t("acc.dash.addProperty")}</Button>
+            <Link
+              href="/dashboard/new"
+              className="inline-flex items-center justify-center h-10 px-4 rounded-md text-sm font-medium text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md"
+            >
+              {t("acc.dash.addProperty")}
             </Link>
           }
         />
@@ -140,7 +164,7 @@ export default function DashboardPage() {
               key={p.id}
               title={p.title}
               city={p.city}
-              price={p.price}
+              price={p.displayPrice ?? p.price}
               currency={p.currency}
               surface={p.surface}
               rooms={p.rooms}
@@ -151,31 +175,35 @@ export default function DashboardPage() {
                 alt: m.alt ?? p.title,
               }))}
               thumbnailUrl={p.media?.[0]?.url ?? null}
+              // displayPrice = montant de l'unité priceUnit (contrat API) ; vente : prix.
+              displayPrice={(p.displayPrice ?? p.price) > 0 ? format(p.displayPrice ?? p.price, p.currency) : "—"}
+              priceUnit={p.priceUnit}
+              status={p.status}
+              href={`/properties/${p.id}`}
               footer={
                 <div className="flex gap-2 flex-wrap">
-                  <Link href={`/dashboard/${p.id}/edit`} className="flex-1">
-                    <Button variant="secondary" size="sm" className="w-full">
-                      {t("acc.edit")}
-                    </Button>
+                  <Link
+                    href={`/dashboard/${p.id}/edit`}
+                    className={`${linkBtn} flex-1 bg-surface text-ink border border-border hover:border-ink/30`}
+                  >
+                    {t("acc.edit")}
                   </Link>
-                  <Link href={`/dashboard/${p.id}/documents`}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      title={t("acc.docs.title")}
-                    >
-                      🗂️
-                    </Button>
+                  <Link
+                    href={`/dashboard/${p.id}/documents`}
+                    className={`${linkBtn} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}
+                    title={t("acc.docs.title")}
+                    aria-label={t("acc.docs.title")}
+                  >
+                    <span aria-hidden="true">🗂️</span>
                   </Link>
                   {p.listingType === "RENT" && (
-                    <Link href={`/dashboard/${p.id}/lease`}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        title={t("acc.dash.leases")}
-                      >
-                        📋
-                      </Button>
+                    <Link
+                      href={`/dashboard/${p.id}/lease`}
+                      className={`${linkBtn} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}
+                      title={t("acc.dash.leases")}
+                      aria-label={t("acc.dash.leases")}
+                    >
+                      <span aria-hidden="true">📋</span>
                     </Link>
                   )}
                   <Button
@@ -199,19 +227,21 @@ function StatCard({
   icon,
   value,
   label,
+  title,
 }: {
   icon: string;
   value: React.ReactNode;
   label: string;
+  title?: string;
 }) {
   return (
-    <div className="glass rounded-xl px-4 py-3 hover-lift">
-      <div className="flex items-center gap-3">
+    <div className="glass rounded-xl px-4 py-3 hover-lift min-w-0" title={title}>
+      <div className="flex items-center gap-3 min-w-0">
         <span className="text-2xl" aria-hidden="true">
           {icon}
         </span>
-        <div>
-          <div className="font-display text-xl leading-none gradient-text">
+        <div className="min-w-0">
+          <div className="font-display text-lg sm:text-xl leading-tight gradient-text [overflow-wrap:anywhere]">
             {value}
           </div>
           <div className="text-[11px] text-ink-muted mt-0.5">{label}</div>

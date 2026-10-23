@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseEnumPipe,
   Put,
   UseGuards,
 } from "@nestjs/common";
@@ -14,21 +16,24 @@ import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, JwtPayload } from "../auth/current-user.decorator";
 import { PricingService } from "./pricing.service";
 import {
+  ArrayMaxSize,
+  IsArray,
   IsEnum,
   IsNumber,
-  IsArray,
-  ValidateNested,
+  Max,
   Min,
+  ValidateNested,
 } from "class-validator";
 import { Type } from "class-transformer";
 
 class RateDto {
   @IsEnum(LeaseDurationUnit) unit!: LeaseDurationUnit;
-  @IsNumber() @Min(0) amount!: number;
+  @IsNumber({ allowNaN: false, allowInfinity: false }) @Min(0) @Max(1_000_000_000) amount!: number;
 }
 
 class UpsertRatesDto {
   @IsArray()
+  @ArrayMaxSize(4)
   @ValidateNested({ each: true })
   @Type(() => RateDto)
   rates!: RateDto[];
@@ -62,7 +67,16 @@ export class PricingController {
   @Delete(":unit")
   remove(
     @Param("propertyId") propertyId: string,
-    @Param("unit") unit: LeaseDurationUnit,
+    @Param(
+      "unit",
+      new ParseEnumPipe(LeaseDurationUnit, {
+        exceptionFactory: () =>
+          new BadRequestException(
+            "Unité invalide (DAYS, WEEKS, MONTHS ou YEARS).",
+          ),
+      }),
+    )
+    unit: LeaseDurationUnit,
     @CurrentUser() user: JwtPayload,
   ) {
     return this.pricing.remove(propertyId, unit, user.sub);

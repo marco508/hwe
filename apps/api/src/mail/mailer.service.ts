@@ -1,19 +1,24 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as nodemailer from "nodemailer";
+import { maskEmail } from "../common/email.util";
+import { formatMoney } from "../common/money";
+import { APP_TIME_ZONE, formatDayFr } from "../common/dates";
 
 /**
  * Envoi d'e-mails de suivi (loyers, fins de bail).
  *
- * Sans SMTP_HOST configuré, les messages sont journalisés au lieu d'être
- * envoyés : le développement et les tests fonctionnent sans relais, et rien
- * ne casse en production tant que le SMTP n'est pas renseigné.
+ * Sans SMTP_HOST configuré, rien n'est envoyé : on journalise seulement le
+ * destinataire MASQUÉ et le sujet — jamais le texte, qui contient des liens
+ * de réinitialisation et de vérification (quiconque lisait les logs pouvait
+ * prendre la main sur un compte). En production, un avertissement clair est
+ * émis au démarrage et l'état est visible dans GET /admin/overview.
  *
  * Tous les envois sont « best effort » : un e-mail qui échoue ne doit jamais
  * faire échouer l'opération métier qui l'a déclenché.
  */
 @Injectable()
-export class MailerService {
+export class MailerService implements OnModuleInit {
   private readonly logger = new Logger(MailerService.name);
   private transporter: nodemailer.Transporter | null = null;
 
@@ -39,6 +44,20 @@ export class MailerService {
     }
   }
 
+  onModuleInit() {
+    if (!this.transporter && process.env.NODE_ENV === "production") {
+      this.logger.warn(
+        "⚠️  SMTP NON CONFIGURÉ (SMTP_HOST absent) : AUCUN e-mail ne part — vérification de compte, " +
+          "réinitialisation de mot de passe, relances de loyer. Renseignez SMTP_HOST/SMTP_USER/SMTP_PASS/SMTP_FROM.",
+      );
+    }
+  }
+
+  /** Vrai si un relais SMTP est configuré (exposé dans GET /admin/overview). */
+  get isConfigured(): boolean {
+    return this.transporter !== null;
+  }
+
   private get from(): string {
     return this.config.get<string>("SMTP_FROM") || "hwe <no-reply@hwe.local>";
   }
@@ -46,34 +65,36 @@ export class MailerService {
   async send(to: string, subject: string, text: string): Promise<void> {
     if (!to) return;
     if (!this.transporter) {
-      this.logger.log(`(SMTP non configuré) À: ${to} — ${subject}\n${text}`);
+      // Jamais le corps : il peut contenir un lien de réinitialisation.
+      void text;
+      this.logger.log(`(SMTP non configuré, non envoyé) À: ${maskEmail(to)} — ${subject}`);
       return;
     }
     try {
       await this.transporter.sendMail({ from: this.from, to, subject, text });
-      this.logger.log(`E-mail envoyé à ${to} : ${subject}`);
+      this.logger.log(`E-mail envoyé à ${maskEmail(to)} : ${subject}`);
     } catch (e) {
-      this.logger.error(`Échec d'envoi à ${to} : ${(e as Error).message}`);
+      this.logger.error(`Échec d'envoi à ${maskEmail(to)} : ${(e as Error).message}`);
     }
   }
 
   // ───────────────────────────── Loyers ─────────────────────────────
 
-  rentDeclared(ownerEmail: string, ownerName: string, tenantName: string, periode: string, montant: number) {
+  rentDeclared(ownerEmail: string, ownerName: string, tenantName: string, periode: string, montant: number, currency = "EUR") {
     return this.send(
       ownerEmail,
       `hwe — loyer déclaré à vérifier (${periode})`,
-      `Bonjour ${ownerName},\n\n${tenantName} déclare avoir versé ${montant.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })} pour le loyer de ${periode}.\n\n` +
+      `Bonjour ${ownerName},\n\n${tenantName} déclare avoir versé ${formatMoney(montant, currency)} pour le loyer de ${periode}.\n\n` +
         `Vérifiez la réception SUR VOTRE COMPTE (relevé de l'opérateur), pas seulement sur la capture jointe : ` +
         `une capture se falsifie, un relevé non.\n\nValidez ou refusez depuis votre espace propriétaire, rubrique Loyers.\n\nhwe`,
     );
   }
 
-  rentValidated(tenantEmail: string, tenantName: string, periode: string, montant: number, receiptNo: string) {
+  rentValidated(tenantEmail: string, tenantName: string, periode: string, montant: number, receiptNo: string, currency = "EUR") {
     return this.send(
       tenantEmail,
       `hwe — quittance de loyer ${periode}`,
-      `Bonjour ${tenantName},\n\nVotre paiement de ${montant.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })} pour ${periode} a été confirmé par votre propriétaire.\n` +
+      `Bonjour ${tenantName},\n\nVotre paiement de ${formatMoney(montant, currency)} pour ${periode} a été confirmé par votre propriétaire.\n` +
         `Votre quittance n° ${receiptNo} est disponible dans votre espace locataire, rubrique Mes loyers.\n\nhwe`,
     );
   }
@@ -89,14 +110,14 @@ export class MailerService {
     );
   }
 
-  rentReminder(tenantEmail: string, tenantName: string, periode: string, montant: number, enRetard: boolean) {
+  rentReminder(tenantEmail: string, tenantName: string, periode: string, montant: number, enRetard: boolean, currency = "EUR") {
     return this.send(
       tenantEmail,
       enRetard ? `hwe — loyer ${periode} en retard` : `hwe — loyer ${periode} à régler`,
       `Bonjour ${tenantName},\n\n` +
         (enRetard
-          ? `Le loyer de ${periode} (${montant.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}) est arrivé à échéance et n'a pas encore été réglé.\n`
-          : `Le loyer de ${periode} (${montant.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}) arrive à échéance.\n`) +
+          ? `Le loyer de ${periode} (${formatMoney(montant, currency)}) est arrivé à échéance et n'a pas encore été réglé.\n`
+          : `Le loyer de ${periode} (${formatMoney(montant, currency)}) arrive à échéance.\n`) +
         `Les coordonnées de paiement de votre propriétaire et la déclaration de versement sont dans votre espace, rubrique Mes loyers.\n\nhwe`,
     );
   }
@@ -104,7 +125,7 @@ export class MailerService {
   // ─────────────────────────── Fins de bail ───────────────────────────
 
   leaseExpiry(to: string, name: string, propertyTitle: string, daysLeft: number, isOwner: boolean) {
-    const quand = daysLeft <= 1 ? "demain" : `dans ${daysLeft} jours`;
+    const quand = daysLeft <= 0 ? "aujourd'hui" : daysLeft === 1 ? "demain" : `dans ${daysLeft} jours`;
     return this.send(
       to,
       `hwe — le bail de « ${propertyTitle} » se termine ${quand}`,
@@ -184,7 +205,7 @@ export class MailerService {
     return this.send(
       ownerEmail,
       `hwe — préavis reçu pour « ${propertyTitle} »`,
-      `Bonjour ${ownerName},\n\n${tenantName} a donné son préavis. Fin de bail effective le ${effectiveDate.toLocaleDateString("fr-FR")}.\n` +
+      `Bonjour ${ownerName},\n\n${tenantName} a donné son préavis. Fin de bail effective le ${formatDayFr(effectiveDate)}.\n` +
         `Pensez à planifier l'état des lieux de sortie et la restitution de la caution.\n\nhwe`,
     );
   }
@@ -202,7 +223,7 @@ export class MailerService {
     return this.send(
       ownerEmail,
       `hwe — avenant signé (« ${propertyTitle} »)`,
-      `Bonjour ${ownerName},\n\nVotre locataire a signé l'avenant : il est maintenant appliqué au bail.\n\nhwe`,
+      `Bonjour ${ownerName},\n\nVotre locataire a signé l'avenant : il s'applique au bail à sa date d'effet.\n\nhwe`,
     );
   }
 
@@ -211,7 +232,7 @@ export class MailerService {
       ownerEmail,
       `hwe — demande de visite pour « ${propertyTitle} »`,
       `Bonjour ${ownerName},\n\n${requesterName} propose de visiter « ${propertyTitle} » le ` +
-        `${date.toLocaleDateString("fr-FR")} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}.\n` +
+        `${date.toLocaleDateString("fr-FR", { timeZone: APP_TIME_ZONE })} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: APP_TIME_ZONE })}.\n` +
         `Confirmez ou proposez autre chose :\n\n${url}\n\nhwe`,
     );
   }
@@ -224,7 +245,7 @@ export class MailerService {
         : `hwe — visite non retenue (« ${propertyTitle} »)`,
       `Bonjour ${name},\n\n` +
         (confirmed
-          ? `Votre visite de « ${propertyTitle} » est confirmée le ${date.toLocaleDateString("fr-FR")} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}.\n`
+          ? `Votre visite de « ${propertyTitle} » est confirmée le ${date.toLocaleDateString("fr-FR", { timeZone: APP_TIME_ZONE })} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: APP_TIME_ZONE })}.\n`
           : `Le propriétaire n'a pas retenu ce créneau pour « ${propertyTitle} ».\n`) +
         (note ? `Message : ${note}\n` : "") +
         `\nhwe`,
@@ -242,13 +263,13 @@ export class MailerService {
       tenantEmail,
       `hwe — congé donné par votre propriétaire (« ${propertyTitle} »)`,
       `Bonjour ${tenantName},\n\nVotre propriétaire vous donne congé pour ${motifs[reason] ?? "motif légitime"}.\n` +
-        `Fin de bail effective le ${effectiveDate.toLocaleDateString("fr-FR")}.\n` +
+        `Fin de bail effective le ${formatDayFr(effectiveDate)}.\n` +
         `Les détails sont dans votre espace, rubrique Ma location.\n\nhwe`,
     );
   }
 
-  chargeRegularization(tenantEmail: string, tenantName: string, propertyTitle: string, periodLabel: string, balance: number) {
-    const fmt = Math.abs(balance).toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+  chargeRegularization(tenantEmail: string, tenantName: string, propertyTitle: string, periodLabel: string, balance: number, currency = "EUR") {
+    const fmt = formatMoney(Math.abs(balance), currency);
     return this.send(
       tenantEmail,
       `hwe — régularisation des charges ${periodLabel} (« ${propertyTitle} »)`,

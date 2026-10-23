@@ -17,8 +17,12 @@ COPY apps/tenant-web apps/tenant-web
 
 RUN pnpm install --filter @hwe/tenant-web...
 
-ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ARG NEXT_PUBLIC_API_URL=https://hwe.dkpsolution.tech
+ARG NEXT_PUBLIC_OWNER_URL=https://owner.hwe.dkpsolution.tech
+ARG NEXT_PUBLIC_LANDING_URL=https://hwe.dkpsolution.tech
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_LANDING_URL=${NEXT_PUBLIC_LANDING_URL}
+ENV NEXT_PUBLIC_OWNER_URL=${NEXT_PUBLIC_OWNER_URL}
 
 WORKDIR /repo/apps/tenant-web
 RUN pnpm build

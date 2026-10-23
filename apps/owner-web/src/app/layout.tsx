@@ -6,6 +6,7 @@ import { AuthProvider } from "../lib/auth-context";
 import { CurrencyProvider } from "../lib/currency-context";
 import { LangProvider } from "../lib/i18n";
 import { LocalizedTitle } from "../components/LocalizedTitle";
+import { AppToaster } from "../components/AppToaster";
 
 export const metadata: Metadata = {
   title: "hwe — Espace propriétaire",
@@ -51,12 +52,15 @@ export default function RootLayout({
             </div>
 
             <AppNavbar />
-            <main className="container-app py-10 flex-1 relative">
+            {/* w-full + min-w-0 : avec mx-auto dans un flex colonne, la largeur suivrait
+                le contenu (mot très long → défilement horizontal sur mobile). */}
+            <main className="container-app py-10 flex-1 relative w-full min-w-0">
               {children}
             </main>
-            <footer className="container-app py-10 text-xs text-ink-muted flex items-center justify-between border-t border-border/50">
+            <footer className="container-app w-full py-10 text-xs text-ink-muted flex flex-wrap gap-2 items-center justify-between border-t border-border/50">
               <FooterText />
             </footer>
+          <AppToaster />
           </CurrencyProvider>
           </LangProvider>
         </AuthProvider>

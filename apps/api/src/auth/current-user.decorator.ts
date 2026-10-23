@@ -1,5 +1,6 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 
+/** Utilisateur authentifié, relu en base à chaque requête (rôle et e-mail à jour). */
 export interface JwtPayload {
   sub: string;
   email: string;

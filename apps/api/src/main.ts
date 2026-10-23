@@ -1,100 +1,67 @@
 import "reflect-metadata";
+import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
 import type { NestExpressApplication } from "@nestjs/platform-express";
+import type { NextFunction, Request, Response } from "express";
 import { AppModule } from "./app.module";
-import { LeaseSchedulerService } from "./leases/lease-scheduler.service";
+import { buildValidationPipe } from "./common/validation";
+import { bodyParserMiddleware, rejectControlCharsInUrl } from "./common/body-limits";
+import { authRateLimitMiddleware } from "./common/rate-limit";
 
 async function bootstrap() {
-  // On désactive le body-parser par défaut pour le réinstaller avec une limite
-  // adaptée aux uploads d'images (envoyées en base64 dans le JSON).
+  // Body-parser par défaut désactivé : réinstallé plus bas avec des limites
+  // par route (1 Mo partout, élevée seulement sur les routes d'upload).
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
   });
+  const logger = new Logger("Bootstrap");
 
-  const bodyLimit = process.env.API_BODY_LIMIT ?? "50mb";
+  // Traefik devant : l'IP cliente est celle du dernier proxy de confiance
+  // (un X-Forwarded-For forgé par le client n'est plus pris tel quel).
+  app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS ?? 1));
+  app.disable("x-powered-by");
 
-  // useBodyParser est disponible depuis @nestjs/platform-express 10.x
-  // et accepte les mêmes options que body-parser/express.
-  // Si la méthode n'existe pas (vieille version), on bascule sur l'API
-  // brute via le httpAdapter.
-  const anyApp = app as unknown as {
-    useBodyParser?: (
-      type: "json" | "urlencoded",
-      options?: { limit?: string; extended?: boolean },
-    ) => void;
-  };
-
-  if (typeof anyApp.useBodyParser === "function") {
-    anyApp.useBodyParser("json", { limit: bodyLimit });
-    anyApp.useBodyParser("urlencoded", { limit: bodyLimit, extended: true });
-  } else {
-    // Fallback : on récupère body-parser depuis express (deps transitives).
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const bodyParser = require("body-parser");
-    app.use(bodyParser.json({ limit: bodyLimit }));
-    app.use(bodyParser.urlencoded({ limit: bodyLimit, extended: true }));
-  }
-
-  // ── Anti-brute-force sur l'authentification ──
-  // Compteur en mémoire par IP : 60 requêtes / 15 min sur /api/auth suffisent
-  // largement à un usage normal et bloquent les essais de mots de passe.
-  const authHits = new Map<string, { n: number; reset: number }>();
-  app.use("/api/auth", (req: any, res: any, next: () => void) => {
-    const now = Date.now();
-    if (authHits.size > 10_000) {
-      for (const [k, v] of authHits) if (now > v.reset) authHits.delete(k);
-    }
-    const ip = String(
-      (req.headers["x-forwarded-for"] || "").split(",")[0] || req.ip || "?",
-    ).trim();
-    const entry = authHits.get(ip);
-    if (!entry || now > entry.reset) {
-      authHits.set(ip, { n: 1, reset: now + 15 * 60_000 });
-      return next();
-    }
-    if (++entry.n > 60) {
-      res.status(429).json({
-        statusCode: 429,
-        message: "Trop de tentatives — réessayez dans quelques minutes.",
-      });
-      return;
-    }
-    next();
-  });
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: false,
-    }),
-  );
-
+  // 1. CORS en premier : toutes les réponses, y compris 413/429, portent les
+  //    en-têtes CORS (sinon le navigateur n'y voit qu'une erreur réseau).
   const origins = (
     process.env.CORS_ORIGINS ??
     "http://localhost:3005,http://localhost:3004,http://localhost:3001,http://localhost:3006"
   )
     .split(",")
-    .map((o) => o.trim());
-  app.enableCors({ origin: origins, credentials: true });
+    .map((o) => o.trim())
+    .filter(Boolean);
+  app.enableCors({ origin: origins, credentials: true, exposedHeaders: ["Retry-After", "Content-Disposition"] });
 
+  // 2. En-têtes de sécurité de base (API JSON, pas de rendu HTML).
+  app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("Referrer-Policy", "no-referrer");
+    next();
+  });
+
+  // 3. URL avec caractère nul/de contrôle → 400 (au lieu d'un 500 en base).
+  app.use(rejectControlCharsInUrl);
+
+  // 4. Corps JSON : 1 Mo par défaut, limite haute sur les seules routes d'upload.
+  const defaultLimit = process.env.API_BODY_LIMIT ?? "1mb";
+  const uploadLimit = process.env.API_UPLOAD_BODY_LIMIT ?? "25mb";
+  app.use(bodyParserMiddleware({ defaultLimit, uploadLimit }));
+
+  // 5. Anti-brute-force : login (IP + e-mail), register, forgot/reset,
+  //    verify-email, send-verification. Jamais /auth/me.
+  app.use(authRateLimitMiddleware());
+
+  app.useGlobalPipes(buildValidationPipe());
   app.setGlobalPrefix("api");
+  app.enableShutdownHooks();
 
   const port = parseInt(process.env.API_PORT ?? "4005", 10);
   await app.listen(port);
-  // eslint-disable-next-line no-console
-  console.log(`HWE API listening on http://localhost:${port}/api`);
-  // eslint-disable-next-line no-console
-  console.log(`Body limit set to ${bodyLimit}`);
-
-  // ── Scheduler de baux ─────────────────────────────────────────────────────
-  const scheduler = app.get(LeaseSchedulerService);
-  scheduler.runChecks().catch(console.error);
-  setInterval(
-    () => scheduler.runChecks().catch(console.error),
-    24 * 60 * 60 * 1000,
-  );
+  logger.log(`HWE API listening on http://localhost:${port}/api`);
+  logger.log(`Body limits: ${defaultLimit} (uploads: ${uploadLimit})`);
+  // Les tâches planifiées (baux, loyers) tournent via @Cron uniquement,
+  // sous verrou PostgreSQL : plus de setInterval doublon ici.
 }
 
 bootstrap();

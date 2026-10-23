@@ -15,6 +15,7 @@ import { CreatePropertyDto } from "./dto/create-property.dto";
 import { UpdatePropertyDto } from "./dto/update-property.dto";
 import { QueryPropertyDto } from "./dto/query-property.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { OptionalJwtAuthGuard } from "../auth/optional-jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, JwtPayload } from "../auth/current-user.decorator";
@@ -29,17 +30,25 @@ export class PropertiesController {
     return this.properties.list(q);
   }
 
-  @Get(":id")
-  get(@Param("id") id: string) {
-    return this.properties.findById(id);
+  /** Compteurs de la landing — déclaré AVANT :id. */
+  @Get("stats")
+  stats() {
+    return this.properties.stats();
   }
 
-  // Owners only
+  // Owners only — déclaré AVANT :id.
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.OWNER, Role.ADMIN)
   @Get("mine/list")
   mine(@CurrentUser() user: JwtPayload) {
     return this.properties.listMine(user.sub);
+  }
+
+  /** Public ; le propriétaire connecté voit aussi ses brouillons/archives. */
+  @UseGuards(OptionalJwtAuthGuard)
+  @Get(":id")
+  get(@Param("id") id: string, @CurrentUser() user: JwtPayload | null) {
+    return this.properties.findById(id, user?.sub ?? null);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -1,4 +1,6 @@
 import PDFDocument = require("pdfkit");
+import { formatMoneyPdf } from "../common/money";
+import { APP_TIME_ZONE } from "../common/dates";
 
 /**
  * Quittance de loyer en PDF, générée en mémoire.
@@ -17,17 +19,19 @@ export interface ReceiptData {
   propertyAddress: string;
   ownerName: string;
   tenantName: string;
+  /** Montants figés de la période */
   rent: number;
   charges: number;
   total: number;
+  /** Devise du bail */
+  currency: string;
   method: string | null;
   reference: string | null;
 }
 
-const EUR = (n: number) =>
-  n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: 2 });
-
 export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
+  const EUR = (n: number) => formatMoneyPdf(n, data.currency);
+  const jour = (d: Date) => d.toLocaleDateString("fr-FR", { timeZone: APP_TIME_ZONE });
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 56 });
     const chunks: Buffer[] = [];
@@ -43,7 +47,7 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
     doc.fontSize(20).fillColor(vert).font("Helvetica-Bold").text("Quittance de loyer");
     doc.moveDown(0.2);
     doc.fontSize(10).fillColor(gris).font("Helvetica")
-      .text(`N° ${data.receiptNo} — émise le ${data.paidAt.toLocaleDateString("fr-FR")}`);
+      .text(`N° ${data.receiptNo} — émise le ${jour(data.paidAt)}`);
     doc.moveDown(1.2);
 
     // Parties
@@ -82,14 +86,14 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
 
     // Traçabilité du versement
     doc.fontSize(10).fillColor(gris);
-    if (data.method) doc.text(`Moyen de paiement déclaré : ${data.method}`);
+    if (data.method) doc.text(`Moyen de paiement déclaré : ${data.method === "OTHER" ? "Autre" : data.method}`);
     if (data.reference) doc.text(`Identifiant de transaction : ${data.reference}`);
     doc.text("Versement déclaré par le locataire puis confirmé par le bailleur sur la plateforme hwe.");
     doc.moveDown(2);
 
     // Signature
     doc.fillColor("#1f2430").fontSize(11)
-      .text(`Fait le ${data.paidAt.toLocaleDateString("fr-FR")}`, { align: "right" })
+      .text(`Fait le ${jour(data.paidAt)}`, { align: "right" })
       .moveDown(0.3)
       .text(data.ownerName, { align: "right" });
 

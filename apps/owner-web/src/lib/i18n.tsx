@@ -7,6 +7,7 @@ import * as p2 from "./i18n-parts/rents";
 import * as p3 from "./i18n-parts/comms";
 import * as p4 from "./i18n-parts/ops";
 import * as p5 from "./i18n-parts/account";
+import * as p6 from "./i18n-parts/fixes";
 
 // fr = textes d'origine ; en = traduction. Couvre la coque de l'app
 // (navigation, auth, tableau de bord) — les écrans de gestion restent en français.
@@ -56,7 +57,7 @@ const fr: Record<string, string> = {
   "register.submit": "Créer mon compte",
   "register.submitting": "Création…",
   "register.already": "Déjà inscrit ?",
-  "register.errTaken": "Email déjà utilisé.",
+  "register.errTaken": "Cette adresse e-mail est déjà utilisée (peut-être par un compte locataire). Connectez-vous ou utilisez une autre adresse.",
   "register.errFail": "Échec de la création du compte.",
 
   "dash.badge": "Tableau de bord",
@@ -136,7 +137,7 @@ const en: Record<string, string> = {
   "register.submit": "Create my account",
   "register.submitting": "Creating…",
   "register.already": "Already registered?",
-  "register.errTaken": "Email already in use.",
+  "register.errTaken": "This email address is already in use (perhaps by a tenant account). Sign in or use another address.",
   "register.errFail": "Account creation failed.",
 
   "dash.badge": "Dashboard",
@@ -171,6 +172,6 @@ const en: Record<string, string> = {
 };
 
 export const { t, LangProvider, useLang, LangSwitch } = createI18n({
-  fr: { ...fr, ...p0.fr, ...p1.fr, ...p2.fr, ...p3.fr, ...p4.fr, ...p5.fr },
-  en: { ...en, ...p0.en, ...p1.en, ...p2.en, ...p3.en, ...p4.en, ...p5.en },
+  fr: { ...fr, ...p0.fr, ...p1.fr, ...p2.fr, ...p3.fr, ...p4.fr, ...p5.fr, ...p6.fr },
+  en: { ...en, ...p0.en, ...p1.en, ...p2.en, ...p3.en, ...p4.en, ...p5.en, ...p6.en },
 });

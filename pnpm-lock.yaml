@@ -237,6 +237,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@hwe/types':
+        specifier: workspace:*
+        version: link:../types
       clsx:
         specifier: ^2.1.0
         version: 2.1.1

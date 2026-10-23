@@ -6,6 +6,7 @@ import { AuthProvider } from "../lib/auth-context";
 import { CurrencyProvider } from "../lib/currency-context";
 import { LangProvider } from "../lib/i18n";
 import { LocalizedTitle } from "../components/LocalizedTitle";
+import { AppToaster } from "../components/AppToaster";
 
 export const metadata: Metadata = {
   title: "hwe — Trouvez votre logement",
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <footer className="container-app py-10 text-xs text-ink-muted">
             <FooterText />
           </footer>
+          <AppToaster />
           </CurrencyProvider>
           </LangProvider>
         </AuthProvider>

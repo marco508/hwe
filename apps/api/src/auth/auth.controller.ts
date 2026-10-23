@@ -2,17 +2,16 @@ import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
-import { ForgotPasswordDto, ResetPasswordDto } from "./dto/reset-password.dto";
+import { ForgotPasswordDto, ResetPasswordDto, VerifyEmailDto } from "./dto/reset-password.dto";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { CurrentUser, JwtPayload } from "./current-user.decorator";
-import { PrismaService } from "../prisma/prisma.service";
 
+// Limitation de débit : appliquée dans main.ts (middleware) sur login,
+// register, forgot/reset-password, verify-email et send-verification
+// uniquement — jamais sur /auth/me.
 @Controller("auth")
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post("register")
   register(@Body() dto: RegisterDto) {
@@ -31,8 +30,8 @@ export class AuthController {
 
   // Vérification d'e-mail : confirmation par jeton + renvoi du lien.
   @Post("verify-email")
-  verifyEmail(@Body("token") token: string) {
-    return this.authService.verifyEmail(String(token || ""));
+  verifyEmail(@Body() dto: VerifyEmailDto) {
+    return this.authService.verifyEmail(dto.token);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -48,21 +47,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get("me")
-  async me(@CurrentUser() user: JwtPayload) {
-    const u = await this.prisma.user.findUnique({
-      where: { id: user.sub },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        role: true,
-        emailVerifiedAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-    return u;
+  me(@CurrentUser() user: JwtPayload) {
+    return this.authService.me(user.sub);
   }
 }

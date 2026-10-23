@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { Role } from "@prisma/client";
 import { DocumentsService } from "./documents.service";
-import { CreateDocumentDto } from "./dto/create-document.dto";
+import { CreateDocumentDto, UpdateDocumentDto } from "./dto/create-document.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
@@ -44,7 +44,7 @@ export class DocumentsController {
     @Param("propertyId") propertyId: string,
     @Param("docId") docId: string,
     @CurrentUser() user: JwtPayload,
-    @Body() dto: Partial<CreateDocumentDto>,
+    @Body() dto: UpdateDocumentDto,
   ) {
     return this.documents.update(propertyId, docId, user.sub, dto);
   }

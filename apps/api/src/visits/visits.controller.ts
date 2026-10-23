@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
+  ParseEnumPipe,
   Patch,
   Post,
   Query,
@@ -23,17 +25,22 @@ import { CurrentUser, JwtPayload } from "../auth/current-user.decorator";
 import { VisitsService } from "./visits.service";
 
 class RequestVisitDto {
-  @IsString() propertyId!: string;
+  @IsString() @MaxLength(64) propertyId!: string;
   @IsDateString() proposedAt!: string;
-  @IsOptional() @IsString() @MaxLength(500) note?: string;
+  @IsOptional() @IsString() @MaxLength(500) note?: string | null;
 }
 
 class AnswerVisitDto {
   @IsIn(["CONFIRMED", "DECLINED"])
   status!: "CONFIRMED" | "DECLINED";
 
-  @IsOptional() @IsString() @MaxLength(500) ownerNote?: string;
+  @IsOptional() @IsString() @MaxLength(500) ownerNote?: string | null;
 }
+
+const statusPipe = new ParseEnumPipe(VisitStatus, {
+  optional: true,
+  exceptionFactory: () => new BadRequestException("Statut de visite invalide."),
+});
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller("visits")
@@ -53,7 +60,7 @@ export class VisitsController {
 
   @Get("owner")
   @Roles(Role.OWNER, Role.ADMIN)
-  owner(@CurrentUser() user: JwtPayload, @Query("status") status?: VisitStatus) {
+  owner(@CurrentUser() user: JwtPayload, @Query("status", statusPipe) status?: VisitStatus) {
     return this.visits.owner(user.sub, status);
   }
 

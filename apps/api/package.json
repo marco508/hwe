@@ -5,12 +5,13 @@
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
-    "start": "node dist/main.js",
+    "start": "node dist/src/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "type-check": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "test": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PROJECT=tsconfig.json node --require ts-node/register --test test/*.spec.ts"
   },
   "dependencies": {
     "@hwe/types": "workspace:*",

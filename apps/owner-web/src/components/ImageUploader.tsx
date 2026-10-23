@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { compressImage, IMAGE_ACCEPT, IMAGE_MIME_TYPES, SafeImage, toast } from "@hwe/ui";
 import { t } from "../lib/i18n";
 
 interface ImageUploaderProps {
@@ -9,29 +10,36 @@ interface ImageUploaderProps {
   maxImages?: number;
 }
 
-export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploaderProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
+/**
+ * Photos du bien (F11, M1) :
+ * - seuls JPG/PNG/WebP sont acceptés (comme l'API), les autres sont signalés ;
+ * - chaque photo est redimensionnée/compressée côté client (≤ 1920 px) ;
+ * - zone de dépôt = vrai <label> lié au champ fichier (clavier + toucher) ;
+ * - commandes déplacer/supprimer visibles au focus et sur écran tactile.
+ */
+export function ImageUploader({ value, onChange, maxImages = 20 }: ImageUploaderProps) {
+  const uid = React.useId();
+  const inputId = `${uid}-photos`;
   const [dragging, setDragging] = React.useState(false);
-
-  const fileToDataUrl = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(new Error(t("pf.up.readError")));
-      reader.readAsDataURL(file);
-    });
+  const [busy, setBusy] = React.useState(false);
 
   const addFiles = async (files: FileList | File[]) => {
-    const arr = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    const all = Array.from(files);
+    const arr = all.filter((f) => (IMAGE_MIME_TYPES as readonly string[]).includes(f.type));
+    if (arr.length < all.length) toast.error(t("pf.up.rejected", { n: all.length - arr.length }));
     const remaining = maxImages - value.length;
-    const toProcess = arr.slice(0, remaining);
+    const toProcess = arr.slice(0, Math.max(0, remaining));
+    if (arr.length > toProcess.length) toast.info(t("pf.up.limit", { max: maxImages }));
     if (toProcess.length === 0) return;
 
+    setBusy(true);
     try {
-      const dataUrls = await Promise.all(toProcess.map(fileToDataUrl));
+      const dataUrls = await Promise.all(toProcess.map((f) => compressImage(f)));
       onChange([...value, ...dataUrls]);
     } catch {
-      alert(t("pf.up.loadError"));
+      toast.error(t("pf.up.loadError"));
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -74,19 +82,21 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
     <div className="space-y-4">
       {/* Drop zone */}
       {canAdd && (
-        <div
+        <label
+          htmlFor={inputId}
           onDrop={onDrop}
           onDragOver={onDragOver}
           onDragLeave={() => setDragging(false)}
-          onClick={() => inputRef.current?.click()}
+          aria-busy={busy}
           className={[
-            "flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed cursor-pointer transition-colors py-10 px-4 text-center select-none",
+            "flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed cursor-pointer transition-colors py-10 px-4 text-center select-none focus-within:ring-2 focus-within:ring-brand-500",
             dragging
-              ? "border-brand-500 bg-brand-50"
-              : "border-border bg-surface hover:border-brand-400 hover:bg-surface",
+              ? "border-brand-500 bg-brand-50 dark:bg-brand-900/30"
+              : "border-border bg-surface hover:border-brand-400",
           ].join(" ")}
         >
           <svg
+            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             className="w-10 h-10 text-ink-muted"
             fill="none"
@@ -102,8 +112,9 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
           </svg>
           <p className="text-sm font-medium text-ink">
             {t("pf.up.drop")}{" "}
-            <span className="text-brand-600 underline">{t("pf.up.browse")}</span>
+            <span className="text-brand-600 dark:text-brand-300 underline">{t("pf.up.browse")}</span>
           </p>
+          {busy && <p className="text-xs text-ink-muted">{t("pf.up.processing")}</p>}
           <p className="text-xs text-ink-muted">
             {t("pf.up.formats", { max: maxImages })}{" "}
             {value.length > 0 &&
@@ -113,9 +124,9 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
               })}
           </p>
           <input
-            ref={inputRef}
+            id={inputId}
             type="file"
-            accept="image/*"
+            accept={IMAGE_ACCEPT}
             multiple
             className="sr-only"
             onChange={(e) => {
@@ -123,7 +134,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
               e.target.value = "";
             }}
           />
-        </div>
+        </label>
       )}
 
       {/* Preview grid */}
@@ -131,8 +142,7 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {value.map((url, i) => (
             <div key={i} className="relative group rounded-lg overflow-hidden border border-border aspect-square bg-surface">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <SafeImage
                 src={url}
                 alt={t("pf.up.photoAlt", { n: i + 1 })}
                 className="w-full h-full object-cover"
@@ -145,17 +155,18 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
                 </span>
               )}
 
-              {/* Hover controls */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              {/* Commandes : survol, focus clavier, et toujours visibles au tactile. */}
+              <div className="absolute inset-x-0 bottom-0 sm:inset-0 bg-black/50 opacity-0 group-hover:opacity-100 focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center gap-2 py-1.5">
                 {/* Move left */}
                 <button
                   type="button"
                   onClick={() => moveLeft(i)}
                   disabled={i === 0}
                   title={t("pf.up.moveLeft")}
-                  className="p-1.5 rounded-full bg-white/20 hover:bg-white/40 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label={`${t("pf.up.moveLeft")} — ${t("pf.up.photoAlt", { n: i + 1 })}`}
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/40 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -165,9 +176,10 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
                   type="button"
                   onClick={() => remove(i)}
                   title={t("pf.up.delete")}
-                  className="p-1.5 rounded-full bg-red-500/80 hover:bg-red-600 text-white transition-colors"
+                  aria-label={`${t("pf.up.delete")} — ${t("pf.up.photoAlt", { n: i + 1 })}`}
+                  className="p-2 rounded-full bg-red-500/80 hover:bg-red-600 text-white transition-colors"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -178,9 +190,10 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
                   onClick={() => moveRight(i)}
                   disabled={i === value.length - 1}
                   title={t("pf.up.moveRight")}
-                  className="p-1.5 rounded-full bg-white/20 hover:bg-white/40 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label={`${t("pf.up.moveRight")} — ${t("pf.up.photoAlt", { n: i + 1 })}`}
+                  className="p-2 rounded-full bg-white/20 hover:bg-white/40 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -190,16 +203,15 @@ export function ImageUploader({ value, onChange, maxImages = 10 }: ImageUploader
 
           {/* Add more slot */}
           {canAdd && value.length > 0 && (
-            <button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-brand-400 hover:bg-brand-50 transition-colors flex flex-col items-center justify-center gap-1 text-ink-muted hover:text-brand-600"
+            <label
+              htmlFor={inputId}
+              className="cursor-pointer aspect-square rounded-lg border-2 border-dashed border-border hover:border-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/30 transition-colors flex flex-col items-center justify-center gap-1 text-ink-muted hover:text-brand-600"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               <span className="text-xs font-medium">{t("pf.up.add")}</span>
-            </button>
+            </label>
           )}
         </div>
       )}

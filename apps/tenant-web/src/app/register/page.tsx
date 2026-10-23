@@ -1,15 +1,24 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AnimatedBackground, Button, Card, CardBody, Input, Label } from "@hwe/ui";
+import { AnimatedBackground, Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 import { IlloKeys } from "@hwe/ui";
 
 export default function RegisterPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <RegisterInner />
+    </React.Suspense>
+  );
+}
+
+function RegisterInner() {
   const router = useRouter();
+  const next = safeNext(useSearchParams().get("next"), "/");
   const { register } = useAuth();
   const [form, setForm] = React.useState({
     firstName: "",
@@ -30,10 +39,17 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(form);
-      router.push("/");
+      router.push(next);
     } catch (err) {
-      const msg = (err as Error).message;
-      setError(msg.includes("409") ? t("register.errTaken") : t("register.errFail"));
+      setError(
+        isApiError(err) && err.status === 409
+          ? t("register.errTaken")
+          : isApiError(err) && err.status === 400
+            ? errorText(err)
+            : isApiError(err) && err.retryable
+              ? errorText(err)
+              : t("register.errFail"),
+      );
       setLoading(false);
     }
   };
@@ -52,7 +68,7 @@ export default function RegisterPage() {
       <Card>
         <CardBody>
           <form onSubmit={onSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label htmlFor="firstName">{t("register.firstName")}</Label>
                 <Input id="firstName" value={form.firstName} onChange={set("firstName")} required />
@@ -74,7 +90,7 @@ export default function RegisterPage() {
               <Label htmlFor="password">{t("login.password")}</Label>
               <Input id="password" type="password" value={form.password} onChange={set("password")} minLength={8} required />
             </div>
-            {error && <p className="text-sm text-danger">{error}</p>}
+            {error && <p role="alert" className="text-sm text-danger [overflow-wrap:anywhere]">{error}</p>}
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? t("register.submitting") : t("register.submit")}
             </Button>

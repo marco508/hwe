@@ -1,17 +1,7 @@
 import type {
-  AuthResponse,
-  Property,
-  Paginated,
-  PropertyQuery,
   Inquiry,
-  User,
-  InquiryStatus,
   Favorite,
   LeaseContract,
-  UserDocument,
-  IdentityDocumentType,
-  Conversation,
-  Message,
   Inspection,
   InspectionType,
   Ticket,
@@ -20,32 +10,21 @@ import type {
   LeaseCoTenant,
   Visit,
   ChargeRegularization,
+  RentPeriod,
+  RentStatus,
 } from "@hwe/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-const TOKEN_KEY = "hwe.token";
+import { commonApi, request as coreRequest, tokenStore } from "@hwe/ui";
+
+/** Appel API (cœur partagé @hwe/ui : erreurs JSON, 401 → reconnexion, 403 e-mail…). */
+function request<T>(path: string, init: RequestInit = {}, auth = false): Promise<T> {
+  return coreRequest<T>(path, { ...init, auth });
+}
+
+export { tokenStore };
 
 // ── Loyers ──────────────────────────────────────────────────────────────
-export type RentStatus = "DUE" | "DECLARED" | "PAID" | "LATE";
-
-export interface RentPeriod {
-  id: string;
-  leaseId: string;
-  periodYear: number;
-  periodMonth: number;
-  periodLabel: string;
-  dueDate: string;
-  amount: number;
-  status: RentStatus;
-  declaredAt: string | null;
-  declaredMethod: string | null;
-  declaredRef: string | null;
-  proofDataUrl: string | null;
-  tenantNote: string | null;
-  paidAt: string | null;
-  receiptNo: string | null;
-  rejectReason: string | null;
-}
+export type { RentPeriod, RentStatus };
 
 export interface OwnerPaymentMethod {
   id: string;
@@ -60,6 +39,12 @@ export interface TenantRentBundle {
     id: string;
     monthlyRent: number;
     charges: number;
+    /** Devise du bail (contrat §9). */
+    currency?: string | null;
+    shortStay?: boolean | null;
+    stayTotal?: number | null;
+    startDate?: string;
+    endDate?: string | null;
     rentPaymentDay: number;
     status: string;
     property: { id: string; title: string; addressLine: string; city: string };
@@ -68,86 +53,8 @@ export interface TenantRentBundle {
   periods: RentPeriod[];
 }
 
-export const tokenStore = {
-  get: () =>
-    typeof window === "undefined" ? null : window.localStorage.getItem(TOKEN_KEY),
-  set: (t: string) => window.localStorage.setItem(TOKEN_KEY, t),
-  clear: () => window.localStorage.removeItem(TOKEN_KEY),
-};
-
-async function request<T>(
-  path: string,
-  init: RequestInit = {},
-  auth = false,
-): Promise<T> {
-  const headers = new Headers(init.headers);
-  headers.set("Content-Type", "application/json");
-  if (auth) {
-    const t = tokenStore.get();
-    if (t) headers.set("Authorization", `Bearer ${t}`);
-  }
-  const res = await fetch(`${API_URL}/api${path}`, { ...init, headers });
-  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-  if (res.status === 204) return undefined as T;
-  return res.json();
-}
-
 export const api = {
-  register: (body: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    phone?: string;
-    role: "OWNER" | "TENANT";
-  }) =>
-    request<AuthResponse>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-  login: (body: { email: string; password: string }) =>
-    request<AuthResponse>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-  forgotPassword: (email: string) =>
-    request<{ ok: true }>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }),
-  resetPassword: (token: string, password: string) =>
-    request<{ ok: true }>("/auth/reset-password", { method: "POST", body: JSON.stringify({ token, password }) }),
-  me: () => request<User>("/auth/me", {}, true),
-  verifyEmail: (token: string) =>
-    request<{ ok: true }>("/auth/verify-email", { method: "POST", body: JSON.stringify({ token }) }),
-  sendVerification: () =>
-    request<{ ok: true; alreadyVerified?: boolean }>("/auth/send-verification", { method: "POST" }, true),
-  updateMe: (body: Partial<Pick<User, "firstName" | "lastName" | "phone" | "avatarUrl">>) =>
-    request<User>("/users/me", { method: "PATCH", body: JSON.stringify(body) }, true),
-
-  // identity documents
-  listMyDocuments: () =>
-    request<UserDocument[]>("/users/me/documents", {}, true),
-  createMyDocument: (body: {
-    name: string;
-    documentType: IdentityDocumentType;
-    fileUrl: string;
-    fileSize?: number;
-    mimeType?: string;
-    notes?: string;
-  }) =>
-    request<UserDocument>("/users/me/documents", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }, true),
-  deleteMyDocument: (docId: string) =>
-    request<{ ok: true }>(`/users/me/documents/${docId}`, { method: "DELETE" }, true),
-
-  listProperties: (q: PropertyQuery = {}) => {
-    const search = new URLSearchParams();
-    Object.entries(q).forEach(([k, v]) => {
-      if (v !== undefined && v !== null && v !== "") search.set(k, String(v));
-    });
-    return request<Paginated<Property>>(`/properties?${search.toString()}`);
-  },
-  getProperty: (id: string) => request<Property>(`/properties/${id}`),
+  ...commonApi,
 
   sendInquiry: (body: {
     propertyId: string;
@@ -177,11 +84,6 @@ export const api = {
   removeFavorite: (propertyId: string) =>
     request<{ ok: true }>(`/favorites/${propertyId}`, { method: "DELETE" }, true),
 
-  // grille tarifaire (lecture seule côté locataire)
-  getPricingRates: (propertyId: string) =>
-    request<{ id: string; unit: string; amount: number }[]>(
-      `/properties/${propertyId}/pricing`,
-    ),
 
   // Baux du locataire connecté
   myLeases: () => request<LeaseContract[]>("/leases/my", {}, true),
@@ -218,10 +120,6 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }, true),
-  listInsurances: (leaseId: string) =>
-    request<InsuranceSummary[]>(`/leases/${leaseId}/insurances`, {}, true),
-  getInsuranceFile: (leaseId: string, insuranceId: string) =>
-    request<{ fileUrl: string }>(`/leases/${leaseId}/insurances/${insuranceId}/file`, {}, true),
 
   listChargeRegularizations: (leaseId: string) =>
     request<ChargeRegularization[]>(`/leases/${leaseId}/charge-regularizations`, {}, true),
@@ -253,47 +151,6 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }, true),
-  downloadReceipt: async (periodId: string) => {
-    const t = tokenStore.get();
-    const res = await fetch(`${API_URL}/api/rents/${periodId}/receipt`, {
-      headers: t ? { Authorization: `Bearer ${t}` } : undefined,
-    });
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-    const blob = await res.blob();
-    const cd = res.headers.get("Content-Disposition") ?? "";
-    const name = /filename="([^"]+)"/.exec(cd)?.[1] ?? "quittance.pdf";
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
-  },
-
-  // ── Messagerie ────────────────────────────────────────────────────────
-  listConversations: () =>
-    request<Conversation[]>("/conversations", {}, true),
-  unreadMessagesCount: () =>
-    request<{ count: number }>("/conversations/unread-count", {}, true),
-  startConversation: (propertyId: string) =>
-    request<Conversation>(
-      "/conversations/start",
-      { method: "POST", body: JSON.stringify({ propertyId }) },
-      true,
-    ),
-  getConversation: (id: string) =>
-    request<Conversation>(`/conversations/${id}`, {}, true),
-  sendMessage: (conversationId: string, content: string) =>
-    request<Message>(
-      `/conversations/${conversationId}/messages`,
-      { method: "POST", body: JSON.stringify({ content }) },
-      true,
-    ),
-  markConversationRead: (conversationId: string) =>
-    request<{ marked: number }>(
-      `/conversations/${conversationId}/read`,
-      { method: "POST" },
-      true,
-    ),
+  // Quittances, messagerie, profil, pièces d'identité : voir commonApi.
 };
 
