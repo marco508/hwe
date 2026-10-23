@@ -1,0 +1,36 @@
+# Crédits photos
+
+Les photos ci-dessous sont utilisées selon la Licence Unsplash ou la Licence Pexels : usage commercial autorisé, sans attribution obligatoire. Nous créditons tout de même les photographes par courtoisie. Les fichiers ont été recadrés et convertis en WebP.
+
+| Fichier(s) | Sujet | Photographe | Source | Page de la photo | Licence |
+|---|---|---|---|---|---|
+| hero/hero-main-{640,1280,1920}.webp | Famille noire souriante sur un canapé | Monstera Production | Pexels | https://www.pexels.com/photo/smiling-black-family-resting-on-couch-7114420/ | Licence Pexels — https://www.pexels.com/license/ |
+| hero/hero-keys-{480,800}.webp | Femme souriante montrant une clé | Kindel Media | Pexels | https://www.pexels.com/photo/woman-in-gray-sweater-smiling-while-holding-a-key-7579205/ | Licence Pexels — https://www.pexels.com/license/ |
+| hero/hero-interior-{480,800}.webp | Salon lumineux, canapé bleu | Curtis Adams | Pexels | https://www.pexels.com/photo/modern-living-room-with-blue-sofa-and-abstract-art-36777534/ | Licence Pexels — https://www.pexels.com/license/ |
+| cities/paris-{480,800}.webp | Tour Eiffel vue depuis la rue de Monttessuy | Teodor Kuduschiev | Unsplash | https://unsplash.com/photos/a-person-walking-down-a-street-7siSKdKpj74 | Licence Unsplash — https://unsplash.com/license |
+| cities/lyon-{480,800}.webp | Quais de Saône et basilique de Fourvière | Godefroy Boutet | Unsplash | https://unsplash.com/photos/buildings-and-a-church-overlooking-a-tranquil-river-SjkIiumwQpA | Licence Unsplash — https://unsplash.com/license |
+| cities/marseille-{480,800}.webp | Vieux-Port et Notre-Dame de la Garde | Lien Van Win | Unsplash | https://unsplash.com/photos/white-and-blue-boat-on-dock-near-city-buildings-during-daytime-IHGQC8drxYM | Licence Unsplash — https://unsplash.com/license |
+| cities/bordeaux-{480,800}.webp | Place de la Bourse et fontaine des Trois Grâces | F DALLAY | Unsplash | https://unsplash.com/photos/place-de-la-bourse-in-bordeaux-afUNBitfo70 | Licence Unsplash — https://unsplash.com/license |
+| cities/dakar-{480,800}.webp | Mosquée de la Divinité, corniche Ouest (Ouakam) | Eyelit Studio | Unsplash | https://unsplash.com/photos/white-concrete-building-near-body-of-water-during-daytime-2ew_aw99x28 | Licence Unsplash — https://unsplash.com/license |
+| cities/abidjan-{480,800}.webp | Tours du Plateau au bord de la lagune | Jean Marc Bonnel | Pexels | https://www.pexels.com/photo/residential-buildings-by-water-in-city-18435332/ | Licence Pexels — https://www.pexels.com/license/ |
+| cities/douala-{480,800}.webp | Scène de rue animée à Bessengue | Edouard TAMBA | Unsplash | https://unsplash.com/photos/people-walking-on-street-during-daytime-bZnciM7XIYw | Licence Unsplash — https://unsplash.com/license |
+| cities/yaounde-{480,800}.webp | Carrefour Nlongkak et collines | Ariel Nathan ADA MBITA | Unsplash | https://unsplash.com/photos/a-busy-street-with-cars-and-people-xppHOgQBNwU | Licence Unsplash — https://unsplash.com/license |
+| cities/cotonou-{480,800}.webp | Rue de quartier avec une mosquée | Vurzie Kim | Pexels | https://www.pexels.com/photo/street-scene-in-cotonou-benin-with-local-vendors-38166000/ | Licence Pexels — https://www.pexels.com/license/ |
+| cities/lome-{480,800}.webp | Route du bord de mer bordée de cocotiers | Kab Visuals | Pexels | https://www.pexels.com/photo/palm-trees-on-the-road-6056739/ | Licence Pexels — https://www.pexels.com/license/ |
+| cities/casablanca-{480,800}.webp | Mosquée Hassan II | Hamza Bouchikhi | Unsplash | https://unsplash.com/photos/brown-concrete-building-under-blue-sky-during-daytime-18fvXEV1R_A | Licence Unsplash — https://unsplash.com/license |
+| cities/default-{480,800}.webp | Rue résidentielle arborée | Sami TÜRK | Pexels | https://www.pexels.com/photo/trees-around-empty-street-in-town-15709430/ | Licence Pexels — https://www.pexels.com/license/ |
+| types/apartment-{480,800}.webp | Façade d'immeuble avec balcons | Andrew Patrick Photo | Pexels | https://www.pexels.com/photo/a-building-with-balconies-and-balconies-on-the-balconies-27451770/ | Licence Pexels — https://www.pexels.com/license/ |
+| types/house-{480,800}.webp | Maison contemporaine blanche et allée | Julia Kuzenkov | Pexels | https://www.pexels.com/photo/white-and-brown-house-1974596/ | Licence Pexels — https://www.pexels.com/license/ |
+| types/studio-{480,800}.webp | Studio meublé (lit, coin repas) | Max Vakhtbovych | Pexels | https://www.pexels.com/photo/modern-flat-with-cozy-bed-and-loft-style-lamp-6782426/ | Licence Pexels — https://www.pexels.com/license/ |
+| types/land-{480,800}.webp | Parcelle de terre rouge en début de chantier | Divaris Shirichena | Unsplash | https://unsplash.com/photos/people-working-on-construction-site-44DTpoXkVsE | Licence Unsplash — https://unsplash.com/license |
+| types/commercial-{480,800}.webp | Plateau commercial / bureau vide et lumineux | Andrea De Santis | Pexels | https://www.pexels.com/photo/empty-white-hallway-10988763/ | Licence Pexels — https://www.pexels.com/license/ |
+| types/other-{480,800}.webp | Salon neutre | Curtis Adams | Pexels | https://www.pexels.com/photo/contemporary-living-room-with-modern-decor-37760269/ | Licence Pexels — https://www.pexels.com/license/ |
+| steps/search-640.webp | Femme cherchant sur son téléphone | David Kwewum | Pexels | https://www.pexels.com/photo/woman-sitting-on-sofa-and-using-smartphone-17792262/ | Licence Pexels — https://www.pexels.com/license/ |
+| steps/visit-640.webp | Visite d'une maison avec un agent | Kindel Media | Pexels | https://www.pexels.com/photo/man-in-blue-dress-shirt-standing-beside-a-couple-7578973/ | Licence Pexels — https://www.pexels.com/license/ |
+| steps/sign-640.webp | Poignée de main au-dessus d'un contrat | Ron Lach | Pexels | https://www.pexels.com/photo/unrecognizable-hands-handshaking-over-table-9870223/ | Licence Pexels — https://www.pexels.com/license/ |
+| steps/move-640.webp | Couple souriant avec des cartons | RDNE Stock project | Pexels | https://www.pexels.com/photo/a-couple-holding-cardboard-boxes-7464645/ | Licence Pexels — https://www.pexels.com/license/ |
+| auth/auth-tenant-{640,1080}.webp | Parents et enfant sur un canapé | Mizuno K | Pexels | https://www.pexels.com/photo/parents-and-son-sitting-on-a-sofa-12788362/ | Licence Pexels — https://www.pexels.com/license/ |
+| auth/auth-owner-{640,1080}.webp | Homme devant une maison blanche | Aj Collins Artistry | Pexels | https://www.pexels.com/photo/man-enjoying-a-relaxed-day-outside-modern-house-29079117/ | Licence Pexels — https://www.pexels.com/license/ |
+| people/benefit-1-640.webp | Jeune couple emménageant avec des cartons | Gustavo Fring | Pexels | https://www.pexels.com/photo/a-couple-holding-cardboard-boxes-in-a-bedroom-4971278/ | Licence Pexels — https://www.pexels.com/license/ |
+| people/benefit-2-640.webp | Homme travaillant sur un ordinateur portable | RDNE Stock project | Pexels | https://www.pexels.com/photo/man-sitting-with-laptop-10376179/ | Licence Pexels — https://www.pexels.com/license/ |
+| people/benefit-3-640.webp | Mère et enfants jouant dans le salon | Monstera Production | Pexels | https://www.pexels.com/photo/black-mother-with-children-playing-in-room-7114174/ | Licence Pexels — https://www.pexels.com/license/ |
