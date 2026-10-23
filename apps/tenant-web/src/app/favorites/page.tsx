@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { EmptyState, ErrorState, PropertyCard, toast, useAsync, useLoginRedirect } from "@hwe/ui";
+import { EmptyState, ErrorState, PropertyCard, toast, useAsync, useLoginRedirect, Icon } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { useCurrency } from "../../lib/currency-context";
 import { api } from "../../lib/api";
@@ -48,7 +49,16 @@ export default function FavoritesPage() {
       {error ? (
         <ErrorState error={error} onRetry={reload} />
       ) : items.length === 0 ? (
-        <EmptyState title={t("com.fav.emptyTitle")} description={t("com.fav.emptyDesc")} />
+        <EmptyState
+          illustration="heart"
+          title={t("com.fav.emptyTitle")}
+          description={t("com.fav.emptyDesc")}
+          action={
+            <Link href="/" className="inline-flex items-center h-10 px-5 rounded-full bg-brand-600 text-white hover:text-white text-sm font-medium hover:bg-brand-700">
+              {t("vis.browse")}
+            </Link>
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((fav) => {
@@ -77,7 +87,8 @@ export default function FavoritesPage() {
                     onClick={() => remove(p.id)}
                     className="flex items-center gap-1 text-sm font-medium text-danger hover:underline disabled:opacity-50 transition-colors"
                   >
-                    ♥ {removing === p.id ? t("com.fav.removing") : t("com.fav.remove")}
+                    <Icon name="heart" size={15} className="fill-current" />
+                    {removing === p.id ? t("com.fav.removing") : t("com.fav.remove")}
                   </button>
                 }
               />

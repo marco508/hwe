@@ -16,6 +16,11 @@ import {
   countryLabel,
   loginHref,
   toast,
+  Icon,
+  IconBadge,
+  CityCard,
+  FEATURED_CITIES,
+  type IconName,
 } from "@hwe/ui";
 import { api } from "../lib/api";
 import { useCurrency } from "../lib/currency-context";
@@ -46,7 +51,8 @@ function HeartButton({
           : "text-ink-muted hover:text-danger"
       }`}
     >
-      {isFav ? "♥" : "♡"} {isFav ? t("acc.fav.saved") : t("acc.fav.save")}
+      <Icon name="heart" size={16} className={isFav ? "fill-current" : ""} />
+      {isFav ? t("acc.fav.saved") : t("acc.fav.save")}
     </button>
   );
 }
@@ -154,6 +160,8 @@ export default function HomePage() {
     setFilters({ ...draft });
   };
 
+  const hasFilters = Object.values(filters).some((v) => v !== undefined && v !== "");
+
   const countries = React.useMemo(
     () =>
       [...SUPPORTED_COUNTRIES]
@@ -175,19 +183,19 @@ export default function HomePage() {
       {user && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
           {[
-            { href: "/ma-location", icon: "🏠", label: t("home.tile.rental"), hint: t("home.tile.rentalHint") },
-            { href: "/mes-loyers", icon: "💶", label: t("home.tile.rents"), hint: t("home.tile.rentsHint") },
-            { href: "/mes-visites", icon: "📅", label: t("home.tile.visits"), hint: t("home.tile.visitsHint") },
-            { href: "/inquiries", icon: "📨", label: t("home.tile.requests"), hint: t("home.tile.requestsHint") },
-            { href: "/messages", icon: "💬", label: t("home.tile.messages"), hint: t("home.tile.messagesHint") },
-            { href: "/profile", icon: "📁", label: t("home.tile.dossier"), hint: t("home.tile.dossierHint") },
+            { href: "/ma-location", icon: "home" as IconName, label: t("home.tile.rental"), hint: t("home.tile.rentalHint") },
+            { href: "/mes-loyers", icon: "wallet" as IconName, label: t("home.tile.rents"), hint: t("home.tile.rentsHint") },
+            { href: "/mes-visites", icon: "calendar" as IconName, label: t("home.tile.visits"), hint: t("home.tile.visitsHint") },
+            { href: "/inquiries", icon: "inbox" as IconName, label: t("home.tile.requests"), hint: t("home.tile.requestsHint") },
+            { href: "/messages", icon: "messages" as IconName, label: t("home.tile.messages"), hint: t("home.tile.messagesHint") },
+            { href: "/profile", icon: "folder" as IconName, label: t("home.tile.dossier"), hint: t("home.tile.dossierHint") },
           ].map((t) => (
             <Link
               key={t.href}
               href={t.href}
               className="group min-w-0 rounded-2xl border border-border bg-surface p-4 hover:border-brand-400 transition-colors"
             >
-              <span className="text-2xl" aria-hidden="true">{t.icon}</span>
+              <IconBadge name={t.icon} size="sm" />
               <p className="mt-2 font-medium text-ink group-hover:text-brand-600 dark:group-hover:text-brand-300 [overflow-wrap:anywhere]">
                 {t.label}
               </p>
@@ -299,6 +307,34 @@ export default function HomePage() {
         </CardBody>
       </Card>
 
+      {/* Destinations populaires : une photo par ville, un clic = filtre ville */}
+      {!hasFilters && (
+        <div className="mb-10 min-w-0">
+          <div className="flex items-end justify-between gap-3 mb-3">
+            <div className="min-w-0">
+              <h2 className="font-display text-xl text-ink">{t("vis.dest.title")}</h2>
+              <p className="text-xs text-ink-muted">{t("vis.dest.sub")}</p>
+            </div>
+          </div>
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 lg:grid lg:grid-cols-6 lg:overflow-visible">
+            {FEATURED_CITIES.slice(0, 6).map((c) => (
+              <CityCard
+                key={c.name}
+                name={c.name}
+                className="w-36 sm:w-44 lg:w-auto shrink-0 snap-start"
+                sizes="(min-width: 1024px) 16vw, 176px"
+                cta={<span>{t("vis.dest.see")}</span>}
+                onClick={() => {
+                  const next = { ...draft, city: c.name, country: c.country };
+                  setDraft(next);
+                  setFilters(next);
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -316,8 +352,22 @@ export default function HomePage() {
         <ErrorState error={error} onRetry={() => setTick((n) => n + 1)} />
       ) : items.length === 0 ? (
         <EmptyState
+          illustration="search"
           title={t("acc.list.emptyTitle")}
           description={t("acc.list.emptyDesc")}
+          action={
+            hasFilters ? (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setDraft({});
+                  setFilters({});
+                }}
+              >
+                {t("vis.resetFilters")}
+              </Button>
+            ) : undefined
+          }
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -346,7 +396,8 @@ export default function HomePage() {
                   />
                 ) : (
                   <Link href={loginHref("/")} className="text-sm text-ink-muted hover:underline">
-                    ♡ {t("acc.fav.save")}
+                    <Icon name="heart" size={16} className="mr-1" />
+                    {t("acc.fav.save")}
                   </Link>
                 )
               }

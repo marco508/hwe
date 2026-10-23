@@ -10,12 +10,14 @@ import {
   CardHeader,
   EmptyState,
   ErrorState,
-  ImageCarousel,
   SafeImage,
   isNotFound,
   priceUnitSuffix,
   tUi,
   useAsync,
+  Icon,
+  PropertyGallery,
+  type IconName,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -24,18 +26,18 @@ import { t } from "../../../lib/i18n";
 import type { Property } from "@hwe/types";
 
 
-const FEATURE_ICONS: Record<string, string> = {
-  surface: "📐",
-  rooms: "🚪",
-  bedrooms: "🛏️",
-  bathrooms: "🛁",
-  floor: "🏢",
-  year: "📅",
-  furnished: "🛋️",
-  parking: "🅿️",
-  balcony: "🪟",
-  garden: "🌿",
-  elevator: "🛗",
+const FEATURE_ICONS: Record<string, IconName> = {
+  surface: "ruler",
+  rooms: "door",
+  bedrooms: "bed",
+  bathrooms: "bath",
+  floor: "stairs",
+  year: "calendar",
+  furnished: "sofa",
+  parking: "car",
+  balcony: "balcony",
+  garden: "leaf",
+  elevator: "elevator",
 };
 
 export default function PropertyDetailPage() {
@@ -120,26 +122,14 @@ export default function PropertyDetailPage() {
           </div>
         </header>
 
-        {/* Galerie principale */}
-        <div className="rounded-2xl overflow-hidden border border-border shadow-card-hover">
-          <ImageCarousel
-            images={galleryImages}
-            aspectClassName="aspect-[16/10]"
-            showArrows
-            showDots
-            showCounter
-            autoPlayMs={6000}
-            fallback={
-              <div className="font-display text-3xl">{t("acc.prop.noPhoto")}</div>
-            }
-          />
-        </div>
+        {/* Galerie principale : grande photo, vignettes, plein écran */}
+        <PropertyGallery images={galleryImages} propertyType={p.propertyType} />
 
         {/* Description */}
         <Card className="hover-lift">
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">📝</span> {t("acc.prop.description")}
+              <Icon name="file" size={18} className="text-brand-600 dark:text-brand-300" /> {t("acc.prop.description")}
             </h2>
           </CardHeader>
           <CardBody>
@@ -153,7 +143,7 @@ export default function PropertyDetailPage() {
         <Card className="hover-lift">
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">✨</span> {t("acc.prop.features")}
+              <Icon name="sparkles" size={18} className="text-brand-600 dark:text-brand-300" /> {t("acc.prop.features")}
             </h2>
           </CardHeader>
           <CardBody className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm stagger">
@@ -163,9 +153,7 @@ export default function PropertyDetailPage() {
                 className="rounded-lg border border-border/60 bg-background/60 px-3 py-2 hover:border-brand-300 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <span aria-hidden="true" className="text-base">
-                    {FEATURE_ICONS[f.key] ?? "•"}
-                  </span>
+                  <Icon name={FEATURE_ICONS[f.key] ?? "dots"} size={18} className="text-brand-600 dark:text-brand-300" />
                   <div className="min-w-0">
                     <div className="text-[11px] text-ink-muted">
                       {f.label}
@@ -195,7 +183,7 @@ export default function PropertyDetailPage() {
               )}
             </div>
             <div className="text-sm text-ink-muted mt-3 flex items-center gap-3">
-              <span>📐 {p.surface} m²</span>
+              <span className="inline-flex items-center gap-1"><Icon name="ruler" size={14} />{p.surface} m²</span>
               <span>•</span>
               <span>
                 {p.rooms} {p.rooms > 1 ? t("acc.prop.roomMany") : t("acc.prop.roomOne")}
@@ -216,7 +204,7 @@ export default function PropertyDetailPage() {
                     src={p.owner.avatarUrl}
                     alt=""
                     className="h-full w-full object-cover"
-                    fallbackClassName="h-full w-full bg-transparent text-white"
+                    fallbackClassName="h-full w-full from-brand-600 to-accent-500 text-white"
                     fallback={(p.owner.firstName?.[0] ?? "") + (p.owner.lastName?.[0] ?? "")}
                   />
                 </span>

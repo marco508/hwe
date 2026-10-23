@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { tUi } from "@hwe/ui";
+import { tUi, Icon } from "@hwe/ui";
 
 /**
  * Fenêtre modale accessible (M2) : role="dialog", aria-modal, titre relié,
@@ -91,7 +91,7 @@ export function Modal({
             aria-label={tUi("ui.close")}
             className="shrink-0 h-8 w-8 rounded-full inline-flex items-center justify-center text-ink-muted hover:text-ink hover:bg-cream-100 dark:hover:bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            ✕
+            <Icon name="x" size={16} strokeWidth={2.2} />
           </button>
         </div>
         {children}

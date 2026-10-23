@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { tUi } from "./I18nKit";
+import { Icon } from "./Icon";
 import { SafeImage } from "./SafeImage";
 import { intlLocale } from "../client/format";
 
@@ -58,7 +59,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             src={avatarUrl}
             alt={authorName ?? ""}
             className="h-full w-full object-cover"
-            fallbackClassName="h-full w-full bg-transparent text-white"
+            fallbackClassName="h-full w-full from-brand-600 to-accent-500 text-white"
             fallback={initials}
           />
         </span>
@@ -83,13 +84,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div className="flex items-center gap-1.5 mt-0.5 px-1 text-[10px] text-ink-subtle">
           {timestamp && <span>{formatTime(timestamp)}</span>}
           {fromMe && read && (
-            <span title={tUi("ui.read")} className="text-brand-600">
-              ✓✓
+            <span title={tUi("ui.read")} aria-label={tUi("ui.read")} className="text-brand-600 inline-flex">
+              <Icon name="checkCheck" size={14} strokeWidth={2.2} />
             </span>
           )}
           {fromMe && !read && (
-            <span title={tUi("ui.sent")} className="text-ink-subtle">
-              ✓
+            <span title={tUi("ui.sent")} aria-label={tUi("ui.sent")} className="text-ink-subtle inline-flex">
+              <Icon name="check" size={14} strokeWidth={2.2} />
             </span>
           )}
         </div>

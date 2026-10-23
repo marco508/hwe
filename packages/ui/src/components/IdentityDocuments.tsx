@@ -5,6 +5,7 @@ import type { IdentityDocumentType, UserDocument } from "@hwe/types";
 import { Button } from "./Button";
 import { Card, CardBody, CardHeader } from "./Card";
 import { Label } from "./Label";
+import { Icon, IconBadge, type IconName } from "./Icon";
 import { tUi } from "./I18nKit";
 import { toast } from "./Toast";
 import { cn } from "../utils";
@@ -32,17 +33,17 @@ const DOC_TYPES: IdentityDocumentType[] = [
   "OTHER",
 ];
 
-const DOC_ICONS: Record<IdentityDocumentType, string> = {
-  NATIONAL_ID: "🪪",
-  PASSPORT: "📘",
-  DRIVERS_LICENSE: "🚗",
-  RESIDENCE_PERMIT: "📋",
-  INCOME_PROOF: "💶",
-  EMPLOYMENT_CONTRACT: "📝",
-  TAX_NOTICE: "🏛",
-  GUARANTOR_ID: "🤝",
-  GUARANTOR_INCOME: "💶",
-  OTHER: "📄",
+const DOC_ICONS: Record<IdentityDocumentType, IconName> = {
+  NATIONAL_ID: "idCard",
+  PASSPORT: "passport",
+  DRIVERS_LICENSE: "car",
+  RESIDENCE_PERMIT: "clipboard",
+  INCOME_PROOF: "banknote",
+  EMPLOYMENT_CONTRACT: "pen",
+  TAX_NOTICE: "landmark",
+  GUARANTOR_ID: "handshake",
+  GUARANTOR_INCOME: "banknote",
+  OTHER: "file",
 };
 
 export const docTypeLabel = (type: IdentityDocumentType) => tUi("ui.docType." + type);
@@ -170,7 +171,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete, title, subtitle 
                 >
                   {DOC_TYPES.map((code) => (
                     <option key={code} value={code}>
-                      {DOC_ICONS[code]} {docTypeLabel(code)}
+                      {docTypeLabel(code)}
                     </option>
                   ))}
                 </select>
@@ -210,9 +211,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete, title, subtitle 
                 />
                 {pendingFile ? (
                   <>
-                    <span className="text-2xl" aria-hidden="true">
-                      {pendingFile.mimeType.startsWith("image/") ? "🖼️" : "📄"}
-                    </span>
+                    <Icon name={pendingFile.mimeType.startsWith("image/") ? "image" : "file"} size={24} className="text-brand-600 dark:text-brand-300" />
                     <span className="text-sm font-medium text-ink [overflow-wrap:anywhere]">
                       {pendingFile.originalName}
                     </span>
@@ -223,9 +222,7 @@ export function IdentityDocuments({ documents, onAdd, onDelete, title, subtitle 
                   </>
                 ) : (
                   <>
-                    <span className="text-2xl" aria-hidden="true">
-                      📎
-                    </span>
+                    <Icon name="paperclip" size={24} className="text-brand-600 dark:text-brand-300" />
                     <span className="text-sm text-ink">{tUi("ui.docs.chooseFile")}</span>
                     <span className="text-xs text-ink-muted">{tUi("ui.docs.fileHint")}</span>
                   </>
@@ -254,16 +251,14 @@ export function IdentityDocuments({ documents, onAdd, onDelete, title, subtitle 
                 className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border bg-surface hover:bg-cream-100 dark:hover:bg-white/[0.04] transition-colors"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-xl shrink-0" aria-hidden="true">
-                    {DOC_ICONS[doc.documentType] ?? "📄"}
-                  </span>
+                  <IconBadge name={DOC_ICONS[doc.documentType] ?? "file"} size="sm" />
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate">{doc.name}</div>
                     <div className="flex items-center gap-2 text-xs text-ink-muted flex-wrap">
                       <span>{docTypeLabel(doc.documentType)}</span>
                       {doc.fileSize ? <span>· {fmtBytes(doc.fileSize)}</span> : null}
                       {doc.verifiedAt && (
-                        <span className="text-success font-medium">{tUi("ui.docs.verified")}</span>
+                        <span className="text-success font-medium inline-flex items-center gap-1"><Icon name="checkCircle" size={13} />{tUi("ui.docs.verified")}</span>
                       )}
                     </div>
                   </div>

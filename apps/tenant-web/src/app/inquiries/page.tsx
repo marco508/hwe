@@ -17,6 +17,8 @@ import {
   toast,
   useAsync,
   useLoginRedirect,
+  Icon,
+  type IconName,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
@@ -30,11 +32,11 @@ const STATUS_TONE: Record<InquiryStatus, "neutral" | "success" | "danger" | "acc
   CANCELLED: "neutral",
 };
 
-const STATUS_ICONS: Record<InquiryStatus, string> = {
-  PENDING: "⏳",
-  ACCEPTED: "🎉",
-  REJECTED: "❌",
-  CANCELLED: "🚫",
+const STATUS_ICONS: Record<InquiryStatus, IconName> = {
+  PENDING: "hourglass",
+  ACCEPTED: "party",
+  REJECTED: "xCircle",
+  CANCELLED: "ban",
 };
 
 // Encadré de statut, lisible en clair comme en sombre (U1).
@@ -51,12 +53,12 @@ const STATUS_BOX: Record<InquiryStatus, string> = {
 const chatHref = (i: Inquiry) =>
   i.conversationId ? `/messages?c=${encodeURIComponent(i.conversationId)}` : "/messages";
 
-const TABS: { key: InquiryStatus | "ALL"; emoji: string }[] = [
-  { key: "ALL",       emoji: "📋" },
-  { key: "PENDING",   emoji: "⏳" },
-  { key: "ACCEPTED",  emoji: "🏠" },
-  { key: "REJECTED",  emoji: "❌" },
-  { key: "CANCELLED", emoji: "🚫" },
+const TABS: { key: InquiryStatus | "ALL"; icon: IconName }[] = [
+  { key: "ALL",       icon: "layers" },
+  { key: "PENDING",   icon: "hourglass" },
+  { key: "ACCEPTED",  icon: "home" },
+  { key: "REJECTED",  icon: "xCircle" },
+  { key: "CANCELLED", icon: "ban" },
 ];
 
 type Me = { firstName?: string; lastName?: string; avatarUrl?: string | null } | null;
@@ -185,7 +187,7 @@ function InquiryDetailModal({
             aria-label={t("fix.close")}
             className="text-ink-muted hover:text-ink text-xl leading-none mt-1 shrink-0 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            ✕
+            <Icon name="x" size={18} strokeWidth={2.2} />
           </button>
         </div>
 
@@ -216,7 +218,7 @@ function InquiryDetailModal({
           {/* Rental wishes */}
           {(inquiry.desiredStartDate || inquiry.leaseDuration) && (
             <div className="p-3 rounded-lg bg-cream-100 dark:bg-white/5 border border-border text-sm space-y-1">
-              <div className="font-semibold text-ink mb-2">📅 {t("com.inq.wishes")}</div>
+              <div className="font-semibold text-ink mb-2 flex items-center gap-1.5"><Icon name="calendar" size={16} /> {t("com.inq.wishes")}</div>
               {inquiry.desiredStartDate && (
                 <div className="flex justify-between">
                   <span className="text-ink-muted">{t("com.inq.startWanted")}</span>
@@ -246,7 +248,7 @@ function InquiryDetailModal({
 
           {/* Status message */}
           <div className={`rounded-lg px-4 py-3 text-sm flex items-start gap-2 ${STATUS_BOX[inquiry.status]}`}>
-            <span className="text-base shrink-0">{STATUS_ICONS[inquiry.status]}</span>
+            <Icon name={STATUS_ICONS[inquiry.status]} size={18} className="mt-px" />
             <span>{t("com.statusMsg." + inquiry.status)}</span>
           </div>
 
@@ -273,7 +275,7 @@ function InquiryDetailModal({
                 {t("com.inq.acceptedNote", { email: inquiry.contactEmail ?? "" })}
               </div>
               <Link href={chatHref(inquiry)}>
-                <Button size="sm" variant="gradient">💬 {t("com.chat")}</Button>
+                <Button size="sm" variant="gradient"><Icon name="message" size={15} className="mr-1.5" />{t("com.chat")}</Button>
               </Link>
             </div>
           )}
@@ -346,7 +348,7 @@ function InquiryCard({
         )}
 
         <div className={`rounded-lg px-4 py-3 text-sm flex items-start gap-2 mb-3 ${STATUS_BOX[i.status]}`}>
-          <span className="text-base shrink-0">{STATUS_ICONS[i.status]}</span>
+          <Icon name={STATUS_ICONS[i.status]} size={18} className="mt-px" />
           <span>{t("com.statusMsg." + i.status)}</span>
         </div>
 
@@ -358,11 +360,11 @@ function InquiryCard({
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Button size="sm" variant="secondary" onClick={() => onViewDetails(i)}>
-              🔍 {t("com.details")}
+              <Icon name="eye" size={15} className="mr-1.5" />{t("com.details")}
             </Button>
             <Link href={chatHref(i)}>
               <Button size="sm" variant="gradient">
-                💬 {t("com.chat")}
+                <Icon name="message" size={15} className="mr-1.5" />{t("com.chat")}
               </Button>
             </Link>
             {i.status === "PENDING" && (
@@ -437,7 +439,7 @@ export default function SentInquiriesPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
-        {TABS.map(({ key, emoji }) => {
+        {TABS.map(({ key, icon }) => {
           const count = countByStatus(key);
           if (key !== "ALL" && count === 0) return null;
           const isActive = activeTab === key;
@@ -453,7 +455,7 @@ export default function SentInquiriesPage() {
                   : "border-transparent text-ink-muted hover:text-ink hover:border-border"
               }`}
             >
-              <span>{emoji}</span>
+              <Icon name={icon} size={15} />
               <span>{t("com.tab." + key)}</span>
               <span className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
                 isActive ? "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300" : "bg-cream-100 dark:bg-white/5 text-ink-muted"
@@ -468,11 +470,18 @@ export default function SentInquiriesPage() {
       {/* Content */}
       {items.length === 0 ? (
         <EmptyState
+          illustration="inbox"
           title={t("com.inq.emptyTitle")}
           description={t("com.inq.emptyDesc")}
+          action={
+            <Link href="/" className="inline-flex items-center h-10 px-5 rounded-full bg-brand-600 text-white hover:text-white text-sm font-medium hover:bg-brand-700">
+              {t("vis.browse")}
+            </Link>
+          }
         />
       ) : visibleItems.length === 0 ? (
         <EmptyState
+          illustration="search"
           title={t("com.inq.emptyTabTitle")}
           description={t("com.inq.emptyTabDesc")}
         />

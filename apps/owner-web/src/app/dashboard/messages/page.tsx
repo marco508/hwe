@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MessagesView } from "@hwe/ui";
 import { t } from "../../../lib/i18n";
@@ -33,6 +34,11 @@ function MessagesPageInner() {
       title1={t("com.msgTitle1")}
       title2={t("com.msgTitle2")}
       subtitle={t("com.msgSub")}
+      emptyAction={
+        <Link href="/dashboard/inquiries" className="inline-flex items-center h-9 px-4 rounded-full bg-brand-600 text-white hover:text-white text-sm font-medium hover:bg-brand-700">
+          {t("vis.seeInquiries")}
+        </Link>
+      }
       emptyText={t("com.noConversations")}
       tabTitle={t("com.msgTabTitle")}
     />

@@ -27,6 +27,8 @@ import {
   errorText as errorTextOf,
   useAsync,
   useLoginRedirect,
+  IconBadge,
+  type IconName,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
@@ -67,14 +69,14 @@ const STATUS_DOT: Record<RentStatus, string> = {
 };
 
 /** Devine une icône selon le libellé du moyen de paiement. */
-function methodIcon(label: string) {
+function methodIcon(label: string): IconName {
   const l = label.toLowerCase();
-  if (/(iban|virement|sepa|banque|bank)/.test(l)) return "🏦";
-  if (/(momo|mobile|orange|mtn|wave|moov|m-pesa)/.test(l)) return "📱";
-  if (/(paypal|lydia|revolut|wise|paylib)/.test(l)) return "💳";
-  if (/(espèce|especes|cash|liquide)/.test(l)) return "💶";
-  if (/(chèque|cheque)/.test(l)) return "🖋️";
-  return "💰";
+  if (/(iban|virement|sepa|banque|bank)/.test(l)) return "landmark";
+  if (/(momo|mobile|orange|mtn|wave|moov|m-pesa)/.test(l)) return "smartphone";
+  if (/(paypal|lydia|revolut|wise|paylib)/.test(l)) return "creditCard";
+  if (/(espèce|especes|cash|liquide)/.test(l)) return "banknote";
+  if (/(chèque|cheque)/.test(l)) return "pen";
+  return "wallet";
 }
 
 // ── Squelette de chargement ─────────────────────────────────────────────────
@@ -155,7 +157,7 @@ function PaymentMethods({ methods }: { methods: OwnerPaymentMethod[] }) {
           className="group rounded-xl border border-border bg-surface p-4 hover:shadow-card transition-shadow"
         >
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg" aria-hidden="true">{methodIcon(m.label)}</span>
+            <IconBadge name={methodIcon(m.label)} size="sm" />
             <p className="text-sm font-semibold text-ink min-w-0 [overflow-wrap:anywhere]">{m.label}</p>
           </div>
           <div className="flex items-center justify-between gap-2 rounded-lg bg-cream-100 dark:bg-white/[0.05] px-3 py-2">
@@ -491,9 +493,10 @@ export default function MesLoyersPage() {
 
       {bundles.length === 0 ? (
         <EmptyState
+          illustration="wallet"
           title={t("rent.empty.title")}
           description={t("rent.empty.desc")}
-          action={<Link href="/" className="text-sm">{t("rent.empty.cta")}</Link>}
+          action={<Link href="/" className="inline-flex items-center h-10 px-5 rounded-full bg-brand-600 text-white hover:text-white text-sm font-medium hover:bg-brand-700">{t("rent.empty.cta")}</Link>}
         />
       ) : (
         <>

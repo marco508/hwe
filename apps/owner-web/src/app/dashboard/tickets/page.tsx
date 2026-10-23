@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Badge, Button, Input, EmptyState, ErrorState, SafeImage, toast, fmtDate as fmtDateShared, useAsync } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -154,8 +155,14 @@ export default function TicketsPage() {
 
       {shown.length === 0 ? (
         <EmptyState
+          illustration="tools"
           title={t("ops.tickets.emptyTitle")}
           description={t("ops.emptyDesc")}
+          action={
+            <Link href="/dashboard" className="text-sm font-medium">
+              {t("vis.backDashboard")}
+            </Link>
+          }
         />
       ) : (
         <div className="space-y-4">

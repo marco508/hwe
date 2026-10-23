@@ -12,6 +12,7 @@ import {
   openDataUrl,
   fmtMoney,
   fmtDate as fmtDateShared,
+  Icon,
 } from "@hwe/ui";
 import { leaseCurrency } from "@hwe/types";
 import { api } from "../lib/api";
@@ -254,7 +255,7 @@ function InspectionEditor({
                 className="text-ink-muted hover:text-red-500 px-2 h-10"
                 onClick={() => setItems((arr) => arr.filter((_, j) => j !== i))}
               >
-                ✕
+                <Icon name="x" size={14} strokeWidth={2.2} />
               </button>
             </div>
           ))}
@@ -350,10 +351,10 @@ function InspectionRow({
               : t("lease.inspection.line")}
           </span>
           <span title={t("lease.owner")}>
-            {inspection.ownerSignedAt ? "✅" : "⏳"} {t("lease.inspection.ownerAbbr")}
+            <Icon name={inspection.ownerSignedAt ? "checkCircle" : "hourglass"} size={14} className={inspection.ownerSignedAt ? "text-success" : "text-ink-subtle"} /> {t("lease.inspection.ownerAbbr")}
           </span>
           <span title={t("lease.tenant")}>
-            {inspection.tenantSignedAt ? "✅" : "⏳"} {t("lease.inspection.tenantAbbr")}
+            <Icon name={inspection.tenantSignedAt ? "checkCircle" : "hourglass"} size={14} className={inspection.tenantSignedAt ? "text-success" : "text-ink-subtle"} /> {t("lease.inspection.tenantAbbr")}
           </span>
           {locked && <Badge tone="success">{t("lease.inspection.locked")}</Badge>}
           {!inspection.ownerSignedAt && (
@@ -529,7 +530,7 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
         <ul className="space-y-1">
           {coTenants.map((c) => (
             <li key={c.id} className="flex flex-wrap items-center gap-2">
-              <span aria-hidden="true">{c.signedAt ? "✅" : "⏳"}</span>
+              <Icon name={c.signedAt ? "checkCircle" : "hourglass"} size={14} className={c.signedAt ? "text-success" : "text-ink-subtle"} />
               <span className="font-medium [overflow-wrap:anywhere]">{c.firstName} {c.lastName}</span>
               <span className="text-ink-muted [overflow-wrap:anywhere]">{c.email}</span>
               {!c.signedAt && (
@@ -539,7 +540,7 @@ function CoTenantsBlock({ propertyId, lease }: { propertyId: string; lease: Leas
                   aria-label={t("lease.coTenant.removeAria", { name: `${c.firstName} ${c.lastName}` })}
                   onClick={() => remove(c.id)}
                 >
-                  ✕
+                  <Icon name="x" size={14} strokeWidth={2.2} />
                 </button>
               )}
             </li>

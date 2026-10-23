@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { tUi } from "./I18nKit";
+import { Icon } from "./Icon";
 import { errorText, isApiError } from "../client/errors";
 import { commonApi } from "../client/common-api";
 import { useOptionalAuth } from "../client/auth";
@@ -35,8 +36,8 @@ export function ErrorState({
       )}
     >
       {!compact && (
-        <div className="text-3xl mb-2" aria-hidden="true">
-          ⚠️
+        <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-accent-50 text-accent-600 dark:bg-accent-700/20 dark:text-accent-300" aria-hidden="true">
+          <Icon name="alert" size={24} />
         </div>
       )}
       <div className="font-medium text-ink">{title ?? tUi("ui.err.loadTitle")}</div>
@@ -101,8 +102,8 @@ export function EmailVerifyNotice({ className, text }: { className?: string; tex
       )}
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl leading-none" aria-hidden="true">
-          ✉️
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300 shrink-0" aria-hidden="true">
+          <Icon name="mail" size={18} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="font-medium text-ink">{tUi("ui.verify.title")}</div>
@@ -204,8 +205,8 @@ export function NotFoundView({ homeHref = "/" }: { homeHref?: string }) {
 export function ErrorView({ onRetry, homeHref = "/" }: { onRetry?: () => void; homeHref?: string }) {
   return (
     <div role="alert" className="max-w-lg mx-auto text-center py-20 px-4">
-      <div className="text-5xl mb-4" aria-hidden="true">
-        ⚠️
+      <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-accent-50 text-accent-600 dark:bg-accent-700/20 dark:text-accent-300" aria-hidden="true">
+        <Icon name="alert" size={30} />
       </div>
       <h1 className="display-serif text-3xl text-ink">{tUi("ui.error.title")}</h1>
       <p className="text-ink-muted mt-3">{tUi("ui.error.text")}</p>

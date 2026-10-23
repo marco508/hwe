@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Badge, Button, EmptyState, ErrorState, IlloVisit, intlLocale, toast, useAsync, useLoginRedirect } from "@hwe/ui";
+import { Badge, Button, EmptyState, ErrorState, intlLocale, toast, useAsync, useLoginRedirect } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
@@ -63,18 +63,16 @@ export default function MesVisitesPage() {
       </p>
 
       {visits.length === 0 ? (
-        <div className="text-center">
-        <IlloVisit className="mx-auto w-48 mb-2" />
         <EmptyState
+          illustration="calendar"
           title={t("com.visits.emptyTitle")}
           description={t("com.visits.emptyDesc")}
           action={
-            <Link href="/" className="text-sm">
+            <Link href="/" className="inline-flex items-center h-10 px-5 rounded-full bg-brand-600 text-white hover:text-white text-sm font-medium hover:bg-brand-700">
               {t("com.visits.browse")}
             </Link>
           }
         />
-        </div>
       ) : (
         <div className="space-y-4">
           {visits.map((v) => (

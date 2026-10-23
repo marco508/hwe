@@ -17,7 +17,7 @@ import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { ActionCenter } from "../../components/ActionCenter";
 import { t } from "../../lib/i18n";
-import { IlloManage } from "@hwe/ui";
+import { IlloManage, Icon, IconBadge, type IconName } from "@hwe/ui";
 import type { Property } from "@hwe/types";
 
 // Lien stylé en bouton (évite <button> dans <a>, HTML invalide — M3).
@@ -122,18 +122,18 @@ export default function DashboardPage() {
             href="/dashboard/new"
             className="inline-flex items-center justify-center h-12 px-6 rounded-md text-base font-medium text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md hover:shadow-glow"
           >
-            <span className="mr-1" aria-hidden="true">＋</span> {t("dash.add")}
+            <Icon name="plus" size={18} strokeWidth={2.2} className="mr-1.5" /> {t("dash.add")}
           </Link>
         </div>
 
         {/* Mini stats */}
         {totalCount > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 stagger">
-            <StatCard icon="🏠" value={totalCount} label={t("dash.stat.published")} />
-            <StatCard icon="🔑" value={rentCount} label={t("dash.stat.rent")} />
-            <StatCard icon="🏷️" value={saleCount} label={t("dash.stat.sale")} />
+            <StatCard icon="home" value={totalCount} label={t("dash.stat.published")} />
+            <StatCard icon="key" value={rentCount} label={t("dash.stat.rent")} />
+            <StatCard icon="tag" value={saleCount} label={t("dash.stat.sale")} />
             <StatCard
-              icon="💶"
+              icon="wallet"
               value={avgPrice ? format(avgPrice, userCurrency) : "—"}
               title={t("dash.avgNote")}
               label={t("dash.stat.avg")}
@@ -146,6 +146,7 @@ export default function DashboardPage() {
 
       {items.length === 0 ? (
         <EmptyState
+          illustration="home"
           title={t("acc.dash.emptyTitle")}
           description={t("acc.dash.emptySub")}
           action={
@@ -194,7 +195,7 @@ export default function DashboardPage() {
                     title={t("acc.docs.title")}
                     aria-label={t("acc.docs.title")}
                   >
-                    <span aria-hidden="true">🗂️</span>
+                    <Icon name="folder" size={16} />
                   </Link>
                   {p.listingType === "RENT" && (
                     <Link
@@ -203,7 +204,7 @@ export default function DashboardPage() {
                       title={t("acc.dash.leases")}
                       aria-label={t("acc.dash.leases")}
                     >
-                      <span aria-hidden="true">📋</span>
+                      <Icon name="clipboard" size={16} />
                     </Link>
                   )}
                   <Button
@@ -229,7 +230,7 @@ function StatCard({
   label,
   title,
 }: {
-  icon: string;
+  icon: IconName;
   value: React.ReactNode;
   label: string;
   title?: string;
@@ -237,9 +238,7 @@ function StatCard({
   return (
     <div className="glass rounded-xl px-4 py-3 hover-lift min-w-0" title={title}>
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-2xl" aria-hidden="true">
-          {icon}
-        </span>
+        <IconBadge name={icon} size="sm" />
         <div className="min-w-0">
           <div className="font-display text-lg sm:text-xl leading-tight gradient-text [overflow-wrap:anywhere]">
             {value}

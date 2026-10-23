@@ -1,0 +1,36 @@
+// Textes de la refonte visuelle (photos, états vides, connexion en deux colonnes).
+export const fr: Record<string, string> = {
+  "vis.browse": "Parcourir les annonces",
+  "vis.resetFilters": "Réinitialiser les filtres",
+  "vis.dest.title": "Destinations populaires",
+  "vis.dest.sub": "Une ville, un clic : la recherche se met à jour.",
+  "vis.dest.see": "Voir les biens",
+  "vis.auth.loginTitle": "Votre prochain chez-vous vous attend.",
+  "vis.auth.registerTitle": "Trouvez votre logement, sans agence.",
+  "vis.auth.p1": "Contact direct avec les propriétaires, sans frais d'agence",
+  "vis.auth.p2": "Dossier, bail et quittances réunis dans votre espace",
+  "vis.auth.p3": "Des biens en France et en Afrique francophone",
+  "vis.owner.by": "Proposé par",
+  "vis.owner.private": "Particulier · sans agence",
+  "vis.owner.contact": "Contacter",
+  "vis.owner.member": "Propriétaire hwe",
+  "vis.alt.none": "Aucune photo pour ce bien : photo d'illustration",
+};
+
+export const en: Record<string, string> = {
+  "vis.browse": "Browse listings",
+  "vis.resetFilters": "Reset filters",
+  "vis.dest.title": "Popular destinations",
+  "vis.dest.sub": "One city, one click: the search updates instantly.",
+  "vis.dest.see": "See homes",
+  "vis.auth.loginTitle": "Your next home is waiting.",
+  "vis.auth.registerTitle": "Find your home, no agency.",
+  "vis.auth.p1": "Direct contact with landlords, no agency fees",
+  "vis.auth.p2": "Application, lease and receipts in one place",
+  "vis.auth.p3": "Homes in France and French-speaking Africa",
+  "vis.owner.by": "Listed by",
+  "vis.owner.private": "Private owner · no agency",
+  "vis.owner.contact": "Contact",
+  "vis.owner.member": "hwe owner",
+  "vis.alt.none": "No photo for this property: illustrative photo",
+};

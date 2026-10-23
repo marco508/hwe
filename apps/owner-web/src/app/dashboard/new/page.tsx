@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AnimatedBackground, EmailVerifyNotice, toast } from "@hwe/ui";
+import { AnimatedBackground, EmailVerifyNotice, toast, Icon, type IconName } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -87,10 +87,10 @@ export default function NewPropertyPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-sm w-full">
-            <TipCard icon="📸" text={t("pf.new.tip1")} />
-            <TipCard icon="📍" text={t("pf.new.tip2")} />
-            <TipCard icon="💶" text={t("pf.new.tip3")} />
-            <TipCard icon="📝" text={t("pf.new.tip4")} />
+            <TipCard icon="camera" text={t("pf.new.tip1")} />
+            <TipCard icon="mapPin" text={t("pf.new.tip2")} />
+            <TipCard icon="euro" text={t("pf.new.tip3")} />
+            <TipCard icon="pen" text={t("pf.new.tip4")} />
           </div>
         </div>
       </AnimatedBackground>
@@ -105,10 +105,10 @@ export default function NewPropertyPage() {
   );
 }
 
-function TipCard({ icon, text }: { icon: string; text: string }) {
+function TipCard({ icon, text }: { icon: IconName; text: string }) {
   return (
     <div className="glass rounded-xl px-3 py-2.5 flex items-center gap-2 text-xs">
-      <span className="text-base leading-none shrink-0" aria-hidden="true">{icon}</span>
+      <Icon name={icon} size={16} className="text-brand-600 dark:text-brand-300" />
       <span className="text-ink-muted leading-tight">{text}</span>
     </div>
   );

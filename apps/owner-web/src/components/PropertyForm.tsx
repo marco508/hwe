@@ -11,6 +11,9 @@ import {
   CardBody,
   CardHeader,
   countryLabel,
+  Icon,
+  IconBadge,
+  type IconName,
 } from "@hwe/ui";
 import type {
   Property,
@@ -468,7 +471,7 @@ export function PropertyForm({
                 }))
               }
               title={t("pf.sale")}
-              icon="🏷️"
+              icon="tag"
               desc={t("pf.sale.desc")}
               tone="accent"
             />
@@ -487,7 +490,7 @@ export function PropertyForm({
                 }))
               }
               title={t("pf.rent")}
-              icon="🔑"
+              icon="key"
               desc={t("pf.rent.desc")}
               tone="brand"
             />
@@ -764,7 +767,7 @@ export function PropertyForm({
         <Card>
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">🏷️</span> {t("pf.saleInfo.title")}
+              <Icon name="tag" size={18} className="text-accent-500" /> {t("pf.saleInfo.title")}
             </h2>
             <p className="text-sm text-ink-muted mt-1">
               {t("pf.saleInfo.sub")}
@@ -891,7 +894,7 @@ export function PropertyForm({
         <Card>
           <CardHeader>
             <h2 className="font-display text-lg flex items-center gap-2">
-              <span aria-hidden="true">🔑</span> {t("pf.rentInfo.title")}
+              <Icon name="key" size={18} className="text-brand-600 dark:text-brand-300" /> {t("pf.rentInfo.title")}
             </h2>
             <p className="text-sm text-ink-muted mt-1">
               {t("pf.rentInfo.sub")}
@@ -1181,13 +1184,13 @@ export function PropertyForm({
                   val: "DRAFT",
                   title: t("pf.status.draft"),
                   desc: t("pf.status.draftDesc"),
-                  icon: "📝",
+                  icon: "pen" as IconName,
                 },
                 {
                   val: "PUBLISHED",
                   title: t("pf.status.published"),
                   desc: t("pf.status.publishedDesc"),
-                  icon: "🌍",
+                  icon: "globe" as IconName,
                 },
               ] as const
             ).map((opt) => {
@@ -1205,9 +1208,7 @@ export function PropertyForm({
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="text-2xl" aria-hidden="true">
-                      {opt.icon}
-                    </span>
+                    <IconBadge name={opt.icon} size="sm" />
                     <div>
                       <div className="font-medium text-ink">{opt.title}</div>
                       <div className="text-xs text-ink-muted mt-0.5">
@@ -1258,7 +1259,7 @@ function ListingTypeChoice({
   active: boolean;
   onClick: () => void;
   title: string;
-  icon: string;
+  icon: IconName;
   desc: string;
   tone: "brand" | "accent";
 }) {
@@ -1276,9 +1277,7 @@ function ListingTypeChoice({
       }`}
     >
       <div className="flex items-start gap-3">
-        <span className="text-3xl shrink-0" aria-hidden="true">
-          {icon}
-        </span>
+        <IconBadge name={icon} size="lg" tone={tone === "accent" ? "accent" : "brand"} />
         <div>
           <div className="font-display text-xl text-ink">{title}</div>
           <div className="text-xs text-ink-muted mt-1">{desc}</div>
@@ -1290,7 +1289,7 @@ function ListingTypeChoice({
             }`}
             aria-hidden="true"
           >
-            ✓
+            <Icon name="check" size={14} strokeWidth={2.6} />
           </span>
         )}
       </div>

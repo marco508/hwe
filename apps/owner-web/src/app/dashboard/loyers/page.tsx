@@ -18,6 +18,9 @@ import {
   CardBody,
   EmptyState,
   Input,
+  Icon,
+  IconBadge,
+  type IconName,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -79,11 +82,11 @@ function LoadingSkeleton() {
   );
 }
 
-function StatCard({ icon, value, label, highlight }: { icon: string; value: React.ReactNode; label: string; highlight?: boolean }) {
+function StatCard({ icon, value, label, highlight }: { icon: IconName; value: React.ReactNode; label: string; highlight?: boolean }) {
   return (
     <div className={"glass rounded-xl px-4 py-3 hover-lift min-w-0" + (highlight ? " ring-2 ring-brand-500/40" : "")}>
       <div className="flex items-center gap-3 min-w-0">
-        <span className="text-2xl" aria-hidden="true">{icon}</span>
+        <IconBadge name={icon} size="sm" />
         <div className="min-w-0">
           <div className="font-display text-xl leading-tight gradient-text [overflow-wrap:anywhere]">{value}</div>
           <div className="text-[11px] text-ink-muted mt-0.5">{label}</div>
@@ -213,7 +216,7 @@ function PeriodCard({
                     alt={t("rent.proofAlt")}
                     className="mt-2 max-h-96 max-w-full rounded-lg border border-border shadow-card"
                     fallbackClassName="mt-2 h-24 w-40 rounded-lg border border-border"
-                    fallback={<span className="text-2xl">📄</span>}
+                    fallback={<Icon name="file" size={28} className="text-brand-600" />}
                   />
                 )}
               </div>
@@ -340,10 +343,10 @@ export default function LoyersPage() {
 
         {periods.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 stagger">
-            <StatCard icon="🔍" value={counts.declared} label={t("rent.stat.declared")} highlight={counts.declared > 0} />
-            <StatCard icon="⏰" value={counts.late} label={t("rent.stat.late")} />
-            <StatCard icon="✅" value={counts.collectedMonth} label={t("rent.stat.collected")} />
-            <StatCard icon="📆" value={counts.expectedMonth} label={t("rent.stat.expected")} />
+            <StatCard icon="search" value={counts.declared} label={t("rent.stat.declared")} highlight={counts.declared > 0} />
+            <StatCard icon="alarm" value={counts.late} label={t("rent.stat.late")} />
+            <StatCard icon="checkCircle" value={counts.collectedMonth} label={t("rent.stat.collected")} />
+            <StatCard icon="calendar" value={counts.expectedMonth} label={t("rent.stat.expected")} />
           </div>
         )}
       </AnimatedBackground>
@@ -384,6 +387,14 @@ export default function LoyersPage() {
 
       {shown.length === 0 ? (
         <EmptyState
+          illustration="wallet"
+          action={
+            periods.length === 0 ? (
+              <Link href="/dashboard" className="text-sm font-medium">
+                {t("vis.seeLeases")}
+              </Link>
+            ) : undefined
+          }
           title={filter === "DECLARED" ? t("rent.empty.nothingToVerify") : t("rent.empty.nothingToShow")}
           description={
             periods.length === 0

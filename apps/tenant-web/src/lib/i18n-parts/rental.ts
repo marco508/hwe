@@ -36,23 +36,23 @@ export const fr: Record<string, string> = {
   "rental.countdown.sec": "sec",
   "rental.progress.elapsedPct": "{pct}% écoulé",
   "rental.progress.days": "{elapsed} jour{sElapsed} écoulé{sElapsed} sur {total}",
-  "rental.timer.title": "⏱ Location à durée limitée",
+  "rental.timer.title": "Location à durée limitée",
 
   // ── Carte de bail ──
   "rental.lease.propertyFallback": "Bien",
-  "rental.draft.title": "📋 Bail généré, en attente de signature.",
+  "rental.draft.title": "Bail généré, en attente de signature.",
   "rental.draft.text": "Consultez le contrat ci-dessous et signez-le électroniquement.",
 
   // ── Contrat + signature ──
   "rental.contract.title": "Contrat de bail",
   "rental.contract.hide": "▲ Masquer le contrat",
   "rental.contract.read": "▼ Lire le contrat",
-  "rental.contract.pdf": "📄 Télécharger PDF",
+  "rental.contract.pdf": "Télécharger PDF",
   "rental.sign.owner": "Propriétaire :",
   "rental.sign.tenant": "Locataire :",
   "rental.sign.signedOn": "signé le {date}",
   "rental.sign.pending": "en attente",
-  "rental.sign.cta": "✍️ Signer le bail électroniquement",
+  "rental.sign.cta": "Signer le bail électroniquement",
   "rental.sign.busy": "Signature en cours…",
   "rental.sign.button": "Signer",
   "rental.sign.confirm":
@@ -60,7 +60,7 @@ export const fr: Record<string, string> = {
   "rental.sign.error": "Erreur lors de la signature : {message}",
 
   // ── Accès aux loyers ──
-  "rental.rentsLink.title": "💶 Mes loyers et quittances",
+  "rental.rentsLink.title": "Mes loyers et quittances",
   "rental.rentsLink.text": "Payer, déclarer un versement et télécharger vos quittances",
 
   // ── Sections ──
@@ -117,8 +117,8 @@ export const fr: Record<string, string> = {
   "rental.inspection.youShort": "vous",
   "rental.inspection.detail": "Détail",
   "rental.inspection.hide": "Masquer",
-  "rental.inspection.keys.one": "🔑 {n} clé",
-  "rental.inspection.keys.other": "🔑 {n} clés",
+  "rental.inspection.keys.one": "{n} clé",
+  "rental.inspection.keys.other": "{n} clés",
   "rental.inspection.signConfirm":
     "Vous signez électroniquement cet état des lieux. Confirmez-vous ?",
   "rental.inspection.empty":
@@ -228,23 +228,23 @@ export const en: Record<string, string> = {
   "rental.countdown.sec": "sec",
   "rental.progress.elapsedPct": "{pct}% elapsed",
   "rental.progress.days": "{elapsed} of {total} days elapsed",
-  "rental.timer.title": "⏱ Fixed-term rental",
+  "rental.timer.title": "Fixed-term rental",
 
   // ── Lease card ──
   "rental.lease.propertyFallback": "Property",
-  "rental.draft.title": "📋 Lease generated, awaiting signature.",
+  "rental.draft.title": "Lease generated, awaiting signature.",
   "rental.draft.text": "Read the contract below and sign it electronically.",
 
   // ── Contract + signature ──
   "rental.contract.title": "Lease agreement",
   "rental.contract.hide": "▲ Hide the contract",
   "rental.contract.read": "▼ Read the contract",
-  "rental.contract.pdf": "📄 Download PDF",
+  "rental.contract.pdf": "Download PDF",
   "rental.sign.owner": "Landlord:",
   "rental.sign.tenant": "Tenant:",
   "rental.sign.signedOn": "signed on {date}",
   "rental.sign.pending": "pending",
-  "rental.sign.cta": "✍️ Sign the lease electronically",
+  "rental.sign.cta": "Sign the lease electronically",
   "rental.sign.busy": "Signing…",
   "rental.sign.button": "Sign",
   "rental.sign.confirm":
@@ -252,7 +252,7 @@ export const en: Record<string, string> = {
   "rental.sign.error": "Signature failed: {message}",
 
   // ── Rent shortcut ──
-  "rental.rentsLink.title": "💶 My rent and receipts",
+  "rental.rentsLink.title": "My rent and receipts",
   "rental.rentsLink.text": "Pay, declare a payment and download your receipts",
 
   // ── Sections ──
@@ -309,8 +309,8 @@ export const en: Record<string, string> = {
   "rental.inspection.youShort": "you",
   "rental.inspection.detail": "Details",
   "rental.inspection.hide": "Hide",
-  "rental.inspection.keys.one": "🔑 {n} key",
-  "rental.inspection.keys.other": "🔑 {n} keys",
+  "rental.inspection.keys.one": "{n} key",
+  "rental.inspection.keys.other": "{n} keys",
   "rental.inspection.signConfirm":
     "You are electronically signing this inspection report. Do you confirm?",
   "rental.inspection.empty":

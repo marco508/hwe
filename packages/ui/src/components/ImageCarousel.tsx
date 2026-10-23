@@ -21,6 +21,10 @@ export interface ImageCarouselProps {
   autoPlayMs?: number;
   /** Fallback content when there are no images. */
   fallback?: React.ReactNode;
+  /** Visuel de repli plein cadre (photo d'illustration) : prioritaire sur `fallback`. */
+  placeholder?: React.ReactNode;
+  /** Charge la première image immédiatement (au-dessus de la ligne de flottaison). */
+  eager?: boolean;
 }
 
 /**
@@ -37,6 +41,8 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   rounded = "",
   autoPlayMs = 0,
   fallback,
+  placeholder,
+  eager = false,
 }) => {
   const [index, setIndex] = React.useState(0);
   const [paused, setPaused] = React.useState(false);
@@ -76,6 +82,10 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     }
     startX.current = null;
   };
+
+  if (total === 0 && placeholder) {
+    return <div className={cn("relative w-full overflow-hidden", aspectClassName, rounded, className)}>{placeholder}</div>;
+  }
 
   if (total === 0) {
     return (
@@ -119,7 +129,11 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
         {images.map((img, i) =>
-          broken[img.url] || !img.url ? (
+          (broken[img.url] || !img.url) && placeholder ? (
+            <div key={i} className="relative w-full h-full shrink-0">
+              {placeholder}
+            </div>
+          ) : broken[img.url] || !img.url ? (
             <div
               key={i}
               role="img"
@@ -135,7 +149,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               key={i}
               src={img.url}
               alt={img.alt ?? ""}
-              loading={i === 0 ? "eager" : "lazy"}
+              loading={i === 0 && eager ? "eager" : "lazy"}
               decoding="async"
               className="w-full h-full shrink-0 object-cover"
               draggable={false}

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { tUi } from "./I18nKit";
+import { Icon } from "./Icon";
 import { toast } from "./Toast";
 import { SafeImage } from "./SafeImage";
 import { compressImage, dataUrlBytes, IMAGE_ACCEPT, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES } from "../client/files";
@@ -69,7 +70,7 @@ export function AvatarUploader({ value, onChange, firstName, lastName }: AvatarU
           fallback={initials}
         />
         <span className="absolute inset-x-0 bottom-0 bg-black/45 text-white text-[10px] font-medium text-center py-1">
-          📷
+          <Icon name="camera" size={12} />
         </span>
         <input
           id={`${uid}-avatar`}

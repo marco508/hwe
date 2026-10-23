@@ -8,6 +8,7 @@ import {
   ALL_COUNTRIES_CODE,
 } from "./LocationContext";
 import { tUi, countryLabel } from "./I18nKit";
+import { Icon } from "./Icon";
 
 export interface CountryPickerProps {
   citiesByCountry?: Record<string, string[]>;
@@ -186,7 +187,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                         : "text-ink-muted hover:bg-cream-100 dark:hover:bg-white/[0.04] hover:text-ink",
                     )}
                   >
-                    <span aria-hidden="true" className="text-xl leading-none shrink-0">🌍</span>
+                    <Icon name="globe" size={20} className="text-brand-600 dark:text-brand-300" />
                     <span className="flex-1 text-left">{tUi("ui.allCountries")}</span>
                     {totalCount > 0 && (
                       <span className="text-[11px] text-ink-subtle whitespace-nowrap">
@@ -283,7 +284,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                       : "text-ink-muted hover:bg-cream-100 dark:hover:bg-white/[0.04] hover:text-ink",
                   )}
                 >
-                  <span aria-hidden="true">🌍</span>
+                  <Icon name="globe" size={16} className="text-brand-600 dark:text-brand-300" />
                   <span className="flex-1 text-left">
                     {tUi("ui.wholeCountry", { name: label(country.code, country.name) })}
                   </span>
@@ -310,7 +311,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                           : "text-ink-muted hover:bg-cream-100 dark:hover:bg-white/[0.04] hover:text-ink",
                       )}
                     >
-                      <span aria-hidden="true">📍</span>
+                      <Icon name="mapPin" size={16} className="text-ink-subtle" />
                       <span className="flex-1 min-w-0 text-left [overflow-wrap:anywhere]">{c}</span>
                       {active && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

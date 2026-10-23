@@ -5,7 +5,6 @@ import {
   PropertyCard,
   SearchComposer,
   CategoryRail,
-  StepsRail,
   SectionHeading,
   RevealOnScroll,
   CountryPicker,
@@ -13,9 +12,13 @@ import {
   SUPPORTED_COUNTRIES,
   ALL_COUNTRIES_CODE,
   useCurrency,
-  IlloSkyline,
   IlloSearchHome,
-  SafeImage,
+  Photo,
+  CityCard,
+  Icon,
+  FEATURED_CITIES,
+  type IconName,
+  type PhotoId,
   ErrorState,
   toast,
   tUi,
@@ -49,11 +52,20 @@ function buildCategories(): CategoryRailItem[] {
   ];
 }
 
-function buildSteps() {
+function buildSteps(): { title: string; description: string; photo: PhotoId; icon: IconName }[] {
   return [
-    { title: t("steps.1.title"), description: t("steps.1.desc") },
-    { title: t("steps.2.title"), description: t("steps.2.desc") },
-    { title: t("steps.3.title"), description: t("steps.3.desc") },
+    { title: t("steps.1.title"), description: t("steps.1.desc"), photo: "steps/search", icon: "search" },
+    { title: t("steps.2.title"), description: t("steps.2.desc"), photo: "steps/visit", icon: "calendarCheck" },
+    { title: t("steps.3.title"), description: t("steps.3.desc"), photo: "steps/sign", icon: "pen" },
+    { title: t("steps.4.title"), description: t("steps.4.desc"), photo: "steps/move", icon: "key" },
+  ];
+}
+
+function buildBenefits(): { title: string; description: string; photo: PhotoId; icon: IconName }[] {
+  return [
+    { title: t("ben.1.title"), description: t("ben.1.desc"), photo: "people/benefit-1", icon: "handshake" },
+    { title: t("ben.2.title"), description: t("ben.2.desc"), photo: "people/benefit-2", icon: "layers" },
+    { title: t("ben.3.title"), description: t("ben.3.desc"), photo: "people/benefit-3", icon: "shield" },
   ];
 }
 
@@ -113,6 +125,7 @@ function LandingInner() {
   const plural = (n: number) => (lang === "fr" ? (n !== 1 ? "s" : "") : n !== 1 ? "ies" : "y");
   const CATEGORIES = buildCategories();
   const STEPS = buildSteps();
+  const BENEFITS = buildBenefits();
 
   const [category, setCategory] = React.useState<string>("ALL");
   const [listingFilter, setListingFilter] = React.useState<"ALL" | ListingType>("ALL");
@@ -273,9 +286,14 @@ function LandingInner() {
         byCity.set(key, { key, name: p.city, country: code, count: 1, image: firstImage });
       }
     }
-    return Array.from(byCity.values())
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 8);
+    const live = Array.from(byCity.values()).sort((a, b) => b.count - a.count);
+    // Complète avec les villes mises en avant (photo locale) : la section
+    // reste illustrée même quand le catalogue est encore mince.
+    const seen = new Set(live.map((d) => d.name.toLowerCase()));
+    const curated = FEATURED_CITIES.filter(
+      (c) => (isAll || c.country === countryCode) && !seen.has(c.name.toLowerCase()),
+    ).map((c) => ({ key: `${c.country}|${c.name}`, name: c.name, country: c.country, count: 0, image: null as string | null }));
+    return [...live, ...curated].slice(0, 8);
   }, [index, isAll, countryCode]);
 
   // ── Stats globales ─────────────────────────────────────────────────────────
@@ -329,59 +347,86 @@ function LandingInner() {
       )}
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="hero-cinematic pt-12 pb-16 sm:pt-16 sm:pb-20 lg:pt-24 lg:pb-28">
+      <section className="hero-cinematic pt-8 pb-14 sm:pt-12 sm:pb-20 lg:pt-16 lg:pb-24">
         <div className="container-app relative">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="eyebrow inline-flex items-center gap-2 mb-6 max-w-full [overflow-wrap:anywhere]">
-              <span className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inset-0 rounded-full bg-brand-500 pulse-dot" />
-                <span className="relative h-2 w-2 rounded-full bg-brand-500" />
+          <div className="grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] gap-x-12 xl:gap-x-16 gap-y-8 items-center">
+            {/* Accroche */}
+            <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+              <span className="eyebrow inline-flex items-center gap-2 mb-5 max-w-full [overflow-wrap:anywhere]">
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="absolute inset-0 rounded-full bg-brand-500 pulse-dot" />
+                  <span className="relative h-2 w-2 rounded-full bg-brand-500" />
+                </span>
+                {!indexReady && !stats
+                  ? t("hero.loading")
+                  : localCount > 0
+                    ? t("hero.count", { n: localCount, s: plural(localCount), place })
+                    : t("hero.coming", { place })}
               </span>
-              {!indexReady && !stats
-                ? t("hero.loading")
-                : localCount > 0
-                  ? t("hero.count", { n: localCount, s: plural(localCount), place })
-                  : t("hero.coming", { place })}
-            </span>
 
-            <h1 className="display-serif text-[2.5rem] leading-[1.05] sm:text-display-lg lg:text-display-xl text-ink">
-              <span className="block">{t("hero.title1")}</span>
-              {/* Marge basse : background-clip:text coupait les jambages (g, y) avec un interligne serré. */}
-              <span className="block italic gradient-text pb-[0.14em] pr-[0.06em]">{t("hero.title2")}</span>
-            </h1>
+              <h1 className="display-serif text-[2.6rem] leading-[1.04] sm:text-display-md xl:text-display-lg text-ink">
+                <span className="block">{t("hero.title1")}</span>
+                {/* Marge basse : background-clip:text coupait les jambages (g, y) avec un interligne serré. */}
+                <span className="block italic gradient-text pb-[0.14em] pr-[0.06em]">{t("hero.title2")}</span>
+              </h1>
 
-            <p className="text-ink-muted text-lg sm:text-xl max-w-2xl mx-auto mt-8 leading-relaxed [overflow-wrap:anywhere]">
-              {t("hero.sub", { place })}
-            </p>
-
-            <IlloSkyline className="mx-auto mt-8 w-full max-w-xl" />
-          </div>
-
-          <div className="mt-10 max-w-3xl mx-auto">
-            <SearchComposer
-              value={{ location: city ?? (isAll ? "" : cName) }}
-              onSubmit={(v) => {
-                if (v.listing === "RENT" || v.listing === "SALE") setListingFilter(v.listing);
-                else setListingFilter("ALL");
-                const q = v.location.trim().toLowerCase();
-                if (q) {
-                  const pool = isAll ? Object.values(citiesByCountry).flat() : citiesByCountry[countryCode] ?? [];
-                  const match = pool.find((c) => c.toLowerCase() === q || c.toLowerCase().includes(q));
-                  if (match) setCity(match);
-                }
-                goToCatalogue();
-              }}
-            />
-          </div>
-
-          {/* Stats — /properties/stats, repli sur l'index local */}
-          {totalProperties > 0 && (
-            <div className="mt-14 grid grid-cols-3 gap-2 sm:gap-3 max-w-3xl mx-auto">
-              <FloatingStat kicker={t("stats.props")} value={`${totalProperties}`} hint={t("stats.propsHint")} />
-              <FloatingStat kicker={t("stats.cities")} value={`${totalCities}`} hint={t("stats.citiesHint")} />
-              <FloatingStat kicker={t("stats.countries")} value={`${totalCountries}`} hint={t("stats.countriesHint")} />
+              <p className="text-ink-muted text-lg sm:text-xl max-w-xl mt-5 leading-relaxed [overflow-wrap:anywhere]">
+                {t("hero.sub", { place })}
+              </p>
             </div>
-          )}
+
+            {/* Visuel : photo principale + vignette + pastilles */}
+            <div className="relative min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
+              <div className="relative overflow-hidden rounded-[1.75rem] lg:rounded-[2.25rem] ring-1 ring-border/60 shadow-elevated aspect-[16/11] sm:aspect-[16/10] lg:aspect-[4/5] lg:ml-8 bg-brand-900">
+                <Photo
+                  id="hero/hero-main"
+                  priority
+                  sizes="(min-width: 1280px) 560px, (min-width: 1024px) 44vw, 100vw"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+                <div className="absolute left-3 bottom-3 sm:left-4 sm:bottom-4 lg:left-auto lg:right-4 flex flex-wrap gap-2 max-w-[calc(100%-1.5rem)]">
+                  <HeroChip icon="handshake">{t("hero.chip1")}</HeroChip>
+                  <HeroChip icon="pen" className="hidden min-[400px]:inline-flex">{t("hero.chip2")}</HeroChip>
+                </div>
+              </div>
+              {/* Vignette « remise des clés » (grand écran) */}
+              <div className="hidden lg:block absolute -left-4 xl:-left-8 bottom-10 w-[38%] overflow-hidden rounded-3xl ring-4 ring-background shadow-elevated aspect-[4/5] bg-brand-900">
+                <Photo id="hero/hero-keys" sizes="220px" className="h-full w-full object-cover" />
+              </div>
+              <div className="hidden lg:flex absolute -top-4 left-0 xl:-left-2 items-center gap-2 rounded-full glass-strong px-3.5 py-2 text-xs font-medium text-ink shadow-card">
+                <Icon name="globe" size={16} className="text-brand-600 dark:text-brand-300" />
+                {t("hero.chip3")}
+              </div>
+            </div>
+
+            {/* Recherche + compteurs */}
+            <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+              <SearchComposer
+                value={{ location: city ?? (isAll ? "" : cName) }}
+                onSubmit={(v) => {
+                  if (v.listing === "RENT" || v.listing === "SALE") setListingFilter(v.listing);
+                  else setListingFilter("ALL");
+                  const q = v.location.trim().toLowerCase();
+                  if (q) {
+                    const pool = isAll ? Object.values(citiesByCountry).flat() : citiesByCountry[countryCode] ?? [];
+                    const match = pool.find((c) => c.toLowerCase() === q || c.toLowerCase().includes(q));
+                    if (match) setCity(match);
+                  }
+                  goToCatalogue();
+                }}
+              />
+
+              {/* Stats — /properties/stats, repli sur l'index local */}
+              {totalProperties > 0 && (
+                <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
+                  <FloatingStat kicker={t("stats.props")} value={`${totalProperties}`} hint={t("stats.propsHint")} />
+                  <FloatingStat kicker={t("stats.cities")} value={`${totalCities}`} hint={t("stats.citiesHint")} />
+                  <FloatingStat kicker={t("stats.countries")} value={`${totalCountries}`} hint={t("stats.countriesHint")} />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -403,49 +448,28 @@ function LandingInner() {
 
             <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 stagger">
               {destinations.map((d) => (
-                <button
+                <CityCard
                   key={d.key}
-                  type="button"
+                  name={d.name}
+                  image={d.image}
+                  badge={d.count > 0 ? t("dest.count", { n: d.count, s: plural(d.count) }) : undefined}
+                  cta={
+                    <>
+                      <span>{t("dest.discover")}</span>
+                      <ArrowRightIcon />
+                    </>
+                  }
                   onClick={() => {
-                    if (isAll && d.country) setCountry(d.country);
+                    if (d.country && d.country !== countryCode) setCountry(d.country);
                     setCity(d.name);
                     goToCatalogue();
                   }}
-                  className="group relative block aspect-[4/5] rounded-3xl overflow-hidden ring-1 ring-border/60 hover-lift text-left min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  {d.image ? (
-                    <SafeImage
-                      src={d.image}
-                      alt={d.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      fallbackClassName="absolute inset-0 h-full w-full bg-gradient-to-br from-brand-700 via-brand-500 to-accent-500"
-                      fallback={<span />}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-brand-700 via-brand-500 to-accent-500" />
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 glass-strong rounded-full px-3 py-1 text-[11px] font-medium text-ink">
-                    {t("dest.count", { n: d.count, s: plural(d.count) })}
-                  </div>
-                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 min-w-0">
-                    <h3 className="display-serif text-xl sm:text-3xl text-white leading-tight line-clamp-2 [overflow-wrap:anywhere]">
-                      {d.name}
-                    </h3>
-                    <div className="mt-2 sm:mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/90">
-                      <span>{t("dest.discover")}</span>
-                      <ArrowRightIcon />
-                    </div>
-                  </div>
-                </button>
+                />
               ))}
             </div>
           </div>
         </section>
       )}
-
       {/* ── Catégories + Catalogue ──────────────────────────────────────── */}
       <section id="catalogue" className="py-16 lg:py-20 border-y border-border/40">
         <div className="container-app">
@@ -557,6 +581,43 @@ function LandingInner() {
         </div>
       </section>
 
+      {/* ── Arguments ───────────────────────────────────────────────────── */}
+      <section id="pourquoi" className="py-20 bg-cream-100/40 dark:bg-surface/20 border-b border-border/40">
+        <div className="container-app">
+          <RevealOnScroll>
+            <SectionHeading
+              eyebrow={t("ben.eyebrow")}
+              title={
+                <>
+                  {t("ben.title1")} <em className="italic">{t("ben.title2")}</em>.
+                </>
+              }
+              description={t("ben.desc")}
+            />
+          </RevealOnScroll>
+          <div className="mt-10 grid gap-5 sm:gap-6 md:grid-cols-3 stagger">
+            {BENEFITS.map((b) => (
+              <article key={b.title} className="group min-w-0 overflow-hidden rounded-3xl border border-border/70 bg-surface shadow-card hover-lift">
+                <div className="relative aspect-[4/3] overflow-hidden bg-cream-200 dark:bg-brand-950">
+                  <Photo
+                    id={b.photo}
+                    sizes="(min-width: 768px) 33vw, 100vw"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-5 sm:p-6">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-100 dark:bg-brand-900/40 dark:text-brand-300 dark:ring-brand-800/60">
+                    <Icon name={b.icon} size={20} />
+                  </span>
+                  <h3 className="display-serif text-xl sm:text-2xl mt-4 text-ink">{b.title}</h3>
+                  <p className="text-sm text-ink-muted mt-2 leading-relaxed">{b.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Étapes ───────────────────────────────────────────────────────── */}
       <section id="etapes" className="py-20">
         <div className="container-app">
@@ -572,12 +633,30 @@ function LandingInner() {
               description={t("steps.desc")}
             />
           </RevealOnScroll>
-          <RevealOnScroll className="mt-12">
-            <StepsRail items={STEPS} />
-          </RevealOnScroll>
+          <ol className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 stagger">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="min-w-0 flex flex-col overflow-hidden rounded-3xl border border-border/70 bg-surface shadow-card">
+                <div className="relative aspect-[4/3] overflow-hidden bg-cream-200 dark:bg-brand-950">
+                  <Photo id={s.photo} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="h-full w-full object-cover" />
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-3 left-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 display-serif text-lg text-brand-700 dark:text-brand-300 shadow-card"
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <div className="p-5">
+                  <h3 className="display-serif text-xl text-ink flex items-center gap-2">
+                    <Icon name={s.icon} size={20} className="text-accent-500" />
+                    {s.title}
+                  </h3>
+                  <p className="text-sm text-ink-muted mt-2 leading-relaxed">{s.description}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
-
       {/* ── CTA final ───────────────────────────────────────────────────── */}
       <section className="py-20">
         <div className="container-app">
@@ -585,6 +664,11 @@ function LandingInner() {
             <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 dark:from-brand-950 dark:via-brand-900 dark:to-brand-800 text-cream-50 px-6 sm:px-16 py-14 sm:py-24">
               <span aria-hidden="true" className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-accent-400/25 blur-3xl" />
               <span aria-hidden="true" className="absolute -bottom-24 -left-12 w-80 h-80 rounded-full bg-brand-300/15 blur-3xl" />
+              {/* Photo d'intérieur en fondu sur la droite (grand écran) */}
+              <div aria-hidden="true" className="hidden lg:block absolute inset-y-0 right-0 w-[42%]">
+                <Photo id="hero/hero-interior" alt="" sizes="40vw" className="h-full w-full object-cover" />
+                <span className="absolute inset-0 bg-gradient-to-r from-brand-900 via-brand-900/40 to-transparent dark:from-brand-950 dark:via-brand-950/40" />
+              </div>
               <div className="relative max-w-2xl">
                 <span className="eyebrow text-cream-200/80">
                   {t("cta.eyebrow")} {country.flag}
@@ -688,6 +772,17 @@ function EmptyCountry({
         </div>
       </div>
     </div>
+  );
+}
+
+function HeroChip({ icon, children, className = "" }: { icon: IconName; children: React.ReactNode; className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-black/60 px-3 py-1.5 text-xs font-medium text-ink dark:text-white backdrop-blur-md shadow-sm ${className}`}
+    >
+      <Icon name={icon} size={14} className="text-brand-600 dark:text-brand-300" />
+      {children}
+    </span>
   );
 }
 

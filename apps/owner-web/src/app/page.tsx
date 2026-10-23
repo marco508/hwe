@@ -142,6 +142,7 @@ export default function HomePage() {
         </div>
       ) : visible.length === 0 ? (
         <EmptyState
+          illustration={items.length === 0 ? "home" : "search"}
           title={items.length === 0 ? t("market.emptyTitle") : t("market.noMatchTitle")}
           description={items.length === 0 ? t("market.emptyDesc") : t("market.noMatchDesc")}
           action={

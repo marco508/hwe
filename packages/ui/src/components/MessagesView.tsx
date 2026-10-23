@@ -11,6 +11,7 @@ import { MessageComposer } from "./MessageComposer";
 import { SafeImage } from "./SafeImage";
 import { ErrorState } from "./Feedback";
 import { tUi } from "./I18nKit";
+import { IlloEmpty } from "./Illustrations";
 import { useBrowserNotifications, useTitleFlash } from "../hooks/useBrowserNotifications";
 import { commonApi } from "../client/common-api";
 import { useAuth } from "../client/auth";
@@ -39,6 +40,8 @@ export interface MessagesViewProps {
   title2: string;
   subtitle: string;
   emptyText: string;
+  /** Appel à l'action sous l'état vide de la liste (ex. « Parcourir les annonces »). */
+  emptyAction?: React.ReactNode;
   /** Titre d'onglet pendant le clignotement « non lus ». */
   tabTitle?: string;
 }
@@ -55,6 +58,7 @@ export function MessagesView({
   title2,
   subtitle,
   emptyText,
+  emptyAction,
   tabTitle = "hwe",
 }: MessagesViewProps) {
   const { user } = useAuth();
@@ -242,7 +246,11 @@ export function MessagesView({
             ) : listError && conversations.length === 0 ? (
               <ErrorState compact error={listError} onRetry={() => setReloadTick((n) => n + 1)} />
             ) : conversations.length === 0 ? (
-              <div className="p-6 text-center text-sm text-ink-muted">{emptyText}</div>
+              <div className="px-4 py-8 text-center">
+                <IlloEmpty kind="chat" className="mx-auto mb-3 w-32" />
+                <p className="text-sm text-ink-muted leading-relaxed">{emptyText}</p>
+                {emptyAction && <div className="mt-4 flex justify-center">{emptyAction}</div>}
+              </div>
             ) : (
               <div className="space-y-0.5">
                 {conversations.map((c) => {
@@ -297,9 +305,7 @@ export function MessagesView({
           ) : (
             <CardBody className="flex-1 flex items-center justify-center">
               <div className="text-center max-w-sm">
-                <div className="text-5xl mb-3" aria-hidden="true">
-                  💬
-                </div>
+                <IlloEmpty kind="chat" className="mx-auto mb-3 w-40" />
                 <h2 className="display-serif text-2xl mb-2">{tUi("ui.msg.selectTitle")}</h2>
                 <p className="text-sm text-ink-muted">{tUi("ui.msg.selectSub")}</p>
               </div>
@@ -351,7 +357,7 @@ function ActiveConversation({
             src={partner?.avatarUrl}
             alt={partner?.firstName ?? ""}
             className="h-full w-full object-cover"
-            fallbackClassName="h-full w-full bg-transparent text-white"
+            fallbackClassName="h-full w-full from-brand-600 to-accent-500 text-white"
             fallback={initialsOf(partner)}
           />
         </span>

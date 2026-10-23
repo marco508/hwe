@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Badge, Button, Input, EmptyState, ErrorState, IlloVisit, toast, intlLocale, useAsync } from "@hwe/ui";
+import Link from "next/link";
+import { Badge, Button, Input, EmptyState, ErrorState, toast, intlLocale, useAsync } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -126,10 +127,16 @@ export default function VisitesPage() {
       </div>
 
       {shown.length === 0 ? (
-        <div className="text-center">
-          <IlloVisit className="mx-auto w-48 mb-2" />
-          <EmptyState title={t("ops.visits.emptyTitle")} description={t("ops.emptyDesc")} />
-        </div>
+        <EmptyState
+          illustration="calendar"
+          title={t("ops.visits.emptyTitle")}
+          description={t("ops.emptyDesc")}
+          action={
+            <Link href="/dashboard" className="text-sm font-medium">
+              {t("vis.backDashboard")}
+            </Link>
+          }
+        />
       ) : (
         <div className="space-y-4">
           {shown.map((v) => (

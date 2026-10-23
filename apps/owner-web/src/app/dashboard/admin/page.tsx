@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Badge, Button, Input, Select, ErrorState, toast, fmtDate as fmtDateShared } from "@hwe/ui";
+import { Badge, Button, Input, Select, ErrorState, toast, fmtDate as fmtDateShared, Icon } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -121,7 +121,7 @@ export default function AdminPage() {
 
       {overview.smtpConfigured === false && (
         <div role="alert" className="mb-6 rounded-xl border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-ink">
-          ⚠️ {t("ops.admin.smtpOff")}
+          <Icon name="alert" size={16} className="text-danger mr-1.5" />{t("ops.admin.smtpOff")}
         </div>
       )}
 
@@ -200,7 +200,11 @@ export default function AdminPage() {
                     <Badge tone={u.role === "ADMIN" ? "accent" : "neutral"}>{u.role}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    {u.emailVerifiedAt ? `✅ ${fmtDate(u.emailVerifiedAt)}` : t("ops.admin.notVerified")}
+                    {u.emailVerifiedAt ? (
+                      <span className="inline-flex items-center gap-1 text-success"><Icon name="checkCircle" size={14} />{fmtDate(u.emailVerifiedAt)}</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-ink-muted"><Icon name="hourglass" size={14} />{t("ops.admin.notVerified")}</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-ink-muted">
                     {u._count.properties} / {u._count.inquiries}

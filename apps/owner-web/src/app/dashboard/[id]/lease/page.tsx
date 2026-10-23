@@ -18,6 +18,7 @@ import {
   fmtDate,
   fmtDateTime,
   downloadText,
+  Icon,
 } from "@hwe/ui";
 import { useAuth } from "../../../../lib/auth-context";
 import { api } from "../../../../lib/api";
@@ -290,11 +291,13 @@ export default function LeasePage() {
                   }
                 }}
               >
+                <Icon name="signature" size={16} className="mr-1.5" />
                 {t("lease.signBtn")}
               </Button>
             )}
             {selectedLease.ownerSignedAt && (
               <span className="inline-flex items-center gap-1.5 text-sm font-medium text-success bg-success/10 border border-success/30 rounded-lg px-3 py-2">
+                <Icon name="checkCircle" size={16} />
                 {t("lease.signedOn", { date: fmtDateTime(selectedLease.ownerSignedAt) })}
               </span>
             )}
@@ -308,7 +311,7 @@ export default function LeasePage() {
         {/* Signature status */}
         <div className="mt-4 flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-1.5">
-            <span aria-hidden="true">{selectedLease.ownerSignedAt ? "✅" : "⏳"}</span>
+            <Icon name={selectedLease.ownerSignedAt ? "checkCircle" : "hourglass"} size={16} className={selectedLease.ownerSignedAt ? "text-success" : "text-ink-subtle"} />
             <span className="text-ink-muted">
               {t("lease.ownerColon")}{" "}
               {selectedLease.ownerSignedAt
@@ -319,7 +322,7 @@ export default function LeasePage() {
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span aria-hidden="true">{selectedLease.tenantSignedAt ? "✅" : "⏳"}</span>
+            <Icon name={selectedLease.tenantSignedAt ? "checkCircle" : "hourglass"} size={16} className={selectedLease.tenantSignedAt ? "text-success" : "text-ink-subtle"} />
             <span className="text-ink-muted">
               {t("lease.tenantColon")}{" "}
               {selectedLease.tenantSignedAt
@@ -552,14 +555,12 @@ export default function LeasePage() {
       </div>
 
       {leases.length === 0 ? (
-        <div className="text-center py-20 px-4 border-2 border-dashed border-border rounded-2xl">
-          <div className="text-5xl mb-4" aria-hidden="true">📋</div>
-          <p className="font-semibold text-lg mb-1">{t("lease.emptyTitle")}</p>
-          <p className="text-ink-muted text-sm mb-6">
-            {t("lease.emptySub")}
-          </p>
-          <Button onClick={() => setView("create")}>{t("lease.emptyCta")}</Button>
-        </div>
+        <EmptyState
+          illustration="document"
+          title={t("lease.emptyTitle")}
+          description={t("lease.emptySub")}
+          action={<Button onClick={() => setView("create")}>{t("lease.emptyCta")}</Button>}
+        />
       ) : (
         <div className="space-y-4">
           {leases.map((lease) => {
@@ -580,7 +581,7 @@ export default function LeasePage() {
                     {lease.shortStay ? (
                       // Contrat §9 : séjour courte durée = une échéance du total.
                       <span>
-                        🗓{" "}
+                        <Icon name="calendar" size={14} className="mr-1 text-ink-subtle" />
                         <strong>
                           {t("lease.stayLine", {
                             start: fmtDate(lease.startDate),
@@ -592,7 +593,7 @@ export default function LeasePage() {
                     ) : (
                       <>
                         <span>
-                          🗓 {t("lease.cardStart")} <strong>{fmtDate(lease.startDate)}</strong>
+                          <Icon name="calendar" size={14} className="mr-1 text-ink-subtle" />{t("lease.cardStart")} <strong>{fmtDate(lease.startDate)}</strong>
                         </span>
                         {lease.endDate && (
                           <span>
@@ -600,7 +601,7 @@ export default function LeasePage() {
                           </span>
                         )}
                         <span>
-                          💶{" "}
+                          <Icon name="wallet" size={14} className="mr-1 text-ink-subtle" />
                           <strong>
                             {fmtMoney(lease.monthlyRent + lease.charges, cur)} {t("lease.perMonth")}
                           </strong>
@@ -614,7 +615,7 @@ export default function LeasePage() {
                       </>
                     )}
                     <span>
-                      🔒 {t("lease.cardDeposit")} <strong>{fmtMoney(lease.deposit, cur)}</strong>
+                      <Icon name="lock" size={14} className="mr-1 text-ink-subtle" />{t("lease.cardDeposit")} <strong>{fmtMoney(lease.deposit, cur)}</strong>
                       {/* F21 : pas de « Infinity mois » si le loyer vaut 0. */}
                       {!lease.shortStay && lease.monthlyRent > 0 && lease.deposit > 0 && (
                         <span className="text-ink-muted">
@@ -651,7 +652,7 @@ export default function LeasePage() {
                       onClick={() => handleDelete(lease.id)}
                       aria-label={t("lease.deleteAria", { name })}
                     >
-                      <span aria-hidden="true">🗑</span>
+                      <Icon name="trash" size={16} />
                     </Button>
                   )}
                 </div>

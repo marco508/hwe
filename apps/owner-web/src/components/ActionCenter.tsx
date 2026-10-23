@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/auth-context";
 import { t as tr } from "../lib/i18n";
+import { IconBadge, type IconName } from "@hwe/ui";
 
 // null = compteur indisponible (erreur réseau/API) : on ne prétend pas
 // « rien à traiter » quand on ne sait pas (L2).
@@ -54,11 +55,11 @@ export function ActionCenter() {
   }, [user]);
 
   const tiles = [
-    { href: "/dashboard/inquiries", icon: "📨", label: tr("action.requests"), count: counts?.inquiries, hint: tr("action.requestsHint") },
-    { href: "/dashboard/visites", icon: "📅", label: tr("action.visits"), count: counts?.visits, hint: tr("action.visitsHint") },
-    { href: "/dashboard/loyers", icon: "💶", label: tr("action.rents"), count: counts?.rents, hint: tr("action.rentsHint") },
-    { href: "/dashboard/tickets", icon: "🔧", label: tr("action.tickets"), count: counts?.tickets, hint: tr("action.ticketsHint") },
-    { href: "/dashboard/messages", icon: "💬", label: tr("action.messages"), count: counts?.unread, hint: tr("action.messagesHint") },
+    { href: "/dashboard/inquiries", icon: "inbox" as IconName, tone: "brand" as const, label: tr("action.requests"), count: counts?.inquiries, hint: tr("action.requestsHint") },
+    { href: "/dashboard/visites", icon: "calendar" as IconName, tone: "ocean" as const, label: tr("action.visits"), count: counts?.visits, hint: tr("action.visitsHint") },
+    { href: "/dashboard/loyers", icon: "wallet" as IconName, tone: "accent" as const, label: tr("action.rents"), count: counts?.rents, hint: tr("action.rentsHint") },
+    { href: "/dashboard/tickets", icon: "wrench" as IconName, tone: "neutral" as const, label: tr("action.tickets"), count: counts?.tickets, hint: tr("action.ticketsHint") },
+    { href: "/dashboard/messages", icon: "messages" as IconName, tone: "brand" as const, label: tr("action.messages"), count: counts?.unread, hint: tr("action.messagesHint") },
   ];
 
   return (
@@ -67,10 +68,10 @@ export function ActionCenter() {
         <Link
           key={t.href}
           href={t.href}
-          className="group min-w-0 rounded-2xl border border-border bg-surface p-4 hover:border-brand-400 transition-colors text-ink"
+          className="group min-w-0 rounded-2xl border border-border bg-surface p-4 hover:border-brand-400 hover:shadow-card transition text-ink"
         >
           <div className="flex items-center justify-between">
-            <span className="text-2xl">{t.icon}</span>
+            <IconBadge name={t.icon} tone={t.tone} />
             {t.count != null && t.count > 0 && (
               <span className="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-1.5 rounded-full bg-accent-500 text-white text-xs font-semibold">
                 {t.count}

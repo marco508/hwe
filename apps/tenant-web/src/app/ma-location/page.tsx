@@ -16,6 +16,7 @@ import {
   toast,
   useAsync,
   useLoginRedirect,
+  Icon,
 } from "@hwe/ui";
 import { generateLeaseContract, leaseCurrency } from "@hwe/types";
 import { useAuth } from "../../lib/auth-context";
@@ -267,7 +268,7 @@ function LeaseCard({
           {/* Statut de signature */}
           <div className="flex flex-wrap gap-4 text-sm">
             <div className="flex items-center gap-1.5 min-w-0">
-              <span>{lease.ownerSignedAt ? "✅" : "⏳"}</span>
+              <Icon name={lease.ownerSignedAt ? "checkCircle" : "hourglass"} size={16} className={lease.ownerSignedAt ? "text-success" : "text-ink-subtle"} />
               <span className="text-ink-muted">
                 {t("rental.sign.owner")}{" "}
                 {lease.ownerSignedAt
@@ -276,7 +277,7 @@ function LeaseCard({
               </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span>{lease.tenantSignedAt ? "✅" : "⏳"}</span>
+              <Icon name={lease.tenantSignedAt ? "checkCircle" : "hourglass"} size={16} className={lease.tenantSignedAt ? "text-success" : "text-ink-subtle"} />
               <span className="text-ink-muted">
                 {t("rental.sign.tenant")}{" "}
                 {lease.tenantSignedAt
@@ -487,10 +488,11 @@ export default function MaLocationPage() {
 
       {leases.length === 0 ? (
         <EmptyState
+          illustration="key"
           title={t("rental.empty.title")}
           description={t("rental.empty.desc")}
           action={
-            <Link href="/" className="text-sm">
+            <Link href="/" className="inline-flex items-center h-10 px-5 rounded-full bg-brand-600 text-white hover:text-white text-sm font-medium hover:bg-brand-700">
               {t("rental.empty.cta")}
             </Link>
           }

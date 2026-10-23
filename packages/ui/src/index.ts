@@ -100,4 +100,22 @@ export {
   IlloSearchHome,
   IlloVisit,
   IlloManage,
+  IlloEmpty,
+  type EmptyIllo,
 } from "./components/Illustrations";
+export { Icon, IconBadge, ICON_NAMES, type IconName, type IconProps } from "./components/Icon";
+export {
+  Photo,
+  PHOTOS,
+  photoAttrs,
+  photoAlt,
+  cityPhotoId,
+  propertyTypePhotoId,
+  PropertyPlaceholder,
+  CityCard,
+  FEATURED_CITIES,
+  type PhotoId,
+  type PhotoProps,
+} from "./components/Photos";
+export { PropertyGallery, type PropertyGalleryProps } from "./components/PropertyGallery";
+export { AuthSplit, type AuthSplitProps } from "./components/AuthSplit";

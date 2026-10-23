@@ -20,6 +20,9 @@ import {
   AnimatedBackground,
   Stepper,
   type StepperItem,
+  Icon,
+  IconBadge,
+  type IconName,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -45,12 +48,12 @@ const STATUS_TONE: Record<
   CANCELLED: "neutral",
 };
 
-const TABS: { key: InquiryStatus | "ALL"; labelKey: string; emoji: string }[] = [
-  { key: "ALL", labelKey: "com.tab.all", emoji: "📋" },
-  { key: "PENDING", labelKey: "com.tab.pending", emoji: "⏳" },
-  { key: "ACCEPTED", labelKey: "com.tab.accepted", emoji: "✓" },
-  { key: "REJECTED", labelKey: "com.tab.rejected", emoji: "✕" },
-  { key: "CANCELLED", labelKey: "com.tab.cancelled", emoji: "🚫" },
+const TABS: { key: InquiryStatus | "ALL"; labelKey: string; icon: IconName }[] = [
+  { key: "ALL", labelKey: "com.tab.all", icon: "layers" },
+  { key: "PENDING", labelKey: "com.tab.pending", icon: "hourglass" },
+  { key: "ACCEPTED", labelKey: "com.tab.accepted", icon: "checkCircle" },
+  { key: "REJECTED", labelKey: "com.tab.rejected", icon: "xCircle" },
+  { key: "CANCELLED", labelKey: "com.tab.cancelled", icon: "ban" },
 ];
 
 // ── Stepper transaction ────────────────────────────────────────────────────
@@ -61,37 +64,37 @@ function getTransactionSteps(i: Inquiry): {
   const isSale = i.property?.listingType === "SALE";
   const steps: StepperItem[] = isSale
     ? [
-        { id: "received", title: t("com.step.received"), icon: "📨", done: true },
+        { id: "received", title: t("com.step.received"), icon: <Icon name="inbox" size={18} />, done: true },
         {
           id: "accepted",
           title: t("com.step.accepted"),
-          icon: "🤝",
+          icon: <Icon name="handshake" size={18} />,
           done: i.status === "ACCEPTED",
         },
         {
           id: "offer",
           title: t("com.step.offer"),
-          icon: "💬",
+          icon: <Icon name="message" size={18} />,
           done: i.status === "ACCEPTED",
         },
-        { id: "deed", title: t("com.step.deed"), icon: "✍️" },
+        { id: "deed", title: t("com.step.deed"), icon: <Icon name="signature" size={18} /> },
       ]
     : [
-        { id: "received", title: t("com.step.received"), icon: "📨", done: true },
+        { id: "received", title: t("com.step.received"), icon: <Icon name="inbox" size={18} />, done: true },
         {
           id: "accepted",
           title: t("com.step.accepted"),
-          icon: "🤝",
+          icon: <Icon name="handshake" size={18} />,
           done: i.status === "ACCEPTED",
         },
         {
           id: "lease",
           title: t("com.step.lease"),
-          icon: "📋",
+          icon: <Icon name="clipboard" size={18} />,
           done: i.status === "ACCEPTED" && !!i.leaseId,
         },
-        { id: "signed", title: t("com.step.signed"), icon: "✍️" },
-        { id: "active", title: t("com.step.active"), icon: "🏠" },
+        { id: "signed", title: t("com.step.signed"), icon: <Icon name="signature" size={18} /> },
+        { id: "active", title: t("com.step.active"), icon: <Icon name="home" size={18} /> },
       ];
 
   let activeId = "received";
@@ -132,7 +135,7 @@ function SenderAvatar({
         src={avatarUrl}
         alt={`${firstName ?? ""} ${lastName ?? ""}`.trim()}
         className="w-full h-full object-cover"
-        fallbackClassName="w-full h-full bg-transparent text-white select-none"
+        fallbackClassName="w-full h-full from-brand-600 to-accent-500 text-white select-none"
         fallback={initials}
       />
     </div>
@@ -230,7 +233,7 @@ function InquiryDetailModal({
             className="absolute top-4 right-4 h-8 w-8 rounded-full bg-surface/80 hover:bg-surface flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
             aria-label={t("com.close")}
           >
-            ✕
+            <Icon name="x" size={16} strokeWidth={2.2} />
           </button>
           <div className="flex items-center gap-4 flex-wrap pr-8">
             <SenderAvatar
@@ -275,7 +278,7 @@ function InquiryDetailModal({
               }`}
               aria-hidden="true"
             >
-              {isSale ? "🏷️" : "🔑"}
+              <Icon name={isSale ? "tag" : "key"} size={22} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted">
@@ -395,6 +398,7 @@ function InquiryDetailModal({
                 }}
                 className="flex-1"
               >
+                <Icon name="x" size={16} className="mr-1.5" />
                 {t("com.reject")}
               </Button>
               <Button
@@ -406,11 +410,13 @@ function InquiryDetailModal({
                 }}
                 className="flex-1"
               >
+                {!isLoading && <Icon name="check" size={16} className="mr-1.5" />}
                 {isLoading ? t("com.processing") : t("com.accept")}
               </Button>
             </div>
           ) : inquiry.status === "ACCEPTED" && !isSale && inquiry.leaseId ? (
             <Link href={`/dashboard/${inquiry.propertyId}/lease`} className={`${LINK_GRADIENT} w-full h-10`}>
+              <Icon name="clipboard" size={16} className="mr-1.5" />
               {t("com.viewLease")}
             </Link>
           ) : inquiry.status === "ACCEPTED" && isSale ? (
@@ -429,6 +435,7 @@ function InquiryDetailModal({
                 href={chatHref(inquiry)}
                 className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-xs font-medium hover:opacity-90 transition-opacity"
               >
+                <Icon name="message" size={14} />
                 {t("com.openDiscussion")}
               </Link>
             </div>
@@ -546,9 +553,11 @@ function InquiryCard({
               variant="secondary"
               onClick={() => onViewDetails(i)}
             >
+              <Icon name="eye" size={15} className="mr-1.5" />
               {t("com.details")}
             </Button>
             <Link href={chatHref(i)} className={`${LINK_BTN} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}>
+              <Icon name="message" size={15} className="mr-1.5" />
               {t("com.discuss")}
             </Link>
             {isPending ? (
@@ -559,6 +568,7 @@ function InquiryCard({
                   disabled={isLoading}
                   onClick={() => onRespond(i.id, "REJECTED")}
                 >
+                  <Icon name="x" size={15} className="mr-1" />
                   {t("com.reject")}
                 </Button>
                 <Button
@@ -567,11 +577,13 @@ function InquiryCard({
                   disabled={isLoading}
                   onClick={() => onRespond(i.id, "ACCEPTED")}
                 >
+                  {!isLoading && <Icon name="check" size={15} className="mr-1" />}
                   {isLoading ? "…" : t("com.accept")}
                 </Button>
               </>
             ) : i.status === "ACCEPTED" && !isSale && i.leaseId ? (
               <Link href={`/dashboard/${i.propertyId}/lease`} className={LINK_GRADIENT}>
+                <Icon name="clipboard" size={15} className="mr-1.5" />
                 {t("com.contract")}
               </Link>
             ) : null}
@@ -685,24 +697,24 @@ export default function ReceivedInquiriesPage() {
             <StatTile
               kicker={t("com.statTotal")}
               value={stats.total}
-              icon="📨"
+              icon="inbox"
             />
             <StatTile
               kicker={t("com.tab.pending")}
               value={stats.pending}
-              icon="⏳"
+              icon="hourglass"
               accent={stats.pending > 0}
             />
             <StatTile
               kicker={t("com.tab.accepted")}
               value={stats.accepted}
-              icon="✓"
+              icon="checkCircle"
               accent={false}
             />
             <StatTile
               kicker={t("com.tab.rejected")}
               value={stats.rejected}
-              icon="✕"
+              icon="xCircle"
               accent={false}
             />
           </div>
@@ -711,7 +723,7 @@ export default function ReceivedInquiriesPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
-        {TABS.map(({ key, labelKey, emoji }) => {
+        {TABS.map(({ key, labelKey, icon }) => {
           const count = countByStatus(key);
           if (key !== "ALL" && count === 0) return null;
           const isActive = activeTab === key;
@@ -727,7 +739,7 @@ export default function ReceivedInquiriesPage() {
                   : "border-transparent text-ink-muted hover:text-ink hover:border-border"
               }`}
             >
-              <span aria-hidden="true">{emoji}</span>
+              <Icon name={icon} size={15} />
               <span>{t(labelKey)}</span>
               <span
                 className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
@@ -746,11 +758,18 @@ export default function ReceivedInquiriesPage() {
       {/* Content */}
       {items.length === 0 ? (
         <EmptyState
+          illustration="inbox"
           title={t("com.emptyTitle")}
           description={t("com.emptyDesc")}
+          action={
+            <Link href="/dashboard" className={LINK_GRADIENT}>
+              {t("vis.seeListings")}
+            </Link>
+          }
         />
       ) : visibleItems.length === 0 ? (
         <EmptyState
+          illustration="search"
           title={t("com.emptyTabTitle")}
           description={t("com.emptyTabDesc")}
         />
@@ -788,7 +807,7 @@ function StatTile({
 }: {
   kicker: string;
   value: number;
-  icon: string;
+  icon: IconName;
   accent?: boolean;
 }) {
   return (
@@ -798,9 +817,7 @@ function StatTile({
       }`}
     >
       <div className="flex items-center gap-3">
-        <span className="text-2xl" aria-hidden="true">
-          {icon}
-        </span>
+        <IconBadge name={icon} size="sm" tone={accent && value > 0 ? "accent" : "brand"} />
         <div>
           <div className="display-serif text-xl leading-none gradient-text">
             {value}

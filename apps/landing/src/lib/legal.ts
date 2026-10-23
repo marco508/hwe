@@ -82,6 +82,14 @@ const fr: Record<LegalDocId, LegalDoc> = {
         ],
       },
       {
+        id: "credits-photos",
+        title: "Crédits photos",
+        blocks: [
+          "Photos d'illustration issues d'Unsplash (licence Unsplash, unsplash.com/license) et de Pexels (licence Pexels, pexels.com/license), qui autorisent l'usage commercial. Les photos d'illustration ne représentent pas les biens publiés. Liste détaillée : /images/CREDITS.md.",
+          ["Famille noire souriante sur un canapé — Monstera Production (Pexels)", "Femme souriante montrant une clé — Kindel Media (Pexels)", "Salon lumineux, canapé bleu — Curtis Adams (Pexels)", "Tour Eiffel vue depuis la rue de Monttessuy — Teodor Kuduschiev (Unsplash)", "Quais de Saône et basilique de Fourvière — Godefroy Boutet (Unsplash)", "Vieux-Port et Notre-Dame de la Garde — Lien Van Win (Unsplash)", "Place de la Bourse et fontaine des Trois Grâces — F DALLAY (Unsplash)", "Mosquée de la Divinité, corniche Ouest (Ouakam) — Eyelit Studio (Unsplash)", "Tours du Plateau au bord de la lagune — Jean Marc Bonnel (Pexels)", "Scène de rue animée à Bessengue — Edouard TAMBA (Unsplash)", "Carrefour Nlongkak et collines — Ariel Nathan ADA MBITA (Unsplash)", "Rue de quartier avec une mosquée — Vurzie Kim (Pexels)", "Route du bord de mer bordée de cocotiers — Kab Visuals (Pexels)", "Mosquée Hassan II — Hamza Bouchikhi (Unsplash)", "Rue résidentielle arborée — Sami TÜRK (Pexels)", "Façade d'immeuble avec balcons — Andrew Patrick Photo (Pexels)", "Maison contemporaine blanche et allée — Julia Kuzenkov (Pexels)", "Studio meublé (lit, coin repas) — Max Vakhtbovych (Pexels)", "Parcelle de terre rouge en début de chantier — Divaris Shirichena (Unsplash)", "Plateau commercial / bureau vide et lumineux — Andrea De Santis (Pexels)", "Salon neutre — Curtis Adams (Pexels)", "Femme cherchant sur son téléphone — David Kwewum (Pexels)", "Visite d'une maison — Kindel Media (Pexels)", "Poignée de main au-dessus d'un contrat — Ron Lach (Pexels)", "Couple souriant avec des cartons — RDNE Stock project (Pexels)", "Parents et enfant sur un canapé — Mizuno K (Pexels)", "Homme devant une maison blanche — Aj Collins Artistry (Pexels)", "Jeune couple emménageant avec des cartons — Gustavo Fring (Pexels)", "Homme travaillant sur un ordinateur portable — RDNE Stock project (Pexels)", "Mère et enfants jouant dans le salon — Monstera Production (Pexels)"],
+        ],
+      },
+      {
         id: "responsabilite",
         title: "Responsabilité",
         blocks: [
@@ -362,6 +370,14 @@ const en: Record<LegalDocId, LegalDoc> = {
         blocks: [
           "The structure of the website, its design, texts, logos and software are protected by intellectual property law. Any reproduction or reuse without written permission is prohibited.",
           "Listings, photos and messages remain the property of their authors, who grant hwe the right to display them on the platform for the purposes of the service.",
+        ],
+      },
+      {
+        id: "credits-photos",
+        title: "Photo credits",
+        blocks: [
+          "Illustrative photos from Unsplash (Unsplash License, unsplash.com/license) and Pexels (Pexels License, pexels.com/license), both of which allow commercial use. Illustrative photos do not show the listed properties. Full list: /images/CREDITS.md.",
+          ["Smiling Black family on a sofa — Monstera Production (Pexels)", "Smiling woman showing a key — Kindel Media (Pexels)", "Bright living room, blue sofa — Curtis Adams (Pexels)", "Eiffel Tower seen from rue de Monttessuy — Teodor Kuduschiev (Unsplash)", "Saône riverbanks and Fourvière basilica — Godefroy Boutet (Unsplash)", "Old Port and Notre-Dame de la Garde — Lien Van Win (Unsplash)", "Place de la Bourse and the Three Graces fountain — F DALLAY (Unsplash)", "Mosque of the Divinity, western corniche (Ouakam) — Eyelit Studio (Unsplash)", "Plateau towers by the lagoon — Jean Marc Bonnel (Pexels)", "Busy street scene in Bessengue — Edouard TAMBA (Unsplash)", "Nlongkak junction and hills — Ariel Nathan ADA MBITA (Unsplash)", "Neighbourhood street with a mosque — Vurzie Kim (Pexels)", "Seaside road lined with coconut palms — Kab Visuals (Pexels)", "Hassan II Mosque — Hamza Bouchikhi (Unsplash)", "Tree-lined residential street — Sami TÜRK (Pexels)", "Apartment building facade with balconies — Andrew Patrick Photo (Pexels)", "White contemporary house and driveway — Julia Kuzenkov (Pexels)", "Furnished studio (bed, dining corner) — Max Vakhtbovych (Pexels)", "Red-soil plot at the start of construction — Divaris Shirichena (Unsplash)", "Empty, bright commercial space — Andrea De Santis (Pexels)", "Neutral living room — Curtis Adams (Pexels)", "Woman searching on her phone — David Kwewum (Pexels)", "House viewing — Kindel Media (Pexels)", "Handshake over a contract — Ron Lach (Pexels)", "Smiling couple with boxes — RDNE Stock project (Pexels)", "Parents and child on a sofa — Mizuno K (Pexels)", "Man in front of a white house — Aj Collins Artistry (Pexels)", "Young couple moving in with boxes — Gustavo Fring (Pexels)", "Man working on a laptop — RDNE Stock project (Pexels)", "Mother and children playing in the living room — Monstera Production (Pexels)"],
         ],
       },
       {

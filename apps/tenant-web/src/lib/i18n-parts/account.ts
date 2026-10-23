@@ -9,7 +9,7 @@ export const fr: Record<string, string> = {
   "acc.profile.phone": "Téléphone",
   "acc.profile.save": "Enregistrer",
   "acc.profile.saving": "Enregistrement…",
-  "acc.profile.saved": "Profil mis à jour ✓",
+  "acc.profile.saved": "Profil mis à jour",
 
   // Photo de profil
   "acc.avatar.clickToChange": "Cliquer pour changer la photo",
@@ -31,7 +31,7 @@ export const fr: Record<string, string> = {
   "acc.docs.save": "Enregistrer",
   "acc.docs.cancel": "Annuler",
   "acc.docs.empty": "Aucun document d'identité ajouté pour le moment.",
-  "acc.docs.verified": "✓ Vérifié",
+  "acc.docs.verified": "Vérifié",
   "acc.docs.view": "Voir",
   "acc.docs.delete": "Supprimer",
   "acc.docs.confirmDelete": "Supprimer ce document ?",
@@ -118,7 +118,7 @@ export const en: Record<string, string> = {
   "acc.profile.phone": "Phone",
   "acc.profile.save": "Save",
   "acc.profile.saving": "Saving…",
-  "acc.profile.saved": "Profile updated ✓",
+  "acc.profile.saved": "Profile updated",
 
   // Profile picture
   "acc.avatar.clickToChange": "Click to change the photo",
@@ -140,7 +140,7 @@ export const en: Record<string, string> = {
   "acc.docs.save": "Save",
   "acc.docs.cancel": "Cancel",
   "acc.docs.empty": "No identity document added yet.",
-  "acc.docs.verified": "✓ Verified",
+  "acc.docs.verified": "Verified",
   "acc.docs.view": "View",
   "acc.docs.delete": "Delete",
   "acc.docs.confirmDelete": "Delete this document?",

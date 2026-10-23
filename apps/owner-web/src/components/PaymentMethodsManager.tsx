@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Button, Card, CardBody, CardHeader, Input, Label, ErrorState, toast, errorText } from "@hwe/ui";
+import { Button, Card, CardBody, CardHeader, Input, Label, ErrorState, toast, errorText, IconBadge, type IconName } from "@hwe/ui";
 import { api } from "../lib/api";
 import { t } from "../lib/i18n";
 import type { OwnerPaymentMethod } from "../lib/api";
@@ -14,14 +14,14 @@ import type { OwnerPaymentMethod } from "../lib/api";
  */
 
 /** Devine une icône selon le libellé du moyen de paiement. */
-function methodIcon(label: string) {
+function methodIcon(label: string): IconName {
   const l = label.toLowerCase();
-  if (/(iban|virement|sepa|banque|bank)/.test(l)) return "🏦";
-  if (/(momo|mobile|orange|mtn|wave|moov|m-pesa)/.test(l)) return "📱";
-  if (/(paypal|lydia|revolut|wise|paylib)/.test(l)) return "💳";
-  if (/(espèce|especes|cash|liquide)/.test(l)) return "💶";
-  if (/(chèque|cheque)/.test(l)) return "🖋️";
-  return "💰";
+  if (/(iban|virement|sepa|banque|bank)/.test(l)) return "landmark";
+  if (/(momo|mobile|orange|mtn|wave|moov|m-pesa)/.test(l)) return "smartphone";
+  if (/(paypal|lydia|revolut|wise|paylib)/.test(l)) return "creditCard";
+  if (/(espèce|especes|cash|liquide)/.test(l)) return "banknote";
+  if (/(chèque|cheque)/.test(l)) return "pen";
+  return "wallet";
 }
 
 export function PaymentMethodsManager() {
@@ -112,7 +112,7 @@ export function PaymentMethodsManager() {
                 (m.active ? "" : "opacity-50")
               }
             >
-              <span className="text-xl mt-0.5" aria-hidden="true">{methodIcon(m.label)}</span>
+              <IconBadge name={methodIcon(m.label)} size="sm" className="mt-0.5" />
               <div className="min-w-0 sm:min-w-48 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm font-semibold text-ink [overflow-wrap:anywhere]">{m.label}</p>

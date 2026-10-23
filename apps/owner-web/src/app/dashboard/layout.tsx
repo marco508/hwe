@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { tUi, TENANT_URL, useLoginRedirect } from "@hwe/ui";
+import { tUi, TENANT_URL, useLoginRedirect, Icon } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 
@@ -40,8 +40,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!allowed) {
     return (
       <div role="alert" className="max-w-lg mx-auto text-center py-16">
-        <div className="text-5xl mb-4" aria-hidden="true">
-          🔒
+        <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300" aria-hidden="true">
+          <Icon name="lock" size={28} />
         </div>
         <h1 className="display-serif text-3xl text-ink">{tUi("ui.roleGuard.title")}</h1>
         <p className="text-ink-muted mt-3">{tUi("ui.roleGuard.text")}</p>

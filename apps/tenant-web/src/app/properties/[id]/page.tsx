@@ -12,7 +12,6 @@ import {
   Input,
   Label,
   Textarea,
-  ImageCarousel,
   errorText,
   Stepper,
   EnergyClassBadge,
@@ -29,6 +28,11 @@ import {
   useAsync,
   type StepperItem,
   type EnergyClassLetter,
+  Icon,
+  IconBadge,
+  IlloEmpty,
+  PropertyGallery,
+  type IconName,
 } from "@hwe/ui";
 import { api } from "../../../lib/api";
 import { t, useLang } from "../../../lib/i18n";
@@ -183,22 +187,22 @@ function PropertyDetailInner({
   const mainPrice = headlinePrice(p, rates);
   const STEPS: StepperItem[] = React.useMemo(() => {
     const base: StepperItem[] = [
-      { id: "overview", title: t("prop.step.overview"), icon: "👁" },
-      { id: "gallery", title: t("prop.step.gallery"), icon: "📸" },
-      { id: "features", title: t("prop.step.features"), icon: "📐" },
+      { id: "overview", title: t("prop.step.overview"), icon: <Icon name="eye" size={18} /> },
+      { id: "gallery", title: t("prop.step.gallery"), icon: <Icon name="camera" size={18} /> },
+      { id: "features", title: t("prop.step.features"), icon: <Icon name="ruler" size={18} /> },
     ];
     if (isSale) {
-      base.push({ id: "sale-info", title: t("prop.step.saleInfo"), icon: "🏷️" });
+      base.push({ id: "sale-info", title: t("prop.step.saleInfo"), icon: <Icon name="tag" size={18} /> });
     } else {
-      base.push({ id: "rent-info", title: t("prop.step.rentInfo"), icon: "🔑" });
+      base.push({ id: "rent-info", title: t("prop.step.rentInfo"), icon: <Icon name="key" size={18} /> });
     }
-    base.push({ id: "location", title: t("prop.step.location"), icon: "📍" });
-    if (isOwner) base.push({ id: "your-bien", title: t("prop.step.yourBien"), icon: "👤" });
+    base.push({ id: "location", title: t("prop.step.location"), icon: <Icon name="mapPin" size={18} /> });
+    if (isOwner) base.push({ id: "your-bien", title: t("prop.step.yourBien"), icon: <Icon name="user" size={18} /> });
     else if (isOpen)
       base.push({
         id: "contact",
         title: isSale ? t("prop.step.offer") : t("prop.step.apply"),
-        icon: "✉️",
+        icon: <Icon name="mail" size={18} />,
       });
     return base;
   }, [isSale, isOwner, isOpen, lang]);
@@ -261,7 +265,7 @@ function PropertyDetailInner({
                   : "bg-surface text-ink-muted hover:bg-cream-100 dark:hover:bg-white/5 hover:text-danger"
               } border border-border disabled:opacity-50`}
             >
-              {isFav ? "♥" : "♡"}
+              <Icon name="heart" size={18} className={isFav ? "fill-current" : ""} />
             </button>
           )}
         </div>
@@ -353,7 +357,7 @@ function PropertyDetailInner({
       {/* ── Bannière "votre bien" ────────────────────────────────────────── */}
       {isOwner && (
         <div className="mb-6 rounded-2xl border border-accent-300 dark:border-accent-700/40 bg-accent-50 dark:bg-accent-700/15 px-5 py-4 flex items-center gap-4 flex-wrap">
-          <span className="text-3xl shrink-0">👤</span>
+          <IconBadge name="user" tone="accent" size="lg" />
           <div className="flex-1 min-w-0">
             <div className="font-medium text-ink">
               {t("prop.owner.title")}
@@ -493,23 +497,11 @@ function StepOverview({
   return (
     <div className="grid lg:grid-cols-3 gap-6 min-w-0">
       <div className="lg:col-span-2 space-y-6 min-w-0">
-        {/* Photo principale */}
-        <div className="aspect-[16/10] rounded-2xl overflow-hidden border border-border">
-          <ImageCarousel
-            images={(p.media ?? []).map((m) => ({
-              url: m.url,
-              alt: m.alt ?? p.title,
-            }))}
-            aspectClassName="aspect-[16/10]"
-            showArrows
-            showDots
-            showCounter
-            autoPlayMs={6000}
-            fallback={
-              <span className="display-serif">{t("prop.noPhoto")}</span>
-            }
-          />
-        </div>
+        {/* Galerie : grande photo, vignettes, plein écran */}
+        <PropertyGallery
+          images={(p.media ?? []).map((m) => ({ url: m.url, alt: m.alt ?? p.title }))}
+          propertyType={p.propertyType}
+        />
         <Card>
           <CardHeader>
             <h2 className="font-display text-lg">{t("prop.description")}</h2>
@@ -560,23 +552,25 @@ function StepOverview({
           </CardBody>
         </Card>
 
+        {p.owner && <OwnerCard owner={p.owner} onContact={onContact} />}
+
         <Card>
           <CardHeader>
             <h3 className="font-medium text-sm">{t("prop.keyPoints")}</h3>
           </CardHeader>
           <CardBody className="space-y-2 text-sm">
-            {p.furnished && <KeyPoint icon="🛋️" text={t("prop.furnished")} />}
+            {p.furnished && <KeyPoint icon="sofa" text={t("prop.furnished")} />}
             {p.hasParking && (
-              <KeyPoint icon="🅿️" text={t("prop.parkingIncluded")} />
+              <KeyPoint icon="car" text={t("prop.parkingIncluded")} />
             )}
-            {p.hasBalcony && <KeyPoint icon="🪟" text={t("prop.balcony")} />}
-            {p.hasGarden && <KeyPoint icon="🌿" text={t("prop.garden")} />}
-            {p.hasElevator && <KeyPoint icon="🛗" text={t("prop.elevator")} />}
+            {p.hasBalcony && <KeyPoint icon="balcony" text={t("prop.balcony")} />}
+            {p.hasGarden && <KeyPoint icon="leaf" text={t("prop.garden")} />}
+            {p.hasElevator && <KeyPoint icon="elevator" text={t("prop.elevator")} />}
             {!isSale && p.rentalKind && (
-              <KeyPoint icon="🔑" text={t("prop.rentalKind." + p.rentalKind)} />
+              <KeyPoint icon="key" text={t("prop.rentalKind." + p.rentalKind)} />
             )}
             {isSale && p.isNew && (
-              <KeyPoint icon="✨" text={t("prop.newVefa")} />
+              <KeyPoint icon="sparkles" text={t("prop.newVefa")} />
             )}
             {!p.furnished &&
               !p.hasParking &&
@@ -591,6 +585,46 @@ function StepOverview({
         </Card>
       </aside>
     </div>
+  );
+}
+
+/** Propriétaire mis en avant : avatar (ou initiales), nom, statut particulier. */
+function OwnerCard({ owner, onContact }: { owner: NonNullable<Property["owner"]>; onContact?: () => void }) {
+  const initials = `${owner.firstName?.[0] ?? ""}${owner.lastName?.[0] ?? ""}`.toUpperCase();
+  const lastInitial = owner.lastName ? ` ${owner.lastName.charAt(0).toUpperCase()}.` : "";
+  return (
+    <Card className="overflow-hidden">
+      <CardBody className="flex items-center gap-4">
+        <span className="relative h-16 w-16 shrink-0 rounded-full overflow-hidden ring-4 ring-brand-50 dark:ring-brand-900/40 bg-gradient-to-br from-brand-500 to-accent-500 text-white flex items-center justify-center font-display text-xl">
+          <SafeImage
+            src={owner.avatarUrl}
+            alt={`${owner.firstName}${lastInitial}`}
+            className="h-full w-full object-cover"
+            fallbackClassName="h-full w-full from-brand-600 to-accent-500 text-white"
+            fallback={<span className="font-display text-xl">{initials || "?"}</span>}
+          />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted">{t("vis.owner.by")}</div>
+          <div className="font-display text-xl text-ink leading-tight [overflow-wrap:anywhere]">
+            {owner.firstName}
+            {lastInitial}
+          </div>
+          <div className="mt-1 inline-flex items-center gap-1 text-xs text-brand-700 dark:text-brand-300">
+            <Icon name="shield" size={14} />
+            {t("vis.owner.private")}
+          </div>
+        </div>
+      </CardBody>
+      {onContact && (
+        <div className="px-5 pb-5 -mt-1">
+          <Button variant="secondary" className="w-full" onClick={onContact}>
+            <Icon name="message" size={16} className="mr-1.5" />
+            {t("vis.owner.contact")}
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -611,71 +645,43 @@ function Mini({
   );
 }
 
-function KeyPoint({ icon, text }: { icon: string; text: string }) {
+function KeyPoint({ icon, text }: { icon: IconName; text: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span aria-hidden="true">{icon}</span>
+      <Icon name={icon} size={16} className="text-brand-600 dark:text-brand-300" />
       {text}
     </div>
   );
 }
 
 function StepGallery({ property: p }: { property: Property }) {
-  if (!p.media || p.media.length === 0) {
-    return (
-      <Card>
-        <CardBody className="py-16 text-center text-ink-muted">
-          {t("prop.gallery.empty")}
-        </CardBody>
-      </Card>
-    );
-  }
   return (
-    <div className="space-y-4">
-      <div className="aspect-[16/9] rounded-2xl overflow-hidden border border-border">
-        <ImageCarousel
-          images={p.media.map((m) => ({ url: m.url, alt: m.alt ?? p.title }))}
-          aspectClassName="aspect-[16/9]"
-          showArrows
-          showDots
-          showCounter
-          autoPlayMs={5000}
-        />
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-        {p.media.map((m) => (
-          <SafeImage
-            key={m.id}
-            src={m.url}
-            alt={m.alt ?? p.title}
-            loading="lazy"
-            decoding="async"
-            className="aspect-[4/3] w-full object-cover rounded-xl border border-border hover-lift"
-          />
-        ))}
-      </div>
-    </div>
+    <PropertyGallery
+      images={(p.media ?? []).map((m) => ({ url: m.url, alt: m.alt ?? p.title }))}
+      propertyType={p.propertyType}
+      aspectClassName="aspect-[4/3] sm:aspect-[16/9]"
+    />
   );
 }
 
 function StepFeatures({ property: p }: { property: Property }) {
   const yesNo = (v: boolean) => (v ? t("prop.yes") : t("prop.no"));
-  const items: { label: string; value: React.ReactNode; icon: string }[] = [
-    { icon: "📐", label: t("prop.surface"), value: `${p.surface} m²` },
-    { icon: "🚪", label: t("prop.rooms"), value: p.rooms || "—" },
-    { icon: "🛏️", label: t("prop.bedrooms"), value: p.bedrooms || "—" },
-    { icon: "🛁", label: t("prop.bathrooms"), value: p.bathrooms || "—" },
+  const items: { label: string; value: React.ReactNode; icon: IconName }[] = [
+    { icon: "ruler", label: t("prop.surface"), value: `${p.surface} m²` },
+    { icon: "door", label: t("prop.rooms"), value: p.rooms || "—" },
+    { icon: "bed", label: t("prop.bedrooms"), value: p.bedrooms || "—" },
+    { icon: "bath", label: t("prop.bathrooms"), value: p.bathrooms || "—" },
   ];
   if (p.floor !== null && p.floor !== undefined)
-    items.push({ icon: "🏢", label: t("prop.floor"), value: p.floor });
+    items.push({ icon: "stairs", label: t("prop.floor"), value: p.floor });
   if (p.yearBuilt)
-    items.push({ icon: "📅", label: t("prop.year"), value: p.yearBuilt });
+    items.push({ icon: "calendar", label: t("prop.year"), value: p.yearBuilt });
   items.push(
-    { icon: "🛋️", label: t("prop.furnished"), value: yesNo(p.furnished) },
-    { icon: "🅿️", label: t("prop.parking"), value: yesNo(p.hasParking) },
-    { icon: "🪟", label: t("prop.balcony"), value: yesNo(p.hasBalcony) },
-    { icon: "🌿", label: t("prop.garden"), value: yesNo(p.hasGarden) },
-    { icon: "🛗", label: t("prop.elevator"), value: yesNo(p.hasElevator) },
+    { icon: "sofa", label: t("prop.furnished"), value: yesNo(p.furnished) },
+    { icon: "car", label: t("prop.parking"), value: yesNo(p.hasParking) },
+    { icon: "balcony", label: t("prop.balcony"), value: yesNo(p.hasBalcony) },
+    { icon: "leaf", label: t("prop.garden"), value: yesNo(p.hasGarden) },
+    { icon: "elevator", label: t("prop.elevator"), value: yesNo(p.hasElevator) },
   );
 
   return (
@@ -690,9 +696,7 @@ function StepFeatures({ property: p }: { property: Property }) {
             className="rounded-xl border border-border/60 bg-cream-50/60 dark:bg-surface/60 px-3 sm:px-4 py-3 min-w-0"
           >
             <div className="flex items-center gap-2 mb-1 min-w-0">
-              <span className="text-lg" aria-hidden="true">
-                {it.icon}
-              </span>
+              <Icon name={it.icon} size={18} className="text-brand-600 dark:text-brand-300" />
               <span className="text-[11px] uppercase tracking-[0.14em] text-ink-muted truncate">
                 {it.label}
               </span>
@@ -1057,27 +1061,27 @@ function StepYourBien({ property: p }: { property: Property }) {
       <CardBody className="grid sm:grid-cols-2 gap-3">
         <ActionTile
           href={`${ownerUrl}/dashboard/${p.id}/edit`}
-          icon="✏️"
+          icon="pencil"
           title={t("prop.owner.edit")}
           desc={t("prop.own.editDesc")}
         />
         <ActionTile
           href={`${ownerUrl}/dashboard/${p.id}/documents`}
-          icon="🗂️"
+          icon="folder"
           title={t("prop.own.docs")}
           desc={t("prop.own.docsDesc")}
         />
         {p.listingType === "RENT" && (
           <ActionTile
             href={`${ownerUrl}/dashboard/${p.id}/lease`}
-            icon="📋"
+            icon="clipboard"
             title={t("prop.own.lease")}
             desc={t("prop.own.leaseDesc")}
           />
         )}
         <ActionTile
           href={`${ownerUrl}/dashboard/inquiries`}
-          icon="📩"
+          icon="inbox"
           title={t("prop.own.inquiries")}
           desc={t("prop.own.inquiriesDesc")}
         />
@@ -1093,7 +1097,7 @@ function ActionTile({
   desc,
 }: {
   href: string;
-  icon: string;
+  icon: IconName;
   title: string;
   desc: string;
 }) {
@@ -1102,8 +1106,8 @@ function ActionTile({
       href={href}
       className="group rounded-xl border border-border bg-surface px-5 py-4 hover:border-brand-300 hover:bg-cream-50 dark:hover:bg-white/5 transition-colors flex items-start gap-3 min-w-0"
     >
-      <span className="text-2xl shrink-0 group-hover:scale-110 transition-transform">
-        {icon}
+      <span className="shrink-0 group-hover:scale-110 transition-transform">
+        <IconBadge name={icon} size="sm" />
       </span>
       <div className="min-w-0">
         <div className="font-medium text-ink">{title}</div>
@@ -1217,7 +1221,7 @@ function StepContact({
     return (
       <Card>
         <CardBody className="text-center py-12 px-6">
-          <div className="text-5xl mb-4">🔒</div>
+          <IlloEmpty kind="key" className="mx-auto mb-4 w-40" />
           <h3 className="display-serif text-2xl mb-2">
             {isSale ? t("prop.form.loginSale") : t("prop.form.loginRent")}
           </h3>
@@ -1247,7 +1251,7 @@ function StepContact({
     return (
       <Card>
         <CardBody className="text-center py-12 px-6">
-          <div className="text-5xl mb-4">✨</div>
+          <div className="mx-auto mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-900/40 dark:text-brand-300"><Icon name="party" size={30} /></div>
           <h3 className="display-serif text-3xl mb-2">
             {t("prop.form.sentTitle")}
           </h3>
@@ -1279,13 +1283,13 @@ function StepContact({
   }
 
   const SUBSTEPS: StepperItem[] = [
-    { id: "1", title: t("prop.form.step1"), icon: "📞" },
+    { id: "1", title: t("prop.form.step1"), icon: <Icon name="phone" size={18} /> },
     {
       id: "2",
       title: isSale ? t("prop.form.step2Sale") : t("prop.form.step2Rent"),
-      icon: "🗓️",
+      icon: <Icon name="calendar" size={18} />,
     },
-    { id: "3", title: t("prop.form.step3"), icon: "✉️" },
+    { id: "3", title: t("prop.form.step3"), icon: <Icon name="send" size={18} /> },
   ];
 
   return (

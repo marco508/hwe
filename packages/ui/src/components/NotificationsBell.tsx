@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "../utils";
 import { UnreadBadge } from "./UnreadBadge";
 import { tUi } from "./I18nKit";
+import { IlloEmpty } from "./Illustrations";
 import { intlLocale } from "../client/format";
 
 export interface BellPreviewItem {
@@ -134,7 +135,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
 
           {preview.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <div className="text-3xl mb-2">💭</div>
+              <IlloEmpty kind="chat" className="mx-auto mb-2 w-24" />
               <div className="text-sm text-ink-muted">
                 {tUi("ui.noMessagesYet")}
               </div>

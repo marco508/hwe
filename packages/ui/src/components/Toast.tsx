@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { tUi } from "./I18nKit";
+import { Icon } from "./Icon";
 import { errorText } from "../client/errors";
 
 /**
@@ -107,7 +108,7 @@ export function Toaster() {
             aria-label={tUi("ui.close")}
             className="shrink-0 -mr-1 h-6 w-6 inline-flex items-center justify-center rounded-full text-ink-muted hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            ✕
+            <Icon name="x" size={14} strokeWidth={2.2} />
           </button>
         </div>
       ))}

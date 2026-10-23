@@ -54,7 +54,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
             src={partnerAvatarUrl}
             alt={partnerName}
             className="h-full w-full object-cover"
-            fallbackClassName="h-full w-full bg-transparent text-white"
+            fallbackClassName="h-full w-full from-brand-600 to-accent-500 text-white"
             fallback={partnerInitials}
           />
         </span>

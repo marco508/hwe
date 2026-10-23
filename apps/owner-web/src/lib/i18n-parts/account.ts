@@ -25,11 +25,11 @@ export const fr: Record<string, string> = {
   "acc.profile.firstName": "Prénom",
   "acc.profile.lastName": "Nom",
   "acc.profile.phone": "Téléphone",
-  "acc.profile.updated": "Profil mis à jour ✓",
+  "acc.profile.updated": "Profil mis à jour",
 
   // Avatar
   "acc.avatar.clickTitle": "Cliquer pour changer la photo",
-  "acc.avatar.editOverlay": "📷 Modifier",
+  "acc.avatar.editOverlay": "Modifier",
   "acc.avatar.change": "Changer la photo",
 
   // Types de documents d'identité
@@ -56,7 +56,7 @@ export const fr: Record<string, string> = {
   "acc.idDocs.clickSelect": "Cliquer pour sélectionner un fichier",
   "acc.idDocs.fileHint": "JPG, PNG, PDF — max 10 Mo",
   "acc.idDocs.empty": "Aucun document d'identité ajouté pour le moment.",
-  "acc.idDocs.verified": "✓ Vérifié",
+  "acc.idDocs.verified": "Vérifié",
 
   // Types de documents légaux du bien
   "acc.propDocType.TITLE_DEED": "Acte de propriété",
@@ -184,11 +184,11 @@ export const en: Record<string, string> = {
   "acc.profile.firstName": "First name",
   "acc.profile.lastName": "Last name",
   "acc.profile.phone": "Phone",
-  "acc.profile.updated": "Profile updated ✓",
+  "acc.profile.updated": "Profile updated",
 
   // Avatar
   "acc.avatar.clickTitle": "Click to change the photo",
-  "acc.avatar.editOverlay": "📷 Edit",
+  "acc.avatar.editOverlay": "Edit",
   "acc.avatar.change": "Change photo",
 
   // Identity document types
@@ -215,7 +215,7 @@ export const en: Record<string, string> = {
   "acc.idDocs.clickSelect": "Click to select a file",
   "acc.idDocs.fileHint": "JPG, PNG, PDF — max 10 MB",
   "acc.idDocs.empty": "No identity document added yet.",
-  "acc.idDocs.verified": "✓ Verified",
+  "acc.idDocs.verified": "Verified",
 
   // Property legal document types
   "acc.propDocType.TITLE_DEED": "Title deed",

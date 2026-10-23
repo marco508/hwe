@@ -3,10 +3,9 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AnimatedBackground, Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext } from "@hwe/ui";
+import { Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext, AuthSplit } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
-import { IlloKeys } from "@hwe/ui";
 
 export default function RegisterPage() {
   return (
@@ -55,16 +54,24 @@ function RegisterInner() {
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <AnimatedBackground variant="soft" className="rounded-2xl border border-border/60 px-6 py-7 mb-6 text-center">
-        <IlloKeys className="mx-auto w-40 mb-2" />
+    <AuthSplit
+      photo="auth/auth-tenant"
+      title={t("vis.auth.registerTitle")}
+      points={[
+        { icon: "handshake", text: t("vis.auth.p1") },
+        { icon: "folder", text: t("vis.auth.p2") },
+        { icon: "globe", text: t("vis.auth.p3") },
+      ]}
+      className="py-2 sm:py-6"
+    >
+      <div className="mb-6 text-center lg:text-left">
         <h1 className="font-display text-3xl mb-1">
           {t("register.title1")} <span className="gradient-text">hwe</span>
         </h1>
         <p className="text-sm text-ink-muted">
           {t("register.sub")}
         </p>
-      </AnimatedBackground>
+      </div>
       <Card>
         <CardBody>
           <form onSubmit={onSubmit} className="space-y-4">
@@ -101,6 +108,6 @@ function RegisterInner() {
           </form>
         </CardBody>
       </Card>
-    </div>
+    </AuthSplit>
   );
 }

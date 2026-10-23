@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MessagesView, useLoginRedirect } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
@@ -33,6 +34,11 @@ function MessagesPageInner() {
       title1={t("com.msg.title1")}
       title2={t("com.msg.title2")}
       subtitle={t("com.msg.sub")}
+      emptyAction={
+        <Link href="/" className="inline-flex items-center h-9 px-4 rounded-full bg-brand-600 text-white hover:text-white text-sm font-medium hover:bg-brand-700">
+          {t("vis.browse")}
+        </Link>
+      }
       emptyText={t("com.msg.emptyList")}
       tabTitle="hwe"
     />

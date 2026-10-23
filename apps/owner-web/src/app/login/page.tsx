@@ -9,12 +9,11 @@ import {
   CardBody,
   Input,
   Label,
-  AnimatedBackground,
+  AuthSplit,
 } from "@hwe/ui";
 import { useAuth, WRONG_ROLE } from "../../lib/auth-context";
 import { errorText, isApiError, safeNext } from "@hwe/ui";
 import { t } from "../../lib/i18n";
-import { IlloKeys } from "@hwe/ui";
 
 export default function LoginPage() {
   // useSearchParams exige une frontière Suspense (prérendu).
@@ -52,14 +51,22 @@ function LoginInner() {
   };
 
   return (
-    <AnimatedBackground variant="aurora" className="min-h-[70vh] flex items-center justify-center -mx-4 px-4 sm:-mx-6 sm:px-6 py-12">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-6">
+    <AuthSplit
+      photo="auth/auth-owner"
+      title={t("vis.auth.loginTitle")}
+      points={[
+        { icon: "sparkles", text: t("vis.auth.p1") },
+        { icon: "layers", text: t("vis.auth.p2") },
+        { icon: "wallet", text: t("vis.auth.p3") },
+      ]}
+      className="py-4 sm:py-8"
+    >
+      <div className="w-full">
+        <div className="mb-6 text-center lg:text-left">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-glow" />
             {t("login.badge")}
           </span>
-          <IlloKeys className="mx-auto w-44 mb-2" />
           <h1 className="font-display text-4xl">
             {t("login.title1")} <span className="gradient-text">{t("login.title2")}</span>
           </h1>
@@ -121,6 +128,6 @@ function LoginInner() {
           </CardBody>
         </Card>
       </div>
-    </AnimatedBackground>
+    </AuthSplit>
   );
 }

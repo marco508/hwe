@@ -17,6 +17,7 @@ import {
   compressImage,
   readFileAsDataUrl,
   toast,
+  Icon,
 } from "@hwe/ui";
 import { leaseCurrency } from "@hwe/types";
 import { api } from "../lib/api";
@@ -152,8 +153,8 @@ function InspectionView({
       <div className="flex flex-wrap items-center gap-3">
         <span className="font-medium w-16">{t("rental.inspection.type." + inspection.type)}</span>
         <span>{fmtDate(inspection.date)}</span>
-        <span title={t("rental.inspection.ownerTitle")}>{inspection.ownerSignedAt ? "✅" : "⏳"} {t("rental.inspection.ownerShort")}</span>
-        <span title={t("rental.inspection.youTitle")}>{inspection.tenantSignedAt ? "✅" : "⏳"} {t("rental.inspection.youShort")}</span>
+        <span title={t("rental.inspection.ownerTitle")}><Icon name={inspection.ownerSignedAt ? "checkCircle" : "hourglass"} size={14} className={inspection.ownerSignedAt ? "text-success" : "text-ink-subtle"} /> {t("rental.inspection.ownerShort")}</span>
+        <span title={t("rental.inspection.youTitle")}><Icon name={inspection.tenantSignedAt ? "checkCircle" : "hourglass"} size={14} className={inspection.tenantSignedAt ? "text-success" : "text-ink-subtle"} /> {t("rental.inspection.youShort")}</span>
         <button
           type="button"
           aria-expanded={openDetail}
@@ -181,9 +182,9 @@ function InspectionView({
             </ul>
           )}
           <div className="flex flex-wrap gap-4 text-ink-muted">
-            {inspection.meterElectricity && <span>⚡ {inspection.meterElectricity}</span>}
-            {inspection.meterWater && <span>💧 {inspection.meterWater}</span>}
-            {inspection.meterGas && <span>🔥 {inspection.meterGas}</span>}
+            {inspection.meterElectricity && <span className="inline-flex items-center gap-1"><Icon name="zap" size={14} />{inspection.meterElectricity}</span>}
+            {inspection.meterWater && <span className="inline-flex items-center gap-1"><Icon name="droplet" size={14} />{inspection.meterWater}</span>}
+            {inspection.meterGas && <span className="inline-flex items-center gap-1"><Icon name="flame" size={14} />{inspection.meterGas}</span>}
             {inspection.keysCount != null && <span>{t(inspection.keysCount > 1 ? "rental.inspection.keys.other" : "rental.inspection.keys.one", { n: inspection.keysCount })}</span>}
           </div>
           {inspection.generalNote && (
@@ -279,7 +280,7 @@ function TicketForm({
           onChange={onFile}
           className="block w-full max-w-full text-sm"
         />
-        {photo && <p className="text-xs text-ink-muted mt-1">✓ {t("fix.file.ready")}</p>}
+        {photo && <p className="text-xs text-ink-muted mt-1 inline-flex items-center gap-1"><Icon name="check" size={13} className="text-success" />{t("fix.file.ready")}</p>}
       </div>
       <Button type="submit" size="sm" disabled={busy}>
         {busy ? t("rental.sending") : t("rental.ticket.submit")}
@@ -471,7 +472,7 @@ function CoTenantsBlock({ lease, onMerge }: { lease: LeaseContract; onMerge?: (l
       <ul className="space-y-1">
         {coTenants.map((c) => (
           <li key={c.id} className="flex flex-wrap items-center gap-2">
-            <span>{c.signedAt ? "✅" : "⏳"}</span>
+            <Icon name={c.signedAt ? "checkCircle" : "hourglass"} size={16} className={c.signedAt ? "text-success" : "text-ink-subtle"} />
             <span className="font-medium">{c.firstName} {c.lastName}</span>
             <span className="text-ink-muted [overflow-wrap:anywhere] min-w-0">{c.email}</span>
             {c.signedAt && <span className="text-ink-muted">{t("rental.coTenants.signedOn", { date: fmtDate(c.signedAt) })}</span>}

@@ -7,6 +7,7 @@ import * as p2 from "./i18n-parts/rents";
 import * as p3 from "./i18n-parts/comms";
 import * as p4 from "./i18n-parts/account";
 import * as p5 from "./i18n-parts/fixes";
+import * as pv from "./i18n-parts/visual";
 
 // fr = textes d'origine ; en = traduction. Couvre la coque de l'app
 // (navigation, auth, accueil) — les écrans de gestion restent en français.
@@ -20,7 +21,7 @@ const fr: Record<string, string> = {
   "nav.myRental": "Ma location",
   "nav.myRents": "Mes loyers",
   "nav.myVisits": "Mes visites",
-  "nav.favorites": "❤ Favoris",
+  "nav.favorites": "Favoris",
   "nav.myRequests": "Mes demandes",
   "nav.messages": "Messages",
   "nav.profile": "Profil",
@@ -90,7 +91,7 @@ const en: Record<string, string> = {
   "nav.myRental": "My rental",
   "nav.myRents": "My rent",
   "nav.myVisits": "My visits",
-  "nav.favorites": "❤ Favorites",
+  "nav.favorites": "Favorites",
   "nav.myRequests": "My requests",
   "nav.messages": "Messages",
   "nav.profile": "Profile",
@@ -151,6 +152,6 @@ const en: Record<string, string> = {
 };
 
 export const { t, LangProvider, useLang, LangSwitch } = createI18n({
-  fr: { ...fr, ...p0.fr, ...p1.fr, ...p2.fr, ...p3.fr, ...p4.fr, ...p5.fr },
-  en: { ...en, ...p0.en, ...p1.en, ...p2.en, ...p3.en, ...p4.en, ...p5.en },
+  fr: { ...fr, ...p0.fr, ...p1.fr, ...p2.fr, ...p3.fr, ...p4.fr, ...p5.fr, ...pv.fr },
+  en: { ...en, ...p0.en, ...p1.en, ...p2.en, ...p3.en, ...p4.en, ...p5.en, ...pv.en },
 });

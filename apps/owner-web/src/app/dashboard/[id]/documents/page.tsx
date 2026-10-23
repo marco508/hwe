@@ -21,6 +21,9 @@ import {
   DOC_MIME_TYPES,
   MAX_DOC_BYTES,
   tUi,
+  Icon,
+  IconBadge,
+  type IconName,
 } from "@hwe/ui";
 import { api } from "../../../../lib/api";
 import { useAuth } from "../../../../lib/auth-context";
@@ -33,11 +36,11 @@ const DOCTYPE_VALUES = Object.keys(DOCUMENT_TYPE_LABELS) as DocumentType[];
 
 const docTypeLabel = (code: DocumentType) => t("acc.propDocType." + code);
 
-const FILE_ICONS: Record<string, string> = {
-  "application/pdf": "📄",
-  "image/jpeg": "🖼️",
-  "image/png": "🖼️",
-  "image/webp": "🖼️",
+const FILE_ICONS: Record<string, IconName> = {
+  "application/pdf": "file",
+  "image/jpeg": "image",
+  "image/png": "image",
+  "image/webp": "image",
 };
 
 type PendingFile = { dataUrl: string; size: number; mimeType: string; originalName: string };
@@ -219,9 +222,7 @@ export default function DocumentsPage() {
                   }`}
                 >
                   <input id="doc-file" type="file" accept={DOC_ACCEPT} className="sr-only" onChange={onFile} />
-                  <span className="text-2xl" aria-hidden="true">
-                    {file ? FILE_ICONS[file.mimeType] ?? "📎" : "📎"}
-                  </span>
+                  <Icon name={file ? FILE_ICONS[file.mimeType] ?? "paperclip" : "paperclip"} size={24} className="text-brand-600 dark:text-brand-300" />
                   {file ? (
                     <>
                       <span className="text-sm font-medium text-ink [overflow-wrap:anywhere]">{file.originalName}</span>
@@ -291,26 +292,22 @@ export default function DocumentsPage() {
       )}
 
       {docs.length === 0 ? (
-        <div className="text-center py-20 px-4 border-2 border-dashed border-border rounded-2xl">
-          <div className="text-5xl mb-4" aria-hidden="true">
-            🗂️
-          </div>
-          <p className="font-semibold text-lg mb-1">{t("acc.docs.emptyTitle")}</p>
-          <p className="text-ink-muted text-sm mb-6">{t("acc.docs.emptySub")}</p>
-          <Button onClick={openAdd}>{t("acc.docs.add")}</Button>
-        </div>
+        <EmptyState
+          illustration="document"
+          title={t("acc.docs.emptyTitle")}
+          description={t("acc.docs.emptySub")}
+          action={<Button onClick={openAdd}>{t("acc.docs.add")}</Button>}
+        />
       ) : (
         <ul className="space-y-3">
           {docs.map((doc) => {
-            const icon = FILE_ICONS[doc.mimeType ?? ""] ?? "📎";
+            const icon = FILE_ICONS[doc.mimeType ?? ""] ?? "paperclip";
             return (
               <li
                 key={doc.id}
                 className="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 p-4 rounded-xl border border-border bg-surface hover:shadow-sm transition-shadow"
               >
-                <span className="text-3xl shrink-0" aria-hidden="true">
-                  {icon}
-                </span>
+                <IconBadge name={icon} />
                 {/* min-w : sur téléphone les actions passent à la ligne au lieu d'écraser le nom. */}
                 <div className="flex-1 min-w-[12rem]">
                   <div className="flex items-center gap-2 flex-wrap min-w-0">
@@ -332,7 +329,7 @@ export default function DocumentsPage() {
                     {t("acc.view")}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => openEdit(doc)} aria-label={t("docs.edit", { name: doc.name })}>
-                    <span aria-hidden="true">✏️</span>
+                    <Icon name="pencil" size={16} />
                   </Button>
                   <Button
                     variant="danger"
@@ -340,7 +337,7 @@ export default function DocumentsPage() {
                     onClick={() => handleDelete(doc.id)}
                     aria-label={t("docs.delete", { name: doc.name })}
                   >
-                    <span aria-hidden="true">🗑</span>
+                    <Icon name="trash" size={16} />
                   </Button>
                 </div>
               </li>
@@ -356,7 +353,7 @@ export default function DocumentsPage() {
             href={`/dashboard/${params?.id}/lease`}
             className="inline-flex items-center h-10 px-4 rounded-md text-sm font-medium bg-surface text-ink border border-border hover:border-ink/30"
           >
-            📋 {t("acc.docs.manageLeases")}
+            <Icon name="clipboard" size={16} className="mr-1.5" /> {t("acc.docs.manageLeases")}
           </Link>
         )}
         <Link

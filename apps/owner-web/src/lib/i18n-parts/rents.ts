@@ -27,17 +27,17 @@ export const fr: Record<string, string> = {
   "rent.hideProof": "▲ Masquer la capture",
   "rent.showProof": "▼ Voir la capture du reçu",
   "rent.proofAlt": "Capture du reçu",
-  "rent.checkStatement1": "⚠️ Vérifiez la réception",
+  "rent.checkStatement1": "Vérifiez la réception",
   "rent.checkStatement2": "sur votre relevé",
   "rent.checkStatement3":
     "(banque ou opérateur), pas seulement sur la capture : une capture peut se falsifier, votre relevé non.",
-  "rent.validate": "✓ J'ai bien reçu — valider",
+  "rent.validate": "J'ai bien reçu — valider",
   "rent.reject": "Refuser",
   "rent.rejectPlaceholder": "Motif du refus (ex. : montant non reçu sur mon compte)",
   "rent.confirmReject": "Confirmer le refus",
   "rent.cancel": "Annuler",
-  "rent.paidOn": "✓ Payé le {date}",
-  "rent.receiptBtn": "📄 Quittance {no}",
+  "rent.paidOn": "Payé le {date}",
+  "rent.receiptBtn": "Quittance {no}",
   "rent.lastReject": "Dernier refus : {reason}",
 
   // Page
@@ -62,7 +62,7 @@ export const fr: Record<string, string> = {
 
   // Coordonnées de paiement (PaymentMethodsManager)
   "rent.pm.deleteConfirm": "Supprimer « {label} » ? Les locataires ne le verront plus.",
-  "rent.pm.title": "💸 Coordonnées de paiement des loyers",
+  "rent.pm.title": "Coordonnées de paiement des loyers",
   "rent.pm.desc1":
     "Vos locataires voient ces coordonnées dans leur espace, paient directement, puis déclarent leur versement — que vous validez dans",
   "rent.pm.descLink": "Loyers",
@@ -113,17 +113,17 @@ export const en: Record<string, string> = {
   "rent.hideProof": "▲ Hide the screenshot",
   "rent.showProof": "▼ View the receipt screenshot",
   "rent.proofAlt": "Receipt screenshot",
-  "rent.checkStatement1": "⚠️ Check that the money arrived",
+  "rent.checkStatement1": "Check that the money arrived",
   "rent.checkStatement2": "on your statement",
   "rent.checkStatement3":
     "(bank or operator), not just on the screenshot: a screenshot can be faked, your statement cannot.",
-  "rent.validate": "✓ I received it — validate",
+  "rent.validate": "I received it — validate",
   "rent.reject": "Reject",
   "rent.rejectPlaceholder": "Reason for rejection (e.g. amount not received on my account)",
   "rent.confirmReject": "Confirm rejection",
   "rent.cancel": "Cancel",
-  "rent.paidOn": "✓ Paid on {date}",
-  "rent.receiptBtn": "📄 Receipt {no}",
+  "rent.paidOn": "Paid on {date}",
+  "rent.receiptBtn": "Receipt {no}",
   "rent.lastReject": "Last rejection: {reason}",
 
   // Page
@@ -148,7 +148,7 @@ export const en: Record<string, string> = {
 
   // Payment details (PaymentMethodsManager)
   "rent.pm.deleteConfirm": "Delete “{label}”? Tenants will no longer see it.",
-  "rent.pm.title": "💸 Rent payment details",
+  "rent.pm.title": "Rent payment details",
   "rent.pm.desc1":
     "Your tenants see these details in their space, pay directly, then declare their payment — which you validate in",
   "rent.pm.descLink": "Rents",

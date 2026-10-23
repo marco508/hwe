@@ -9,12 +9,11 @@ import {
   CardBody,
   Input,
   Label,
-  AnimatedBackground,
+  AuthSplit,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { errorText, isApiError } from "@hwe/ui";
 import { t } from "../../lib/i18n";
-import { IlloKeys } from "@hwe/ui";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -51,17 +50,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <AnimatedBackground
-      variant="aurora"
-      className="min-h-[70vh] flex items-center justify-center -mx-4 px-4 sm:-mx-6 sm:px-6 py-12"
+    <AuthSplit
+      photo="auth/auth-owner"
+      title={t("vis.auth.registerTitle")}
+      points={[
+        { icon: "sparkles", text: t("vis.auth.p1") },
+        { icon: "layers", text: t("vis.auth.p2") },
+        { icon: "wallet", text: t("vis.auth.p3") },
+      ]}
+      className="py-4 sm:py-8"
     >
-      <div className="max-w-md w-full">
-        <div className="text-center mb-6">
+      <div className="w-full">
+        <div className="mb-6 text-center lg:text-left">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
             <span className="h-1.5 w-1.5 rounded-full bg-accent-500 animate-pulse-glow" />
             {t("register.badge")}
           </span>
-          <IlloKeys className="mx-auto w-44 mb-2" />
           <h1 className="font-display text-4xl mb-1">
             {t("register.title1")} <span className="gradient-text">{t("register.title2")}</span>
           </h1>
@@ -143,6 +147,6 @@ export default function RegisterPage() {
           </CardBody>
         </Card>
       </div>
-    </AnimatedBackground>
+    </AuthSplit>
   );
 }

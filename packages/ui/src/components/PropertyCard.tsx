@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "../utils";
 import { ImageCarousel } from "./ImageCarousel";
+import { PropertyPlaceholder } from "./Photos";
 import { tUi } from "./I18nKit";
 import { fmtMoney, priceUnitSuffix } from "../client/format";
 
@@ -93,6 +94,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           showDots
           showCounter={false}
           fallback={<span className="display-serif">hwe</span>}
+          placeholder={<PropertyPlaceholder propertyType={propertyType} />}
         />
 
         {/* Top-left badges */}
