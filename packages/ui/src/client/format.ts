@@ -21,15 +21,26 @@ export function fmtMoney(
   const v = typeof amount === "number" && Number.isFinite(amount) ? amount : 0;
   const cur = (currency || "EUR").toUpperCase();
   try {
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: cur,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: Number.isInteger(v) ? 0 : 2,
-    }).format(v);
+    return withVisibleSpaces(
+      new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: cur,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: Number.isInteger(v) ? 0 : 2,
+      }).format(v),
+    );
   } catch {
-    return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(v)} ${cur}`;
+    return withVisibleSpaces(`${new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(v)} ${cur}`);
   }
+}
+
+/**
+ * Intl sépare les milliers en fr-FR par une espace fine insécable (U+202F),
+ * absente de la police des titres (Fraunces) : « 385000 € ».
+ * On la remplace par une espace insécable classique.
+ */
+function withVisibleSpaces(s: string): string {
+  return s.replace(/ /g, " ");
 }
 
 type DateStyle = "short" | "medium" | "long";
