@@ -39,8 +39,10 @@ function LoginInner() {
     setLoading(true);
     try {
       // Le rôle est vérifié avant tout stockage du jeton (F4).
-      await login(email, password);
-      router.push(safeNext(params.get("next"), "/dashboard"));
+      const u = await login(email, password);
+      // Un pro arrive sur son tableau de bord (/pro), sauf lien de retour explicite.
+      const next = safeNext(params.get("next"), "");
+      router.push(u.role === "AGENT" ? (next && next !== "/dashboard" ? next : "/pro") : next || "/dashboard");
     } catch (err) {
       // A5 : message adapté à la cause réelle de l'échec.
       if (isApiError(err) && err.code === WRONG_ROLE) setError(t("login.errRole"));
@@ -123,6 +125,11 @@ function LoginInner() {
                 <Link href="/register" className="font-medium">
                   {t("login.createOwner")}
                 </Link>
+                <span className="block mt-1">
+                  <Link href="/register?type=pro" className="font-medium">
+                    {t("login.createPro")}
+                  </Link>
+                </span>
               </p>
             </form>
           </CardBody>

@@ -32,7 +32,13 @@ export type AuthCtx = {
     firstName: string;
     lastName: string;
     phone?: string;
+    /** Inscription pro (owner-web) : rôle AGENT, agence, invitation d'agent. */
+    role?: "OWNER" | "AGENT";
+    agencyName?: string;
+    agencyInviteToken?: string;
   }) => Promise<User>;
+  /** Ouvre la session à partir d'une réponse { accessToken, user } (activation d'un compte invité). */
+  adopt: (accessToken: string, user: User) => Promise<User>;
   logout: () => void;
   refresh: () => Promise<void>;
   /** Fusionne des champs dans l'utilisateur courant (après PATCH /users/me…). */
@@ -167,10 +173,12 @@ export function createAuth(options: {
 
     const register = React.useCallback<AuthCtx["register"]>(
       async (input) => {
+        const { role, ...rest } = input;
         const r = await commonApi.register({
-          ...input,
+          ...rest,
           email: input.email.trim(),
-          role: options.registerRole,
+          // Seule une app qui autorise le rôle AGENT peut créer un compte pro.
+          role: role && options.allowedRoles.includes(role) ? role : options.registerRole,
         });
         return establish(r.accessToken, r.user);
       },
@@ -194,12 +202,13 @@ export function createAuth(options: {
         sessionError,
         login,
         register,
+        adopt: establish,
         logout,
         refresh,
         patchUser,
         emailVerified: !!user?.emailVerifiedAt,
       }),
-      [user, loading, sessionError, login, register, logout, refresh, patchUser],
+      [user, loading, sessionError, login, register, establish, logout, refresh, patchUser],
     );
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

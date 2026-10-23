@@ -91,6 +91,7 @@ export {
 export { IdentityDocuments, docTypeLabel, type IdentityDocumentsProps } from "./components/IdentityDocuments";
 export { AvatarUploader, type AvatarUploaderProps } from "./components/AvatarUploader";
 export { MessagesView, type MessagesViewProps } from "./components/MessagesView";
+export { AgencyLogo, ManagedByBadge, InviteLinkBox } from "./components/ProKit";
 
 // Client API, session, formatteurs, fichiers (partagés owner/tenant/landing).
 export * from "./client";

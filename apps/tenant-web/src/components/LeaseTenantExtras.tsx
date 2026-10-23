@@ -169,6 +169,11 @@ function InspectionView({
           </Button>
         )}
       </div>
+      {inspection.ownerSignedAt && inspection.ownerSignatureMention && (
+        <p className="text-xs text-ink-muted [overflow-wrap:anywhere]">
+          {t("pro.inspection.mention", { mention: inspection.ownerSignatureMention })}
+        </p>
+      )}
       {openDetail && (
         <div className="rounded-lg border border-border bg-brand-50/60 dark:bg-brand-900/20 p-3 space-y-2">
           {(inspection.items ?? []).length > 0 && (
@@ -425,8 +430,12 @@ function AmendmentsBlock({ lease, canSign }: { lease: LeaseContract; canSign: bo
           ) : (
             <Badge tone="neutral">{t("fix.amendment.awaitPrimary")}</Badge>
           )}
+          {/* Préparé par un pro : le propriétaire doit aussi signer. */}
+          {!a.ownerSignedAt && (
+            <Badge tone="accent">{t("pro.amendment.awaitingOwner")}</Badge>
+          )}
           {/* Avenant appliqué à sa date d'effet seulement (contrat §9). */}
-          {a.tenantSignedAt && !a.appliedAt && (
+          {a.tenantSignedAt && a.ownerSignedAt && !a.appliedAt && (
             <span className="text-xs text-ink-muted">
               {t("fix.amendment.pendingApply", { date: fmtDate(a.effectiveDate) })}
             </span>

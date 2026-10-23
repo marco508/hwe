@@ -1,4 +1,6 @@
-export type Role = "OWNER" | "TENANT" | "ADMIN";
+import type { ActorRef, AuthAgency, LeaseManagedBy, ManagedBy, PortfolioMandate, PropertyAccess } from "./agencies";
+
+export type Role = "OWNER" | "TENANT" | "ADMIN" | "AGENT";
 
 export type ListingType = "SALE" | "RENT";
 
@@ -21,6 +23,10 @@ export interface User {
   avatarUrl?: string | null;
   role: Role;
   emailVerifiedAt?: string | null;
+  /** null = compte créé par un professionnel, pas encore activé. */
+  activatedAt?: string | null;
+  /** Agence du compte pro (rôle AGENT), sinon null. */
+  agency?: AuthAgency | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -147,6 +153,14 @@ export interface Property {
    * à afficher suivi de « / jour », « / semaine » ou « / mois ». null pour une vente.
    */
   displayPrice?: number | null;
+  /** Agence mandataire (mandat ACTIVE), sinon null. */
+  managedBy?: ManagedBy | null;
+  soldAt?: string | null;
+  /** Prix de vente final : propriétaire et pro mandataire seulement. */
+  soldPrice?: number | null;
+  /** Portefeuille pro (`GET /properties/mine/list` d'un AGENT) uniquement. */
+  mandate?: PortfolioMandate | null;
+  access?: PropertyAccess;
   createdAt: string;
   updatedAt: string;
 }
@@ -160,6 +174,9 @@ export interface PublicOwner {
   /** Champs historiques : absents des réponses publiques depuis le contrat. */
   email?: string;
   phone?: string | null;
+  /** Portefeuille pro : statut d'activation du compte du propriétaire. */
+  activatedAt?: string | null;
+  activated?: boolean;
 }
 
 /** GET /properties/stats (public) — compteurs de la landing. */
@@ -263,6 +280,15 @@ export interface Inquiry {
   conversationId?: string | null;
   createdAt: string;
   shareDossier?: boolean;
+  // ── Proposition au propriétaire (bien géré par un pro) ──
+  proposedAt?: string | null;
+  proposedById?: string | null;
+  proposalNote?: string | null;
+  ownerDecision?: "APPROVED" | "DECLINED" | null;
+  ownerDecisionAt?: string | null;
+  ownerDecisionNote?: string | null;
+  proposedBy?: ActorRef | null;
+  managedBy?: (ManagedBy & { mandateReference?: string }) | null;
 }
 
 export interface AuthResponse {
@@ -280,7 +306,7 @@ export interface Message {
   id: string;
   conversationId: string;
   senderId: string;
-  sender?: ConversationUser;
+  sender?: ConversationUser & { agency?: { name: string; slug: string } | null };
   content: string;
   readAt?: string | null;
   createdAt: string;
@@ -305,6 +331,8 @@ export interface Conversation {
     currency: string;
     media?: { url: string }[];
   };
+  /** Côté du lecteur : LANDLORD = propriétaire ou pro mandataire. */
+  side?: "LANDLORD" | "OTHER";
   /** Nombre de messages non-lus pour le user courant (rempli côté list). */
   _count?: { messages: number };
   createdAt: string;
@@ -430,6 +458,13 @@ export interface LeaseContract {
   coTenants?: LeaseCoTenant[];
   amendments?: LeaseAmendment[];
   insurances?: InsuranceSummary[];
+  /** Mandataire du bien (mention « Bien géré par <agence>, mandataire »). */
+  managedBy?: LeaseManagedBy | null;
+  preparedBy?: ActorRef | null;
+  preparedById?: string | null;
+  ownerSignedById?: string | null;
+  /** « Signé par X (Agence), mandataire, pour le compte de Y — mandat MAN-… » */
+  ownerSignatureMention?: string | null;
   createdAt: string;
   updatedAt: string;
   property?: Pick<Property, "id" | "title" | "addressLine" | "city" | "postalCode" | "country" | "surface" | "rooms"> &
@@ -460,6 +495,9 @@ export interface Inspection {
   keysCount?: number | null;
   ownerSignedAt?: string | null;
   tenantSignedAt?: string | null;
+  updatedById?: string | null;
+  ownerSignedById?: string | null;
+  ownerSignatureMention?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -486,6 +524,7 @@ export interface Ticket {
     property?: { id: string; title: string; city?: string };
   };
   author?: { firstName: string; lastName: string; email: string };
+  handledById?: string | null;
 }
 
 // ── Avenants, colocation, assurance, visites ──
@@ -497,9 +536,13 @@ export interface LeaseAmendment {
   newCharges?: number | null;
   newEndDate?: string | null;
   note?: string | null;
-  ownerSignedAt: string;
+  /** null : préparé par un pro, en attente de la signature du propriétaire. */
+  ownerSignedAt: string | null;
   tenantSignedAt?: string | null;
   appliedAt?: string | null;
+  createdById?: string | null;
+  ownerSignedById?: string | null;
+  ownerSignatureMention?: string | null;
   createdAt: string;
 }
 
@@ -541,6 +584,7 @@ export interface Visit {
   updatedAt: string;
   property?: { id: string; title: string; city?: string; addressLine?: string };
   requester?: { firstName: string; lastName: string; email: string; phone?: string | null };
+  answeredById?: string | null;
 }
 
 export const OWNER_NOTICE_REASON_LABELS: Record<string, string> = {
@@ -587,6 +631,8 @@ export interface RentPeriod {
   paidAt: string | null;
   receiptNo: string | null;
   rejectReason: string | null;
+  /** Auteur de la validation / du refus (propriétaire ou pro). */
+  reviewedById?: string | null;
 }
 
 /** Corps d'erreur normalisé de l'API. */
@@ -597,3 +643,4 @@ export interface ApiErrorBody {
 }
 
 export * from "./lease-contract";
+export * from "./agencies";

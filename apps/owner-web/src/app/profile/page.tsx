@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Card, CardBody, CardHeader, Input, Label, ErrorState, toast, useLoginRedirect } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
@@ -146,7 +147,17 @@ export default function ProfilePage() {
       </Card>
 
       {/* Coordonnées de paiement des loyers */}
-      <PaymentMethodsManager />
+      {/* Coordonnées bancaires : propriétaire seulement (un pro passe par sa page Agence). */}
+      {user?.role === "AGENT" ? (
+        <div className="rounded-2xl border border-border bg-surface p-5 text-sm flex flex-wrap items-center justify-between gap-3">
+          <p className="text-ink-muted">{t("pro.profile.agencyNote", { agency: user.agency?.name ?? "" })}</p>
+          <Link href="/pro/agence" className="inline-flex items-center h-9 px-4 rounded-full border border-border bg-surface font-medium text-ink">
+            {t("nav.pro.agency")}
+          </Link>
+        </div>
+      ) : (
+        <PaymentMethodsManager />
+      )}
 
       {/* Pièces d'identité (composant partagé) */}
       {docsError ? (

@@ -54,7 +54,8 @@ export default function EditPropertyPage() {
 
   // Un bien d'un autre propriétaire (publié) reste lisible publiquement :
   // on n'ouvre l'édition qu'à son propriétaire.
-  if (property && user && property.ownerId !== user.id && user.role !== "ADMIN") {
+  // Pro mandataire : l'API (PATCH) tranche ; un bien hors portefeuille → 403 clair.
+  if (property && user && property.ownerId !== user.id && user.role !== "ADMIN" && user.role !== "AGENT") {
     return <EmptyState title={t("pf.notFound")} />;
   }
 
@@ -92,7 +93,7 @@ export default function EditPropertyPage() {
       );
 
       toast.success(t("pf.saved"));
-      router.push("/dashboard");
+      router.push(user?.role === "AGENT" ? `/dashboard/${property.id}` : "/dashboard");
     } catch (e) {
       toast.error(e);
       setSubmitting(false);
@@ -115,7 +116,7 @@ export default function EditPropertyPage() {
         className="rounded-2xl border border-border/60 px-5 sm:px-8 py-8 mb-8"
       >
         <Link
-          href="/dashboard"
+          href={user?.role === "AGENT" ? `/dashboard/${property.id}` : "/dashboard"}
           className="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink mb-3 transition-colors"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

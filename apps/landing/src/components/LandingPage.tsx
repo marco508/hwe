@@ -16,6 +16,7 @@ import {
   Photo,
   CityCard,
   Icon,
+  IconBadge,
   FEATURED_CITIES,
   type IconName,
   type PhotoId,
@@ -657,6 +658,56 @@ function LandingInner() {
           </ol>
         </div>
       </section>
+      {/* ── Professionnels ───────────────────────────────────────────────── */}
+      <section id="professionnels" className="py-20 border-t border-border/40" data-pro-section>
+        <div className="container-app">
+          <RevealOnScroll>
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] border border-border/60 shadow-card">
+                <Photo
+                  id="people/benefit-2"
+                  alt={t("pro.photoAlt")}
+                  sizes="(min-width: 1024px) 45vw, 100vw"
+                  className="h-full w-full object-cover"
+                />
+                <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-brand-950/50 via-transparent to-transparent" />
+              </div>
+              <div className="min-w-0">
+                <span className="eyebrow">{t("pro.eyebrow")}</span>
+                <h2 className="display-serif text-4xl sm:text-5xl mt-3 leading-[1.05] text-ink [overflow-wrap:anywhere]">
+                  {t("pro.title")}
+                </h2>
+                <p className="text-ink-muted text-lg mt-4 leading-relaxed">{t("pro.sub")}</p>
+                <ul className="mt-8 space-y-5">
+                  {(
+                    [
+                      { icon: "users", k: "p1" },
+                      { icon: "handshake", k: "p2" },
+                      { icon: "coins", k: "p3" },
+                    ] as { icon: IconName; k: string }[]
+                  ).map((a) => (
+                    <li key={a.k} className="flex gap-4">
+                      <IconBadge name={a.icon} tone={a.k === "p3" ? "accent" : "brand"} />
+                      <div className="min-w-0">
+                        <div className="font-display text-lg text-ink">{t(`pro.${a.k}.title`)}</div>
+                        <p className="text-sm text-ink-muted leading-relaxed">{t(`pro.${a.k}.desc`)}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`${OWNER_URL}/register?type=pro`}
+                  className="mt-8 inline-flex items-center gap-2 h-12 px-7 rounded-full bg-brand-900 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
+                >
+                  {t("pro.cta")}
+                  <ArrowRightIcon />
+                </a>
+              </div>
+            </div>
+          </RevealOnScroll>
+        </div>
+      </section>
+
       {/* ── CTA final ───────────────────────────────────────────────────── */}
       <section className="py-20">
         <div className="container-app">

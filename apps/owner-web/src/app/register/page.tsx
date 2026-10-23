@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Button,
@@ -10,13 +10,25 @@ import {
   Input,
   Label,
   AuthSplit,
+  Icon,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { errorText, isApiError } from "@hwe/ui";
 import { t } from "../../lib/i18n";
 
 export default function RegisterPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <RegisterInner />
+    </React.Suspense>
+  );
+}
+
+function RegisterInner() {
   const router = useRouter();
+  const params = useSearchParams();
+  const [kind, setKind] = React.useState<"OWNER" | "AGENT">(params.get("type") === "pro" ? "AGENT" : "OWNER");
+  const [agencyName, setAgencyName] = React.useState("");
   const { register } = useAuth();
   const [form, setForm] = React.useState({
     firstName: "",
@@ -37,11 +49,18 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      await register({ ...form, phone: form.phone.trim() || undefined });
-      router.push("/dashboard");
+      const pro = kind === "AGENT";
+      await register({
+        ...form,
+        phone: form.phone.trim() || undefined,
+        role: kind,
+        agencyName: pro && agencyName.trim() ? agencyName.trim() : undefined,
+      });
+      router.push(pro ? "/pro" : "/dashboard");
     } catch (err) {
-      // 409 = adresse déjà utilisée ; sinon message lisible (validation, réseau…).
-      if (isApiError(err) && err.status === 409) setError(t("register.errTaken"));
+      // 409 = adresse déjà utilisée (ou compte créé par un pro) ; sinon message lisible.
+      if (isApiError(err) && err.code === "INVITED_ACCOUNT") setError(errorText(err));
+      else if (isApiError(err) && err.status === 409) setError(t("register.errTaken"));
       else if (isApiError(err) && err.status === 400 && err.messages.length) setError(errorText(err));
       else if (isApiError(err)) setError(errorText(err));
       else setError(t("register.errFail"));
@@ -67,16 +86,50 @@ export default function RegisterPage() {
             {t("register.badge")}
           </span>
           <h1 className="font-display text-4xl mb-1">
-            {t("register.title1")} <span className="gradient-text">{t("register.title2")}</span>
+            {t("register.title1")} <span className="gradient-text">{kind === "AGENT" ? t("register.title2Pro") : t("register.title2")}</span>
           </h1>
           <p className="text-ink-muted text-sm">
-            {t("register.sub")}
+            {kind === "AGENT" ? t("register.subPro") : t("register.sub")}
           </p>
         </div>
 
         <Card className="glass-strong border-brand-200 dark:border-brand-800/50 shadow-card-hover">
           <CardBody>
             <form onSubmit={onSubmit} className="space-y-4">
+              <fieldset>
+                <legend className="text-sm font-medium mb-2">{t("register.kind")}</legend>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" role="radiogroup">
+                  {(["OWNER", "AGENT"] as const).map((k) => (
+                    <button
+                      key={k}
+                      type="button"
+                      role="radio"
+                      aria-checked={kind === k}
+                      onClick={() => setKind(k)}
+                      className={`text-left rounded-xl border p-3 transition ${
+                        kind === k
+                          ? "border-brand-500 bg-brand-50 ring-2 ring-brand-500/30 dark:bg-brand-900/30"
+                          : "border-border bg-surface hover:border-brand-300"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <Icon name={k === "OWNER" ? "home" : "store"} size={16} />
+                        {t(k === "OWNER" ? "register.kindOwner" : "register.kindPro")}
+                      </span>
+                      <span className="block text-xs text-ink-muted mt-0.5">
+                        {t(k === "OWNER" ? "register.kindOwnerSub" : "register.kindProSub")}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+              {kind === "AGENT" && (
+                <div className="space-y-1">
+                  <Label htmlFor="agencyName">{t("register.agencyName")}</Label>
+                  <Input id="agencyName" value={agencyName} onChange={(e) => setAgencyName(e.target.value)} minLength={2} maxLength={120} required />
+                  <p className="text-xs text-ink-muted">{t("register.agencyNameHint")}</p>
+                </div>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label htmlFor="firstName">{t("register.firstName")}</Label>

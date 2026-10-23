@@ -26,7 +26,9 @@ export const commonApi = {
     firstName: string;
     lastName: string;
     phone?: string;
-    role: "OWNER" | "TENANT";
+    role: "OWNER" | "TENANT" | "AGENT";
+    agencyName?: string;
+    agencyInviteToken?: string;
   }) => request<AuthResponse>("/auth/register", { method: "POST", body: json(body) }),
   login: (body: { email: string; password: string }) =>
     request<AuthResponse>("/auth/login", { method: "POST", body: json(body) }),

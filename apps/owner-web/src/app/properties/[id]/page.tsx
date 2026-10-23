@@ -18,6 +18,7 @@ import {
   Icon,
   PropertyGallery,
   type IconName,
+  AgencyLogo,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -220,9 +221,19 @@ export default function PropertyDetailPage() {
           </Card>
         )}
 
-        {user && p.ownerId === user.id && (
+        {p.managedBy && (
+          <div className="rounded-2xl border border-brand-200 dark:border-brand-800 bg-brand-50/60 dark:bg-brand-900/20 p-4 flex items-center gap-3" data-managed-card>
+            <AgencyLogo name={p.managedBy.name} logoUrl={p.managedBy.logoUrl} />
+            <div className="min-w-0">
+              <p className="text-xs text-ink-muted">{t("pro.prop.offeredBy")}</p>
+              <p className="font-medium [overflow-wrap:anywhere]">{p.managedBy.name}</p>
+            </div>
+          </div>
+        )}
+
+        {user && (p.ownerId === user.id || (user.role === "AGENT" && !!p.managedBy)) && (
           <Link
-            href={`/dashboard/${p.id}/edit`}
+            href={user.role === "AGENT" ? `/dashboard/${p.id}` : `/dashboard/${p.id}/edit`}
             className="flex items-center justify-center h-11 rounded-md text-sm font-medium text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md"
           >
             {t("prop.editMine")}

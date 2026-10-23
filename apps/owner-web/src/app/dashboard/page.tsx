@@ -17,7 +17,7 @@ import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { ActionCenter } from "../../components/ActionCenter";
 import { t } from "../../lib/i18n";
-import { IlloManage, Icon, IconBadge, type IconName } from "@hwe/ui";
+import { IlloManage, Icon, IconBadge, ManagedByBadge, type IconName } from "@hwe/ui";
 import type { Property } from "@hwe/types";
 
 // Lien stylé en bouton (évite <button> dans <a>, HTML invalide — M3).
@@ -182,7 +182,17 @@ export default function DashboardPage() {
               status={p.status}
               href={`/properties/${p.id}`}
               footer={
+                <div className="space-y-2">
+                {p.managedBy && <ManagedByBadge name={p.managedBy.name} logoUrl={p.managedBy.logoUrl} />}
                 <div className="flex gap-2 flex-wrap">
+                  <Link
+                    href={`/dashboard/${p.id}`}
+                    className={`${linkBtn} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}
+                    title={t("pro.hub.manage")}
+                    aria-label={t("pro.hub.manage")}
+                  >
+                    <Icon name="layers" size={16} />
+                  </Link>
                   <Link
                     href={`/dashboard/${p.id}/edit`}
                     className={`${linkBtn} flex-1 bg-surface text-ink border border-border hover:border-ink/30`}
@@ -214,6 +224,7 @@ export default function DashboardPage() {
                   >
                     {t("acc.delete")}
                   </Button>
+                </div>
                 </div>
               }
             />

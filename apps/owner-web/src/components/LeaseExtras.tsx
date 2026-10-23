@@ -25,7 +25,12 @@ import type {
   LeaseAmendment,
   InsuranceSummary,
   ChargeRegularization,
+  PropertyAccess,
 } from "@hwe/types";
+import { ConfirmDialog, LockedNote, WarningNote } from "./pro/ProUi";
+
+/** Droits du pro sur le bien (undefined = propriétaire). */
+type ProAccess = PropertyAccess | null | undefined;
 
 // Dates civiles en UTC, montants TOUJOURS dans la devise du bail (F2).
 const fmtDate = (iso: string) => fmtDateShared(iso, "short");
@@ -357,6 +362,11 @@ function InspectionRow({
             <Icon name={inspection.tenantSignedAt ? "checkCircle" : "hourglass"} size={14} className={inspection.tenantSignedAt ? "text-success" : "text-ink-subtle"} /> {t("lease.inspection.tenantAbbr")}
           </span>
           {locked && <Badge tone="success">{t("lease.inspection.locked")}</Badge>}
+          {inspection.ownerSignatureMention && (
+            <span className="basis-full text-xs italic text-ink-muted" data-inspection-mention>
+              {t("pro.insp.signedBy", { mention: inspection.ownerSignatureMention })}
+            </span>
+          )}
           {!inspection.ownerSignedAt && (
             <Button size="sm" variant="secondary" disabled={busy} onClick={sign}>
               {t("lease.sign")}
@@ -383,8 +393,34 @@ function InspectionRow({
 
 // ─── Avenants (création côté propriétaire) ─────────────────────────
 
-function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: LeaseContract }) {
+function AmendmentsBlock({
+  propertyId,
+  lease,
+  proAccess,
+  ownerName,
+}: {
+  propertyId: string;
+  lease: LeaseContract;
+  proAccess: ProAccess;
+  ownerName: string;
+}) {
   const uid = React.useId();
+  const pro = proAccess !== undefined;
+  const [behalf, setBehalf] = React.useState<LeaseAmendment | null>(null);
+  const [signing, setSigning] = React.useState(false);
+  const signAmendment = async (a: LeaseAmendment) => {
+    setSigning(true);
+    try {
+      const updated = await api.signAmendment(propertyId, lease.id, a.id);
+      setAmendments((arr) => arr.map((x) => (x.id === a.id ? { ...x, ...updated } : x)));
+      toast.success(t("pro.amend.signed"));
+      setBehalf(null);
+    } catch (e) {
+      toast.error(e);
+    } finally {
+      setSigning(false);
+    }
+  };
   const cur = leaseCurrency(lease);
   const [amendments, setAmendments] = React.useState<LeaseAmendment[]>(lease.amendments ?? []);
   const [open, setOpen] = React.useState(false);
@@ -431,17 +467,41 @@ function AmendmentsBlock({ propertyId, lease }: { propertyId: string; lease: Lea
                 {a.newCharges != null && <> · {t("lease.amendment.chargesWord")} <strong>{fmtMoney(a.newCharges, cur)}</strong></>}
                 {a.newEndDate != null && <> · {t("lease.amendment.endWord")} <strong>{fmtDate(a.newEndDate)}</strong></>}
               </span>
-              {a.tenantSignedAt && a.appliedAt ? (
+              {!a.ownerSignedAt &&
+                (!pro ? (
+                  <Button size="sm" variant="secondary" disabled={signing} onClick={() => signAmendment(a)}>
+                    <Icon name="signature" size={14} className="mr-1" /> {t("pro.amend.sign")}
+                  </Button>
+                ) : proAccess?.can.SIGN_LEASE ? (
+                  <Button size="sm" variant="secondary" disabled={signing} onClick={() => setBehalf(a)}>
+                    <Icon name="signature" size={14} className="mr-1" /> {t("pro.amend.signBehalf")}
+                  </Button>
+                ) : (
+                  <Badge tone="accent">{t("pro.amend.awaitingOwner")}</Badge>
+                ))}
+              {a.ownerSignatureMention && <span className="basis-full text-xs italic text-ink-muted">{a.ownerSignatureMention}</span>}
+              {a.ownerSignedAt && a.tenantSignedAt && a.appliedAt ? (
                 <Badge tone="success">{t("lease.amendment.signedApplied")}</Badge>
-              ) : a.tenantSignedAt ? (
+              ) : a.ownerSignedAt && a.tenantSignedAt ? (
                 // Avenant signé mais appliqué seulement à sa date d'effet.
                 <Badge tone="ocean">{t("lease.amendment.pendingApplication", { date: fmtDate(a.effectiveDate) })}</Badge>
-              ) : (
+              ) : !a.tenantSignedAt ? (
                 <Badge tone="accent">{t("lease.amendment.awaitingSignature")}</Badge>
-              )}
+              ) : null}
             </li>
           ))}
         </ul>
+      )}
+      {behalf && (
+        <ConfirmDialog
+          title={t("pro.amend.behalfTitle")}
+          confirmLabel={t("pro.lease.behalfConfirm")}
+          busy={signing}
+          onClose={() => setBehalf(null)}
+          onConfirm={() => signAmendment(behalf)}
+        >
+          <WarningNote title={t("pro.lease.behalfWarnTitle")}>{t("pro.amend.behalfWarn", { owner: ownerName })}</WarningNote>
+        </ConfirmDialog>
       )}
       {open ? (
         <div className="space-y-3 border border-ink-subtle rounded-xl p-4 bg-brand-50/60 dark:bg-brand-900/20 max-w-xl">
@@ -609,10 +669,12 @@ function OwnerNoticeBlock({
   propertyId,
   lease,
   onUpdate,
+  proAccess,
 }: {
   propertyId: string;
   lease: LeaseContract;
   onUpdate: (l: LeaseContract) => void;
+  proAccess: ProAccess;
 }) {
   const uid = React.useId();
   const [open, setOpen] = React.useState(false);
@@ -641,6 +703,8 @@ function OwnerNoticeBlock({
   }
   const active = lease.status === "ACTIVE" || lease.status === "SIGNED";
   if (!active) return <p className="text-sm text-ink-muted">{t("lease.notice.availableWhenActive")}</p>;
+  // Congé bailleur par le pro : mandat de gestion complète seulement.
+  if (proAccess !== undefined && !proAccess?.can.OWNER_NOTICE) return <LockedNote>{t("pro.notice.scope")}</LockedNote>;
 
   const minMonths = lease.furnished ? 3 : 6;
 
@@ -818,10 +882,15 @@ export function LeaseExtras({
   propertyId,
   lease,
   onLeaseUpdate,
+  proAccess,
+  ownerName = "",
 }: {
   propertyId: string;
   lease: LeaseContract;
   onLeaseUpdate: (l: LeaseContract) => void;
+  /** Droits du pro mandataire ; absent = propriétaire. */
+  proAccess?: ProAccess;
+  ownerName?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const [inspections, setInspections] = React.useState<Inspection[] | null>(null);
@@ -893,7 +962,7 @@ export function LeaseExtras({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
               {t("lease.section.amendments")}
             </h3>
-            <AmendmentsBlock propertyId={propertyId} lease={lease} />
+            <AmendmentsBlock propertyId={propertyId} lease={lease} proAccess={proAccess} ownerName={ownerName} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
@@ -911,7 +980,7 @@ export function LeaseExtras({
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">
               {t("lease.section.ownerNotice")}
             </h3>
-            <OwnerNoticeBlock propertyId={propertyId} lease={lease} onUpdate={onLeaseUpdate} />
+            <OwnerNoticeBlock propertyId={propertyId} lease={lease} onUpdate={onLeaseUpdate} proAccess={proAccess} />
           </div>
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted mb-2">

@@ -24,10 +24,137 @@ import {
   IconBadge,
   type IconName,
 } from "@hwe/ui";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
-import type { Inquiry, InquiryStatus } from "@hwe/types";
+import { isPro, loadPortfolio } from "../../../lib/pro";
+import { ConfirmDialog, LockedNote, WarningNote } from "../../../components/pro/ProUi";
+import { Label, ManagedByBadge, Textarea } from "@hwe/ui";
+import type { Inquiry, InquiryStatus, Property } from "@hwe/types";
+
+/** Contexte « pro » d'une demande : rôle, propriétaire activé ou non. */
+type ProCtx = { pro: boolean; item: Property | null };
+
+/** Proposition en attente de la décision du propriétaire. */
+const awaitingOwner = (i: Inquiry) => i.status === "PENDING" && !!i.proposedAt && !i.ownerDecision;
+
+type Act =
+  | { kind: "respond"; id: string; decision: "ACCEPTED" | "REJECTED" }
+  | { kind: "propose"; i: Inquiry }
+  | { kind: "behalf"; i: Inquiry }
+  | { kind: "decide"; i: Inquiry; decision: "APPROVED" | "DECLINED" };
+
+/** Bandeau « proposé par <agence> » + note du pro, ou décision du propriétaire. */
+function ProposalPanel({ i, pro }: { i: Inquiry; pro: boolean }) {
+  if (!i.proposedAt && !i.ownerDecision) return null;
+  const who = i.proposedBy
+    ? `${i.proposedBy.firstName} ${i.proposedBy.lastName}${i.proposedBy.agencyName ? ` (${i.proposedBy.agencyName})` : ""}`
+    : i.managedBy?.name ?? "";
+  return (
+    <div
+      className={`rounded-xl border p-3 text-sm mb-4 ${
+        awaitingOwner(i)
+          ? "border-accent-300 bg-accent-50/60 dark:border-accent-700/50 dark:bg-accent-700/15"
+          : "border-border bg-cream-50/60 dark:bg-white/5"
+      }`}
+      data-proposal
+    >
+      {i.proposedAt && (
+        <p className="font-medium flex items-center gap-1.5">
+          <Icon name="handshake" size={15} />
+          {t("pro.inq.proposedBy", { who, date: fmtDate(i.proposedAt, "medium") })}
+        </p>
+      )}
+      {i.proposalNote && <p className="mt-1 text-ink-muted italic [overflow-wrap:anywhere]">« {i.proposalNote} »</p>}
+      {awaitingOwner(i) && (
+        <p className="mt-1 text-xs text-ink-muted">{pro ? t("pro.inq.awaitingOwnerPro") : t("pro.inq.awaitingOwner")}</p>
+      )}
+      {i.ownerDecision && (
+        <p className="mt-1 text-xs">
+          {t(i.ownerDecision === "APPROVED" ? "pro.inq.ownerApproved" : "pro.inq.ownerDeclined", {
+            date: i.ownerDecisionAt ? fmtDate(i.ownerDecisionAt, "medium") : "",
+          })}
+          {i.ownerDecisionNote ? ` — « ${i.ownerDecisionNote} »` : ""}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Boutons d'action d'une demande en attente, selon le rôle (propriétaire / pro). */
+function InquiryActions({
+  i,
+  ctx,
+  busy,
+  onAct,
+  size,
+}: {
+  i: Inquiry;
+  ctx: ProCtx;
+  busy: boolean;
+  onAct: (a: Act) => void;
+  size: "sm" | "md";
+}) {
+  const ownerActivated = ctx.item?.access?.ownerActivated ?? true;
+  const ownerName = ctx.item?.owner ? `${ctx.item.owner.firstName} ${ctx.item.owner.lastName}` : "";
+  const cls = size === "md" ? "flex-1" : "";
+  if (!ctx.pro) {
+    // Propriétaire : une proposition du pro se valide (Approuver / Refuser).
+    if (awaitingOwner(i)) {
+      return (
+        <>
+          <Button size={size} variant="danger" disabled={busy} className={cls} onClick={() => onAct({ kind: "decide", i, decision: "DECLINED" })}>
+            <Icon name="x" size={15} className="mr-1" /> {t("pro.inq.decline")}
+          </Button>
+          <Button size={size} variant="gradient" disabled={busy} className={cls} onClick={() => onAct({ kind: "decide", i, decision: "APPROVED" })}>
+            <Icon name="check" size={15} className="mr-1" /> {t("pro.inq.approve")}
+          </Button>
+        </>
+      );
+    }
+    return (
+      <>
+        <Button size={size} variant="danger" disabled={busy} className={cls} onClick={() => onAct({ kind: "respond", id: i.id, decision: "REJECTED" })}>
+          <Icon name="x" size={15} className="mr-1" />
+          {t("com.reject")}
+        </Button>
+        <Button size={size} variant="gradient" disabled={busy} className={cls} onClick={() => onAct({ kind: "respond", id: i.id, decision: "ACCEPTED" })}>
+          {!busy && <Icon name="check" size={15} className="mr-1" />}
+          {busy ? "…" : t("com.accept")}
+        </Button>
+      </>
+    );
+  }
+  // Pro : il refuse, propose au propriétaire ; il n'accepte jamais lui-même,
+  // sauf pour le compte d'un propriétaire qui n'a pas activé son compte.
+  return (
+    <>
+      <Button size={size} variant="danger" disabled={busy} className={cls} onClick={() => onAct({ kind: "respond", id: i.id, decision: "REJECTED" })}>
+        <Icon name="x" size={15} className="mr-1" />
+        {t("com.reject")}
+      </Button>
+      {!i.proposedAt && (
+        <Button size={size} variant="gradient" disabled={busy} className={cls} onClick={() => onAct({ kind: "propose", i })}>
+          <Icon name="handshake" size={15} className="mr-1" /> {t("pro.inq.propose")}
+        </Button>
+      )}
+      {!ownerActivated && (
+        <Button size={size} variant="secondary" disabled={busy} className={cls} onClick={() => onAct({ kind: "behalf", i })} title={t("pro.inq.behalfHint", { owner: ownerName })}>
+          <Icon name="signature" size={15} className="mr-1" /> {t("pro.inq.behalf")}
+        </Button>
+      )}
+    </>
+  );
+}
+
+/** Explication quand l'acceptation est réservée au propriétaire. */
+function ProLockNote({ i, ctx }: { i: Inquiry; ctx: ProCtx }) {
+  if (!ctx.pro || i.status !== "PENDING") return null;
+  const ownerActivated = ctx.item?.access?.ownerActivated ?? true;
+  if (!ownerActivated) return null;
+  return <LockedNote>{t("pro.inq.lockAccept")}</LockedNote>;
+}
 
 /** F18 : « Discuter » ouvre la conversation liée à la demande. */
 const chatHref = (i: Inquiry) =>
@@ -146,13 +273,15 @@ function SenderAvatar({
 function InquiryDetailModal({
   inquiry,
   onClose,
-  onRespond,
+  onAct,
   processing,
+  ctx,
 }: {
   inquiry: Inquiry;
   onClose: () => void;
-  onRespond: (id: string, decision: "ACCEPTED" | "REJECTED") => void;
+  onAct: (a: Act) => void;
   processing: string | null;
+  ctx: ProCtx;
 }) {
   const isPending = inquiry.status === "PENDING";
   const isLoading = processing === inquiry.id;
@@ -298,6 +427,8 @@ function InquiryDetailModal({
             </div>
           </div>
 
+          <ProposalPanel i={inquiry} pro={ctx.pro} />
+
           {/* Message */}
           <div>
             <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted mb-2">
@@ -388,31 +519,20 @@ function InquiryDetailModal({
 
           {/* Actions */}
           {isPending ? (
-            <div className="flex gap-2 pt-2">
-              <Button
-                variant="danger"
-                disabled={isLoading}
-                onClick={() => {
-                  onRespond(inquiry.id, "REJECTED");
-                  onClose();
-                }}
-                className="flex-1"
-              >
-                <Icon name="x" size={16} className="mr-1.5" />
-                {t("com.reject")}
-              </Button>
-              <Button
-                variant="gradient"
-                disabled={isLoading}
-                onClick={() => {
-                  onRespond(inquiry.id, "ACCEPTED");
-                  onClose();
-                }}
-                className="flex-1"
-              >
-                {!isLoading && <Icon name="check" size={16} className="mr-1.5" />}
-                {isLoading ? t("com.processing") : t("com.accept")}
-              </Button>
+            <div className="space-y-2 pt-2">
+              <ProLockNote i={inquiry} ctx={ctx} />
+              <div className="flex gap-2 flex-wrap">
+                <InquiryActions
+                  i={inquiry}
+                  ctx={ctx}
+                  busy={isLoading}
+                  size="md"
+                  onAct={(a) => {
+                    onAct(a);
+                    onClose();
+                  }}
+                />
+              </div>
             </div>
           ) : inquiry.status === "ACCEPTED" && !isSale && inquiry.leaseId ? (
             <Link href={`/dashboard/${inquiry.propertyId}/lease`} className={`${LINK_GRADIENT} w-full h-10`}>
@@ -450,13 +570,15 @@ function InquiryDetailModal({
 function InquiryCard({
   i,
   processing,
-  onRespond,
+  onAct,
   onViewDetails,
+  ctx,
 }: {
   i: Inquiry;
   processing: string | null;
-  onRespond: (id: string, decision: "ACCEPTED" | "REJECTED") => void;
+  onAct: (a: Act) => void;
   onViewDetails: (i: Inquiry) => void;
+  ctx: ProCtx;
 }) {
   const isPending = i.status === "PENDING";
   const isLoading = processing === i.id;
@@ -502,6 +624,12 @@ function InquiryCard({
         </div>
       </CardHeader>
       <CardBody>
+        {i.managedBy && (
+          <div className="mb-3">
+            <ManagedByBadge name={i.managedBy.name} logoUrl={i.managedBy.logoUrl} />
+          </div>
+        )}
+        <ProposalPanel i={i} pro={ctx.pro} />
         <p className="text-sm whitespace-pre-line mb-4 line-clamp-2 text-ink-muted [overflow-wrap:anywhere]">
           {i.message}
         </p>
@@ -542,6 +670,11 @@ function InquiryCard({
           </div>
         )}
 
+        {isPending && ctx.pro && (
+          <div className="mb-3">
+            <ProLockNote i={i} ctx={ctx} />
+          </div>
+        )}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="text-xs text-ink-muted">
             {t("com.received")} {timeAgo(i.createdAt)}
@@ -561,26 +694,7 @@ function InquiryCard({
               {t("com.discuss")}
             </Link>
             {isPending ? (
-              <>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  disabled={isLoading}
-                  onClick={() => onRespond(i.id, "REJECTED")}
-                >
-                  <Icon name="x" size={15} className="mr-1" />
-                  {t("com.reject")}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="gradient"
-                  disabled={isLoading}
-                  onClick={() => onRespond(i.id, "ACCEPTED")}
-                >
-                  {!isLoading && <Icon name="check" size={15} className="mr-1" />}
-                  {isLoading ? "…" : t("com.accept")}
-                </Button>
-              </>
+              <InquiryActions i={i} ctx={ctx} busy={isLoading} size="sm" onAct={onAct} />
             ) : i.status === "ACCEPTED" && !isSale && i.leaseId ? (
               <Link href={`/dashboard/${i.propertyId}/lease`} className={LINK_GRADIENT}>
                 <Icon name="clipboard" size={15} className="mr-1.5" />
@@ -608,6 +722,15 @@ function timeAgo(dateStr: string): string {
 
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function ReceivedInquiriesPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <ReceivedInquiriesInner />
+    </React.Suspense>
+  );
+}
+
+function ReceivedInquiriesInner() {
+  const search = useSearchParams();
   // Session/rôle : dashboard/layout.tsx.
   const { user } = useAuth();
   const { data, setData, error, loading: working, reload } = useAsync(
@@ -618,9 +741,18 @@ export default function ReceivedInquiriesPage() {
   const items: Inquiry[] = data ?? [];
   const setItems = (fn: (prev: Inquiry[]) => Inquiry[]) => setData((cur) => fn(cur ?? []));
   const [processing, setProcessing] = React.useState<string | null>(null);
-  const [activeTab, setActiveTab] = React.useState<InquiryStatus | "ALL">(
-    "ALL",
+  const [activeTab, setActiveTab] = React.useState<InquiryStatus | "ALL" | "PROPOSED">(
+    search.get("tab") === "proposed" ? "PROPOSED" : "ALL",
   );
+  const pro = isPro(user);
+  // Pro : droits et propriétaire (activé ou non) de chaque bien du portefeuille.
+  const portfolio = useAsync(() => loadPortfolio(user!.id), [user?.id], { enabled: pro && !!user });
+  const ctxFor = (i: Inquiry): ProCtx => ({
+    pro,
+    item: pro ? portfolio.data?.find((p) => p.id === i.propertyId) ?? null : null,
+  });
+  const [dialog, setDialog] = React.useState<Act | null>(null);
+  const [note, setNote] = React.useState("");
   const [detailInquiry, setDetailInquiry] = React.useState<Inquiry | null>(
     null,
   );
@@ -649,6 +781,42 @@ export default function ReceivedInquiriesPage() {
     }
   };
 
+  const onAct = (a: Act) => {
+    if (a.kind === "respond") return void respond(a.id, a.decision);
+    setNote("");
+    setDialog(a);
+  };
+
+  /** Proposer, approuver/refuser (propriétaire), ou décider pour le compte du propriétaire. */
+  const runDialog = async () => {
+    if (!dialog || dialog.kind === "respond") return;
+    const i = dialog.i;
+    setProcessing(i.id);
+    try {
+      let updated: Inquiry;
+      if (dialog.kind === "propose") {
+        updated = await api.proposeInquiry(i.id, note.trim());
+        toast.success(t("pro.inq.proposedToast"));
+      } else if (dialog.kind === "decide") {
+        updated = await api.ownerDecision(i.id, dialog.decision, note.trim());
+        toast.success(dialog.decision === "APPROVED" ? t("pro.inq.approvedToast") : t("pro.inq.declinedToast"));
+      } else {
+        // Pour le compte d'un propriétaire non activé.
+        updated = i.proposedAt
+          ? await api.ownerDecision(i.id, "APPROVED", note.trim())
+          : await api.respondToInquiry(i.id, "ACCEPTED");
+        toast.success(t("pro.inq.behalfToast"));
+      }
+      setItems((prev) => prev.map((x) => (x.id === updated.id ? { ...x, ...updated } : x)));
+      setDialog(null);
+      reload();
+    } catch (e) {
+      toast.error(e);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
   if (error && !data) {
     return <ErrorState error={error} title={t("com.loadError")} onRetry={reload} />;
   }
@@ -663,13 +831,19 @@ export default function ReceivedInquiriesPage() {
     );
   }
 
-  const countByStatus = (key: InquiryStatus | "ALL") =>
+  const countByStatus = (key: InquiryStatus | "ALL" | "PROPOSED") =>
     key === "ALL"
       ? items.length
-      : items.filter((i) => i.status === key).length;
+      : key === "PROPOSED"
+        ? items.filter(awaitingOwner).length
+        : items.filter((i) => i.status === key).length;
 
   const visibleItems =
-    activeTab === "ALL" ? items : items.filter((i) => i.status === activeTab);
+    activeTab === "ALL"
+      ? items
+      : activeTab === "PROPOSED"
+        ? items.filter(awaitingOwner)
+        : items.filter((i) => i.status === activeTab);
 
   const stats = {
     total: items.length,
@@ -723,7 +897,7 @@ export default function ReceivedInquiriesPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
-        {TABS.map(({ key, labelKey, icon }) => {
+        {[...TABS.slice(0, 2), { key: "PROPOSED" as const, labelKey: "pro.inq.tabProposed", icon: "handshake" as IconName }, ...TABS.slice(2)].map(({ key, labelKey, icon }) => {
           const count = countByStatus(key);
           if (key !== "ALL" && count === 0) return null;
           const isActive = activeTab === key;
@@ -780,8 +954,9 @@ export default function ReceivedInquiriesPage() {
               key={i.id}
               i={i}
               processing={processing}
-              onRespond={respond}
+              onAct={onAct}
               onViewDetails={setDetailInquiry}
+              ctx={ctxFor(i)}
             />
           ))}
         </div>
@@ -791,9 +966,64 @@ export default function ReceivedInquiriesPage() {
         <InquiryDetailModal
           inquiry={detailInquiry}
           onClose={() => setDetailInquiry(null)}
-          onRespond={respond}
+          onAct={onAct}
           processing={processing}
+          ctx={ctxFor(detailInquiry)}
         />
+      )}
+
+      {dialog && dialog.kind !== "respond" && (
+        <ConfirmDialog
+          title={
+            dialog.kind === "propose"
+              ? t("pro.inq.proposeTitle")
+              : dialog.kind === "behalf"
+                ? t("pro.inq.behalfTitle")
+                : dialog.decision === "APPROVED"
+                  ? t("pro.inq.approveTitle")
+                  : t("pro.inq.declineTitle")
+          }
+          confirmLabel={
+            dialog.kind === "propose"
+              ? t("pro.inq.propose")
+              : dialog.kind === "behalf"
+                ? t("pro.inq.behalfConfirm")
+                : dialog.decision === "APPROVED"
+                  ? t("pro.inq.approve")
+                  : t("pro.inq.decline")
+          }
+          tone={dialog.kind === "decide" && dialog.decision === "DECLINED" ? "danger" : "primary"}
+          busy={processing === dialog.i.id}
+          onClose={() => setDialog(null)}
+          onConfirm={runDialog}
+        >
+          <p>
+            <strong>
+              {dialog.i.sender?.firstName} {dialog.i.sender?.lastName}
+            </strong>{" "}
+            — {dialog.i.property?.title}
+          </p>
+          {dialog.kind === "propose" && <p className="text-ink-muted">{t("pro.inq.proposeText")}</p>}
+          {dialog.kind === "decide" && dialog.decision === "APPROVED" && (
+            <p className="text-ink-muted">{dialog.i.property?.listingType === "SALE" ? t("com.confirmAcceptSale") : t("com.confirmAcceptRent")}</p>
+          )}
+          {dialog.kind === "behalf" && (
+            <WarningNote title={t("pro.inq.behalfWarnTitle")}>
+              {t("pro.inq.behalfWarn", {
+                owner: (() => {
+                  const it = ctxFor(dialog.i).item;
+                  return it?.owner ? `${it.owner.firstName} ${it.owner.lastName}` : "";
+                })(),
+              })}
+            </WarningNote>
+          )}
+          {dialog.kind !== "behalf" && (
+            <div>
+              <Label htmlFor="inq-note">{dialog.kind === "propose" ? t("pro.inq.noteLabel") : t("pro.inq.decisionNote")}</Label>
+              <Textarea id="inq-note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
+            </div>
+          )}
+        </ConfirmDialog>
       )}
     </section>
   );

@@ -1,4 +1,4 @@
-import { tUi } from "../components/I18nKit";
+import { getUiLang, tUi, UI_DICT } from "../components/I18nKit";
 
 /**
  * Erreur normalisée renvoyée par `request()`.
@@ -61,6 +61,13 @@ export function errorText(e: unknown, fallbackKey = "ui.err.generic"): string {
     if (e.status === 413 || e.code === "PAYLOAD_TOO_LARGE") return tUi("ui.err.tooLarge");
     if (e.status === 429 || e.code === "TOO_MANY_REQUESTS") return tUi("ui.err.rateLimit");
     if (e.status >= 500) return tUi("ui.err.server");
+    // Codes du module Professionnels : texte traduit (en français, le message
+    // de l'API, souvent plus précis, reste prioritaire).
+    const proKey = e.code ? `ui.pro.err.${e.code}` : "";
+    if (proKey && UI_DICT.fr[proKey]) {
+      if (getUiLang() === "fr" && e.messages.length > 0) return e.messages.join(" · ");
+      return tUi(proKey);
+    }
     if (e.messages.length > 0) return e.messages.join(" · ");
     if (e.status === 404) return tUi("ui.err.notFound");
     if (e.status === 403) return tUi("ui.err.forbidden");

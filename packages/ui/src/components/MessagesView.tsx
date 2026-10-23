@@ -395,7 +395,11 @@ function ActiveConversation({
                 key={m.id}
                 content={m.content}
                 fromMe={m.senderId === currentUserId}
-                authorName={sender ? `${sender.firstName} ${sender.lastName}` : undefined}
+                authorName={
+                  sender
+                    ? `${sender.firstName} ${sender.lastName}${sender.agency?.name ? ` (${sender.agency.name})` : ""}`
+                    : undefined
+                }
                 avatarUrl={sender?.avatarUrl}
                 initials={initialsOf(sender)}
                 timestamp={m.createdAt}

@@ -23,7 +23,27 @@ import type {
   PropertyType,
   PropertyStatus,
 } from "@hwe/types";
-import { commonApi, request as coreRequest, tokenStore } from "@hwe/ui";
+import type {
+  AgencyMine,
+  AgencyInvite,
+  AgencyInviteInfo,
+  AgencyOverview,
+  AgencyPublic,
+  AgencySearchItem,
+  AuthResponse,
+  FeeList,
+  FeeEntry,
+  FeeStatus,
+  Mandate,
+  MandateDetail,
+  MandateRequest,
+  MandateTerms,
+  MandateStatus,
+  MandateType,
+  OwnerInviteInfo,
+  Statement,
+} from "@hwe/types";
+import { commonApi, qs, rawRequest, request as coreRequest, tokenStore, downloadBlob } from "@hwe/ui";
 
 /** Appel API (cœur partagé @hwe/ui : erreurs JSON, 401 → reconnexion, 403 e-mail…). */
 function request<T>(path: string, init: RequestInit = {}, auth = false): Promise<T> {
@@ -136,6 +156,18 @@ export const api = {
     request<Inquiry>(`/inquiries/${id}/respond`, {
       method: "PATCH",
       body: JSON.stringify({ decision }),
+    }, true),
+  /** Pro : propose le candidat au propriétaire. */
+  proposeInquiry: (id: string, note?: string) =>
+    request<Inquiry>(`/inquiries/${id}/propose`, {
+      method: "POST",
+      body: JSON.stringify({ note: note || undefined }),
+    }, true),
+  /** Propriétaire (ou pro pour un propriétaire non activé) : décision sur la proposition. */
+  ownerDecision: (id: string, decision: "APPROVED" | "DECLINED", note?: string) =>
+    request<Inquiry>(`/inquiries/${id}/owner-decision`, {
+      method: "POST",
+      body: JSON.stringify({ decision, note: note || undefined }),
     }, true),
 
   // documents légaux
@@ -291,6 +323,8 @@ export const api = {
       _count: { inquiries: number; leases: number };
     }[]>(`/admin/properties?${search.toString()}`, {}, true);
   },
+  adminAgencies: (q?: string) =>
+    request<unknown[]>(`/admin/agencies${qs({ q })}`, {}, true),
   adminVerifyUserEmail: (userId: string) =>
     request<{ ok: true }>(`/admin/users/${userId}/verify-email`, { method: "PATCH" }, true),
   adminSetPropertyStatus: (propertyId: string, status: PropertyStatus) =>
@@ -407,4 +441,121 @@ export const api = {
       body: JSON.stringify({ accept, reason }),
     }, true),
   // Quittances, messagerie : voir commonApi.
+
+  // ── Avenant : signature bailleur (propriétaire ; pro pour un propriétaire non activé) ──
+  signAmendment: (propertyId: string, leaseId: string, amendmentId: string) =>
+    request<LeaseAmendment>(`/properties/${propertyId}/leases/${leaseId}/amendments/${amendmentId}/sign`, {
+      method: "POST",
+    }, true),
+
+  // ── Vente conclue ──
+  markSold: (propertyId: string, salePrice: number) =>
+    request<Property>(`/properties/${propertyId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "SOLD", salePrice }),
+    }, true),
+
+  // ── Agence & équipe ──
+  createAgency: (body: { name: string; email?: string; phone?: string; city?: string; country?: string }) =>
+    request<AgencyMine>("/agencies", { method: "POST", body: JSON.stringify(body) }, true),
+  myAgency: () => request<AgencyMine>("/agencies/me", {}, true),
+  updateAgency: (body: Partial<{
+    name: string;
+    logoUrl: string | null;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    city: string | null;
+    country: string;
+    registrationNumber: string | null;
+    description: string | null;
+    paymentIban: string | null;
+    paymentHolder: string | null;
+  }>) => request<AgencyMine>("/agencies/me", { method: "PATCH", body: JSON.stringify(body) }, true),
+  agencyOverview: () => request<AgencyOverview>("/agencies/me/overview", {}, true),
+  inviteAgent: (email: string, role: "AGENT" | "MANAGER" = "AGENT") =>
+    request<{ invite: AgencyInvite; inviteUrl: string; emailSent: boolean }>("/agencies/me/invites", {
+      method: "POST",
+      body: JSON.stringify({ email, role }),
+    }, true),
+  agencyInvites: () => request<AgencyInvite[]>("/agencies/me/invites", {}, true),
+  revokeAgencyInvite: (id: string) =>
+    request<{ ok: true }>(`/agencies/me/invites/${id}`, { method: "DELETE" }, true),
+  agencyInviteInfo: (token: string) =>
+    request<AgencyInviteInfo>(`/agencies/invites/${encodeURIComponent(token)}`),
+  acceptAgencyInvite: (token: string) =>
+    request<AgencyMine>(`/agencies/invites/${encodeURIComponent(token)}/accept`, { method: "POST" }, true),
+  setMemberRole: (userId: string, role: "MANAGER" | "AGENT") =>
+    request<AgencyMine>(`/agencies/me/members/${userId}`, { method: "PATCH", body: JSON.stringify({ role }) }, true),
+  removeMember: (userId: string) =>
+    request<AgencyMine>(`/agencies/me/members/${userId}`, { method: "DELETE" }, true),
+  searchAgencies: (q: string) =>
+    request<AgencySearchItem[]>(`/agencies/search${qs({ q })}`),
+  publicAgency: (slug: string) =>
+    request<AgencyPublic & { properties: Property[] }>(`/agencies/${encodeURIComponent(slug)}`),
+
+  // ── Mandats ──
+  listMandates: (f: { status?: MandateStatus; type?: MandateType; agentId?: string; ownerId?: string; propertyId?: string } = {}) =>
+    request<Mandate[]>(`/mandates${qs(f)}`, {}, true),
+  getMandate: (id: string) => request<MandateDetail>(`/mandates/${id}`, {}, true),
+  inviteOwner: (body: MandateTerms & { ownerEmail: string; propertyIds?: string[]; message?: string; assignedAgentId?: string }) =>
+    request<{ mandates: Mandate[]; request: MandateRequest | null }>("/mandates/invite", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }, true),
+  createWithNewOwner: (body: {
+    owner?: { firstName: string; lastName: string; email: string; phone?: string };
+    ownerId?: string;
+    property: CreatePropertyBody;
+    mandate: MandateTerms;
+    assignedAgentId?: string;
+  }) =>
+    request<{ mandate: Mandate; ownerInviteUrl: string; emailSent: boolean; ownerCreated: boolean }>(
+      "/mandates/with-new-owner",
+      { method: "POST", body: JSON.stringify(body) },
+      true,
+    ),
+  mandateByOwner: (body: MandateTerms & { propertyId: string; agencySlug?: string; agencyCode?: string; message?: string }) =>
+    request<Mandate>("/mandates/by-owner", { method: "POST", body: JSON.stringify(body) }, true),
+  acceptMandate: (id: string) => request<Mandate>(`/mandates/${id}/accept`, { method: "POST" }, true),
+  rejectMandate: (id: string, reason?: string) =>
+    request<Mandate>(`/mandates/${id}/reject`, { method: "POST", body: JSON.stringify({ reason: reason || undefined }) }, true),
+  endMandate: (id: string, reason: string) =>
+    request<Mandate>(`/mandates/${id}/end`, { method: "POST", body: JSON.stringify({ reason }) }, true),
+  updateMandate: (id: string, body: Partial<MandateTerms> & { assignedAgentId?: string | null; message?: string }) =>
+    request<Mandate>(`/mandates/${id}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+  resendOwnerInvite: (id: string) =>
+    request<{ ownerInviteUrl: string; emailSent: boolean }>(`/mandates/${id}/resend-owner-invite`, { method: "POST" }, true),
+  mandateRequests: () => request<MandateRequest[]>("/mandates/requests", {}, true),
+  acceptMandateRequest: (id: string, propertyIds: string[]) =>
+    request<{ request: MandateRequest; mandates: Mandate[] }>(`/mandates/requests/${id}/accept`, {
+      method: "POST",
+      body: JSON.stringify({ propertyIds }),
+    }, true),
+  rejectMandateRequest: (id: string) =>
+    request<MandateRequest>(`/mandates/requests/${id}/reject`, { method: "POST" }, true),
+
+  // ── Honoraires & relevés ──
+  listFees: (f: { mandateId?: string; from?: string; to?: string; status?: FeeStatus } = {}) =>
+    request<FeeList>(`/fees${qs(f)}`, {}, true),
+  setFeeStatus: (id: string, status: "SETTLED" | "DUE") =>
+    request<FeeEntry>(`/fees/${id}`, { method: "PATCH", body: JSON.stringify({ status }) }, true),
+  statement: (mandateId: string, month: string) =>
+    request<Statement>(`/mandates/${mandateId}/statements${qs({ month })}`, {}, true),
+  downloadStatement: async (mandateId: string, month: string) => {
+    const res = await rawRequest(`/mandates/${mandateId}/statements/${month}/pdf`, { auth: true });
+    const blob = await res.blob();
+    const cd = res.headers.get("Content-Disposition") ?? "";
+    const name = /filename="([^"]+)"/.exec(cd)?.[1] ?? `releve-${month}.pdf`;
+    downloadBlob(blob, name);
+  },
+
+  // ── Activation d'un compte propriétaire créé par un pro ──
+  ownerInviteInfo: (token: string) =>
+    request<OwnerInviteInfo>(`/auth/owner-invite/${encodeURIComponent(token)}`),
+  activateOwner: (token: string, password: string) =>
+    request<AuthResponse>(`/auth/owner-invite/${encodeURIComponent(token)}/activate`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    }),
 };

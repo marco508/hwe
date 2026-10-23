@@ -133,6 +133,32 @@ function section(title: string, body: string): string {
   return `${RULE}\n${title}\n${RULE}\n\n${body.trim()}\n`;
 }
 
+/** Mentions du mandataire (bien géré par une agence) et de l'auteur du bail. */
+function mandataryLines(lease: LeaseContract): (string | null)[] {
+  const m = lease.managedBy;
+  const out: (string | null)[] = [];
+  if (m) {
+    const details = [
+      m.registrationNumber ? `carte / immatriculation ${m.registrationNumber}` : null,
+      m.email || null,
+      m.phone || null,
+    ].filter(Boolean);
+    out.push(
+      "",
+      "MANDATAIRE",
+      `Bien géré par ${m.name}, mandataire${details.length ? ` (${details.join(", ")})` : ""}${
+        m.mandateReference ? ` — mandat ${m.mandateReference}` : ""
+      }`,
+    );
+  }
+  const p = lease.preparedBy;
+  if (p) {
+    const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim();
+    if (name) out.push(`Bail préparé par ${name}${p.agencyName ? ` (${p.agencyName})` : ""}`);
+  }
+  return out;
+}
+
 /** Nombre de jours entre deux dates (au moins 0). */
 function daysBetween(a: string, b: string): number {
   const ms = new Date(b).getTime() - new Date(a).getTime();
@@ -201,6 +227,7 @@ export function generateLeaseContract(input: LeaseContractInput): string {
         `Nom : ${ownerName}`,
         owner?.email ? `E-mail : ${owner.email}` : null,
         owner?.phone ? `Téléphone : ${owner.phone}` : null,
+        ...mandataryLines(lease),
         "",
         "PRENEUR (Locataire)",
         `Nom : ${tenantName}`,
@@ -390,7 +417,8 @@ export function generateLeaseContract(input: LeaseContractInput): string {
         "leur espace hwe ; la date et l'heure de chaque signature sont",
         "enregistrées ci-dessous.",
         "",
-        sig("Le Bailleur", ownerName, lease.ownerSignedAt),
+        sig("Le Bailleur", ownerName, lease.ownerSignedAt) +
+          (lease.ownerSignedAt && lease.ownerSignatureMention ? `\n  ${lease.ownerSignatureMention}` : ""),
         "",
         sig("Le Locataire", tenantName, lease.tenantSignedAt),
         ...(lease.coTenants ?? []).flatMap((c) => ["", sig("Colocataire", fullName(c, "—"), c.signedAt)]),

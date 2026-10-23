@@ -6,7 +6,7 @@ import * as React from "react";
 import { createAuth, useAuth, WRONG_ROLE } from "@hwe/ui";
 
 const auth = createAuth({
-  allowedRoles: ["OWNER", "ADMIN"],
+  allowedRoles: ["OWNER", "ADMIN", "AGENT"],
   registerRole: "OWNER",
 });
 

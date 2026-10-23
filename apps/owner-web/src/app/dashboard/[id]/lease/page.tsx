@@ -25,6 +25,8 @@ import { api } from "../../../../lib/api";
 import { LeaseExtras } from "../../../../components/LeaseExtras";
 import { t } from "../../../../lib/i18n";
 import { generateLeaseContract, leaseCurrency } from "@hwe/types";
+import { usePortfolioItem } from "../../../../lib/pro";
+import { ConfirmDialog, LockedNote, WarningNote } from "../../../../components/pro/ProUi";
 import type { Property, LeaseContract, LeaseStatus } from "@hwe/types";
 
 // Contrat §9 : SIGNED (début futur) et ACTIVE sont tous deux « signé / en cours ».
@@ -77,6 +79,15 @@ export default function LeasePage() {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
   const [form, setForm] = React.useState(EMPTY_FORM);
+  // Pro mandataire : droits sur le bien (signature réservée au propriétaire,
+  // sauf compte propriétaire non activé → « pour le compte de »).
+  const { pro, item } = usePortfolioItem(params?.id);
+  const [behalfOpen, setBehalfOpen] = React.useState(false);
+  const [signing, setSigning] = React.useState(false);
+  const ownerName = item?.owner ? `${item.owner.firstName} ${item.owner.lastName}` : "";
+  const canSignAsPro = pro && !!item?.access?.can.SIGN_LEASE;
+  // Mandat de mise en location terminé (bail signé) : lecture seule.
+  const readOnly = pro && !!item?.access && !item.access.can.EDIT_LISTING;
 
   React.useEffect(() => {
     if (!params?.id || !user) return;
@@ -277,7 +288,7 @@ export default function LeasePage() {
             <Button onClick={downloadContract} variant="secondary">
               {t("lease.download")}
             </Button>
-            {!selectedLease.ownerSignedAt && (
+            {!selectedLease.ownerSignedAt && !pro && (
               <Button
                 onClick={async () => {
                   if (!params?.id) return;
@@ -295,6 +306,12 @@ export default function LeasePage() {
                 {t("lease.signBtn")}
               </Button>
             )}
+            {!selectedLease.ownerSignedAt && canSignAsPro && (
+              <Button variant="secondary" onClick={() => setBehalfOpen(true)}>
+                <Icon name="signature" size={16} className="mr-1.5" />
+                {t("pro.lease.signBehalf", { owner: ownerName })}
+              </Button>
+            )}
             {selectedLease.ownerSignedAt && (
               <span className="inline-flex items-center gap-1.5 text-sm font-medium text-success bg-success/10 border border-success/30 rounded-lg px-3 py-2">
                 <Icon name="checkCircle" size={16} />
@@ -303,6 +320,46 @@ export default function LeasePage() {
             )}
           </div>
         </div>
+        {selectedLease.preparedBy && (
+          <p className="mb-3 text-sm text-ink-muted" data-prepared-by>
+            <Icon name="clipboard" size={14} className="mr-1" />
+            {t("pro.lease.preparedBy", {
+              name: `${selectedLease.preparedBy.firstName} ${selectedLease.preparedBy.lastName}${selectedLease.preparedBy.agencyName ? ` (${selectedLease.preparedBy.agencyName})` : ""}`,
+            })}
+            {!pro && !selectedLease.ownerSignedAt && ` — ${t("pro.lease.reviewAndSign")}`}
+          </p>
+        )}
+        {pro && !selectedLease.ownerSignedAt && !canSignAsPro && (
+          <div className="mb-4">
+            <LockedNote>{t("pro.lease.ownerSigns")}</LockedNote>
+          </div>
+        )}
+        {behalfOpen && (
+          <ConfirmDialog
+            title={t("pro.lease.behalfTitle")}
+            confirmLabel={t("pro.lease.behalfConfirm")}
+            busy={signing}
+            onClose={() => setBehalfOpen(false)}
+            onConfirm={async () => {
+              if (!params?.id) return;
+              setSigning(true);
+              try {
+                const updated = await api.signLease(params.id, selectedLease.id);
+                mergeLease(updated);
+                toast.success(t("lease.signedToast"));
+                setBehalfOpen(false);
+              } catch (e) {
+                toast.error(e);
+              } finally {
+                setSigning(false);
+              }
+            }}
+          >
+            <WarningNote title={t("pro.lease.behalfWarnTitle")}>
+              {t("pro.lease.behalfWarn", { owner: ownerName, agency: item?.managedBy?.name ?? "" })}
+            </WarningNote>
+          </ConfirmDialog>
+        )}
         <div className="bg-surface border border-border rounded-2xl p-4 sm:p-8 shadow-sm overflow-x-auto">
           <pre className="text-xs sm:text-sm font-mono whitespace-pre-wrap [overflow-wrap:anywhere] text-ink leading-relaxed">
             {contractText}
@@ -320,6 +377,11 @@ export default function LeasePage() {
                   })
                 : t("lease.pending")}
             </span>
+            {selectedLease.ownerSignatureMention && (
+              <span className="block text-xs text-ink-muted italic" data-owner-mention>
+                {selectedLease.ownerSignatureMention}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1.5">
             <Icon name={selectedLease.tenantSignedAt ? "checkCircle" : "hourglass"} size={16} className={selectedLease.tenantSignedAt ? "text-success" : "text-ink-subtle"} />
@@ -544,15 +606,22 @@ export default function LeasePage() {
             {t("lease.trackRents")}
           </Link>
         </div>
-        <Button
-          onClick={() => {
-            setForm(EMPTY_FORM);
-            setView("create");
-          }}
-        >
-          {t("lease.newBtn")}
-        </Button>
+        {!readOnly && (
+          <Button
+            onClick={() => {
+              setForm(EMPTY_FORM);
+              setView("create");
+            }}
+          >
+            {t("lease.newBtn")}
+          </Button>
+        )}
       </div>
+      {readOnly && (
+        <div className="mb-6">
+          <LockedNote>{t("pro.lease.readOnly")}</LockedNote>
+        </div>
+      )}
 
       {leases.length === 0 ? (
         <EmptyState
@@ -577,6 +646,16 @@ export default function LeasePage() {
                     {lease.shortStay && <Badge tone="ocean">{t("lease.shortStay")}</Badge>}
                   </div>
                   <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">{lease.tenantEmail}</p>
+                  {lease.preparedBy && (
+                    <p className="text-xs text-ink-muted mt-1">
+                      {t("pro.lease.preparedBy", {
+                        name: `${lease.preparedBy.firstName} ${lease.preparedBy.lastName}${lease.preparedBy.agencyName ? ` (${lease.preparedBy.agencyName})` : ""}`,
+                      })}
+                    </p>
+                  )}
+                  {lease.ownerSignatureMention && (
+                    <p className="text-xs text-ink-muted italic mt-1">{lease.ownerSignatureMention}</p>
+                  )}
                   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm">
                     {lease.shortStay ? (
                       // Contrat §9 : séjour courte durée = une échéance du total.
@@ -640,12 +719,12 @@ export default function LeasePage() {
                   </Button>
                   {/* F20 / contrat §9 : plus d'« Activer » ni de « Résilier » ;
                       modifier / supprimer seulement avant toute signature. */}
-                  {unsigned && (
+                  {unsigned && !readOnly && (
                     <Button variant="secondary" size="sm" onClick={() => openEdit(lease)}>
                       {t("lease.edit")}
                     </Button>
                   )}
-                  {unsigned && (
+                  {unsigned && !readOnly && (
                     <Button
                       variant="danger"
                       size="sm"
@@ -657,8 +736,8 @@ export default function LeasePage() {
                   )}
                 </div>
               </div>
-              {params?.id && (
-                <LeaseExtras propertyId={params.id} lease={lease} onLeaseUpdate={mergeLease} />
+              {params?.id && !readOnly && (
+                <LeaseExtras propertyId={params.id} lease={lease} onLeaseUpdate={mergeLease} proAccess={pro ? item?.access ?? null : undefined} ownerName={ownerName} />
               )}
             </div>
             );

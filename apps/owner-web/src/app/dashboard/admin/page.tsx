@@ -15,6 +15,21 @@ type Overview = {
   usersUnverified: number;
   /** false → les e-mails transactionnels ne partent pas. */
   smtpConfigured?: boolean;
+  agencies?: number;
+  activeMandates?: number;
+  usersNotActivated?: number;
+};
+
+type AdminAgency = {
+  id: string;
+  name: string;
+  slug: string;
+  code: string;
+  city: string | null;
+  createdAt?: string;
+  _count: { members: number; mandates: number };
+  managers: { id: string; email: string; firstName: string; lastName: string }[];
+  activeMandates: number;
 };
 
 type AdminUser = {
@@ -25,6 +40,9 @@ type AdminUser = {
   phone?: string | null;
   role: string;
   emailVerifiedAt?: string | null;
+  activatedAt?: string | null;
+  agency?: { id: string; name: string; slug: string; role: string } | null;
+  invitedByAgency?: { id: string; name: string; slug: string } | null;
   createdAt: string;
   _count: { properties: number; inquiries: number };
 };
@@ -65,7 +83,8 @@ export default function AdminPage() {
   const { user } = useAuth();
   const [error, setError] = React.useState<unknown>(null);
   const [overview, setOverview] = React.useState<Overview | null>(null);
-  const [tab, setTab] = React.useState<"users" | "properties">("users");
+  const [tab, setTab] = React.useState<"users" | "properties" | "agencies">("users");
+  const [agencies, setAgencies] = React.useState<AdminAgency[]>([]);
   const [q, setQ] = React.useState("");
   const [users, setUsers] = React.useState<AdminUser[]>([]);
   const [properties, setProperties] = React.useState<AdminProperty[]>([]);
@@ -74,12 +93,14 @@ export default function AdminPage() {
 
   const load = React.useCallback(async () => {
     if (!isAdmin) return;
-    const [o, u, p] = await Promise.all([
+    const [o, u, p, a] = await Promise.all([
       api.adminOverview(),
       api.adminUsers(q || undefined),
       api.adminProperties(q || undefined),
+      api.adminAgencies(q || undefined).catch(() => [] as AdminAgency[]),
     ]);
     setOverview(o);
+    setAgencies(a as AdminAgency[]);
     setUsers(u as unknown as AdminUser[]);
     setProperties(p as unknown as AdminProperty[]);
   }, [isAdmin, q]);
@@ -135,6 +156,9 @@ export default function AdminPage() {
         <StatTile label={t("ops.admin.statLeases")} value={overview.leases} />
         <StatTile label={t("ops.admin.statInquiries")} value={overview.inquiries} />
         <StatTile label={t("ops.admin.statOpenTickets")} value={overview.ticketsOpen} />
+        {overview.agencies != null && <StatTile label={t("pro.admin.agencies")} value={overview.agencies} />}
+        {overview.activeMandates != null && <StatTile label={t("pro.admin.activeMandates")} value={overview.activeMandates} />}
+        {overview.usersNotActivated != null && <StatTile label={t("pro.admin.notActivated")} value={overview.usersNotActivated} />}
       </div>
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
@@ -163,6 +187,18 @@ export default function AdminPage() {
           >
             {t("ops.admin.tabProperties")}
           </button>
+          <button
+            type="button"
+            aria-pressed={tab === "agencies"}
+            onClick={() => setTab("agencies")}
+            className={`px-3 py-1.5 rounded-full text-sm border ${
+              tab === "agencies"
+                ? "bg-brand-600 text-white border-brand-600"
+                : "border-border text-ink-muted"
+            }`}
+          >
+            {t("pro.admin.tabAgencies")} ({agencies.length})
+          </button>
         </div>
         <Input
           className="w-full sm:max-w-xs"
@@ -174,7 +210,38 @@ export default function AdminPage() {
         />
       </div>
 
-      {tab === "users" ? (
+      {tab === "agencies" ? (
+        <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
+          <table className="w-full text-sm">
+            <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
+              <tr>
+                <th className="px-4 py-3 font-medium">{t("pro.admin.colAgency")}</th>
+                <th className="px-4 py-3 font-medium">{t("pro.admin.colManagers")}</th>
+                <th className="px-4 py-3 font-medium">{t("pro.admin.colMembers")}</th>
+                <th className="px-4 py-3 font-medium">{t("pro.admin.colMandates")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {agencies.map((a) => (
+                <tr key={a.id} className="border-t border-border">
+                  <td className="px-4 py-3">
+                    <p className="font-medium">{a.name}</p>
+                    <p className="text-ink-muted font-mono text-xs">
+                      {a.code}
+                      {a.city ? ` · ${a.city}` : ""}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 text-ink-muted">{a.managers.map((m) => m.email).join(", ")}</td>
+                  <td className="px-4 py-3 text-ink-muted">{a._count.members}</td>
+                  <td className="px-4 py-3 text-ink-muted">
+                    {a.activeMandates} / {a._count.mandates}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : tab === "users" ? (
         <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full text-sm">
             <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
@@ -195,6 +262,17 @@ export default function AdminPage() {
                       {u.firstName} {u.lastName}
                     </p>
                     <p className="text-ink-muted">{u.email}</p>
+                    {u.agency && (
+                      <p className="text-xs text-ink-muted mt-0.5">
+                        <Icon name="store" size={12} className="mr-1" />
+                        {u.agency.name} · {t(`pro.role.${u.agency.role}`)}
+                      </p>
+                    )}
+                    {u.invitedByAgency && !u.activatedAt && (
+                      <p className="text-xs text-accent-700 dark:text-accent-300 mt-0.5">
+                        {t("pro.admin.invitedBy", { agency: u.invitedByAgency.name })}
+                      </p>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <Badge tone={u.role === "ADMIN" ? "accent" : "neutral"}>{u.role}</Badge>

@@ -25,6 +25,7 @@ import {
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
+import { useActorLabel } from "../../../lib/pro";
 import type { OwnerRentPeriod, RentStatus } from "../../../lib/api";
 
 // F2 : chaque échéance est dans la devise de SON bail (montant figé, contrat §9).
@@ -101,9 +102,12 @@ function StatCard({ icon, value, label, highlight }: { icon: IconName; value: Re
 function PeriodCard({
   period,
   onReviewed,
+  actor,
 }: {
   period: OwnerRentPeriod;
   onReviewed: (p: OwnerRentPeriod) => void;
+  /** « par <auteur> » de la validation (pro / agence). */
+  actor?: string | null;
 }) {
   const [showProof, setShowProof] = React.useState(false);
   const [rejecting, setRejecting] = React.useState(false);
@@ -263,6 +267,7 @@ function PeriodCard({
           <div className="flex flex-wrap items-center gap-3 text-sm text-ink-muted">
             <span>
               {t("rent.paidOn", { date: period.paidAt ? fmtDate(period.paidAt) : "—" })}
+              {actor && <span className="text-ink-muted font-normal"> · {actor}</span>}
               {period.declaredMethod ? ` ${t("rent.via")} ${methodLabel(period.declaredMethod)}` : ""}
             </span>
             {period.receiptNo && (
@@ -289,6 +294,7 @@ const methodLabel = (m: string) => (m === "OTHER" || m === "Autre" ? t("rent.met
 export default function LoyersPage() {
   // Session/rôle : dashboard/layout.tsx.
   const { user } = useAuth();
+  const actorLabel = useActorLabel();
   const [filter, setFilter] = React.useState<RentStatus | "ALL">("DECLARED");
   const { data, setData, error, loading: working, reload } = useAsync(
     async () => {
@@ -410,6 +416,7 @@ export default function LoyersPage() {
             <PeriodCard
               key={p.id}
               period={p}
+              actor={actorLabel(p.reviewedById, p.lease.property.id)}
               onReviewed={(updated) =>
                 setPeriods((prev) => prev.map((x) => (x.id === updated.id ? { ...x, ...updated } : x)))
               }

@@ -11,6 +11,7 @@ import {
   Input,
   Label,
   PropertyCard,
+  ManagedByBadge,
   Select,
   SUPPORTED_COUNTRIES,
   countryLabel,
@@ -388,18 +389,27 @@ export default function HomePage() {
               status={p.status}
               href={`/properties/${p.id}`}
               footer={
-                user ? (
-                  <HeartButton
-                    propertyId={p.id}
-                    isFav={favIds.has(p.id)}
-                    onToggle={toggleFav}
-                  />
-                ) : (
-                  <Link href={loginHref("/")} className="text-sm text-ink-muted hover:underline">
-                    <Icon name="heart" size={16} className="mr-1" />
-                    {t("acc.fav.save")}
-                  </Link>
-                )
+                <div className="flex items-center justify-between gap-2 flex-wrap min-w-0">
+                  {user ? (
+                    <HeartButton
+                      propertyId={p.id}
+                      isFav={favIds.has(p.id)}
+                      onToggle={toggleFav}
+                    />
+                  ) : (
+                    <Link href={loginHref("/")} className="text-sm text-ink-muted hover:underline">
+                      <Icon name="heart" size={16} className="mr-1" />
+                      {t("acc.fav.save")}
+                    </Link>
+                  )}
+                  {p.managedBy && (
+                    <ManagedByBadge
+                      name={p.managedBy.name}
+                      logoUrl={p.managedBy.logoUrl}
+                      label={t("pro.offeredByName", { name: p.managedBy.name })}
+                    />
+                  )}
+                </div>
               }
             />
           ))}

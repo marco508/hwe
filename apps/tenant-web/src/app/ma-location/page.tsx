@@ -17,6 +17,7 @@ import {
   useAsync,
   useLoginRedirect,
   Icon,
+  AgencyLogo,
 } from "@hwe/ui";
 import { generateLeaseContract, leaseCurrency } from "@hwe/types";
 import { useAuth } from "../../lib/auth-context";
@@ -287,6 +288,12 @@ function LeaseCard({
             </div>
           </div>
 
+          {lease.ownerSignedAt && lease.ownerSignatureMention && (
+            <p className="text-xs text-ink-muted [overflow-wrap:anywhere]" data-owner-signature-mention>
+              {lease.ownerSignatureMention}
+            </p>
+          )}
+
           {/* Bouton de signature — disparaît après signature */}
           {!hasTenantSigned && isPrimary && (
             <button
@@ -410,6 +417,36 @@ function LeaseCard({
               <Detail label={t("rental.property.surface")} value={`${property.surface} m²`} />
               <Detail label={t("rental.property.rooms")} value={String(property.rooms)} />
             </div>
+          </section>
+        )}
+
+        {/* Mandataire (bien géré par un professionnel) */}
+        {lease.managedBy && (
+          <section
+            data-lease-managed-by
+            className="flex items-center gap-3 rounded-xl border border-brand-200 bg-brand-50/70 dark:border-brand-800 dark:bg-brand-900/25 p-3 min-w-0"
+          >
+            <AgencyLogo name={lease.managedBy.name} logoUrl={lease.managedBy.logoUrl} size="sm" />
+            <div className="min-w-0 text-sm">
+              <div className="font-medium text-ink [overflow-wrap:anywhere]">
+                {t("pro.lease.managedBy", { name: lease.managedBy.name })}
+              </div>
+              <div className="text-xs text-ink-muted [overflow-wrap:anywhere]">
+                {[
+                  lease.managedBy.mandateReference ? t("pro.lease.mandate", { ref: lease.managedBy.mandateReference }) : null,
+                  lease.managedBy.email,
+                  lease.managedBy.phone,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </div>
+            </div>
+            <Link
+              href={`/agences/${encodeURIComponent(lease.managedBy.slug)}`}
+              className="ml-auto shrink-0 text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
+            >
+              {t("pro.seeAgency")}
+            </Link>
           </section>
         )}
 

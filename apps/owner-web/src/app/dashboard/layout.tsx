@@ -35,7 +35,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const role = auth.user.role;
   const adminOnly = pathname?.startsWith("/dashboard/admin");
-  const allowed = adminOnly ? role === "ADMIN" : role === "OWNER" || role === "ADMIN";
+  // Un pro (AGENT) partage les pages de gestion d'un bien (`/dashboard/<id>/…`,
+  // demandes, visites, loyers, incidents, messages) ; ses pages propres sont
+  // sous /pro (portefeuille, ajout de bien, mandats).
+  const proRedirect =
+    role === "AGENT"
+      ? pathname === "/dashboard"
+        ? "/pro/biens"
+        : pathname === "/dashboard/new"
+          ? "/pro/nouveau"
+          : pathname?.startsWith("/dashboard/mandats")
+            ? "/pro/mandats"
+            : null
+      : null;
+  const allowed = adminOnly
+    ? role === "ADMIN"
+    : role === "OWNER" || role === "ADMIN" || (role === "AGENT" && !proRedirect);
+
+  if (proRedirect) return <Redirect to={proRedirect} />;
 
   if (!allowed) {
     return (
@@ -66,4 +83,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return <>{children}</>;
+}
+
+function Redirect({ to }: { to: string }) {
+  const router = useRouter();
+  React.useEffect(() => {
+    router.replace(to);
+  }, [router, to]);
+  return <div className="h-32 rounded-2xl skeleton" aria-busy="true" />;
 }

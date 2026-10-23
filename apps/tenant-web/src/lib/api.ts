@@ -12,6 +12,8 @@ import type {
   ChargeRegularization,
   RentPeriod,
   RentStatus,
+  AgencyPublic,
+  Property,
 } from "@hwe/types";
 
 import { commonApi, request as coreRequest, tokenStore } from "@hwe/ui";
@@ -50,11 +52,17 @@ export interface TenantRentBundle {
     property: { id: string; title: string; addressLine: string; city: string };
   };
   paymentMethods: OwnerPaymentMethod[];
+  /** AGENCY : loyers encaissés par l'agence mandataire (moyens = IBAN de l'agence). */
+  payee?: "OWNER" | "AGENCY";
   periods: RentPeriod[];
 }
 
 export const api = {
   ...commonApi,
+
+  /** Page publique d'une agence : profil + biens publiés sous mandat actif. */
+  getAgency: (slug: string) =>
+    request<AgencyPublic & { properties: Property[] }>(`/agencies/${encodeURIComponent(slug)}`),
 
   sendInquiry: (body: {
     propertyId: string;

@@ -69,6 +69,12 @@ const STATUS_DOT: Record<RentStatus, string> = {
 };
 
 /** Devine une icône selon le libellé du moyen de paiement. */
+/** Moyen de paiement de l'agence mandataire (`agency-<id>`) → nom de l'agence. */
+function agencyNameOf(m: { id: string; label: string }): string | null {
+  if (!m.id.startsWith("agency-")) return null;
+  return m.label.replace(/^[^—]*—\s*/, "").trim() || m.label;
+}
+
 function methodIcon(label: string): IconName {
   const l = label.toLowerCase();
   if (/(iban|virement|sepa|banque|bank)/.test(l)) return "landmark";
@@ -158,7 +164,9 @@ function PaymentMethods({ methods }: { methods: OwnerPaymentMethod[] }) {
         >
           <div className="flex items-center gap-2 mb-2">
             <IconBadge name={methodIcon(m.label)} size="sm" />
-            <p className="text-sm font-semibold text-ink min-w-0 [overflow-wrap:anywhere]">{m.label}</p>
+            <p className="text-sm font-semibold text-ink min-w-0 [overflow-wrap:anywhere]">
+              {agencyNameOf(m) ? t("pro.rents.transferTo", { name: agencyNameOf(m)! }) : m.label}
+            </p>
           </div>
           <div className="flex items-center justify-between gap-2 rounded-lg bg-cream-100 dark:bg-white/[0.05] px-3 py-2">
             <p className="text-sm font-mono font-medium text-ink break-all min-w-0">{m.value}</p>
@@ -178,7 +186,8 @@ function PaymentMethods({ methods }: { methods: OwnerPaymentMethod[] }) {
           {(m.holder || m.instructions) && (
             <div className="mt-2 space-y-0.5">
               {m.holder && <p className="text-xs text-ink-muted [overflow-wrap:anywhere]">{t("rent.methods.holder", { name: m.holder })}</p>}
-              {m.instructions && <p className="text-xs text-ink-muted [overflow-wrap:anywhere] whitespace-pre-line">{m.instructions}</p>}
+              {/* Moyen de l'agence : consigne remplacée par la mention traduite. */}
+              {m.instructions && !agencyNameOf(m) && <p className="text-xs text-ink-muted [overflow-wrap:anywhere] whitespace-pre-line">{m.instructions}</p>}
             </div>
           )}
         </div>
@@ -542,6 +551,11 @@ export default function MesLoyersPage() {
                   <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-3">
                     {t("rent.page.howToPay")}
                   </h3>
+                  {b.payee === "AGENCY" && b.paymentMethods[0] && (
+                    <p className="mb-3 text-sm text-ink rounded-lg border border-brand-200 bg-brand-50/70 dark:border-brand-800 dark:bg-brand-900/25 px-3 py-2 [overflow-wrap:anywhere]" data-pay-agency>
+                      {t("pro.rents.payAgency", { name: agencyNameOf(b.paymentMethods[0]) ?? "" })}
+                    </p>
+                  )}
                   <PaymentMethods methods={b.paymentMethods} />
                 </section>
 

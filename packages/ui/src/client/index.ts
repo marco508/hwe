@@ -39,4 +39,4 @@ export {
   MAX_AVATAR_BYTES,
 } from "./files";
 export { useAsync, useLoginRedirect } from "./hooks";
-export { otherParty, partnerName, partnerRole } from "./messaging";
+export { otherParty, partnerName, partnerRole, landlordSide } from "./messaging";

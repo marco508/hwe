@@ -6,6 +6,7 @@ import { Badge, Button, Input, EmptyState, ErrorState, SafeImage, toast, fmtDate
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
+import { useActorLabel } from "../../../lib/pro";
 import type { Ticket, TicketStatus } from "@hwe/types";
 
 const TONE: Record<TicketStatus, "accent" | "neutral" | "success"> = {
@@ -19,9 +20,11 @@ const fmtDate = (iso: string) => fmtDateShared(iso, "short", { utc: false });
 function TicketCard({
   ticket,
   onUpdate,
+  actor,
 }: {
   ticket: Ticket;
   onUpdate: (t: Ticket) => void;
+  actor?: string | null;
 }) {
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -88,6 +91,7 @@ function TicketCard({
         <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">
           {t("ops.tickets.resolvedOn")} {ticket.resolvedAt ? fmtDate(ticket.resolvedAt) : "—"}
           {ticket.resolutionNote ? ` — ${ticket.resolutionNote}` : ""}
+          {actor ? ` · ${actor}` : ""}
         </p>
       ) : (
         <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -115,6 +119,7 @@ function TicketCard({
 export default function TicketsPage() {
   // Session/rôle : dashboard/layout.tsx. Erreur ≠ liste vide (L2).
   const { user } = useAuth();
+  const actorLabel = useActorLabel();
   const [filter, setFilter] = React.useState<TicketStatus | "ALL">("ALL");
   const { data: tickets, setData: setTickets, error, reload } = useAsync(
     () => api.ownerTickets(),
@@ -170,6 +175,7 @@ export default function TicketsPage() {
             <TicketCard
               key={t.id}
               ticket={t}
+              actor={actorLabel(t.handledById, t.lease?.property?.id)}
               onUpdate={(u) =>
                 setTickets((arr) => (arr ?? []).map((x) => (x.id === u.id ? { ...x, ...u } : x)))
               }

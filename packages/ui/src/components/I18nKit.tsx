@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { PRO_UI_EN, PRO_UI_FR } from "./pro-dict";
 
 /**
  * i18n maison — même mécanique qu'AfroChina : dictionnaires plats + t() avec
@@ -262,6 +263,7 @@ export const UI_DICT: Record<Lang, Record<string, string>> = {
     "ui.msg.roleOwner": "propriétaire",
     "ui.msg.roleContact": "candidat",
     "ui.msg.notFound": "Cette conversation est introuvable.",
+    ...PRO_UI_FR,
   },
   en: {
     "ui.time.now": "just now",
@@ -442,6 +444,7 @@ export const UI_DICT: Record<Lang, Record<string, string>> = {
     "ui.msg.roleOwner": "landlord",
     "ui.msg.roleContact": "applicant",
     "ui.msg.notFound": "This conversation can't be found.",
+    ...PRO_UI_EN,
   },
 };
 

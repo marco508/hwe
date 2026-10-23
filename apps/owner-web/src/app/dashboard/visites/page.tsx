@@ -6,6 +6,7 @@ import { Badge, Button, Input, EmptyState, ErrorState, toast, intlLocale, useAsy
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
+import { useActorLabel } from "../../../lib/pro";
 import type { Visit, VisitStatus } from "@hwe/types";
 
 const TONE: Record<VisitStatus, "accent" | "success" | "danger" | "neutral"> = {
@@ -25,7 +26,7 @@ function fmtSlot(iso: string) {
   });
 }
 
-function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => void }) {
+function VisitCard({ visit, onUpdate, actor }: { visit: Visit; onUpdate: (v: Visit) => void; actor?: string | null }) {
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState(false);
 
@@ -59,7 +60,7 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
           </p>
           {visit.note && <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">« {visit.note} »</p>}
           {visit.ownerNote && (
-            <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">{t("ops.visits.yourReply")} {visit.ownerNote}</p>
+            <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">{t("ops.visits.yourReply")} {visit.ownerNote}{actor ? ` (${actor})` : ""}</p>
           )}
         </div>
       </div>
@@ -88,6 +89,7 @@ function VisitCard({ visit, onUpdate }: { visit: Visit; onUpdate: (v: Visit) => 
 export default function VisitesPage() {
   // Session/rôle : dashboard/layout.tsx. Erreur ≠ liste vide (L2).
   const { user } = useAuth();
+  const actorLabel = useActorLabel();
   const [filter, setFilter] = React.useState<VisitStatus | "ALL">("REQUESTED");
   const { data: visits, setData: setVisits, error, reload } = useAsync(
     () => api.ownerVisits(),
@@ -143,6 +145,7 @@ export default function VisitesPage() {
             <VisitCard
               key={v.id}
               visit={v}
+              actor={actorLabel(v.answeredById, v.property?.id ?? v.propertyId)}
               onUpdate={(u) =>
                 setVisits((arr) => (arr ?? []).map((x) => (x.id === u.id ? { ...x, ...u } : x)))
               }

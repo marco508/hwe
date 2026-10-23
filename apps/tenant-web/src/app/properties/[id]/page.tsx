@@ -32,6 +32,7 @@ import {
   IconBadge,
   IlloEmpty,
   PropertyGallery,
+  AgencyLogo,
   type IconName,
 } from "@hwe/ui";
 import { api } from "../../../lib/api";
@@ -552,7 +553,11 @@ function StepOverview({
           </CardBody>
         </Card>
 
-        {p.owner && <OwnerCard owner={p.owner} onContact={onContact} />}
+        {p.managedBy ? (
+          <AgencyCard agency={p.managedBy} onContact={onContact} />
+        ) : (
+          p.owner && <OwnerCard owner={p.owner} onContact={onContact} />
+        )}
 
         <Card>
           <CardHeader>
@@ -585,6 +590,42 @@ function StepOverview({
         </Card>
       </aside>
     </div>
+  );
+}
+
+/** Bien géré par un professionnel : « Proposé par <agence> » à la place du propriétaire. */
+function AgencyCard({
+  agency,
+  onContact,
+}: {
+  agency: NonNullable<Property["managedBy"]>;
+  onContact?: () => void;
+}) {
+  return (
+    <Card className="overflow-hidden" data-agency-card>
+      <CardBody className="flex items-center gap-4">
+        <AgencyLogo name={agency.name} logoUrl={agency.logoUrl} size="lg" />
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted">{t("pro.offeredBy")}</div>
+          <div className="font-display text-xl text-ink leading-tight [overflow-wrap:anywhere]">{agency.name}</div>
+          <Link
+            href={`/agences/${encodeURIComponent(agency.slug)}`}
+            className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
+          >
+            <Icon name="building" size={14} />
+            {t("pro.seeAgency")}
+          </Link>
+        </div>
+      </CardBody>
+      {onContact && (
+        <div className="px-5 pb-5 -mt-1">
+          <Button variant="secondary" className="w-full" onClick={onContact}>
+            <Icon name="message" size={16} className="mr-1.5" />
+            {t("pro.contactAgency")}
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 }
 
