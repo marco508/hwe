@@ -7,7 +7,7 @@ import { Badge, Button, EmptyState, ErrorState, Input, Label, Select, fmtDate, f
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
-import { isManager } from "../../../lib/pro";
+import { feeLabel, isManager } from "../../../lib/pro";
 import { ProHero, StatTile } from "../../../components/pro/ProUi";
 
 export default function ProFeesPage() {
@@ -81,7 +81,7 @@ export default function ProFeesPage() {
           {data!.items.map((f) => (
             <li key={f.id} className="rounded-2xl border border-border bg-surface p-4 flex flex-wrap items-center justify-between gap-3" data-fee={f.kind}>
               <div className="min-w-0">
-                <p className="font-medium [overflow-wrap:anywhere]">{f.label}</p>
+                <p className="font-medium [overflow-wrap:anywhere]">{feeLabel(f)}</p>
                 <p className="text-xs text-ink-muted [overflow-wrap:anywhere]">
                   <Link href={`/pro/mandats/${f.mandate.id}`} className="font-mono hover:underline">
                     {f.mandate.reference}

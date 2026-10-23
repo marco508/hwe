@@ -25,7 +25,7 @@ import {
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
-import { currentMonth, feeTermsLines, invalidatePortfolio, useMyAgency } from "../../lib/pro";
+import { currentMonth, feeLabel, feeTermsLines, invalidatePortfolio, monthLabel, useMyAgency } from "../../lib/pro";
 import { ConfirmDialog, KV, MandateStatusBadge, MandateTypeBadge, SectionCard, WarningNote } from "./ProUi";
 
 export function MandateDetailView({ id, backHref }: { id: string; backHref: string }) {
@@ -302,7 +302,7 @@ function FeesSection({ m, onChanged }: { m: MandateDetail; onChanged: () => void
           {m.fees.map((f) => (
             <li key={f.id} className="py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 justify-between" data-fee={f.kind}>
               <div className="min-w-0">
-                <p className="font-medium [overflow-wrap:anywhere]">{f.label}</p>
+                <p className="font-medium [overflow-wrap:anywhere]">{feeLabel(f)}</p>
                 <p className="text-xs text-ink-muted">
                   {t(`pro.feeKind.${f.kind}`)} · {fmtDate(f.dueDate)}
                 </p>
@@ -365,7 +365,7 @@ export function StatementSection({ mandateId, currency }: { mandateId: string; c
         <p className="text-sm text-ink-muted">{t("pro.st.error")}</p>
       ) : data ? (
         <div className="text-sm space-y-3" data-statement={data.month}>
-          <p className="text-ink-muted">{t("pro.st.period", { label: data.monthLabel })}</p>
+          <p className="text-ink-muted">{t("pro.st.period", { label: monthLabel(data.month) })}</p>
           {data.rents.length === 0 && data.fees.length === 0 ? (
             <p className="text-ink-muted">{t("pro.st.empty")}</p>
           ) : (
@@ -380,7 +380,7 @@ export function StatementSection({ mandateId, currency }: { mandateId: string; c
               ))}
               {data.fees.map((f) => (
                 <li key={f.id} className="py-2 flex justify-between gap-3 text-ink-muted">
-                  <span className="min-w-0 [overflow-wrap:anywhere]">{f.label}</span>
+                  <span className="min-w-0 [overflow-wrap:anywhere]">{feeLabel(f)}</span>
                   <span className="tabular-nums">− {fmtMoney(f.amount, f.currency)}</span>
                 </li>
               ))}
@@ -421,6 +421,19 @@ const EVENT_ICON: Record<string, Parameters<typeof Icon>[0]["name"]> = {
   FEE_CREATED: "coins",
   PROPERTY_SOLD: "party",
   OWNER_ACTIVATED: "user",
+  INSPECTION_UPDATED: "clipboard",
+  INSPECTION_SIGNED: "signature",
+  TERMS_UPDATED: "pen",
+  INQUIRY_REJECTED: "xCircle",
+  AMENDMENT_PREPARED: "clipboard",
+  TICKET_UPDATED: "wrench",
+  VISIT_ANSWERED: "calendarCheck",
+  RENT_REJECTED: "xCircle",
+  OWNER_NOTICE_GIVEN: "mail",
+  PROPERTY_UPDATED: "pen",
+  FEE_SETTLED: "checkCircle",
+  FEE_REOPENED: "coins",
+  OWNER_INVITE_SENT: "send",
 };
 
 export function Timeline({ events }: { events: MandateEvent[] }) {

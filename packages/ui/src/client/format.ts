@@ -25,7 +25,8 @@ export function fmtMoney(
       new Intl.NumberFormat(locale, {
         style: "currency",
         currency: cur,
-        minimumFractionDigits: 0,
+        // 643,5 → « 643,50 » : deux décimales dès qu'il y a des centimes.
+        minimumFractionDigits: Number.isInteger(v) ? 0 : 2,
         maximumFractionDigits: Number.isInteger(v) ? 0 : 2,
       }).format(v),
     );
