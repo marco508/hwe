@@ -162,7 +162,9 @@ export class PropertiesService {
       this.prisma.property.count({ where }),
     ]);
 
-    return { items: await this.withManagedBy(items.map(shape)), total, page, pageSize };
+    // Prix de vente final : donnée privée (propriétaire et mandataire).
+    const publicItems = items.map(shape).map(({ soldPrice: _s, ...rest }) => rest);
+    return { items: await this.withManagedBy(publicItems), total, page, pageSize };
   }
 
   /** Compteurs publics de la landing (annonces publiées). */
@@ -203,14 +205,18 @@ export class PropertiesService {
       },
     });
     if (!p) throw new NotFoundException("Annonce introuvable.");
-    if (!PUBLIC_DETAIL_STATUSES.includes(p.status) && p.ownerId !== viewerId) {
-      // Brouillon / archive : visible aussi du pro mandataire autorisé.
-      const allowed = viewerId
-        ? decideAccess(await this.access.context(id, viewerId), "LEASE_READ").allowed
-        : false;
-      if (!allowed) throw new NotFoundException("Annonce introuvable.");
+    // Propriétaire ou pro mandataire autorisé : vue complète.
+    const privileged =
+      !!viewerId &&
+      (p.ownerId === viewerId || decideAccess(await this.access.context(id, viewerId), "LEASE_READ").allowed);
+    if (!PUBLIC_DETAIL_STATUSES.includes(p.status) && !privileged) {
+      // Brouillon / archive : propriétaire et pro mandataire seulement.
+      throw new NotFoundException("Annonce introuvable.");
     }
-    const [withManaged] = await this.withManagedBy([shape(p)]);
+    const shaped = shape(p);
+    const [withManaged] = await this.withManagedBy([
+      privileged ? shaped : (({ soldPrice: _s, ...rest }) => rest)(shaped),
+    ]);
     return withManaged;
   }
 

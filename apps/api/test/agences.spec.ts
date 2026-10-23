@@ -356,3 +356,20 @@ test("inscription pro : rôle AGENT et nom d'agence acceptés, ADMIN toujours re
     pipe.transform({ email: "a@b.fr", password: "motdepasse", firstName: "A", lastName: "B", role: "ADMIN" }, meta),
   );
 });
+
+test("vue candidat : la proposition et la décision motivée du propriétaire ne fuient pas", async () => {
+  const { stripProposalForTenant } = await import("../src/inquiries/inquiries.service");
+  const out = stripProposalForTenant({
+    id: "i1",
+    status: "REJECTED",
+    proposedAt: new Date(),
+    proposedById: "a1",
+    proposalNote: "Dossier fragile",
+    ownerDecision: "DECLINED",
+    ownerDecisionAt: new Date(),
+    ownerDecisionNote: "Revenus insuffisants",
+    proposedBy: { id: "a1" },
+    managedBy: { name: "Agence" },
+  });
+  assert.deepEqual(Object.keys(out).sort(), ["id", "status"]);
+});

@@ -98,6 +98,25 @@ export function draftLeaseTerms(
   };
 }
 
+/**
+ * Vue CANDIDAT d'une demande : les échanges internes propriétaire ↔ pro
+ * (proposition, note, décision motivée) ne lui sont jamais montrés.
+ */
+export function stripProposalForTenant<T extends Record<string, unknown>>(i: T) {
+  const {
+    proposedAt: _a,
+    proposedById: _b,
+    proposalNote: _c,
+    ownerDecision: _d,
+    ownerDecisionAt: _e,
+    ownerDecisionNote: _f,
+    proposedBy: _g,
+    managedBy: _h,
+    ...rest
+  } = i as Record<string, unknown>;
+  return rest as Omit<T, "proposedAt" | "proposedById" | "proposalNote" | "ownerDecision" | "ownerDecisionAt" | "ownerDecisionNote" | "proposedBy" | "managedBy">;
+}
+
 const propertySummary = {
   select: {
     id: true,
@@ -221,7 +240,7 @@ export class InquiriesService {
          ne se crée pas (cas limite : utilisateur supprimé entre temps) */
     }
 
-    return { ...created, conversationId };
+    return stripProposalForTenant({ ...created, conversationId });
   }
 
   // Tenant cancels their own PENDING inquiry
@@ -235,7 +254,7 @@ export class InquiriesService {
       data: { status: "CANCELLED", cancelledAt: new Date() },
     });
     if (count === 0) throw new ConflictException("Seules les demandes en attente peuvent être annulées");
-    return this.findFull(inquiryId);
+    return stripProposalForTenant(await this.findFull(inquiryId));
   }
 
   /**
@@ -510,7 +529,7 @@ export class InquiriesService {
     });
     const [withConv] = await this.withConversationIds([inq], (i) => i.property.ownerId);
     const [decorated] = await this.withProposal([withConv!]);
-    return decorated;
+    return decorated!;
   }
 
   /** `proposedBy` (pro auteur de la proposition) et `managedBy` (agence) de chaque demande. */
@@ -550,7 +569,7 @@ export class InquiriesService {
       include: { property: { select: { ...propertySummary.select, ownerId: true } } },
       take: 500,
     });
-    return this.withConversationIds(items, (i) => i.property.ownerId);
+    return (await this.withConversationIds(items, (i) => i.property.ownerId)).map(stripProposalForTenant);
   }
 
   // For owners (and pros): inquiries received on accessible properties

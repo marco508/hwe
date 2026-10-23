@@ -373,7 +373,7 @@ export class AgenciesService {
     const { createdAt: _c, updatedAt: _u, ...pub } = agency;
     return {
       ...shapeAgency(pub, { publicView: true }),
-      properties: properties.map((p) => ({
+      properties: properties.map(({ soldPrice: _s, ...p }) => ({
         ...p,
         media: p.media.map(withMediaUrl),
         ...derivePriceDisplay(p),
