@@ -11,6 +11,7 @@ import { resolveLeaseParty } from "../common/lease-party.util";
 import { assertEmailVerified } from "../common/email-verified.util";
 import { assertValidDataUrl } from "../common/upload.util";
 import { CreateTicketDto, ReviewTicketDto } from "./dto/ticket.dto";
+import { PropertyAccessService } from "../common/property-access";
 
 type AuthUser = { sub: string };
 
@@ -19,6 +20,7 @@ export class TicketsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailer: MailerService,
+    private readonly access: PropertyAccessService,
   ) {}
 
   /** Le locataire signale un incident sur son logement. */
@@ -81,11 +83,12 @@ export class TicketsService {
     });
   }
 
-  /** Vue propriétaire : les incidents sur tous mes biens. */
-  owner(ownerId: string, status?: TicketStatus) {
+  /** Vue propriétaire (et pro) : les incidents sur tous les biens accessibles. */
+  async owner(ownerId: string, status?: TicketStatus) {
+    const propertyWhere = await this.access.propertyWhere(ownerId, "READ");
     return this.prisma.ticket.findMany({
       where: {
-        lease: { property: { ownerId } },
+        lease: { property: propertyWhere },
         ...(status ? { status } : {}),
       },
       include: {
@@ -109,13 +112,18 @@ export class TicketsService {
     const ticket = await this.prisma.ticket.findUnique({
       where: { id: ticketId },
       include: {
-        lease: { include: { property: { select: { ownerId: true } } } },
+        lease: { include: { property: { select: { id: true, ownerId: true } } } },
         author: { select: { email: true, firstName: true } },
       },
     });
     if (!ticket) throw new NotFoundException("Incident introuvable");
-    if (ticket.lease.property.ownerId !== ownerId) {
-      throw new ForbiddenException("Cet incident ne concerne pas vos biens");
+    const { decision } = await this.access.check(ticket.lease.property.id, ownerId, "MANAGE");
+    if (!decision.allowed) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        code: decision.code,
+        message: decision.as === "NONE" ? "Cet incident ne concerne pas vos biens" : decision.message,
+      });
     }
 
     const resolved = dto.status === "RESOLVED";
@@ -125,8 +133,13 @@ export class TicketsService {
         status: dto.status,
         resolutionNote: dto.resolutionNote ?? ticket.resolutionNote,
         resolvedAt: resolved ? new Date() : null,
+        handledById: ownerId,
       },
     });
+    if (decision.as === "PRO") {
+      const m = await this.access.activeMandate(ticket.lease.property.id);
+      if (m) await this.access.logEvent(m.id, ownerId, "TICKET_UPDATED", { ticketId, status: dto.status }).catch(() => {});
+    }
 
     if (resolved && ticket.status !== "RESOLVED") {
       this.mailer

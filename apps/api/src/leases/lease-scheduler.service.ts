@@ -56,6 +56,7 @@ export class LeaseSchedulerService {
     const due = await this.prisma.leaseAmendment.findMany({
       where: {
         tenantSignedAt: { not: null },
+        ownerSignedAt: { not: null },
         appliedAt: null,
         effectiveDate: { lte: day },
         lease: { status: { in: RUNNING_LEASE_STATUSES } },

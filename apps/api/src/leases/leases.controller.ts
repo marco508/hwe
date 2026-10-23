@@ -116,7 +116,7 @@ export class TenantLeasesController {
 
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.OWNER, Role.ADMIN)
+@Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
 @Controller("properties/:propertyId/leases")
 export class LeasesController {
   constructor(private readonly leases: LeasesService) {}
@@ -176,6 +176,17 @@ export class LeasesController {
     @Body() dto: CreateAmendmentDto,
   ) {
     return this.leases.createAmendment(propertyId, leaseId, user.sub, dto);
+  }
+
+  /** Signature bailleur d'un avenant préparé par un professionnel. */
+  @Post(":leaseId/amendments/:amendmentId/sign")
+  signAmendmentAsOwner(
+    @Param("propertyId") propertyId: string,
+    @Param("leaseId") leaseId: string,
+    @Param("amendmentId") amendmentId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.leases.signAmendmentAsOwner(propertyId, leaseId, amendmentId, user.sub);
   }
 
   /** Colocation : ajouter / retirer un colocataire. */

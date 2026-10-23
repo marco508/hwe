@@ -4,7 +4,7 @@ import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 export interface JwtPayload {
   sub: string;
   email: string;
-  role: "OWNER" | "TENANT" | "ADMIN";
+  role: "OWNER" | "TENANT" | "ADMIN" | "AGENT";
 }
 
 export const CurrentUser = createParamDecorator(

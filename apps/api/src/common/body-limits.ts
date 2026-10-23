@@ -21,6 +21,8 @@ export const UPLOAD_ROUTES: Array<[string, RegExp]> = [
   ["PATCH", /^\/api\/properties\/[^/]+\/documents\/[^/]+$/],
   ["POST", /^\/api\/users\/me\/documents$/], // pièces du dossier
   ["PATCH", /^\/api\/users\/me$/], // avatar
+  ["PATCH", /^\/api\/agencies\/me$/], // logo d'agence
+  ["POST", /^\/api\/mandates\/with-new-owner$/], // bien créé par un pro (photos)
   ["POST", /^\/api\/leases\/[^/]+\/insurances$/], // attestation d'assurance
   ["POST", /^\/api\/rents\/[^/]+\/declare$/], // justificatif de loyer
   ["POST", /^\/api\/leases\/[^/]+\/tickets$/], // photo d'incident

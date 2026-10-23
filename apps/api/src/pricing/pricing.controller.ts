@@ -51,7 +51,7 @@ export class PricingController {
 
   /** PUT /api/properties/:propertyId/pricing — remplace toute la grille */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Put()
   upsert(
     @Param("propertyId") propertyId: string,
@@ -63,7 +63,7 @@ export class PricingController {
 
   /** DELETE /api/properties/:propertyId/pricing/:unit */
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Delete(":unit")
   remove(
     @Param("propertyId") propertyId: string,

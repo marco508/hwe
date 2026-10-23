@@ -114,6 +114,11 @@ export const IGNORED_PROPERTY_FIELDS = [
   "priceUnit",
   "displayPrice",
   "_count",
+  "managedBy",
+  "soldPrice",
+  "soldAt",
+  "mandate",
+  "access",
 ] as const;
 
 export class ReadOnlyPropertyFields {
@@ -126,4 +131,9 @@ export class ReadOnlyPropertyFields {
   @IsOptional() @Allow() priceUnit?: unknown;
   @IsOptional() @Allow() displayPrice?: unknown;
   @IsOptional() @Allow() _count?: unknown;
+  @IsOptional() @Allow() managedBy?: unknown;
+  @IsOptional() @Allow() soldPrice?: unknown;
+  @IsOptional() @Allow() soldAt?: unknown;
+  @IsOptional() @Allow() mandate?: unknown;
+  @IsOptional() @Allow() access?: unknown;
 }

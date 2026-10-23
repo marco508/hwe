@@ -41,6 +41,9 @@ import {
   tenantNoticeEffectiveDate,
 } from "./lease-rules";
 import { LEASE_FULL_INCLUDE, assertNoLeaseOverlap } from "./lease-db.util";
+import { AccessAction, PropertyAccessService } from "../common/property-access";
+import { FeesService } from "../mandates/fees.service";
+import { agencyLogoUrl } from "../common/media.util";
 
 type AuthUser = { sub: string; email?: string };
 
@@ -59,51 +62,121 @@ export class LeasesService {
     private readonly prisma: PrismaService,
     private readonly mailer: MailerService,
     private readonly rents: RentsService,
+    private readonly access: PropertyAccessService,
+    private readonly fees: FeesService,
   ) {}
 
-  private async assertOwner(propertyId: string, ownerId: string) {
-    const property = await this.prisma.property.findUnique({
-      where: { id: propertyId },
-    });
-    if (!property) throw new NotFoundException("Bien introuvable");
-    if (property.ownerId !== ownerId)
-      throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
-    return property;
+  /**
+   * Accès côté bailleur au bien (PropertyAccessService) : propriétaire, ou
+   * pro mandataire autorisé pour `action`. 404 si le bien n'existe pas.
+   */
+  private async assertOwner(propertyId: string, userId: string, action: AccessAction) {
+    const { ctx, decision } = await this.access.assert(propertyId, userId, action);
+    const property = await this.prisma.property.findUniqueOrThrow({ where: { id: propertyId } });
+    return { property, ctx, decision };
   }
 
-  private async ownedLease(propertyId: string, leaseId: string, ownerId: string) {
-    const property = await this.assertOwner(propertyId, ownerId);
+  private async ownedLease(propertyId: string, leaseId: string, userId: string, action: AccessAction) {
+    const { property, ctx, decision } = await this.assertOwner(propertyId, userId, action);
     const lease = await this.prisma.leaseContract.findUnique({
       where: { id: leaseId },
       include: { coTenants: true },
     });
     if (!lease || lease.propertyId !== propertyId) throw new NotFoundException("Bail introuvable");
-    return { property, lease };
+    return { property, lease, ctx, decision };
+  }
+
+  /** Journalise l'action d'un pro sur le mandat actif du bien. */
+  private async logPro(
+    propertyId: string,
+    actorId: string,
+    kind: string,
+    data: Prisma.InputJsonValue,
+  ): Promise<void> {
+    const m = await this.access.activeMandate(propertyId);
+    if (m) await this.access.logEvent(m.id, actorId, kind, data).catch(() => {});
+  }
+
+  /**
+   * Champs ajoutés au bail : `managedBy` (agence mandataire, pour la mention
+   * « Bien géré par <agence>, mandataire » du contrat) et `preparedBy`.
+   */
+  private async decorate<T extends { id: string; propertyId: string; preparedById?: string | null }>(leases: T[]) {
+    if (leases.length === 0) return [] as Array<T & { managedBy: unknown; preparedBy: unknown }>;
+    const propertyIds = [...new Set(leases.map((l) => l.propertyId))];
+    const mandates = await this.prisma.mandate.findMany({
+      where: { propertyId: { in: propertyIds }, status: "ACTIVE" },
+      select: {
+        propertyId: true,
+        reference: true,
+        type: true,
+        agency: { select: { id: true, name: true, slug: true, logoKey: true, registrationNumber: true, email: true, phone: true } },
+      },
+    });
+    const preparedIds = [...new Set(leases.map((l) => l.preparedById).filter((x): x is string => !!x))];
+    const preparers = preparedIds.length
+      ? await this.prisma.user.findMany({
+          where: { id: { in: preparedIds } },
+          select: { id: true, firstName: true, lastName: true, agencyMember: { select: { agency: { select: { name: true } } } } },
+        })
+      : [];
+    return leases.map((l) => {
+      const m = mandates.find((x) => x.propertyId === l.propertyId);
+      const p = l.preparedById ? preparers.find((u) => u.id === l.preparedById) : null;
+      return {
+        ...l,
+        managedBy: m
+          ? {
+              agencyId: m.agency.id,
+              name: m.agency.name,
+              slug: m.agency.slug,
+              logoUrl: agencyLogoUrl(m.agency.logoKey),
+              registrationNumber: m.agency.registrationNumber,
+              email: m.agency.email,
+              phone: m.agency.phone,
+              mandateReference: m.reference,
+              mandateType: m.type,
+            }
+          : null,
+        preparedBy: p
+          ? { id: p.id, firstName: p.firstName, lastName: p.lastName, agencyName: p.agencyMember?.agency.name ?? null }
+          : null,
+      };
+    });
   }
 
   /** Objet bail complet (même forme pour la liste et toutes les mutations). */
-  private full(leaseId: string) {
-    return this.prisma.leaseContract.findUniqueOrThrow({
+  private async full(leaseId: string) {
+    const lease = await this.prisma.leaseContract.findUniqueOrThrow({
       where: { id: leaseId },
       include: LEASE_FULL_INCLUDE,
     });
+    const [decorated] = await this.decorate([lease]);
+    return decorated!;
   }
 
   private tenantBase(): string {
     return (process.env.TENANT_WEB_URL || "https://tenant.hwe.dkpsolution.tech").replace(/\/+$/, "");
   }
 
-  async list(propertyId: string, ownerId: string) {
-    await this.assertOwner(propertyId, ownerId);
-    return this.prisma.leaseContract.findMany({
-      where: { propertyId },
+  async list(propertyId: string, userId: string) {
+    const { decision } = await this.assertOwner(propertyId, userId, "LEASE_READ");
+    const leases = await this.prisma.leaseContract.findMany({
+      where: {
+        propertyId,
+        // Mandat LETTING terminé : le pro ne garde que la lecture du bail signé.
+        ...(decision.as === "PRO" && !(await this.access.check(propertyId, userId, "READ")).decision.allowed
+          ? { status: { not: "DRAFT" } }
+          : {}),
+      },
       include: LEASE_FULL_INCLUDE,
       orderBy: { createdAt: "desc" },
     });
+    return this.decorate(leases);
   }
 
-  async findOne(propertyId: string, leaseId: string, ownerId: string) {
-    await this.ownedLease(propertyId, leaseId, ownerId);
+  async findOne(propertyId: string, leaseId: string, userId: string) {
+    await this.ownedLease(propertyId, leaseId, userId, "LEASE_READ");
     return this.full(leaseId);
   }
 
@@ -130,13 +203,16 @@ export class LeasesService {
       include: { ...LEASE_FULL_INCLUDE, inquiry: { select: { senderId: true } } },
       orderBy: { startDate: "desc" },
     });
-    return leases
-      .filter((l) => leasePartyFlags(l, user).isTenant)
-      .map(({ inquiry: _inquiry, ...l }) => l);
+    return this.decorate(
+      leases
+        .filter((l) => leasePartyFlags(l, user).isTenant)
+        .map(({ inquiry: _inquiry, ...l }) => l),
+    );
   }
 
-  async create(propertyId: string, ownerId: string, dto: CreateLeaseDto) {
-    const property = await this.assertOwner(propertyId, ownerId);
+  async create(propertyId: string, userId: string, dto: CreateLeaseDto) {
+    const { property, decision } = await this.assertOwner(propertyId, userId, "LEASE_DRAFT");
+    const byPro = decision.as === "PRO";
     const start = day(dto.startDate, "Date de début");
     const end = day(dto.endDate, "Date de fin");
     assertLeaseDates(start, end);
@@ -162,9 +238,11 @@ export class LeasesService {
           rentPaymentDay: dto.rentPaymentDay ?? 1,
           furnished: dto.furnished ?? (property.furnished || property.rentalKind === "FURNISHED"),
           specialClauses: dto.specialClauses || null,
+          preparedById: byPro ? userId : null,
         },
       });
     });
+    if (byPro) await this.logPro(propertyId, userId, "LEASE_PREPARED", { leaseId: lease.id, action: "CREATED" });
     return this.full(lease.id);
   }
 
@@ -175,7 +253,8 @@ export class LeasesService {
     ownerId: string,
     dto: UpdateLeaseDto,
   ) {
-    const { lease } = await this.ownedLease(propertyId, leaseId, ownerId);
+    const { lease, decision } = await this.ownedLease(propertyId, leaseId, ownerId, "LEASE_DRAFT");
+    const byPro = decision.as === "PRO";
     assertLeaseEditable(lease);
 
     const start = dto.startDate !== undefined ? day(dto.startDate, "Date de début") : lease.startDate;
@@ -197,18 +276,20 @@ export class LeasesService {
           ...(dto.deposit !== undefined ? { deposit: round2(dto.deposit) } : {}),
           startDate: start!,
           endDate: end,
+          ...(byPro ? { preparedById: ownerId } : {}),
         },
       });
       if (count === 0) {
         throw new ConflictException("Ce bail a déjà été signé : il n'est plus modifiable. Passez par un avenant.");
       }
     });
-    this.logger.log(`Bail ${leaseId} modifié par le propriétaire ${ownerId}.`);
+    if (byPro) await this.logPro(propertyId, ownerId, "LEASE_PREPARED", { leaseId, action: "UPDATED" });
+    this.logger.log(`Bail ${leaseId} modifié par ${byPro ? "le professionnel" : "le propriétaire"} ${ownerId}.`);
     return this.full(leaseId);
   }
 
   async remove(propertyId: string, leaseId: string, ownerId: string) {
-    const { lease } = await this.ownedLease(propertyId, leaseId, ownerId);
+    const { lease } = await this.ownedLease(propertyId, leaseId, ownerId, "LEASE_DRAFT");
     assertLeaseDeletable(lease);
     const { count } = await this.prisma.leaseContract.deleteMany({
       where: { id: leaseId, status: "DRAFT", ownerSignedAt: null, tenantSignedAt: null },
@@ -233,10 +314,21 @@ export class LeasesService {
     return this.applySignature(leaseId, "tenant");
   }
 
-  /** Le propriétaire signe électroniquement son bail. */
-  async signByOwner(propertyId: string, leaseId: string, ownerId: string) {
-    await this.ownedLease(propertyId, leaseId, ownerId);
-    return this.applySignature(leaseId, "owner");
+  /**
+   * Le propriétaire signe électroniquement son bail (côté bailleur). Un pro
+   * ne le peut que POUR LE COMPTE d'un propriétaire non activé : mention
+   * « Signé par X (Agence), mandataire, pour le compte de Y — mandat … » et
+   * événement ACTED_ON_BEHALF.
+   */
+  async signByOwner(propertyId: string, leaseId: string, userId: string) {
+    const { ctx, decision } = await this.ownedLease(propertyId, leaseId, userId, "SIGN_LEASE");
+    const mention = decision.onBehalf ? await this.access.onBehalfMention(ctx) : null;
+    const before = await this.prisma.leaseContract.findUniqueOrThrow({ where: { id: leaseId }, select: { ownerSignedAt: true } });
+    const out = await this.applySignature(leaseId, "owner", { signedById: userId, mention, actorId: userId });
+    if (decision.onBehalf && !before.ownerSignedAt) {
+      await this.logPro(propertyId, userId, "ACTED_ON_BEHALF", { action: "SIGN_LEASE", leaseId, mention });
+    }
+    return out;
   }
 
   /**
@@ -245,7 +337,11 @@ export class LeasesService {
    * double signature : statut SIGNED/ACTIVE selon la date de début, empreinte
    * du contenu, bien passé en RENTED, échéances générées.
    */
-  private async applySignature(leaseId: string, who: "owner" | "tenant") {
+  private async applySignature(
+    leaseId: string,
+    who: "owner" | "tenant",
+    opts: { signedById?: string; mention?: string | null; actorId?: string | null } = {},
+  ) {
     const now = new Date();
     const today = todayDay(now);
     const result = await this.prisma.$transaction(async (tx) => {
@@ -271,7 +367,9 @@ export class LeasesService {
       await tx.leaseContract.update({
         where: { id: leaseId },
         data: {
-          ...(who === "owner" ? { ownerSignedAt: now } : { tenantSignedAt: now }),
+          ...(who === "owner"
+            ? { ownerSignedAt: now, ownerSignedById: opts.signedById ?? null, ownerSignatureMention: opts.mention ?? null }
+            : { tenantSignedAt: now }),
           status,
           ...(completed ? { contentHash: leaseContentHash(lease) } : {}),
         },
@@ -290,6 +388,8 @@ export class LeasesService {
       await this.rents.generateForLease(leaseId, today).catch((e) =>
         this.logger.error(`Échéances du bail ${leaseId} : ${(e as Error).message}`),
       );
+      // Honoraires de mise en location (mandat LETTING / MANAGEMENT actif).
+      await this.fees.onLeaseSigned(leaseId, opts.actorId ?? null);
     }
     return this.full(leaseId);
   }
@@ -301,7 +401,7 @@ export class LeasesService {
     ownerId: string,
     dto: LeaseDepositDto,
   ) {
-    const { lease } = await this.ownedLease(propertyId, leaseId, ownerId);
+    const { lease } = await this.ownedLease(propertyId, leaseId, ownerId, "MANAGE");
 
     if (dto.action === "PAID") {
       if (lease.depositPaidAt) return this.full(leaseId); // idempotent
@@ -411,7 +511,9 @@ export class LeasesService {
     ownerId: string,
     dto: CreateAmendmentDto,
   ) {
-    const { property, lease } = await this.ownedLease(propertyId, leaseId, ownerId);
+    const { property, lease, decision } = await this.ownedLease(propertyId, leaseId, ownerId, "MANAGE");
+    // Préparé par un pro : la signature bailleur revient au propriétaire.
+    const byPro = decision.as === "PRO";
     if (lease.status !== "ACTIVE" && lease.status !== "SIGNED") {
       throw new ConflictException("Un avenant ne concerne qu'un bail signé et en cours.");
     }
@@ -435,8 +537,11 @@ export class LeasesService {
         newCharges: dto.newCharges != null ? round2(dto.newCharges) : null,
         newEndDate,
         note: dto.note ?? null,
+        createdById: ownerId,
+        ...(byPro ? { ownerSignedAt: null } : { ownerSignedById: ownerId }),
       },
     });
+    if (byPro) await this.logPro(propertyId, ownerId, "AMENDMENT_PREPARED", { leaseId, amendmentId: amendment.id });
 
     this.mailer
       .amendmentCreated(
@@ -481,7 +586,8 @@ export class LeasesService {
       where: { id: amendmentId, tenantSignedAt: null },
       data: { tenantSignedAt: new Date() },
     });
-    if (amendment.effectiveDate.getTime() <= todayDay().getTime()) {
+    // Appliqué seulement une fois signé des DEUX côtés (avenant préparé par un pro).
+    if (amendment.ownerSignedAt && amendment.effectiveDate.getTime() <= todayDay().getTime()) {
       await this.applyAmendment(amendmentId);
     }
 
@@ -497,6 +603,32 @@ export class LeasesService {
   }
 
   /**
+   * Signature bailleur d'un avenant préparé par un professionnel : le
+   * propriétaire (ou le pro POUR LE COMPTE d'un propriétaire non activé).
+   */
+  async signAmendmentAsOwner(propertyId: string, leaseId: string, amendmentId: string, userId: string) {
+    const { lease, ctx, decision } = await this.ownedLease(propertyId, leaseId, userId, "SIGN_AMENDMENT");
+    if (lease.status !== "ACTIVE" && lease.status !== "SIGNED") {
+      throw new ConflictException("Ce bail n'est plus en cours : l'avenant ne peut plus être signé.");
+    }
+    const amendment = await this.prisma.leaseAmendment.findUnique({ where: { id: amendmentId } });
+    if (!amendment || amendment.leaseId !== leaseId) throw new NotFoundException("Avenant introuvable");
+    if (amendment.ownerSignedAt) return amendment; // idempotent
+    const mention = decision.onBehalf ? await this.access.onBehalfMention(ctx) : null;
+    await this.prisma.leaseAmendment.updateMany({
+      where: { id: amendmentId, ownerSignedAt: null },
+      data: { ownerSignedAt: new Date(), ownerSignedById: userId, ownerSignatureMention: mention },
+    });
+    if (decision.onBehalf) {
+      await this.logPro(propertyId, userId, "ACTED_ON_BEHALF", { action: "SIGN_AMENDMENT", leaseId, amendmentId, mention });
+    }
+    if (amendment.tenantSignedAt && amendment.effectiveDate.getTime() <= todayDay().getTime()) {
+      await this.applyAmendment(amendmentId);
+    }
+    return this.prisma.leaseAmendment.findUniqueOrThrow({ where: { id: amendmentId } });
+  }
+
+  /**
    * Applique un avenant signé au bail (une seule fois), en mémorisant les
    * valeurs précédentes : les échéances antérieures à sa date d'effet
    * restent calculées sur l'ancien loyer.
@@ -504,7 +636,7 @@ export class LeasesService {
   async applyAmendment(amendmentId: string): Promise<boolean> {
     return this.prisma.$transaction(async (tx) => {
       const a = await tx.leaseAmendment.findUnique({ where: { id: amendmentId } });
-      if (!a || !a.tenantSignedAt || a.appliedAt) return false;
+      if (!a || !a.tenantSignedAt || !a.ownerSignedAt || a.appliedAt) return false;
       await tx.$queryRaw`SELECT "id" FROM "LeaseContract" WHERE "id" = ${a.leaseId} FOR UPDATE`;
       const lease = await tx.leaseContract.findUniqueOrThrow({ where: { id: a.leaseId } });
       const { count } = await tx.leaseAmendment.updateMany({
@@ -539,7 +671,7 @@ export class LeasesService {
     ownerId: string,
     dto: CoTenantDto,
   ) {
-    const { lease } = await this.ownedLease(propertyId, leaseId, ownerId);
+    const { lease } = await this.ownedLease(propertyId, leaseId, ownerId, "MANAGE");
     if (!OPEN_LEASE_STATUSES.includes(lease.status)) {
       throw new ConflictException("Ce bail est terminé : impossible d'ajouter un colocataire.");
     }
@@ -571,7 +703,7 @@ export class LeasesService {
     ownerId: string,
     coTenantId: string,
   ) {
-    await this.ownedLease(propertyId, leaseId, ownerId);
+    await this.ownedLease(propertyId, leaseId, ownerId, "MANAGE");
     const coTenant = await this.prisma.leaseCoTenant.findUnique({
       where: { id: coTenantId },
     });
@@ -661,7 +793,8 @@ export class LeasesService {
     ownerId: string,
     dto: OwnerNoticeDto,
   ) {
-    const { property, lease } = await this.ownedLease(propertyId, leaseId, ownerId);
+    const { property, lease, decision } = await this.ownedLease(propertyId, leaseId, ownerId, "OWNER_NOTICE");
+    if (decision.as === "PRO") await this.logPro(propertyId, ownerId, "OWNER_NOTICE_GIVEN", { leaseId, reason: dto.reason });
     if (lease.status !== "ACTIVE" && lease.status !== "SIGNED") {
       throw new ConflictException("Ce bail n'est pas en cours.");
     }
@@ -718,7 +851,7 @@ export class LeasesService {
     ownerId: string,
     dto: ChargeRegularizationDto,
   ) {
-    const { property, lease } = await this.ownedLease(propertyId, leaseId, ownerId);
+    const { property, lease } = await this.ownedLease(propertyId, leaseId, ownerId, "MANAGE");
     if (lease.status === "DRAFT") {
       throw new ConflictException("Le bail doit être signé pour régulariser les charges.");
     }

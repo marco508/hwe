@@ -19,6 +19,9 @@ import { TicketsModule } from "./tickets/tickets.module";
 import { AdminModule } from "./admin/admin.module";
 import { VisitsModule } from "./visits/visits.module";
 import { MediaModule } from "./media/media.module";
+import { AgencyCoreModule } from "./mandates/core.module";
+import { AgenciesModule } from "./agencies/agencies.module";
+import { MandatesModule } from "./mandates/mandates.module";
 import { HealthController } from "./health/health.controller";
 import { AllExceptionsFilter } from "./common/all-exceptions.filter";
 import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interceptor";
@@ -29,6 +32,7 @@ import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interc
     ScheduleModule.forRoot(),
     MailModule,
     PrismaModule,
+    AgencyCoreModule,
     AuthModule,
     UsersModule,
     PropertiesModule,
@@ -44,6 +48,8 @@ import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interc
     AdminModule,
     VisitsModule,
     MediaModule,
+    AgenciesModule,
+    MandatesModule,
   ],
   controllers: [HealthController],
   providers: [

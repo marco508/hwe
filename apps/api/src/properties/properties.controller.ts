@@ -38,10 +38,10 @@ export class PropertiesController {
 
   // Owners only — déclaré AVANT :id.
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Get("mine/list")
   mine(@CurrentUser() user: JwtPayload) {
-    return this.properties.listMine(user.sub);
+    return this.properties.listMine(user.sub, user.role);
   }
 
   /** Public ; le propriétaire connecté voit aussi ses brouillons/archives. */
@@ -59,7 +59,7 @@ export class PropertiesController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Patch(":id")
   update(
     @CurrentUser() user: JwtPayload,
@@ -70,7 +70,7 @@ export class PropertiesController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Delete(":id")
   remove(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
     return this.properties.remove(user.sub, id);

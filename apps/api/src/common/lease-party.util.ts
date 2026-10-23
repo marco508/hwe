@@ -2,6 +2,14 @@ import { ForbiddenException, NotFoundException, UnauthorizedException } from "@n
 import { PrismaService } from "../prisma/prisma.service";
 import { normalizeEmail } from "./email.util";
 import { emailNotVerified } from "./email-verified.util";
+import {
+  AccessAction,
+  AccessContext,
+  AccessDecision,
+  accessDenied,
+  decideAccess,
+  loadAccessContext,
+} from "./property-access";
 
 export interface LeasePartyFlags {
   /** Propriétaire du bien */
@@ -44,13 +52,19 @@ export function leasePartyFlags(
 
 /**
  * Résout la position de l'utilisateur vis-à-vis d'un bail : propriétaire du
- * bien, locataire principal ou colocataire. Lève 403 si l'utilisateur n'est
- * aucune des parties.
+ * bien, professionnel mandataire autorisé (PropertyAccessService), locataire
+ * principal ou colocataire. Lève 403 si l'utilisateur n'est aucune des
+ * parties.
+ *
+ * `proAction` : droit exigé d'un professionnel pour être reconnu « côté
+ * bailleur » (READ par défaut ; un mandat LETTING terminé ne garde que
+ * LEASE_READ).
  */
 export async function resolveLeaseParty(
   prisma: PrismaService,
   leaseId: string,
   user: { sub: string },
+  proAction: AccessAction = "READ",
 ) {
   const [lease, account] = await Promise.all([
     prisma.leaseContract.findUnique({
@@ -78,9 +92,45 @@ export async function resolveLeaseParty(
   if (!lease) throw new NotFoundException("Bail introuvable");
 
   const flags = leasePartyFlags(lease, account);
+  // Côté bailleur : propriétaire, ou pro mandataire autorisé.
+  let access: AccessContext | null = null;
+  let isAgent = false;
   if (!flags.isOwner && !flags.isTenant) {
-    if (!account.emailVerifiedAt) throw emailNotVerified();
+    access = await loadAccessContext(prisma, lease.propertyId, account.id);
+    isAgent = decideAccess(access, proAction).allowed;
+  }
+  if (!flags.isOwner && !flags.isTenant && !isAgent) {
+    if (!account.emailVerifiedAt && !access?.membership) throw emailNotVerified();
     throw new ForbiddenException("Vous n'êtes pas partie à ce bail.");
   }
-  return { lease, account, ...flags };
+  const ctx: AccessContext =
+    access ??
+    ({
+      userId: account.id,
+      property: { id: lease.property.id, ownerId: lease.property.ownerId },
+      ownerActivated: true,
+      membership: null,
+      mandate: null,
+      today: new Date(),
+    } satisfies AccessContext);
+  /** Décision côté bailleur pour une action (propriétaire : toujours autorisé). */
+  const can = (action: AccessAction): AccessDecision => decideAccess(ctx, action);
+  /** Idem, lève une 403 normalisée en cas de refus. */
+  const must = (action: AccessAction): AccessDecision => {
+    const d = can(action);
+    if (!d.allowed) throw accessDenied(d);
+    return d;
+  };
+  return {
+    lease,
+    account,
+    ...flags,
+    /** Propriétaire OU pro mandataire autorisé */
+    isLandlord: flags.isOwner || isAgent,
+    /** Pro mandataire (pas le propriétaire) */
+    isAgent,
+    access: ctx,
+    can,
+    must,
+  };
 }

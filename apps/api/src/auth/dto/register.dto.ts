@@ -12,7 +12,7 @@ import { NormalizeEmail, Trim } from "../../common/email.util";
 // Rôles autorisés à l'inscription publique : JAMAIS ADMIN.
 // (Sans cette restriction, n'importe qui pouvait se créer un compte
 // administrateur via POST /api/auth/register.)
-export type PublicRole = Extract<Role, "OWNER" | "TENANT">;
+export type PublicRole = Extract<Role, "OWNER" | "TENANT" | "AGENT">;
 
 export class RegisterDto {
   @NormalizeEmail()
@@ -43,6 +43,27 @@ export class RegisterDto {
   @MaxLength(30)
   phone?: string;
 
-  @IsIn(["OWNER", "TENANT"])
+  @IsIn(["OWNER", "TENANT", "AGENT"])
   role!: PublicRole;
+
+  /** Professionnel : nom de l'agence ou de l'activité (crée l'agence, MANAGER). */
+  @IsOptional()
+  @Trim()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(120)
+  agencyName?: string;
+
+  /** Professionnel invité par une agence : jeton du lien d'invitation. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  agencyInviteToken?: string;
+}
+
+export class ActivateOwnerDto {
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  password!: string;
 }

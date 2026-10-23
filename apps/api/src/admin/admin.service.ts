@@ -23,6 +23,11 @@ export class AdminService {
         this.prisma.inquiry.count(),
         this.prisma.user.count({ where: { emailVerifiedAt: null } }),
       ]);
+    const [agencies, activeMandates, usersNotActivated] = await Promise.all([
+      this.prisma.agency.count(),
+      this.prisma.mandate.count({ where: { status: "ACTIVE" } }),
+      this.prisma.user.count({ where: { activatedAt: null } }),
+    ]);
     return {
       users: Object.fromEntries(usersByRole.map((r) => [r.role, r._count._all])),
       properties: Object.fromEntries(propsByStatus.map((p) => [p.status, p._count._all])),
@@ -30,14 +35,17 @@ export class AdminService {
       ticketsOpen,
       inquiries,
       usersUnverified: unverified,
+      agencies,
+      activeMandates,
+      usersNotActivated,
       // Sans SMTP, aucun e-mail ne part (vérification, réinitialisation, relances).
       smtpConfigured: this.mailer.isConfigured,
     };
   }
 
   /** Recherche d'utilisateurs (e-mail ou nom), avec volumes d'activité. */
-  users(q?: string, role?: Role) {
-    return this.prisma.user.findMany({
+  async users(q?: string, role?: Role) {
+    const rows = await this.prisma.user.findMany({
       where: {
         ...(role ? { role } : {}),
         ...(q
@@ -58,12 +66,20 @@ export class AdminService {
         phone: true,
         role: true,
         emailVerifiedAt: true,
+        activatedAt: true,
         createdAt: true,
         _count: { select: { properties: true, inquiries: true } },
+        agencyMember: { select: { role: true, agency: { select: { id: true, name: true, slug: true } } } },
+        invitedByAgency: { select: { id: true, name: true, slug: true } },
       },
       orderBy: { createdAt: "desc" },
       take: 100,
     });
+    // Agence affichée dans la liste : celle du pro, ou celle qui a invité le propriétaire.
+    return rows.map(({ agencyMember, ...u }) => ({
+      ...u,
+      agency: agencyMember ? { ...agencyMember.agency, role: agencyMember.role } : null,
+    }));
   }
 
   /** Annonces, filtrables par statut ou texte — pour la modération. */

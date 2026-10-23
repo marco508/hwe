@@ -70,11 +70,22 @@ export function defaultAuthRules(): Record<string, Rule> {
   };
 }
 
-export function authRateLimitMiddleware(rules: Record<string, Rule> = defaultAuthRules()) {
+/** Routes à paramètre (jeton dans l'URL) : même limitation, clé = motif. */
+export function defaultPatternRules(): Array<[RegExp, Rule]> {
+  return [
+    [/^\/api\/auth\/owner-invite\/[^/]+\/activate$/, { ip: new FixedWindowLimiter(20, 15 * MIN) }],
+    [/^\/api\/agencies\/invites\/[^/]+\/accept$/, { ip: new FixedWindowLimiter(20, 15 * MIN) }],
+  ];
+}
+
+export function authRateLimitMiddleware(
+  rules: Record<string, Rule> = defaultAuthRules(),
+  patterns: Array<[RegExp, Rule]> = defaultPatternRules(),
+) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.method !== "POST") return next();
     const path = (req.originalUrl || req.url || "").split("?")[0]!.replace(/\/+$/, "");
-    const rule = rules[path];
+    const rule = rules[path] ?? patterns.find(([re]) => re.test(path))?.[1];
     if (!rule) return next();
 
     const ip = req.ip || req.socket?.remoteAddress || "?";

@@ -17,7 +17,7 @@ import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, JwtPayload } from "../auth/current-user.decorator";
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.OWNER, Role.ADMIN)
+@Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
 @Controller("properties/:propertyId/documents")
 export class DocumentsController {
   constructor(private readonly documents: DocumentsService) {}

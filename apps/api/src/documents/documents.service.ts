@@ -1,28 +1,23 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { AccessAction, PropertyAccessService } from "../common/property-access";
 import { CreateDocumentDto, UpdateDocumentDto } from "./dto/create-document.dto";
 import { assertDataUrl } from "../common/upload.util";
 
 @Injectable()
 export class DocumentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly access: PropertyAccessService,
+  ) {}
 
-  private async assertOwner(propertyId: string, ownerId: string) {
-    const property = await this.prisma.property.findUnique({
-      where: { id: propertyId },
-    });
-    if (!property) throw new NotFoundException("Bien introuvable");
-    if (property.ownerId !== ownerId)
-      throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
-    return property;
+  /** Lecture : propriétaire ou pro autorisé (READ) ; écriture : EDIT_LISTING. */
+  private async assertOwner(propertyId: string, userId: string, action: AccessAction = "EDIT_LISTING") {
+    await this.access.assert(propertyId, userId, action);
   }
 
   async list(propertyId: string, ownerId: string) {
-    await this.assertOwner(propertyId, ownerId);
+    await this.assertOwner(propertyId, ownerId, "READ");
     return this.prisma.propertyDocument.findMany({
       where: { propertyId },
       orderBy: { createdAt: "desc" },

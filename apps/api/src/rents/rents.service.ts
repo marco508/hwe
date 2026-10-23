@@ -15,6 +15,8 @@ import { MailerService } from "../mail/mailer.service";
 import { today as todayDay, yearOf } from "../common/dates";
 import { buildReceiptPdf } from "./receipt";
 import { periodsUpTo } from "./rent-calc";
+import { PropertyAccessService, decideAccess, loadAccessContext } from "../common/property-access";
+import { FeesService } from "../mandates/fees.service";
 
 /**
  * Loyers : paiement direct au propriétaire, déclaré puis validé.
@@ -45,7 +47,7 @@ type PeriodRow = {
   amount: number; rentAmount: number; chargesAmount: number; status: RentStatus;
   declaredAt: Date | null; declaredMethod: string | null; declaredRef: string | null;
   proofDataUrl: string | null; tenantNote: string | null; paidAt: Date | null;
-  receiptNo: string | null; rejectReason: string | null;
+  receiptNo: string | null; rejectReason: string | null; reviewedById?: string | null;
 };
 
 export function shapePeriod(p: PeriodRow, currency: string) {
@@ -69,6 +71,7 @@ export function shapePeriod(p: PeriodRow, currency: string) {
     paidAt: p.paidAt,
     receiptNo: p.receiptNo,
     rejectReason: p.rejectReason,
+    reviewedById: p.reviewedById ?? null,
   };
 }
 
@@ -81,6 +84,8 @@ export class RentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailer: MailerService,
+    private readonly access: PropertyAccessService,
+    private readonly fees: FeesService,
   ) {}
 
   // ────────────────── Coordonnées de paiement du propriétaire ──────────────────
@@ -226,6 +231,30 @@ export class RentsService {
       orderBy: [{ position: "asc" }],
       select: { id: true, ownerId: true, label: true, value: true, holder: true, instructions: true },
     });
+    // Mandat « loyers encaissés par l'agence » : l'IBAN de l'agence remplace
+    // les coordonnées du propriétaire.
+    const mandates = await this.prisma.mandate.findMany({
+      where: { propertyId: { in: leases.map((l) => l.property.id) }, status: "ACTIVE" },
+      select: {
+        propertyId: true,
+        rentPayee: true,
+        agency: { select: { id: true, name: true, paymentIban: true, paymentHolder: true } },
+      },
+    });
+    const agencyMethods = (propertyId: string) => {
+      const m = mandates.find((x) => x.propertyId === propertyId);
+      if (!m || m.rentPayee !== "AGENCY" || !m.agency.paymentIban) return null;
+      return [
+        {
+          id: `agency-${m.agency.id}`,
+          ownerId: null,
+          label: `Virement — ${m.agency.name}`,
+          value: m.agency.paymentIban,
+          holder: m.agency.paymentHolder ?? m.agency.name,
+          instructions: `Loyer encaissé par ${m.agency.name}, mandataire du propriétaire.`,
+        },
+      ];
+    };
     return leases.map((l) => ({
       lease: {
         id: l.id,
@@ -246,15 +275,17 @@ export class RentsService {
           ownerId: l.property.ownerId,
         },
       },
-      paymentMethods: methods.filter((m) => m.ownerId === l.property.ownerId),
+      paymentMethods: agencyMethods(l.property.id) ?? methods.filter((m) => m.ownerId === l.property.ownerId),
+      payee: agencyMethods(l.property.id) ? "AGENCY" : "OWNER",
       periods: periods.filter((p) => p.leaseId === l.id).map((p) => shapePeriod(p, l.currency)),
     }));
   }
 
-  /** Échéances de tous les baux des biens du propriétaire connecté. */
+  /** Échéances de tous les baux des biens du propriétaire connecté (ou gérés par le pro). */
   async ownerRents(ownerId: string, status?: RentStatus) {
+    const propertyWhere = await this.access.propertyWhere(ownerId, "READ");
     const leases = await this.prisma.leaseContract.findMany({
-      where: { property: { ownerId } },
+      where: { property: propertyWhere },
       include: { property: { select: { id: true, title: true, addressLine: true, city: true } } },
     });
     const periods = await this.prisma.rentPeriod.findMany({
@@ -321,6 +352,21 @@ export class RentsService {
       where: { id: lease.property.ownerId },
       select: { email: true, firstName: true, lastName: true },
     });
+    // Bien géré : l'agent assigné (sinon les responsables) est aussi prévenu.
+    const m = await this.access.activeMandate(lease.propertyId);
+    if (m) {
+      const recipients = await this.prisma.user.findMany({
+        where: m.assignedAgentId
+          ? { id: m.assignedAgentId }
+          : { agencyMember: { agencyId: m.agencyId, role: "MANAGER" } },
+        select: { email: true, firstName: true, lastName: true },
+      });
+      for (const r of recipients) {
+        this.mailer
+          .rentDeclared(r.email, `${r.firstName} ${r.lastName}`, `${user.firstName} ${user.lastName}`, periodLabel(period.periodYear, period.periodMonth), period.amount, lease.currency)
+          .catch(() => {});
+      }
+    }
     if (owner) {
       this.mailer
         .rentDeclared(
@@ -347,11 +393,24 @@ export class RentsService {
   async review(userId: string, periodId: string, accept: boolean, reason?: string | null) {
     const period = await this.prisma.rentPeriod.findUnique({
       where: { id: periodId },
-      include: { lease: { include: { property: { select: { ownerId: true, title: true } } } } },
+      include: { lease: { include: { property: { select: { id: true, ownerId: true, title: true } } } } },
     });
     if (!period) throw new NotFoundException("Échéance introuvable.");
-    if (period.lease.property.ownerId !== userId)
-      throw new ForbiddenException("Seul le propriétaire du bien peut valider ce loyer.");
+    // Propriétaire, ou pro mandataire autorisé (mandat de gestion).
+    const { decision } = await this.access.check(period.lease.property.id, userId, "RENTS");
+    if (!decision.allowed) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        code: decision.code,
+        message: decision.as === "NONE" ? "Seul le propriétaire du bien peut valider ce loyer." : decision.message,
+      });
+    }
+    const propertyId = period.lease.property.id;
+    const logPro = async (kind: string, data: Record<string, unknown>) => {
+      if (decision.as !== "PRO") return;
+      const m = await this.access.activeMandate(propertyId);
+      if (m) await this.access.logEvent(m.id, userId, kind, data as never).catch(() => {});
+    };
 
     const tenantName = `${period.lease.tenantFirstName} ${period.lease.tenantLastName}`;
     const libelle = periodLabel(period.periodYear, period.periodMonth);
@@ -366,9 +425,13 @@ export class RentsService {
           status: RentStatus.DUE,
           rejectReason: reason?.trim() || null,
           declaredRef: null,
+          reviewedById: userId,
         },
       });
       if (count === 0) throw new ConflictException("Aucune déclaration en attente sur cette échéance.");
+      // Refus : un éventuel honoraire de gestion de l'échéance est annulé.
+      await this.fees.onRentCancelled(this.prisma, periodId);
+      await logPro("RENT_REJECTED", { periodId });
       const maj = await this.prisma.rentPeriod.findUniqueOrThrow({ where: { id: periodId } });
       this.mailer.rentRejected(period.lease.tenantEmail, tenantName, libelle, reason?.trim() || "").catch(() => {});
       return shapePeriod(maj, currency);
@@ -377,12 +440,16 @@ export class RentsService {
     const maj = await this.prisma.$transaction(async (tx) => {
       const { count } = await tx.rentPeriod.updateMany({
         where: { id: periodId, status: RentStatus.DECLARED },
-        data: { status: RentStatus.PAID, paidAt: new Date() },
+        data: { status: RentStatus.PAID, paidAt: new Date(), reviewedById: userId },
       });
       if (count === 0) throw new ConflictException("Aucune déclaration en attente sur cette échéance.");
       const receiptNo = await this.nextReceiptNo(tx);
-      return tx.rentPeriod.update({ where: { id: periodId }, data: { receiptNo } });
+      const paid = await tx.rentPeriod.update({ where: { id: periodId }, data: { receiptNo } });
+      // Honoraires de gestion (mandat MANAGEMENT actif), idempotents par échéance.
+      await this.fees.onRentValidated(tx, paid, propertyId, currency, userId);
+      return paid;
     });
+    await logPro("RENT_VALIDATED", { periodId, receiptNo: maj.receiptNo });
     this.mailer
       .rentValidated(period.lease.tenantEmail, tenantName, libelle, period.amount, maj.receiptNo!, currency)
       .catch(() => {});
@@ -413,7 +480,7 @@ export class RentsService {
         lease: {
           include: {
             property: {
-              select: { ownerId: true, title: true, addressLine: true, city: true, owner: { select: { firstName: true, lastName: true } } },
+              select: { id: true, ownerId: true, title: true, addressLine: true, city: true, owner: { select: { firstName: true, lastName: true } } },
             },
             inquiry: { select: { senderId: true } },
             coTenants: { select: { email: true } },
@@ -430,7 +497,11 @@ export class RentsService {
       select: { id: true, email: true, emailVerifiedAt: true },
     });
     const flags = user ? leasePartyFlags(period.lease, user) : null;
-    const autorise = role === Role.ADMIN || !!flags?.isOwner || !!flags?.isTenant;
+    let autorise = role === Role.ADMIN || !!flags?.isOwner || !!flags?.isTenant;
+    if (!autorise && user) {
+      // Pro mandataire autorisé à suivre les loyers du bien.
+      autorise = decideAccess(await loadAccessContext(this.prisma, period.lease.property.id, user.id), "READ").allowed;
+    }
     if (!autorise) throw new ForbiddenException("Cette quittance ne vous concerne pas.");
 
     const owner = period.lease.property.owner;

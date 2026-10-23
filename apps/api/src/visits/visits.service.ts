@@ -10,6 +10,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { assertEmailVerified } from "../common/email-verified.util";
 import { lockKey } from "../common/advisory-lock";
+import { PropertyAccessService } from "../common/property-access";
 
 /** Anti-harcèlement : demandes de visite par candidat sur 24 h. */
 const MAX_VISIT_REQUESTS_PER_DAY = 10;
@@ -19,6 +20,7 @@ export class VisitsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailer: MailerService,
+    private readonly access: PropertyAccessService,
   ) {}
 
   /** Le candidat propose un créneau de visite sur une annonce. */
@@ -105,11 +107,12 @@ export class VisitsService {
     });
   }
 
-  /** Les visites demandées sur mes biens (côté propriétaire). */
-  owner(ownerId: string, status?: VisitStatus) {
+  /** Les visites demandées sur mes biens (propriétaire) ou ceux que je gère (pro). */
+  async owner(ownerId: string, status?: VisitStatus) {
+    const propertyWhere = await this.access.propertyWhere(ownerId, "READ");
     return this.prisma.visit.findMany({
       where: {
-        property: { ownerId },
+        property: propertyWhere,
         ...(status ? { status } : {}),
       },
       include: {
@@ -130,13 +133,18 @@ export class VisitsService {
     const visit = await this.prisma.visit.findUnique({
       where: { id: visitId },
       include: {
-        property: { select: { ownerId: true, title: true } },
+        property: { select: { id: true, ownerId: true, title: true } },
         requester: { select: { email: true, firstName: true } },
       },
     });
     if (!visit) throw new NotFoundException("Visite introuvable");
-    if (visit.property.ownerId !== ownerId) {
-      throw new ForbiddenException("Cette visite ne concerne pas vos biens");
+    const { decision } = await this.access.check(visit.property.id, ownerId, "MESSAGES");
+    if (!decision.allowed) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        code: decision.code,
+        message: decision.as === "NONE" ? "Cette visite ne concerne pas vos biens" : decision.message,
+      });
     }
     if (visit.status === "CANCELLED") {
       throw new ConflictException("Le candidat a annulé cette visite.");
@@ -153,10 +161,14 @@ export class VisitsService {
 
     const { count } = await this.prisma.visit.updateMany({
       where: { id: visitId, status: visit.status },
-      data: { status: dto.status, ownerNote: dto.ownerNote ?? visit.ownerNote },
+      data: { status: dto.status, ownerNote: dto.ownerNote ?? visit.ownerNote, answeredById: ownerId },
     });
     if (count === 0) throw new ConflictException("Cette visite vient d'être modifiée : rechargez la page.");
     const updated = await this.prisma.visit.findUniqueOrThrow({ where: { id: visitId } });
+    if (decision.as === "PRO") {
+      const m = await this.access.activeMandate(visit.property.id);
+      if (m) await this.access.logEvent(m.id, ownerId, "VISIT_ANSWERED", { visitId, status: dto.status }).catch(() => {});
+    }
 
     this.mailer
       .visitAnswered(

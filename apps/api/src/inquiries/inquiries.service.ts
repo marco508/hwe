@@ -12,10 +12,12 @@ import { ConversationsService } from "../conversations/conversations.service";
 import { MailerService } from "../mail/mailer.service";
 import { assertEmailVerified } from "../common/email-verified.util";
 import { normalizeEmail } from "../common/email.util";
+import { agencyLogoUrl } from "../common/media.util";
 import { lockKey } from "../common/advisory-lock";
 import { addDays, addMonths, today as todayDay, toDay } from "../common/dates";
 import { assertNoLeaseOverlap } from "../leases/lease-db.util";
 import { round2 } from "../leases/lease-rules";
+import { PropertyAccessService, accessDenied } from "../common/property-access";
 
 /**
  * Conditions du bail brouillon généré à l'acceptation (pur, testé).
@@ -125,7 +127,12 @@ export class InquiriesService {
     private readonly prisma: PrismaService,
     private readonly conversations: ConversationsService,
     private readonly mailer: MailerService,
+    private readonly access: PropertyAccessService,
   ) {}
+
+  private ownerBase(): string {
+    return (process.env.OWNER_WEB_URL || "https://owner.hwe.dkpsolution.tech").replace(/\/+$/, "");
+  }
 
   async create(senderId: string, dto: CreateInquiryDto) {
     await assertEmailVerified(this.prisma, senderId);
@@ -140,6 +147,9 @@ export class InquiriesService {
       throw new BadRequestException(
         "Vous ne pouvez pas envoyer de demande sur votre propre bien.",
       );
+    }
+    if ((await this.access.check(property.id, senderId, "READ")).decision.allowed) {
+      throw new BadRequestException("Vous gérez ce bien : vous ne pouvez pas y candidater.");
     }
 
     // Un bien doit être publié pour recevoir des demandes.
@@ -195,6 +205,12 @@ export class InquiriesService {
         `${ownerBase}/dashboard/inquiries`,
       )
       .catch(() => {});
+    // Bien géré : le pro (agent assigné, sinon responsables) est aussi prévenu.
+    for (const r of await this.access.proRecipients(property.id)) {
+      this.mailer
+        .inquiryReceived(r.email, r.firstName, property.title, sender ? `${sender.firstName} ${sender.lastName}` : "Un visiteur", `${ownerBase}/dashboard/inquiries`)
+        .catch(() => {});
+    }
 
     // Crée automatiquement le fil de discussion avec le message initial.
     let conversationId: string | null = null;
@@ -231,20 +247,22 @@ export class InquiriesService {
    */
   async respond(
     inquiryId: string,
-    ownerId: string,
+    userId: string,
     decision: "ACCEPTED" | "REJECTED",
   ) {
-    const inquiry = await this.prisma.inquiry.findUnique({
-      where: { id: inquiryId },
-      include: {
-        property: { include: { pricingRates: true } },
-        sender: { select: { id: true, email: true, firstName: true, lastName: true, phone: true } },
-      },
-    });
-
-    if (!inquiry) throw new NotFoundException("Demande introuvable");
-    if (inquiry.property.ownerId !== ownerId)
-      throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
+    const inquiry = await this.loadForDecision(inquiryId);
+    // Propriétaire : accepte ou refuse. Pro : refuse ; accepter exige l'accord
+    // du propriétaire (POST /inquiries/:id/propose), sauf propriétaire non
+    // activé (le pro accepte alors pour son compte).
+    const { decision: access } = await this.access.check(
+      inquiry.property.id,
+      userId,
+      decision === "ACCEPTED" ? "ACCEPT_TENANT" : "REJECT_INQUIRY",
+    );
+    if (!access.allowed) {
+      if (access.as === "NONE") throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
+      throw accessDenied(access);
+    }
     if (inquiry.status !== "PENDING")
       throw new ConflictException("Cette demande a déjà été traitée");
 
@@ -254,8 +272,50 @@ export class InquiriesService {
         data: { status: "REJECTED", resolvedAt: new Date() },
       });
       if (count === 0) throw new ConflictException("Cette demande a déjà été traitée");
+      if (access.as === "PRO") await this.logPro(inquiry.property.id, userId, "INQUIRY_REJECTED", { inquiryId });
       return this.findFull(inquiryId);
     }
+
+    await this.accept(inquiry, access.as === "PRO" ? userId : null);
+    if (access.onBehalf) {
+      await this.prisma.inquiry.update({
+        where: { id: inquiryId },
+        data: { ownerDecision: "APPROVED", ownerDecisionAt: new Date(), ownerDecisionNote: "Approuvé par le mandataire pour le compte du propriétaire (compte non activé)." },
+      });
+      await this.logPro(inquiry.property.id, userId, "ACTED_ON_BEHALF", { action: "ACCEPT_TENANT", inquiryId });
+    }
+    return this.findFull(inquiryId);
+  }
+
+  private async loadForDecision(inquiryId: string) {
+    const inquiry = await this.prisma.inquiry.findUnique({
+      where: { id: inquiryId },
+      include: {
+        property: { include: { pricingRates: true } },
+        sender: { select: { id: true, email: true, firstName: true, lastName: true, phone: true } },
+      },
+    });
+    if (!inquiry) throw new NotFoundException("Demande introuvable");
+    return inquiry;
+  }
+
+  private async logPro(propertyId: string, actorId: string, kind: string, data: Record<string, unknown>) {
+    const m = await this.access.activeMandate(propertyId);
+    if (m) await this.access.logEvent(m.id, actorId, kind, data as never).catch(() => {});
+  }
+
+  /**
+   * Acceptation effective (logique historique) : la demande passe ACCEPTED,
+   * bail brouillon pour une location, autres demandes en attente déclinées.
+   * `preparedById` : pro à l'origine (le brouillon l'indique).
+   */
+  private async accept(
+    inquiry: Awaited<ReturnType<InquiriesService["loadForDecision"]>>,
+    preparedById: string | null,
+  ) {
+    const inquiryId = inquiry.id;
+    if (inquiry.status !== "PENDING")
+      throw new ConflictException("Cette demande a déjà été traitée");
 
     // Une annonce « location meublée » est meublée même si la case n'a pas été cochée.
     const property = {
@@ -301,6 +361,7 @@ export class InquiriesService {
             noticePeriod: property.noticeMonths ?? 1,
             rentPaymentDay: 1,
             furnished: property.furnished,
+            preparedById,
           },
         });
         await tx.inquiry.update({ where: { id: inquiryId }, data: { leaseId: lease.id } });
@@ -312,7 +373,100 @@ export class InquiriesService {
         data: { status: "REJECTED", resolvedAt: new Date() },
       });
     });
+  }
 
+  /**
+   * Le pro PROPOSE le candidat au propriétaire, qui décidera
+   * (POST /inquiries/:id/owner-decision). Propriétaire prévenu par e-mail.
+   */
+  async propose(inquiryId: string, userId: string, note?: string | null) {
+    const inquiry = await this.loadForDecision(inquiryId);
+    const { decision } = await this.access.check(inquiry.property.id, userId, "PROPOSE_TENANT");
+    if (!decision.allowed) throw accessDenied(decision);
+    if (decision.as !== "PRO") {
+      throw new BadRequestException("En tant que propriétaire, acceptez directement la demande.");
+    }
+    if (inquiry.status !== "PENDING") throw new ConflictException("Cette demande a déjà été traitée");
+    const { count } = await this.prisma.inquiry.updateMany({
+      where: { id: inquiryId, status: "PENDING" },
+      data: {
+        proposedAt: new Date(),
+        proposedById: userId,
+        proposalNote: note?.trim() || null,
+        ownerDecision: null,
+        ownerDecisionAt: null,
+        ownerDecisionNote: null,
+      },
+    });
+    if (count === 0) throw new ConflictException("Cette demande a déjà été traitée");
+    await this.logPro(inquiry.property.id, userId, "TENANT_PROPOSED", {
+      inquiryId,
+      candidate: `${inquiry.sender.firstName} ${inquiry.sender.lastName}`,
+      note: note?.trim() || null,
+    });
+    const [owner, pro] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id: inquiry.property.ownerId }, select: { email: true, firstName: true } }),
+      this.access.proLabel(userId),
+    ]);
+    if (owner) {
+      this.mailer
+        .candidateProposed(
+          owner.email,
+          owner.firstName,
+          inquiry.property.title,
+          `${inquiry.sender.firstName} ${inquiry.sender.lastName}`,
+          pro.agencyName ?? pro.name,
+          note?.trim() || null,
+          `${this.ownerBase()}/dashboard/inquiries`,
+        )
+        .catch(() => {});
+    }
+    return this.findFull(inquiryId);
+  }
+
+  /**
+   * Décision du propriétaire sur un candidat (proposé ou non) :
+   * APPROVED = acceptation réelle (même logique que respond ACCEPTED),
+   * DECLINED = demande refusée. Un pro ne décide que pour le compte d'un
+   * propriétaire non activé (ACTED_ON_BEHALF).
+   */
+  async ownerDecision(inquiryId: string, userId: string, decisionValue: "APPROVED" | "DECLINED", note?: string | null) {
+    const inquiry = await this.loadForDecision(inquiryId);
+    const { decision } = await this.access.check(inquiry.property.id, userId, "ACCEPT_TENANT");
+    if (!decision.allowed) {
+      if (decision.as === "NONE") throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
+      throw accessDenied(decision);
+    }
+    if (inquiry.status !== "PENDING") throw new ConflictException("Cette demande a déjà été traitée");
+    const decisionData = {
+      ownerDecision: decisionValue,
+      ownerDecisionAt: new Date(),
+      ownerDecisionNote: note?.trim() || null,
+    };
+    if (decisionValue === "DECLINED") {
+      const { count } = await this.prisma.inquiry.updateMany({
+        where: { id: inquiryId, status: "PENDING" },
+        data: { status: "REJECTED", resolvedAt: new Date(), ...decisionData },
+      });
+      if (count === 0) throw new ConflictException("Cette demande a déjà été traitée");
+    } else {
+      await this.accept(inquiry, inquiry.proposedById ?? (decision.as === "PRO" ? userId : null));
+      await this.prisma.inquiry.update({ where: { id: inquiryId }, data: decisionData });
+    }
+    const m = await this.access.activeMandate(inquiry.property.id);
+    if (m) {
+      await this.access
+        .logEvent(m.id, userId, decisionValue === "APPROVED" ? "TENANT_APPROVED" : "TENANT_DECLINED", {
+          inquiryId,
+          note: note?.trim() || null,
+        })
+        .catch(() => {});
+      if (decision.onBehalf) {
+        await this.access
+          .logEvent(m.id, userId, "ACTED_ON_BEHALF", { action: decisionValue === "APPROVED" ? "APPROVE_TENANT" : "DECLINE_TENANT", inquiryId })
+          .catch(() => {});
+      }
+    }
     return this.findFull(inquiryId);
   }
 
@@ -355,7 +509,37 @@ export class InquiriesService {
       },
     });
     const [withConv] = await this.withConversationIds([inq], (i) => i.property.ownerId);
-    return withConv;
+    const [decorated] = await this.withProposal([withConv!]);
+    return decorated;
+  }
+
+  /** `proposedBy` (pro auteur de la proposition) et `managedBy` (agence) de chaque demande. */
+  private async withProposal<T extends { propertyId: string; proposedById: string | null }>(items: T[]) {
+    if (items.length === 0) return [] as Array<T & { proposedBy: unknown; managedBy: unknown }>;
+    const proIds = [...new Set(items.map((i) => i.proposedById).filter((x): x is string => !!x))];
+    const [pros, mandates] = await Promise.all([
+      proIds.length
+        ? this.prisma.user.findMany({
+            where: { id: { in: proIds } },
+            select: { id: true, firstName: true, lastName: true, agencyMember: { select: { agency: { select: { name: true } } } } },
+          })
+        : Promise.resolve([]),
+      this.prisma.mandate.findMany({
+        where: { propertyId: { in: [...new Set(items.map((i) => i.propertyId))] }, status: "ACTIVE" },
+        select: { propertyId: true, reference: true, agency: { select: { id: true, name: true, slug: true, logoKey: true } } },
+      }),
+    ]);
+    return items.map((i) => {
+      const p = pros.find((u) => u.id === i.proposedById);
+      const m = mandates.find((x) => x.propertyId === i.propertyId);
+      return {
+        ...i,
+        proposedBy: p ? { id: p.id, firstName: p.firstName, lastName: p.lastName, agencyName: p.agencyMember?.agency.name ?? null } : null,
+        managedBy: m
+          ? { agencyId: m.agency.id, name: m.agency.name, slug: m.agency.slug, logoUrl: agencyLogoUrl(m.agency.logoKey), mandateReference: m.reference }
+          : null,
+      };
+    });
   }
 
   // For tenants: their sent inquiries
@@ -369,15 +553,16 @@ export class InquiriesService {
     return this.withConversationIds(items, (i) => i.property.ownerId);
   }
 
-  // For owners: inquiries received on their properties
-  async listReceived(ownerId: string) {
+  // For owners (and pros): inquiries received on accessible properties
+  async listReceived(userId: string) {
+    const propertyWhere = await this.access.propertyWhere(userId, "READ");
     const items = await this.prisma.inquiry.findMany({
-      where: { property: { ownerId } },
+      where: { property: propertyWhere },
       orderBy: { createdAt: "desc" },
-      include: { property: propertySummary, sender: senderSelect },
+      include: { property: { select: { ...propertySummary.select, ownerId: true } }, sender: senderSelect },
       take: 500,
     });
-    return this.withConversationIds(items, () => ownerId);
+    return this.withProposal(await this.withConversationIds(items, (i) => i.property.ownerId));
   }
 
   /**
@@ -388,11 +573,12 @@ export class InquiriesService {
   async getDossier(inquiryId: string, ownerId: string) {
     const inquiry = await this.prisma.inquiry.findUnique({
       where: { id: inquiryId },
-      include: { property: { select: { ownerId: true } } },
+      include: { property: { select: { id: true, ownerId: true } } },
     });
     if (!inquiry) throw new NotFoundException("Demande introuvable");
-    if (inquiry.property.ownerId !== ownerId) {
-      throw new ForbiddenException("Cette demande ne concerne pas vos biens");
+    const { decision } = await this.access.check(inquiry.property.id, ownerId, "READ");
+    if (!decision.allowed) {
+      throw new ForbiddenException({ statusCode: 403, code: decision.code, message: "Cette demande ne concerne pas vos biens" });
     }
     if (!inquiry.shareDossier) {
       throw new ForbiddenException("Le candidat n'a pas partagé son dossier.");

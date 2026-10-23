@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -12,7 +11,10 @@ import { MAX_PAGE_SIZE, QueryPropertyDto } from "./dto/query-property.dto";
 import { LeaseDurationUnit, Prisma, PropertyStatus } from "@prisma/client";
 import { assertEmailVerified } from "../common/email-verified.util";
 import { assertDataUrl, IMAGE_MIME } from "../common/upload.util";
-import { MEDIA_SELECT, USER_PUBLIC_SELECT, mediaIdFromUrl, withMediaUrl } from "../common/media.util";
+import { MEDIA_SELECT, USER_PUBLIC_SELECT, mediaIdFromUrl, withMediaUrl, agencyLogoUrl } from "../common/media.util";
+import { AccessAction, PropertyAccessService, decideAccess } from "../common/property-access";
+import { FeesService } from "../mandates/fees.service";
+import { today as todayDay } from "../common/dates";
 
 // Propriétaire tel que montré publiquement : jamais e-mail ni téléphone
 // (aspiration, RGPD). Le contact passe par la messagerie ou la candidature.
@@ -66,9 +68,50 @@ function cleanData<T extends Record<string, unknown>>(dto: T): Record<string, un
   return data;
 }
 
+/** Agence qui gère un bien (mandat ACTIVE), telle que montrée publiquement. */
+export interface ManagedBy {
+  agencyId: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+}
+
 @Injectable()
 export class PropertiesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly access: PropertyAccessService,
+    private readonly fees: FeesService,
+  ) {}
+
+  /** `managedBy` de chaque bien : agence titulaire d'un mandat ACTIVE, sinon null. */
+  async managedByMap(propertyIds: string[]): Promise<Map<string, ManagedBy>> {
+    const out = new Map<string, ManagedBy>();
+    if (propertyIds.length === 0) return out;
+    const today = todayDay();
+    const mandates = await this.prisma.mandate.findMany({
+      where: {
+        propertyId: { in: propertyIds },
+        status: "ACTIVE",
+        OR: [{ endDate: null }, { endDate: { gte: today } }],
+      },
+      select: { propertyId: true, agency: { select: { id: true, name: true, slug: true, logoKey: true } } },
+    });
+    for (const m of mandates) {
+      out.set(m.propertyId, {
+        agencyId: m.agency.id,
+        name: m.agency.name,
+        slug: m.agency.slug,
+        logoUrl: agencyLogoUrl(m.agency.logoKey),
+      });
+    }
+    return out;
+  }
+
+  private async withManagedBy<T extends { id: string }>(items: T[]): Promise<Array<T & { managedBy: ManagedBy | null }>> {
+    const map = await this.managedByMap(items.map((i) => i.id));
+    return items.map((i) => ({ ...i, managedBy: map.get(i.id) ?? null }));
+  }
 
   async list(q: QueryPropertyDto) {
     const page = q.page ?? 1;
@@ -119,7 +162,7 @@ export class PropertiesService {
       this.prisma.property.count({ where }),
     ]);
 
-    return { items: items.map(shape), total, page, pageSize };
+    return { items: await this.withManagedBy(items.map(shape)), total, page, pageSize };
   }
 
   /** Compteurs publics de la landing (annonces publiées). */
@@ -161,21 +204,68 @@ export class PropertiesService {
     });
     if (!p) throw new NotFoundException("Annonce introuvable.");
     if (!PUBLIC_DETAIL_STATUSES.includes(p.status) && p.ownerId !== viewerId) {
-      throw new NotFoundException("Annonce introuvable.");
+      // Brouillon / archive : visible aussi du pro mandataire autorisé.
+      const allowed = viewerId
+        ? decideAccess(await this.access.context(id, viewerId), "LEASE_READ").allowed
+        : false;
+      if (!allowed) throw new NotFoundException("Annonce introuvable.");
     }
-    return shape(p);
+    const [withManaged] = await this.withManagedBy([shape(p)]);
+    return withManaged;
   }
 
-  async listMine(ownerId: string) {
+  /**
+   * Mes biens. Propriétaire : ses biens. Professionnel (AGENT) : les biens
+   * que son agence gère et qui lui sont accessibles (manager : tous ; agent :
+   * ceux qui lui sont assignés), avec le mandat et le propriétaire.
+   */
+  async listMine(userId: string, role?: string) {
+    if (role === "AGENT") return this.listManaged(userId);
     const items = await this.prisma.property.findMany({
-      where: { ownerId },
+      where: { ownerId: userId },
       include: {
         media: { orderBy: { position: "asc" }, select: MEDIA_SELECT },
         pricingRates: true,
       },
       orderBy: { createdAt: "desc" },
     });
-    return items.map(shape);
+    return this.withManagedBy(items.map(shape));
+  }
+
+  /** Portefeuille d'un pro (mêmes champs que listMine + mandate, owner, access). */
+  async listManaged(userId: string) {
+    const ids = await this.access.managedPropertyIds(userId, "LEASE_READ");
+    if (ids.length === 0) return [];
+    const items = await this.prisma.property.findMany({
+      where: { id: { in: ids } },
+      include: {
+        media: { orderBy: { position: "asc" }, select: MEDIA_SELECT },
+        pricingRates: true,
+        owner: { select: { id: true, firstName: true, lastName: true, email: true, phone: true, activatedAt: true } },
+        mandates: {
+          where: { status: "ACTIVE" },
+          select: { id: true, reference: true, type: true, status: true, assignedAgentId: true, startDate: true, endDate: true, rentPayee: true },
+          take: 1,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    const withManaged = await this.withManagedBy(items.map(shape));
+    const out = [];
+    for (const p of withManaged) {
+      const ctx = await this.access.context(p.id, userId);
+      const actions = (["READ", "EDIT_LISTING", "ACCEPT_TENANT", "SIGN_LEASE", "RENTS", "OWNER_NOTICE"] as AccessAction[]);
+      const can: Record<string, boolean> = {};
+      for (const a of actions) can[a] = decideAccess(ctx, a).allowed;
+      const { mandates, owner, ...rest } = p;
+      out.push({
+        ...rest,
+        owner: { ...owner, activated: !!owner.activatedAt },
+        mandate: mandates[0] ?? null,
+        access: { as: "PRO", ownerActivated: ctx.ownerActivated, can },
+      });
+    }
+    return out;
   }
 
   /** Valide les photos neuves (data-URL d'image) ; refuse toute autre URL. */
@@ -190,8 +280,17 @@ export class PropertiesService {
     }
   }
 
-  async create(ownerId: string, dto: CreatePropertyDto) {
-    await assertEmailVerified(this.prisma, ownerId);
+  /**
+   * Création d'un bien. `opts.tx` / `opts.skipEmailCheck` : création par un
+   * professionnel pour un propriétaire invité (l'e-mail vérifié exigé est
+   * celui du pro, contrôlé par l'appelant).
+   */
+  async create(
+    ownerId: string,
+    dto: CreatePropertyDto,
+    opts: { skipEmailCheck?: boolean; tx?: Prisma.TransactionClient } = {},
+  ) {
+    if (!opts.skipEmailCheck) await assertEmailVerified(this.prisma, ownerId);
     const media = dto.media ?? [];
     this.assertNewMedia(media);
     const price = dto.price ?? 0;
@@ -199,7 +298,7 @@ export class PropertiesService {
       throw new BadRequestException("Indiquez le prix de vente.");
     }
     const data = cleanData(dto as unknown as Record<string, unknown>);
-    const created = await this.prisma.property.create({
+    const created = await (opts.tx ?? this.prisma).property.create({
       data: {
         ...(data as Omit<Prisma.PropertyUncheckedCreateInput, "ownerId">),
         price,
@@ -223,14 +322,33 @@ export class PropertiesService {
     return shape(created);
   }
 
-  async update(ownerId: string, id: string, dto: UpdatePropertyDto) {
+  async update(userId: string, id: string, dto: UpdatePropertyDto) {
     const existing = await this.prisma.property.findUnique({
       where: { id },
       include: { media: { select: { id: true } } },
     });
     if (!existing) throw new NotFoundException("Annonce introuvable.");
-    if (existing.ownerId !== ownerId)
-      throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
+    const { decision } = await this.access.assert(id, userId, "EDIT_LISTING");
+
+    // Vente conclue : prix final requis si un mandat de vente est actif.
+    const salePrice = dto.salePrice;
+    const becomesSold = dto.status === "SOLD" && existing.status !== "SOLD";
+    if (salePrice != null && dto.status !== "SOLD" && existing.status !== "SOLD") {
+      throw new BadRequestException("Le prix de vente final s'indique en passant le bien en « vendu » (SOLD).");
+    }
+    if (becomesSold && salePrice == null) {
+      const saleMandate = await this.prisma.mandate.findFirst({
+        where: { propertyId: id, status: "ACTIVE", type: "SALE" },
+        select: { id: true },
+      });
+      if (saleMandate) {
+        throw new BadRequestException({
+          statusCode: 400,
+          code: "SALE_PRICE_REQUIRED",
+          message: "Indiquez le prix de vente final (salePrice) : il sert au calcul des honoraires.",
+        });
+      }
+    }
 
     // Photos : data-URL = nouvelle photo ; URL /media/<id> = photo existante
     // de CE bien, conservée (son id, donc son cache, ne change pas).
@@ -257,7 +375,17 @@ export class PropertiesService {
     }
 
     const data = cleanData(dto as unknown as Record<string, unknown>);
+    delete data.salePrice;
+    if (becomesSold) {
+      data.soldAt = new Date();
+      if (salePrice != null) data.soldPrice = salePrice;
+    } else if (salePrice != null && existing.status === "SOLD") {
+      data.soldPrice = salePrice;
+    }
     const updated = await this.prisma.$transaction(async (tx) => {
+      if (salePrice != null && (becomesSold || existing.status === "SOLD")) {
+        await this.fees.onPropertySold(tx, id, salePrice, userId);
+      }
       if (media) {
         await tx.propertyMedia.deleteMany({
           where: { propertyId: id, id: { notIn: [...keep.keys()] } },
@@ -284,7 +412,20 @@ export class PropertiesService {
         },
       });
     });
-    return shape(updated);
+    if (decision.as === "PRO") {
+      const m = await this.access.activeMandate(id);
+      if (m) {
+        await this.access.logEvent(m.id, userId, becomesSold ? "PROPERTY_SOLD" : "PROPERTY_UPDATED", {
+          fields: Object.keys(data).slice(0, 30),
+          ...(becomesSold ? { salePrice: salePrice ?? null } : {}),
+        });
+      }
+    } else if (becomesSold) {
+      const m = await this.access.activeMandate(id);
+      if (m) await this.access.logEvent(m.id, userId, "PROPERTY_SOLD", { salePrice: salePrice ?? null });
+    }
+    const [withManaged] = await this.withManagedBy([shape(updated)]);
+    return withManaged;
   }
 
   /**
@@ -292,10 +433,24 @@ export class PropertiesService {
    * 409 → l'archiver (PATCH status ARCHIVED) : l'historique des baux et
    * quittances du locataire doit rester.
    */
-  async remove(ownerId: string, id: string) {
+  async remove(userId: string, id: string) {
     const existing = await this.prisma.property.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException("Annonce introuvable.");
-    if (existing.ownerId !== ownerId) throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
+    await this.access.assert(id, userId, "DELETE_PROPERTY");
+    // Un mandat ouvert ou porteur d'honoraires : on archive, on ne supprime pas.
+    const keptMandates = await this.prisma.mandate.count({
+      where: {
+        propertyId: id,
+        OR: [{ status: { in: ["ACTIVE", "PENDING_OWNER"] } }, { fees: { some: {} } }],
+      },
+    });
+    if (keptMandates > 0) {
+      throw new ConflictException({
+        statusCode: 409,
+        code: "PROPERTY_HAS_MANDATE",
+        message: "Ce bien est (ou a été) confié à un professionnel : mettez fin au mandat puis archivez-le plutôt que de le supprimer.",
+      });
+    }
     const signed = await this.prisma.leaseContract.count({
       where: { propertyId: id, status: { not: "DRAFT" } },
     });
@@ -308,6 +463,7 @@ export class PropertiesService {
     }
     await this.prisma.$transaction([
       this.prisma.leaseContract.deleteMany({ where: { propertyId: id, status: "DRAFT" } }),
+      this.prisma.mandate.deleteMany({ where: { propertyId: id } }),
       this.prisma.property.delete({ where: { id } }),
     ]);
     return { ok: true };

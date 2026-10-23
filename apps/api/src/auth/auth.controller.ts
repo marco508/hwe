@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { RegisterDto } from "./dto/register.dto";
+import { ActivateOwnerDto, RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { ForgotPasswordDto, ResetPasswordDto, VerifyEmailDto } from "./dto/reset-password.dto";
 import { JwtAuthGuard } from "./jwt-auth.guard";
@@ -43,6 +43,18 @@ export class AuthController {
   @Post("reset-password")
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.token, dto.password);
+  }
+
+  /** Page d'activation d'un propriétaire invité (public). */
+  @Get("owner-invite/:token")
+  ownerInvite(@Param("token") token: string) {
+    return this.authService.ownerInviteInfo(token);
+  }
+
+  /** Activation : choix du mot de passe → { accessToken, user }. */
+  @Post("owner-invite/:token/activate")
+  activateOwner(@Param("token") token: string, @Body() dto: ActivateOwnerDto) {
+    return this.authService.activateOwner(token, dto.password);
   }
 
   @UseGuards(JwtAuthGuard)

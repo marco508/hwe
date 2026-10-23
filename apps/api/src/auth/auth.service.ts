@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   UnauthorizedException,
@@ -14,6 +15,8 @@ import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { jwtSecret } from "../common/jwt-secret.util";
 import { normalizeEmail } from "../common/email.util";
+import { agencyLogoUrl } from "../common/media.util";
+import { createAgencyFor, joinAgencyWithInvite, ownerWebBase } from "../agencies/agency.util";
 
 /** Champs du compte renvoyés au front (login, register, /auth/me). */
 export const AUTH_USER_SELECT = {
@@ -25,9 +28,36 @@ export const AUTH_USER_SELECT = {
   role: true,
   avatarKey: true,
   emailVerifiedAt: true,
+  activatedAt: true,
   createdAt: true,
   updatedAt: true,
 } as const;
+
+/** Agence de l'utilisateur (pro) telle que renvoyée par login / register / me. */
+export const AUTH_AGENCY_SELECT = {
+  role: true,
+  agency: { select: { id: true, name: true, slug: true, code: true, logoKey: true } },
+} as const;
+
+export function shapeAuthAgency(
+  m: { role: string; agency: { id: string; name: string; slug: string; code: string; logoKey: string | null } } | null | undefined,
+) {
+  if (!m) return null;
+  return {
+    id: m.agency.id,
+    name: m.agency.name,
+    slug: m.agency.slug,
+    code: m.agency.code,
+    logoUrl: agencyLogoUrl(m.agency.logoKey),
+    role: m.role,
+  };
+}
+
+export const ACCOUNT_NOT_ACTIVATED_MESSAGE =
+  "Ce compte a été créé par un professionnel et n'est pas encore activé : ouvrez le lien d'invitation reçu (ou utilisez « mot de passe oublié ») pour choisir votre mot de passe.";
+
+export const INVITED_ACCOUNT_MESSAGE =
+  "Un professionnel a déjà créé votre espace : utilisez le lien d'invitation reçu ou « mot de passe oublié » pour l'activer.";
 
 // Hash factice : un login sur un compte inexistant coûte autant qu'un vrai
 // (pas d'énumération des comptes par le temps de réponse).
@@ -68,7 +98,7 @@ export class AuthService {
 
   // Base de l'URL de la page de réinitialisation, selon le rôle (espaces séparés).
   private resetUrlBase(role: string): string {
-    if (role === "OWNER") {
+    if (role === "OWNER" || role === "AGENT") {
       return process.env.OWNER_WEB_URL || "https://owner.hwe.dkpsolution.tech";
     }
     return process.env.TENANT_WEB_URL || "https://tenant.hwe.dkpsolution.tech";
@@ -108,9 +138,15 @@ export class AuthService {
       throw new BadRequestException("Ce lien a expiré ou a déjà été utilisé. Redemandez une réinitialisation.");
     }
     const hash = await bcrypt.hash(password, 10);
+    // Compte invité : « mot de passe oublié » l'ACTIVE (le lien reçu prouve l'adresse).
+    const now = new Date();
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { password: hash, tokenVersion: { increment: 1 } },
+      data: {
+        password: hash,
+        tokenVersion: { increment: 1 },
+        ...(!user.activatedAt ? { activatedAt: now, emailVerifiedAt: user.emailVerifiedAt ?? now } : {}),
+      },
     });
     this.logger.log(`Mot de passe réinitialisé (compte ${user.id}) : sessions précédentes révoquées.`);
     return { ok: true };
@@ -119,23 +155,41 @@ export class AuthService {
   async register(dto: RegisterDto) {
     const email = normalizeEmail(dto.email);
     const existing = await this.findByEmail(email);
+    if (existing && !existing.activatedAt) {
+      // Compte créé par un professionnel, jamais activé.
+      throw new ConflictException({ statusCode: 409, code: "INVITED_ACCOUNT", message: INVITED_ACCOUNT_MESSAGE });
+    }
     if (existing) throw new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
 
     const password = await bcrypt.hash(dto.password, 10);
     // Défense en profondeur : le rôle est re-restreint ici même si le DTO
     // était contourné — l'inscription publique ne crée JAMAIS d'ADMIN.
-    const role = dto.role === "OWNER" ? "OWNER" : "TENANT";
+    // Une invitation d'agence fait toujours un compte professionnel.
+    const role =
+      dto.agencyInviteToken || dto.role === "AGENT" ? "AGENT" : dto.role === "OWNER" ? "OWNER" : "TENANT";
+    if (role !== "AGENT" && dto.agencyName) {
+      throw new BadRequestException("Le nom d'agence ne concerne que les comptes professionnels.");
+    }
     let user;
     try {
-      user = await this.prisma.user.create({
-        data: {
-          email,
-          password,
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          phone: dto.phone || null,
-          role,
-        },
+      user = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.user.create({
+          data: {
+            email,
+            password,
+            firstName: dto.firstName,
+            lastName: dto.lastName,
+            phone: dto.phone || null,
+            role,
+            activatedAt: new Date(),
+          },
+        });
+        if (dto.agencyInviteToken) {
+          await joinAgencyWithInvite(tx, created, dto.agencyInviteToken);
+        } else if (role === "AGENT" && dto.agencyName) {
+          await createAgencyFor(tx, created.id, { name: dto.agencyName, email, phone: dto.phone || null });
+        }
+        return created;
       });
     } catch (e) {
       // Inscription simultanée avec la même adresse (index unique, y compris lower(email)).
@@ -147,6 +201,103 @@ export class AuthService {
     // Lien de vérification d'e-mail (best-effort : l'inscription reste valide).
     this.sendVerificationEmail(user).catch(() => {});
     return this.signToken(user);
+  }
+
+  // ── Propriétaire invité par un professionnel ─────────────────────────
+  // Jeton signé avec une clé dérivée du hash du mot de passe (aléatoire et
+  // inutilisable tant que le compte n'est pas activé) : le lien devient
+  // invalide dès que le mot de passe est choisi (usage unique, sans table).
+
+  private ownerInviteKey(passwordHash: string): string {
+    return `${jwtSecret()}|owner-invite|${(passwordHash || "none").slice(-24)}`;
+  }
+
+  /** Lien d'activation d'un compte propriétaire invité (30 jours). */
+  async ownerInviteUrl(user: { id: string; password: string }): Promise<string> {
+    const token = await this.jwt.signAsync(
+      { sub: user.id, scope: "owner-invite" },
+      { secret: this.ownerInviteKey(user.password), expiresIn: "30d" },
+    );
+    return `${ownerWebBase()}/activer/${encodeURIComponent(token)}`;
+  }
+
+  private async userFromOwnerInvite(token: string) {
+    const invalid = () =>
+      new BadRequestException({
+        statusCode: 400,
+        code: "INVALID_INVITE",
+        message: "Lien d'activation invalide, expiré ou déjà utilisé. Demandez un nouveau lien au professionnel, ou utilisez « mot de passe oublié ».",
+      });
+    const decoded: any = this.jwt.decode(token);
+    if (!decoded || decoded.scope !== "owner-invite" || typeof decoded.sub !== "string") throw invalid();
+    const user = await this.prisma.user.findUnique({ where: { id: decoded.sub } });
+    if (!user || user.activatedAt) throw invalid();
+    try {
+      await this.jwt.verifyAsync(token, { secret: this.ownerInviteKey(user.password) });
+    } catch {
+      throw invalid();
+    }
+    return user;
+  }
+
+  /** Page /activer/[token] : « <Agence> gère votre bien <titre> ». */
+  async ownerInviteInfo(token: string) {
+    const user = await this.userFromOwnerInvite(token);
+    const [agency, mandates] = await Promise.all([
+      user.invitedByAgencyId
+        ? this.prisma.agency.findUnique({
+            where: { id: user.invitedByAgencyId },
+            select: { id: true, name: true, slug: true, logoKey: true },
+          })
+        : null,
+      this.prisma.mandate.findMany({
+        where: { ownerId: user.id, status: { in: ["ACTIVE", "PENDING_OWNER"] } },
+        select: {
+          reference: true,
+          type: true,
+          property: { select: { id: true, title: true, city: true } },
+          agency: { select: { name: true } },
+        },
+        orderBy: { createdAt: "asc" },
+      }),
+    ]);
+    return {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      agency: agency ? { id: agency.id, name: agency.name, slug: agency.slug, logoUrl: agencyLogoUrl(agency.logoKey) } : null,
+      properties: mandates.map((m) => ({ ...m.property, mandateReference: m.reference, mandateType: m.type, agencyName: m.agency.name })),
+    };
+  }
+
+  /** Activation : mot de passe choisi, compte activé et e-mail vérifié (le lien le prouve). */
+  async activateOwner(token: string, password: string) {
+    const user = await this.userFromOwnerInvite(token);
+    const hash = await bcrypt.hash(password, 10);
+    const now = new Date();
+    const { count } = await this.prisma.user.updateMany({
+      where: { id: user.id, activatedAt: null, password: user.password },
+      data: {
+        password: hash,
+        activatedAt: now,
+        emailVerifiedAt: user.emailVerifiedAt ?? now,
+        tokenVersion: { increment: 1 },
+      },
+    });
+    if (count === 0) {
+      throw new BadRequestException({ statusCode: 400, code: "INVALID_INVITE", message: "Ce lien a déjà été utilisé." });
+    }
+    const fresh = await this.prisma.user.findUniqueOrThrow({ where: { id: user.id } });
+    this.logger.log(`Compte propriétaire invité ${user.id} activé.`);
+    // Historique des mandats : le propriétaire a activé son espace.
+    const mandates = await this.prisma.mandate.findMany({
+      where: { ownerId: user.id, status: { in: ["ACTIVE", "PENDING_OWNER"] } },
+      select: { id: true },
+    });
+    for (const m of mandates) {
+      await this.prisma.mandateEvent.create({ data: { mandateId: m.id, actorId: user.id, kind: "OWNER_ACTIVATED" } });
+    }
+    return this.signToken(fresh);
   }
 
   // ── Vérification d'e-mail ─────────────────────────────────────────────
@@ -201,6 +352,11 @@ export class AuthService {
     const user = await this.findByEmail(dto.email);
     // bcrypt exécuté dans tous les cas (temps de réponse identique).
     const ok = await bcrypt.compare(dto.password, user?.password ?? DUMMY_HASH);
+    // Compte invité non activé : 403 explicite (son mot de passe aléatoire
+    // n'est connu de personne — il doit passer par son lien).
+    if (user && !user.activatedAt) {
+      throw new ForbiddenException({ statusCode: 403, code: "ACCOUNT_NOT_ACTIVATED", message: ACCOUNT_NOT_ACTIVATED_MESSAGE });
+    }
     if (!user || !ok) throw new UnauthorizedException("Identifiants invalides");
     return this.signToken(user);
   }
@@ -209,13 +365,14 @@ export class AuthService {
   async me(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: AUTH_USER_SELECT,
+      select: { ...AUTH_USER_SELECT, agencyMember: { select: AUTH_AGENCY_SELECT } },
     });
     if (!user) throw new UnauthorizedException("Session expirée — reconnectez-vous.");
-    return user;
+    const { agencyMember, ...rest } = user;
+    return { ...rest, agency: shapeAuthAgency(agencyMember) };
   }
 
-  private signToken(user: {
+  private async signToken(user: {
     id: string;
     email: string;
     role: string;
@@ -224,10 +381,15 @@ export class AuthService {
     phone: string | null;
     avatarKey: string | null;
     emailVerifiedAt: Date | null;
+    activatedAt?: Date | null;
     tokenVersion: number;
     createdAt: Date;
     updatedAt: Date;
   }) {
+    const membership = await this.prisma.agencyMember.findUnique({
+      where: { userId: user.id },
+      select: AUTH_AGENCY_SELECT,
+    });
     const accessToken = this.jwt.sign({
       sub: user.id,
       email: user.email,
@@ -246,8 +408,10 @@ export class AuthService {
         role: user.role,
         avatarKey: user.avatarKey,
         emailVerifiedAt: user.emailVerifiedAt,
+        activatedAt: user.activatedAt ?? null,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        agency: shapeAuthAgency(membership),
       },
     };
   }

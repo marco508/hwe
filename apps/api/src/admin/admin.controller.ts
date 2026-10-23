@@ -12,6 +12,7 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
 import { AdminService } from "./admin.service";
+import { AgenciesService } from "../agencies/agencies.service";
 import { IsEnum } from "class-validator";
 
 class PropertyStatusDto {
@@ -26,7 +27,16 @@ const clip = (q?: string) => (typeof q === "string" && q.trim() ? q.trim().slice
 @Roles(Role.ADMIN)
 @Controller("admin")
 export class AdminController {
-  constructor(private readonly admin: AdminService) {}
+  constructor(
+    private readonly admin: AdminService,
+    private readonly agencies: AgenciesService,
+  ) {}
+
+  /** Agences (responsables, membres, mandats actifs). */
+  @Get("agencies")
+  agencyList(@Query("q") q?: string) {
+    return this.agencies.adminList(clip(q));
+  }
 
   @Get("overview")
   overview() {

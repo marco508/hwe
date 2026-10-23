@@ -59,13 +59,13 @@ export class VisitsController {
   }
 
   @Get("owner")
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   owner(@CurrentUser() user: JwtPayload, @Query("status", statusPipe) status?: VisitStatus) {
     return this.visits.owner(user.sub, status);
   }
 
   @Patch(":id")
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   answer(
     @Param("id") id: string,
     @CurrentUser() user: JwtPayload,

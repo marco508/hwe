@@ -27,6 +27,17 @@ export class MediaController {
     return this.send(user.avatarUrl, `a-${key}`, req, res);
   }
 
+  @Get("agency/:key")
+  async agencyLogo(@Param("key") key: string, @Req() req: Request, @Res() res: Response) {
+    if (!/^[A-Za-z0-9_-]{8,64}$/.test(key)) throw new NotFoundException("Image introuvable.");
+    const agency = await this.prisma.agency.findUnique({
+      where: { logoKey: key },
+      select: { logoDataUrl: true },
+    });
+    if (!agency?.logoDataUrl) throw new NotFoundException("Image introuvable.");
+    return this.send(agency.logoDataUrl, `g-${key}`, req, res);
+  }
+
   @Get(":id")
   async media(@Param("id") id: string, @Req() req: Request, @Res() res: Response) {
     if (!/^[A-Za-z0-9_-]{8,64}$/.test(id)) throw new NotFoundException("Image introuvable.");

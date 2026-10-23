@@ -57,13 +57,13 @@ export class TicketsController {
 
   /** Les incidents sur mes biens (côté propriétaire). */
   @Get("owner")
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   owner(@CurrentUser() user: JwtPayload, @Query("status", statusPipe) status?: TicketStatus) {
     return this.tickets.owner(user.sub, status);
   }
 
   @Patch(":id")
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   review(
     @Param("id") id: string,
     @CurrentUser() user: JwtPayload,

@@ -68,6 +68,9 @@ export class UpdatePropertyDto extends ReadOnlyPropertyFields {
   @IsOptional() @IsNumber() @Min(-90) @Max(90) latitude?: number | null;
   @IsOptional() @IsNumber() @Min(-180) @Max(180) longitude?: number | null;
 
+  /** Prix de vente final, avec status SOLD (honoraires de vente d'un mandat SALE). */
+  @IsOptional() @IsNumber({ allowNaN: false, allowInfinity: false }) @Min(0) @Max(MAX_AMOUNT) salePrice?: number;
+
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(MAX_PHOTOS)

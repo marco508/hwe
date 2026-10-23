@@ -1,10 +1,6 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { PropertyAccessService } from "../common/property-access";
 import { LeaseDurationUnit } from "@prisma/client";
 
 export interface UpsertRateDto {
@@ -14,7 +10,10 @@ export interface UpsertRateDto {
 
 @Injectable()
 export class PricingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly access: PropertyAccessService,
+  ) {}
 
   /** Retourne toutes les lignes tarifaires d'un bien (accessible à tous). */
   async list(propertyId: string) {
@@ -34,9 +33,7 @@ export class PricingService {
     if (new Set(units).size !== units.length) {
       throw new BadRequestException("Chaque unité (jour, semaine, mois, année) ne peut apparaître qu'une fois.");
     }
-    const property = await this.prisma.property.findUnique({ where: { id: propertyId } });
-    if (!property) throw new NotFoundException("Bien introuvable");
-    if (property.ownerId !== ownerId) throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
+    await this.access.assert(propertyId, ownerId, "EDIT_LISTING");
 
     return this.prisma.$transaction(async (tx) => {
       const upserted = [];
@@ -58,9 +55,7 @@ export class PricingService {
 
   /** Supprime un tarif spécifique. */
   async remove(propertyId: string, unit: LeaseDurationUnit, ownerId: string) {
-    const property = await this.prisma.property.findUnique({ where: { id: propertyId } });
-    if (!property) throw new NotFoundException("Bien introuvable");
-    if (property.ownerId !== ownerId) throw new ForbiddenException("Vous n'êtes pas propriétaire de ce bien");
+    await this.access.assert(propertyId, ownerId, "EDIT_LISTING");
 
     await this.prisma.pricingRate.deleteMany({ where: { propertyId, unit } });
     return { ok: true };

@@ -6,11 +6,22 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, JwtPayload } from "../auth/current-user.decorator";
-import { IsEnum } from "class-validator";
+import { IsEnum, IsOptional, IsString, MaxLength } from "class-validator";
 
 class RespondDto {
   @IsEnum(["ACCEPTED", "REJECTED"])
   decision!: "ACCEPTED" | "REJECTED";
+}
+
+class ProposeDto {
+  @IsOptional() @IsString() @MaxLength(2000) note?: string | null;
+}
+
+class OwnerDecisionDto {
+  @IsEnum(["APPROVED", "DECLINED"])
+  decision!: "APPROVED" | "DECLINED";
+
+  @IsOptional() @IsString() @MaxLength(2000) note?: string | null;
 }
 
 @UseGuards(JwtAuthGuard)
@@ -32,7 +43,7 @@ export class InquiriesController {
 
   // Owner accepts or rejects an inquiry
   @UseGuards(RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Patch(":id/respond")
   respond(
     @Param("id") id: string,
@@ -40,6 +51,22 @@ export class InquiriesController {
     @Body() dto: RespondDto,
   ) {
     return this.inquiries.respond(id, user.sub, dto.decision);
+  }
+
+  /** Le pro propose le candidat au propriétaire (qui approuve ou refuse). */
+  @UseGuards(RolesGuard)
+  @Roles(Role.AGENT)
+  @Post(":id/propose")
+  propose(@Param("id") id: string, @CurrentUser() user: JwtPayload, @Body() dto: ProposeDto) {
+    return this.inquiries.propose(id, user.sub, dto.note);
+  }
+
+  /** Décision du propriétaire (ou du pro pour un propriétaire non activé). */
+  @UseGuards(RolesGuard)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
+  @Post(":id/owner-decision")
+  ownerDecision(@Param("id") id: string, @CurrentUser() user: JwtPayload, @Body() dto: OwnerDecisionDto) {
+    return this.inquiries.ownerDecision(id, user.sub, dto.decision, dto.note);
   }
 
   // What I have sent (tenant view)
@@ -50,7 +77,7 @@ export class InquiriesController {
 
   // What I have received on my properties (owner view)
   @UseGuards(RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Get("received")
   received(@CurrentUser() user: JwtPayload) {
     return this.inquiries.listReceived(user.sub);
@@ -58,7 +85,7 @@ export class InquiriesController {
 
   // Owner views the applicant's shared dossier
   @UseGuards(RolesGuard)
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   @Get(":id/dossier")
   dossier(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
     return this.inquiries.getDossier(id, user.sub);

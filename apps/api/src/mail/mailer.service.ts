@@ -294,4 +294,58 @@ export class MailerService implements OnModuleInit {
         `Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail — votre mot de passe reste inchangé.\n\nhwe`,
     );
   }
+
+  // ─────────────────────── Professionnels (agences, mandats) ───────────────────────
+
+  agencyInvite(to: string, agencyName: string, inviterName: string, url: string) {
+    return this.send(
+      to,
+      `hwe — ${agencyName} vous invite à rejoindre son équipe`,
+      `Bonjour,\n\n${inviterName} vous invite à rejoindre l'agence « ${agencyName} » sur hwe.\n` +
+        `Ouvrez ce lien (valable 14 jours) pour accepter l'invitation :\n\n${url}\n\n` +
+        `Si vous ne connaissez pas cette agence, ignorez cet e-mail.\n\nhwe`,
+    );
+  }
+
+  ownerInvite(to: string, name: string, agencyName: string, propertyTitles: string[], url: string) {
+    const biens = propertyTitles.length ? propertyTitles.map((t) => `« ${t} »`).join(", ") : "votre bien";
+    return this.send(
+      to,
+      `hwe — ${agencyName} gère votre bien : activez votre espace`,
+      `Bonjour ${name},\n\n${agencyName} gère ${biens} sur hwe et a créé votre espace propriétaire.\n` +
+        `Choisissez votre mot de passe pour suivre votre bien (demandes, bail, loyers, honoraires) et valider les décisions clés :\n\n${url}\n\n` +
+        `Vous pouvez aussi utiliser « mot de passe oublié » avec cette adresse.\n\nhwe`,
+    );
+  }
+
+  mandateProposed(to: string, name: string, agencyName: string, what: string, url: string) {
+    return this.send(
+      to,
+      `hwe — ${agencyName} vous propose un mandat`,
+      `Bonjour ${name},\n\n${agencyName} vous propose de gérer ${what}.\n` +
+        `Consultez les conditions et acceptez ou refusez depuis « Mes mandats » :\n\n${url}\n\nhwe`,
+    );
+  }
+
+  mandateUpdate(to: string, name: string, subject: string, body: string, url: string) {
+    return this.send(to, `hwe — ${subject}`, `Bonjour ${name},\n\n${body}\n\n${url}\n\nhwe`);
+  }
+
+  candidateProposed(
+    ownerEmail: string,
+    ownerName: string,
+    propertyTitle: string,
+    candidateName: string,
+    agencyName: string,
+    note: string | null,
+    url: string,
+  ) {
+    return this.send(
+      ownerEmail,
+      `hwe — ${agencyName} vous propose un candidat pour « ${propertyTitle} »`,
+      `Bonjour ${ownerName},\n\n${agencyName} vous propose ${candidateName} comme locataire pour « ${propertyTitle} ».\n` +
+        (note ? `Note du professionnel : ${note}\n` : "") +
+        `Approuvez ou refusez ce candidat depuis votre espace :\n\n${url}\n\nhwe`,
+    );
+  }
 }

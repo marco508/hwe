@@ -20,6 +20,11 @@ export function avatarUrlFromKey(key: string | null | undefined): string | null 
   return key ? `${publicApiUrl()}/media/avatar/${encodeURIComponent(key)}` : null;
 }
 
+/** Logo public d'une agence : /api/media/agency/<clé>, null sans logo. */
+export function agencyLogoUrl(key: string | null | undefined): string | null {
+  return key ? `${publicApiUrl()}/media/agency/${encodeURIComponent(key)}` : null;
+}
+
 /**
  * Si `url` désigne un média déjà servi par l'API (`…/api/media/<id>`),
  * renvoie cet id ; sinon null. L'hôte n'est pas imposé (local, préproduction,
@@ -29,7 +34,7 @@ export function avatarUrlFromKey(key: string | null | undefined): string | null 
 export function mediaIdFromUrl(url: string): string | null {
   if (typeof url !== "string") return null;
   const m = /^https?:\/\/[^/\s]+(?:\/[^\s?#]*)?\/media\/([A-Za-z0-9_-]{8,64})(?:[?#].*)?$/.exec(url.trim());
-  if (!m || /\/media\/avatar\//.test(url)) return null;
+  if (!m || /\/media\/(avatar|agency)\//.test(url)) return null;
   return m[1] ?? null;
 }
 

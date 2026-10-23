@@ -111,14 +111,14 @@ export class RentsController {
   // ── Propriétaire ──
 
   @Get("owner")
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   owner(@CurrentUser() user: AuthUser, @Query("status", statusPipe) status?: RentStatus) {
     return this.rents.ownerRents(user.sub, status);
   }
 
   /** Validation : le propriétaire du bien uniquement (pas l'administrateur). */
   @Post(":periodId/review")
-  @Roles(Role.OWNER, Role.ADMIN)
+  @Roles(Role.OWNER, Role.ADMIN, Role.AGENT)
   review(@CurrentUser() user: AuthUser, @Param("periodId") periodId: string, @Body() dto: ReviewRentDto) {
     return this.rents.review(user.sub, periodId, dto.accept, dto.reason);
   }

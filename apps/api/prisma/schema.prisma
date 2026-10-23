@@ -15,6 +15,8 @@ enum Role {
   OWNER
   TENANT
   ADMIN
+  /// Professionnel (agence, démarcheur, commercial) : responsable ou agent.
+  AGENT
 }
 
 enum ListingType {
@@ -75,9 +77,17 @@ model User {
   /// Clé publique (non devinable) de l'avatar, servi par GET /api/media/avatar/<clé>.
   /// Change à chaque nouvel avatar (cache HTTP immuable), null sans avatar.
   avatarKey String? @unique
+  /// Compte activé (mot de passe choisi par son titulaire). Null pour un
+  /// propriétaire créé par un professionnel tant qu'il n'a pas utilisé son
+  /// lien d'invitation (ou « mot de passe oublié ») : connexion refusée.
+  activatedAt       DateTime?
+  /// Agence qui a créé ce compte invité (propriétaire sans compte).
+  invitedByAgencyId String?
+  invitedByAgency   Agency?  @relation("AgencyInvitedOwners", fields: [invitedByAgencyId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  agencyMember   AgencyMember?
   properties     Property[] @relation("OwnerProperties")
   inquiries      Inquiry[]  @relation("SenderInquiries")
   favorites      Favorite[]
@@ -186,7 +196,12 @@ model Property {
   ownerId String
   owner   User   @relation("OwnerProperties", fields: [ownerId], references: [id], onDelete: Cascade)
 
+  /// Vente conclue : prix final et date (PATCH status SOLD + salePrice).
+  soldPrice Float?
+  soldAt    DateTime?
+
   media         PropertyMedia[]
+  mandates      Mandate[]
   inquiries     Inquiry[]
   documents     PropertyDocument[]
   leases        LeaseContract[]
@@ -273,6 +288,15 @@ model Inquiry {
   lease        LeaseContract? @relation(fields: [leaseId], references: [id])
   // Conversation associée (créée automatiquement à l'envoi de la demande)
   conversation Conversation?
+
+  // ── Proposition au propriétaire par un professionnel sous mandat ──
+  proposedAt        DateTime?
+  proposedById      String?
+  proposalNote      String?        @db.Text
+  ownerDecision     OwnerDecision?
+  ownerDecisionAt   DateTime?
+  ownerDecisionNote String?        @db.Text
+
   createdAt    DateTime      @default(now())
 
   @@index([propertyId])
@@ -414,6 +438,13 @@ model LeaseContract {
   // Signatures (electronic — timestamped acceptance)
   ownerSignedAt    DateTime?
   tenantSignedAt   DateTime?
+  /// Auteur de la signature côté bailleur (propriétaire, ou professionnel
+  /// mandataire quand le propriétaire n'a pas activé son compte).
+  ownerSignedById  String?
+  /// Mention « Signé par X (Agence), mandataire, pour le compte de Y — mandat MAN-… ».
+  ownerSignatureMention String? @db.Text
+  /// Professionnel qui a préparé / modifié le brouillon (null : le propriétaire).
+  preparedById     String?
   /// Empreinte SHA-256 du contenu au moment de la double signature.
   contentHash      String?
 
@@ -490,6 +521,11 @@ model Inspection {
   // Signatures électroniques horodatées (comme le bail)
   ownerSignedAt  DateTime?
   tenantSignedAt DateTime?
+  /// Signataire côté bailleur et mention « par X, mandataire de Y » si pro.
+  ownerSignedById       String?
+  ownerSignatureMention String? @db.Text
+  /// Dernier rédacteur (propriétaire ou professionnel).
+  updatedById           String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -523,6 +559,8 @@ model Ticket {
   status         TicketStatus @default(OPEN)
   resolutionNote String?      @db.Text
   resolvedAt     DateTime?
+  /// Dernière personne côté bailleur qui a fait avancer l'incident.
+  handledById    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -595,6 +633,8 @@ model RentPeriod {
 
   // Validation du propriétaire
   paidAt       DateTime?
+  /// Auteur de la validation / du refus (propriétaire ou professionnel).
+  reviewedById String?
   receiptNo    String?   @unique
   rejectReason String?
   // Dernier rappel envoyé (anti-spam : un seul par échéance et par retard)
@@ -623,9 +663,14 @@ model LeaseAmendment {
   newEndDate     DateTime?
   note           String?  @db.Text
 
-  /// Le propriétaire signe en créant l'avenant
-  ownerSignedAt  DateTime  @default(now())
+  /// Le propriétaire signe en créant l'avenant ; un avenant préparé par un
+  /// professionnel attend la signature du propriétaire (null).
+  ownerSignedAt  DateTime? @default(now())
   tenantSignedAt DateTime?
+  /// Auteur de l'avenant et signataire côté bailleur.
+  createdById    String?
+  ownerSignedById String?
+  ownerSignatureMention String? @db.Text
   /// Date d'application effective au bail (à effectiveDate, une fois signé)
   appliedAt      DateTime?
   /// Valeurs du bail avant application (calcul des échéances passées)
@@ -697,6 +742,8 @@ model Visit {
   status     VisitStatus @default(REQUESTED)
   note       String?     @db.Text
   ownerNote  String?     @db.Text
+  /// Personne côté bailleur qui a confirmé / refusé.
+  answeredById String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -740,4 +787,230 @@ model ChargeRegularization {
 model ReceiptCounter {
   year Int @id
   last Int @default(0)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROFESSIONNELS — agences, équipes, mandats, honoraires.
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum AgencyRole {
+  MANAGER
+  AGENT
+}
+
+/// Agence (ou démarcheur indépendant = agence d'une personne).
+model Agency {
+  id                 String   @id @default(cuid())
+  name               String   @db.VarChar(120)
+  slug               String   @unique
+  /// Code court communiqué aux propriétaires (« Confier un bien »).
+  code               String   @unique
+  /// Logo en data-URL (jamais renvoyé) et clé publique /api/media/agency/<clé>.
+  logoDataUrl        String?  @db.Text
+  logoKey            String?  @unique
+  email              String?
+  phone              String?
+  address            String?
+  city               String?
+  country            String   @default("FR")
+  registrationNumber String?
+  description        String?  @db.VarChar(2000)
+  /// Encaissement des loyers par l'agence (mandat rentPayee = AGENCY).
+  paymentIban        String?
+  paymentHolder      String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  members        AgencyMember[]
+  invites        AgencyInvite[]
+  mandates       Mandate[]
+  mandateRequests MandateRequest[]
+  invitedOwners  User[] @relation("AgencyInvitedOwners")
+}
+
+model AgencyMember {
+  id        String     @id @default(cuid())
+  agencyId  String
+  agency    Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  /// Un utilisateur appartient à une seule agence.
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      AgencyRole @default(AGENT)
+  createdAt DateTime   @default(now())
+
+  @@index([agencyId])
+}
+
+model AgencyInvite {
+  id          String     @id @default(cuid())
+  agencyId    String
+  agency      Agency     @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  email       String
+  role        AgencyRole @default(AGENT)
+  /// SHA-256 du jeton (le jeton en clair n'est jamais stocké).
+  tokenHash   String     @unique
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdById String
+  createdAt   DateTime   @default(now())
+
+  @@index([agencyId])
+}
+
+enum MandateType {
+  LETTING    // mise en location seule
+  MANAGEMENT // gestion locative complète
+  SALE       // vente
+}
+
+enum MandateStatus {
+  PENDING_OWNER
+  ACTIVE
+  REJECTED
+  ENDED
+}
+
+enum MandateOrigin {
+  AGENCY // proposé par l'agence (invitation, ou bien créé pour un propriétaire invité)
+  OWNER  // confié par le propriétaire lui-même
+}
+
+enum RentPayee {
+  OWNER
+  AGENCY
+}
+
+/// Mandat d'une agence sur UN bien. Un seul mandat ACTIVE ou PENDING_OWNER
+/// par bien (verrou consultatif + index unique partiel).
+model Mandate {
+  id                String        @id @default(cuid())
+  reference         String        @unique
+  propertyId        String
+  // Restrict : l'historique des mandats et honoraires survit (le bien s'archive).
+  property          Property      @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  agencyId          String
+  agency            Agency        @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  assignedAgentId   String?
+  ownerId           String
+  type              MandateType
+  status            MandateStatus @default(PENDING_OWNER)
+  startDate         DateTime
+  endDate           DateTime?
+  acceptedAt        DateTime?
+  rejectedAt        DateTime?
+  endedAt           DateTime?
+  endReason         String?       @db.Text
+  endedById         String?
+  createdBy         MandateOrigin @default(AGENCY)
+  createdById       String
+  message           String?       @db.Text
+  managementFeeRate Float?
+  lettingFeeAmount  Float?
+  lettingFeeMonths  Float?
+  saleFeeRate       Float?
+  currency          String        @default("EUR")
+  rentPayee         RentPayee     @default(OWNER)
+  requestId         String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  events MandateEvent[]
+  fees   FeeEntry[]
+
+  @@index([propertyId, status])
+  @@index([agencyId, status])
+  @@index([ownerId])
+  @@index([assignedAgentId])
+}
+
+enum MandateRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+/// Demande de mandat sans bien désigné : le propriétaire choisit lui-même
+/// les biens à confier en l'acceptant.
+model MandateRequest {
+  id                String               @id @default(cuid())
+  agencyId          String
+  agency            Agency               @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  ownerId           String
+  createdById       String
+  type              MandateType
+  status            MandateRequestStatus @default(PENDING)
+  startDate         DateTime
+  endDate           DateTime?
+  message           String?              @db.Text
+  managementFeeRate Float?
+  lettingFeeAmount  Float?
+  lettingFeeMonths  Float?
+  saleFeeRate       Float?
+  rentPayee         RentPayee            @default(OWNER)
+  resolvedAt        DateTime?
+  createdAt         DateTime             @default(now())
+
+  @@index([ownerId, status])
+  @@index([agencyId, status])
+}
+
+/// Historique horodaté d'un mandat, visible par les deux parties.
+model MandateEvent {
+  id        String   @id @default(cuid())
+  mandateId String
+  mandate   Mandate  @relation(fields: [mandateId], references: [id], onDelete: Cascade)
+  actorId   String?
+  /// CREATED, ACCEPTED, REJECTED, ENDED, AGENT_ASSIGNED, TENANT_PROPOSED,
+  /// TENANT_APPROVED, TENANT_DECLINED, LEASE_PREPARED, ACTED_ON_BEHALF…
+  kind      String
+  data      Json?
+  createdAt DateTime @default(now())
+
+  @@index([mandateId, createdAt])
+}
+
+enum FeeKind {
+  MANAGEMENT
+  LETTING
+  SALE
+}
+
+enum FeeStatus {
+  DUE
+  SETTLED
+  CANCELLED
+}
+
+/// Honoraire dû à l'agence (suivi seulement : aucun encaissement en ligne).
+model FeeEntry {
+  id          String    @id @default(cuid())
+  mandateId   String
+  mandate     Mandate   @relation(fields: [mandateId], references: [id], onDelete: Cascade)
+  kind        FeeKind
+  amount      Float
+  currency    String
+  /// Honoraire de gestion : une entrée par échéance (idempotence).
+  rentPeriodId String?  @unique
+  leaseId     String?
+  label       String
+  dueDate     DateTime
+  status      FeeStatus @default(DUE)
+  settledAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([mandateId, dueDate])
+  @@index([status])
+}
+
+/// Numérotation des mandats (MAN-<année>-<n>), même principe que les quittances.
+model MandateCounter {
+  year Int @id
+  last Int @default(0)
+}
+
+enum OwnerDecision {
+  APPROVED
+  DECLINED
 }
