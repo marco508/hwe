@@ -20,6 +20,10 @@ export const fr: Record<string, string> = {
   "register.agencyName": "Nom de votre agence ou activité",
   "register.agencyNameHint": "Seul(e) ? Indiquez votre nom commercial : vous serez une agence d'une personne.",
   "register.title2Pro": "professionnel",
+  "register.photoPro": "Gérez les biens de vos clients.",
+  "register.proP1": "Portefeuille de biens et équipe d'agents",
+  "register.proP2": "Le propriétaire valide les décisions clés",
+  "register.proP3": "Honoraires calculés, relevés PDF mensuels",
   "register.subPro": "Gérez les biens de vos clients, votre équipe et vos honoraires.",
 
   "pro.you": "vous",
@@ -372,6 +376,7 @@ export const fr: Record<string, string> = {
   "pro.hub.noMandateOwner": "Vous gérez ce bien vous-même. Vous pouvez le confier à une agence ou à un démarcheur.",
 
   "pro.inq.tabProposed": "Proposés",
+  "pro.inq.behalfAutoNote": "Approuvé par le mandataire pour le compte du propriétaire (compte non activé).",
   "pro.inq.propose": "Proposer au propriétaire",
   "pro.inq.proposeTitle": "Proposer ce candidat au propriétaire",
   "pro.inq.proposeText": "Le propriétaire est prévenu et décide : s'il approuve, la demande est acceptée et le bail brouillon créé.",
@@ -536,6 +541,10 @@ export const en: Record<string, string> = {
   "register.agencyName": "Name of your agency or business",
   "register.agencyNameHint": "On your own? Enter your trading name: you'll be a one-person agency.",
   "register.title2Pro": "professional account",
+  "register.photoPro": "Manage your clients' properties.",
+  "register.proP1": "Property portfolio and a team of agents",
+  "register.proP2": "Landlords approve the key decisions",
+  "register.proP3": "Fees computed, monthly PDF statements",
   "register.subPro": "Manage your clients' properties, your team and your fees.",
 
   "pro.you": "you",
@@ -888,6 +897,7 @@ export const en: Record<string, string> = {
   "pro.hub.noMandateOwner": "You manage this property yourself. You can entrust it to an agency or a broker.",
 
   "pro.inq.tabProposed": "Proposed",
+  "pro.inq.behalfAutoNote": "Approved by the agent on the landlord's behalf (account not activated).",
   "pro.inq.propose": "Propose to the landlord",
   "pro.inq.proposeTitle": "Propose this applicant to the landlord",
   "pro.inq.proposeText": "The landlord is notified and decides: if they approve, the request is accepted and the draft lease created.",

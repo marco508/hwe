@@ -71,12 +71,20 @@ function RegisterInner() {
   return (
     <AuthSplit
       photo="auth/auth-owner"
-      title={t("vis.auth.registerTitle")}
-      points={[
-        { icon: "sparkles", text: t("vis.auth.p1") },
-        { icon: "layers", text: t("vis.auth.p2") },
-        { icon: "wallet", text: t("vis.auth.p3") },
-      ]}
+      title={kind === "AGENT" ? t("register.photoPro") : t("vis.auth.registerTitle")}
+      points={
+        kind === "AGENT"
+          ? [
+              { icon: "building", text: t("register.proP1") },
+              { icon: "handshake", text: t("register.proP2") },
+              { icon: "coins", text: t("register.proP3") },
+            ]
+          : [
+              { icon: "sparkles", text: t("vis.auth.p1") },
+              { icon: "layers", text: t("vis.auth.p2") },
+              { icon: "wallet", text: t("vis.auth.p3") },
+            ]
+      }
       className="py-4 sm:py-8"
     >
       <div className="w-full">

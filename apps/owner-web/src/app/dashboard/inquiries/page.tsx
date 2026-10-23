@@ -75,7 +75,14 @@ function ProposalPanel({ i, pro }: { i: Inquiry; pro: boolean }) {
           {t(i.ownerDecision === "APPROVED" ? "pro.inq.ownerApproved" : "pro.inq.ownerDeclined", {
             date: i.ownerDecisionAt ? fmtDate(i.ownerDecisionAt, "medium") : "",
           })}
-          {i.ownerDecisionNote ? ` — « ${i.ownerDecisionNote} »` : ""}
+          {i.ownerDecisionNote
+            ? ` — « ${
+                // Note posée par l'API lors d'une acceptation pour le compte du propriétaire.
+                i.ownerDecisionNote.startsWith("Approuvé par le mandataire pour le compte")
+                  ? t("pro.inq.behalfAutoNote")
+                  : i.ownerDecisionNote
+              } »`
+            : ""}
         </p>
       )}
     </div>
