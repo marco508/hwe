@@ -1,4 +1,4 @@
-import { STATIC_EUR_RATES, STATIC_RATES_DATE, withFixedPegs } from "@hwe/types";
+import { STATIC_EUR_RATES, STATIC_RATES_DATE, withFixedPegs } from "../shared/hwe-types";
 
 /**
  * Sources de taux (base EUR), fonctions pures (testées) :

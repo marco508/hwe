@@ -1,4 +1,4 @@
-import { currencyOfCountry } from "@hwe/types";
+import { currencyOfCountry } from "../shared/hwe-types";
 
 /**
  * Prix des offres par devise (fonctions pures, testées).

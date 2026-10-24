@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { finalizeRates, parseEcbXml, parseErApi, staticSnapshot } from "../src/fx/fx-sources";
 import { basePrice, billingCurrencyOf, normalizePrices, planOffer } from "../src/subscriptions/pricing";
-import { COUNTRY_CURRENCY, SELECTABLE_CURRENCIES, convertWithRates, currencyOfCountry } from "@hwe/types";
+import { COUNTRY_CURRENCY, SELECTABLE_CURRENCIES, convertWithRates, currencyOfCountry } from "../src/shared/hwe-types";
 
 const ER = {
   result: "success",

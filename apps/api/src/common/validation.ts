@@ -1,5 +1,5 @@
 import { BadRequestException, ValidationError, ValidationPipe } from "@nestjs/common";
-import { hasKey } from "@hwe/types";
+import { hasKey } from "../shared/hwe-types";
 import { API_DICTS, requestLang, t, type Lang } from "../i18n/i18n";
 
 /**

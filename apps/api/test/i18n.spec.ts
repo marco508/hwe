@@ -9,7 +9,7 @@ import { feeLabel, localizeMention, localizePeriod, localizeResponse } from "../
 import { translateConstraint } from "../src/common/validation";
 import { localizeErrorBody } from "../src/common/all-exceptions.filter";
 import * as mail from "../src/mail/templates";
-import { translate } from "@hwe/types";
+import { translate } from "../src/shared/hwe-types";
 
 test("repli des clés : langue → en → fr, jamais vide", () => {
   const dicts = { fr: { a: "A fr", b: "B fr" }, en: { a: "A en" }, es: { b: "" } };

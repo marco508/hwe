@@ -11,7 +11,7 @@ import {
   type Dict,
   type Dicts,
   type Lang,
-} from "@hwe/types";
+} from "../shared/hwe-types";
 import fr from "./locales/fr.json";
 import en from "./locales/en.json";
 import es from "./locales/es.json";

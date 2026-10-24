@@ -56,4 +56,4 @@ while :; do
 done
 
 echo "✅ Migrations à jour."
-exec node dist/src/main.js
+exec node dist/apps/api/src/main.js
