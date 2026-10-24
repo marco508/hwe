@@ -76,11 +76,19 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
     // Détail des montants
     const x = doc.x;
     const largeur = 483;
+    // Ligne « libellé … montant ». Après la cellule de droite, PDFKit garde sa
+    // position (x de la colonne étroite) et la police : on rétablit la marge
+    // gauche et la police normale, sinon le texte suivant s'écrit en gras dans
+    // une colonne de 140 pt.
     const row = (label: string, value: string, bold = false) => {
       doc.font(bold ? P.bold : P.regular).fontSize(11);
       const y = doc.y;
       P.text(label, { x, y, width: largeur - 140 });
+      const h = doc.y;
       P.text(value, { x: x + largeur - 140, y, width: 140, align: "right" });
+      doc.y = Math.max(h, doc.y);
+      doc.x = x;
+      doc.font(P.regular);
       doc.moveDown(0.35);
     };
     row(L("rent"), EUR(data.rent));
@@ -90,8 +98,9 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
     row(L("total"), EUR(data.total), true);
     doc.moveDown(1);
 
-    // Traçabilité du versement
-    doc.fontSize(10).fillColor(gris);
+    // Traçabilité du versement (pleine largeur, police normale)
+    doc.x = x;
+    doc.font(P.regular).fontSize(10).fillColor(gris);
     if (data.method) P.text(L("method", { method: data.method === "OTHER" ? t(lang, "pdf.method.OTHER") : data.method }));
     if (data.reference) P.text(L("reference", { reference: data.reference }));
     P.text(L("confirmed"));

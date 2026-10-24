@@ -73,6 +73,9 @@ export function buildStatementPdf(data: StatementPdfData): Promise<Buffer> {
       const h = doc.y;
       P.text(value, { x: x + largeur - 130, y, width: 130, align: "right" });
       doc.y = Math.max(h, doc.y);
+      // Retour à la marge gauche et à la police normale (la cellule de droite les laisse modifiées).
+      doc.x = x;
+      doc.font(P.regular);
       doc.moveDown(0.3);
     };
     const rule = () => {
