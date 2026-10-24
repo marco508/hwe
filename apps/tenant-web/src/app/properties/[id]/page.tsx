@@ -737,9 +737,10 @@ function StepFeatures({ property: p }: { property: Property }) {
             key={it.label}
             className="rounded-xl border border-border/60 bg-cream-50/60 dark:bg-surface/60 px-3 sm:px-4 py-3 min-w-0"
           >
-            <div className="flex items-center gap-2 mb-1 min-w-0">
+            {/* Mobile : icône au-dessus du libellé, qui garde toute la largeur (« ESTACIONAMENTO », « CASAS DE BANHO »). */}
+            <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2 mb-1 min-w-0">
               <Icon name={it.icon} size={18} className="text-brand-600 dark:text-brand-300" />
-              <span className="min-w-0 text-[11px] uppercase tracking-[0.14em] text-ink-muted leading-tight [overflow-wrap:break-word]">
+              <span className="min-w-0 text-[10px] sm:text-[11px] uppercase tracking-normal sm:tracking-[0.14em] text-ink-muted leading-tight [overflow-wrap:break-word]">
                 {it.label}
               </span>
             </div>
