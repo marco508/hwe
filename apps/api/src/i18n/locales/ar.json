@@ -309,5 +309,9 @@
   "validation.minLength.many": "{field}: {count} حرفًا كحد أدنى.",
   "validation.minLength.other": "{field}: {count} حرف كحد أدنى.",
   "validation.nestedValidation": "{field}: محتوى غير صالح.",
-  "validation.whitelistValidation": "حقل غير مسموح به: {field}."
+  "validation.whitelistValidation": "حقل غير مسموح به: {field}.",
+  "plan.name.FREE": "مجاني",
+  "plan.name.SOLO": "فردي",
+  "plan.name.AGENCE": "وكالة",
+  "plan.name.RESEAU": "شبكة"
 }

@@ -115,7 +115,7 @@ export function MandateDetailView({ id, backHref }: { id: string; backHref: stri
   return (
     <section className="space-y-6" data-mandate={m.reference}>
       <Link href={backHref} className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink">
-        <Icon name="chevronLeft" size={14} className="rtl:rotate-180" /> {t("pro.m.back")}
+        <Icon name="chevronLeft" size={14} /> {t("pro.m.back")}
       </Link>
 
       <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center">

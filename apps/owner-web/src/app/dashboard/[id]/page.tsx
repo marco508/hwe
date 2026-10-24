@@ -103,7 +103,7 @@ export default function PropertyHubPage() {
   return (
     <section className="space-y-6">
       <Link href={pro ? "/pro/biens" : "/dashboard"} className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink">
-        <Icon name="chevronLeft" size={14} className="rtl:rotate-180" /> {pro ? t("pro.hub.backPortfolio") : t("pf.back")}
+        <Icon name="chevronLeft" size={14} /> {pro ? t("pro.hub.backPortfolio") : t("pf.back")}
       </Link>
 
       <div className="rounded-2xl border border-border bg-surface overflow-hidden">

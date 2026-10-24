@@ -18,6 +18,7 @@ import {
   readFileAsDataUrl,
   toast,
   Icon,
+  FileInput,
 } from "@hwe/ui";
 import { leaseCurrency } from "@hwe/types";
 import { api } from "../lib/api";
@@ -278,13 +279,7 @@ function TicketForm({
       </div>
       <div>
         <Label htmlFor={`tp-${leaseId}`}>{t("rental.ticket.photo")}</Label>
-        <input
-          id={`tp-${leaseId}`}
-          type="file"
-          accept={IMAGE_ACCEPT}
-          onChange={onFile}
-          className="block w-full max-w-full text-sm"
-        />
+        <FileInput id={`tp-${leaseId}`} accept={IMAGE_ACCEPT} onChange={onFile} />
         {photo && <p className="text-xs text-ink-muted mt-1 inline-flex items-center gap-1"><Icon name="check" size={13} className="text-success" />{t("fix.file.ready")}</p>}
       </div>
       <Button type="submit" size="sm" disabled={busy}>
@@ -548,13 +543,7 @@ function InsuranceBlock({ lease, onMerge }: { lease: LeaseContract; onMerge?: (l
       <div className="flex flex-wrap items-end gap-2">
         <div className="min-w-0 max-w-full">
           <Label htmlFor={`if-${lease.id}`}>{t("rental.insurance.file")}</Label>
-          <input
-            id={`if-${lease.id}`}
-            type="file"
-            accept={DOC_ACCEPT}
-            onChange={onFile}
-            className="block w-full max-w-full text-sm"
-          />
+          <FileInput id={`if-${lease.id}`} accept={DOC_ACCEPT} onChange={onFile} />
         </div>
         <div>
           <Label htmlFor={`iv-${lease.id}`}>{t("rental.insurance.validUntil")}</Label>

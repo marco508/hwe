@@ -31,6 +31,7 @@ export {
   intlLocale,
   priceUnitSuffix,
   paymentMethodLabel,
+  planLabel,
 } from "./format";
 export {
   safeHref,

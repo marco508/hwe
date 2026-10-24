@@ -16,6 +16,7 @@ import {
   fmtMoney,
   toast,
   useAsync,
+  planLabel,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -76,9 +77,10 @@ function PlanCard({
         selected ? "border-brand-500 ring-2 ring-brand-500/30 bg-brand-50/40 dark:bg-brand-900/20" : "border-border bg-surface"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
+      {/* Carte étroite (4 offres côte à côte) : le badge « offre actuelle » passe sous le nom plutôt que de couper le nom en plein mot. */}
+      <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
         <div className="min-w-0">
-          <p className="font-display text-lg [overflow-wrap:anywhere]">{free ? t("sub.freeOffer") : plan.name}</p>
+          <p className="font-display text-lg [overflow-wrap:break-word]">{free ? t("sub.freeOffer") : planLabel(plan)}</p>
           {free && <p className="text-xs text-ink-muted">{t("sub.freeOfferSub")}</p>}
         </div>
         {current && <Badge tone="success">{t("sub.current")}</Badge>}
@@ -199,7 +201,7 @@ export default function SubscriptionPage() {
           hint={s.daysLeft !== null && s.daysLeft > 0 && (s.status === "TRIAL" || s.status === "ACTIVE") ? t("sub.daysLeft", { count: s.daysLeft }) : undefined}
         />
         <StatTile icon="calendar" label={s.status === "TRIAL" ? t("sub.trialEnds") : t("sub.paidUntil")} value={end ? fmtDate(end) : "—"} />
-        <StatTile icon="layers" tone="ocean" label={t("sub.plan")} value={s.plan?.name ?? (s.status === "FREE" ? t("sub.freeOffer") : t("sub.noPlan"))} />
+        <StatTile icon="layers" tone="ocean" label={t("sub.plan")} value={s.plan ? planLabel(s.plan) : (s.status === "FREE" ? t("sub.freeOffer") : t("sub.noPlan"))} />
         <StatTile icon="alarm" tone="accent" label={t("sub.graceEnds")} value={s.graceEndsAt ? fmtDate(s.graceEndsAt) : "—"} />
       </div>
 
@@ -300,7 +302,7 @@ export default function SubscriptionPage() {
                 </p>
                 <p className="text-sm [overflow-wrap:anywhere]">
                   {t("sub.pendingText", {
-                    plan: pending.plan.name,
+                    plan: planLabel(pending.plan),
                     count: pending.months,
                     amount: fmtMoney(pending.amount, pending.currency),
                     reference: pending.reference,
@@ -381,7 +383,7 @@ export default function SubscriptionPage() {
                   {s.payments.map((p) => (
                     <tr key={p.id} className="border-t border-border">
                       <td className="py-2 pe-3 font-mono text-xs">{p.number}</td>
-                      <td className="py-2 pe-3">{p.plan.name} · {t("sub.months", { count: p.months })}</td>
+                      <td className="py-2 pe-3">{planLabel(p.plan)} · {t("sub.months", { count: p.months })}</td>
                       <td className="py-2 pe-3 text-ink-muted">{t("sub.period", { from: fmtDate(p.periodStart), to: fmtDate(p.periodEnd) })}</td>
                       <td className="py-2 pe-3 text-end tabular-nums">{fmtMoney(p.amount, p.currency)}</td>
                       <td className="py-2 text-end">

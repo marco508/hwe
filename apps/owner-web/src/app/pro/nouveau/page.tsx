@@ -307,7 +307,7 @@ export default function ProNewPropertyPage() {
               {t("pro.back")}
             </Button>
             <Button type="submit" variant="gradient">
-              {t("pro.next")} <Icon name="arrowRight" size={16} className="ms-1.5 rtl:rotate-180" />
+              {t("pro.next")} <Icon name="arrowRight" size={16} className="ms-1.5" />
             </Button>
           </div>
         </form>

@@ -31,6 +31,7 @@ import {
   type IconName,
   Approx,
   paymentMethodLabel,
+  FileInput,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
@@ -315,13 +316,7 @@ function DeclareForm({
 
       <div className="space-y-1">
         <Label htmlFor={`${uid}-proof`}>{t("rent.declare.proof")} <span className="font-normal text-ink-subtle">{t("rent.declare.proofHint")}</span></Label>
-        <input
-          id={`${uid}-proof`}
-          type="file"
-          accept={IMAGE_ACCEPT}
-          onChange={onFile}
-          className="block w-full text-xs text-ink-muted file:me-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-semibold hover:file:bg-brand-700 file:cursor-pointer"
-        />
+        <FileInput id={`${uid}-proof`} accept={IMAGE_ACCEPT} onChange={onFile} />
         {proof && (
           <SafeImage src={proof} alt={t("rent.declare.proofAlt")} className="mt-2 max-h-40 max-w-full rounded-lg border border-border" />
         )}

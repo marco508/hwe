@@ -257,7 +257,7 @@
   "rental.countdown.min": "min",
   "rental.countdown.sec": "seg",
   "rental.progress.elapsedPct": "{pct}% transcurrido",
-  "rental.progress.days.one": "{count} de {total} días transcurrido",
+  "rental.progress.days.one": "{count} de {total} días transcurridos",
   "rental.progress.days.other": "{count} de {total} días transcurridos",
   "rental.timer.title": "Alquiler de duración limitada",
   "rental.lease.propertyFallback": "Inmueble",

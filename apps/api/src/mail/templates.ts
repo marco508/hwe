@@ -1,5 +1,5 @@
 import { APP_TIME_ZONE } from "../common/dates";
-import { longDay, money, monthYear, shortDate, shortTime, t, type Lang } from "../i18n/i18n";
+import { longDay, money, monthYear, planText, shortDate, shortTime, t, type Lang } from "../i18n/i18n";
 
 /**
  * Gabarits des e-mails (fonctions pures, testées) : sujet + texte dans la
@@ -285,6 +285,10 @@ export type NoticeParams = Record<string, string | number | Date | null | undefi
 export function notice(lang: Lang, d: { name: string; base: string; params: NoticeParams; url: string }): MailContent {
   const p: P = {};
   for (const [k, v] of Object.entries(d.params)) p[k] = v instanceof Date ? shortDate(lang, v, APP_TIME_ZONE) : v;
+  // Offre par défaut (code fourni) : nom traduit dans la langue du destinataire.
+  if (typeof d.params.planCode === "string" && typeof d.params.plan === "string") {
+    p.plan = planText(lang, { code: d.params.planCode, name: d.params.plan });
+  }
   // Pluriel (Intl.PluralRules) : `count` = nombre de jours (`n`) ou de mois (`months`).
   if (p.count === undefined) {
     const c = typeof d.params.n === "number" ? d.params.n : typeof d.params.months === "number" ? d.params.months : undefined;

@@ -35,7 +35,7 @@ export function MandateRow({ m, href, who }: { m: Mandate; href: string; who: "o
           <p className="font-display text-lg tabular-nums">{fmtMoney(m.feesSummary.due, m.feesSummary.currency)}</p>
           <Approx amount={m.feesSummary.due} currency={m.feesSummary.currency} className="ms-0 block" />
         </div>
-        <Icon name="chevronRight" size={18} className="text-ink-subtle shrink-0 rtl:rotate-180" />
+        <Icon name="chevronRight" size={18} className="text-ink-subtle shrink-0" />
       </Link>
     </li>
   );

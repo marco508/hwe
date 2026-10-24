@@ -181,7 +181,7 @@ export default function ProPortfolioPage() {
                         <span className="truncate">{assigned ? t("pro.biens.assignedTo", { name: assigned }) : t("pro.dash.unassigned")}</span>
                       </div>
                       <Link href={`/dashboard/${p.id}`} className={`${LINK_SM} w-full`}>
-                        {t("pro.biens.manage")} <Icon name="arrowRight" size={14} className="rtl:rotate-180" />
+                        {t("pro.biens.manage")} <Icon name="arrowRight" size={14} />
                       </Link>
                     </div>
                   }

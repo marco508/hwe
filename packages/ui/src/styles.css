@@ -363,3 +363,11 @@
     100% { transform: translateX(-50%); }
   }
 }
+
+/* Arabe : un espacement des lettres (tracking-*, titres) détache les lettres
+   liées (« ا ل م ا ل ك » au lieu de « المالك ») ; les majuscules n'existent
+   pas. Valable pour tout le document en arabe, quelles que soient les classes. */
+:lang(ar),
+:lang(ar) * {
+  letter-spacing: normal !important;
+}

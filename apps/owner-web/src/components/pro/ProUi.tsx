@@ -92,7 +92,17 @@ export function StatTile({
         <IconBadge name={icon} tone={tone} />
         {highlight && <span className="h-2.5 w-2.5 rounded-full bg-accent-500 animate-pulse-glow" aria-hidden="true" />}
       </div>
-      <div className="mt-3 font-display text-2xl leading-none text-ink [overflow-wrap:anywhere]">{value}</div>
+      {/* Chiffre / montant : jamais débordant (coupure n'importe où). Texte (« Suscripción activa », date) :
+          un peu plus petit sur mobile et coupé entre les mots, jamais au milieu d'un mot. */}
+      <div
+        className={`mt-3 font-display text-ink ${
+          typeof value === "string" && /\p{L}{4,}/u.test(value)
+            ? "text-xl sm:text-2xl leading-tight [overflow-wrap:break-word] hyphens-auto"
+            : "text-2xl leading-none [overflow-wrap:anywhere]"
+        }`}
+      >
+        {value}
+      </div>
       <div className="mt-1 text-sm font-medium text-ink">{label}</div>
       {hint && <div className="text-xs text-ink-muted mt-0.5">{hint}</div>}
     </>

@@ -236,5 +236,11 @@
   "ui.payMethod.TRANSFER": "تحويل بنكي",
   "ui.payMethod.MOBILE_MONEY": "الدفع عبر الهاتف المحمول",
   "ui.payMethod.CASH": "نقدًا",
-  "ui.payMethod.OTHER": "أخرى"
+  "ui.payMethod.OTHER": "أخرى",
+  "ui.plan.FREE": "مجاني",
+  "ui.plan.SOLO": "فردي",
+  "ui.plan.AGENCE": "وكالة",
+  "ui.plan.RESEAU": "شبكة",
+  "ui.file.choose": "اختيار ملف",
+  "ui.file.none": "لم يُختَر أي ملف"
 }

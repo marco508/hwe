@@ -1,4 +1,4 @@
-import { intlLocaleOf } from "@hwe/types";
+import { intlLocaleOf, isDefaultPlanName } from "@hwe/types";
 import { getUiLang, tUi } from "../components/I18nKit";
 
 /**
@@ -133,4 +133,10 @@ export function paymentMethodLabel(m: string | null | undefined): string {
   const v = m.trim();
   if (v === "Autre") return tUi("ui.payMethod.OTHER");
   return (PAYMENT_METHOD_CODES as readonly string[]).includes(v) ? tUi(`ui.payMethod.${v}`) : v;
+}
+
+/** Nom d'une offre : traduit tant que c'est le nom par défaut, sinon le nom saisi par l'administrateur. */
+export function planLabel(plan: { code?: string | null; name: string } | null | undefined): string {
+  if (!plan) return "";
+  return isDefaultPlanName(plan.code, plan.name) ? tUi(`ui.plan.${plan.code}`) : plan.name;
 }

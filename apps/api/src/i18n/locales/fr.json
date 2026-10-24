@@ -273,5 +273,9 @@
   "validation.minLength.one": "{field} : {count} caractère minimum.",
   "validation.minLength.other": "{field} : {count} caractères minimum.",
   "validation.nestedValidation": "{field} : contenu invalide.",
-  "validation.whitelistValidation": "Champ non autorisé : {field}."
+  "validation.whitelistValidation": "Champ non autorisé : {field}.",
+  "plan.name.FREE": "Gratuit",
+  "plan.name.SOLO": "Solo",
+  "plan.name.AGENCE": "Agence",
+  "plan.name.RESEAU": "Réseau"
 }

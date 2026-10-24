@@ -216,5 +216,11 @@
   "ui.payMethod.TRANSFER": "Transferencia",
   "ui.payMethod.MOBILE_MONEY": "Mobile money",
   "ui.payMethod.CASH": "Efectivo",
-  "ui.payMethod.OTHER": "Otro"
+  "ui.payMethod.OTHER": "Otro",
+  "ui.plan.FREE": "Gratuito",
+  "ui.plan.SOLO": "Solo",
+  "ui.plan.AGENCE": "Agencia",
+  "ui.plan.RESEAU": "Red",
+  "ui.file.choose": "Elegir un archivo",
+  "ui.file.none": "Ningún archivo seleccionado"
 }

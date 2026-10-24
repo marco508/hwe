@@ -678,7 +678,8 @@ function Mini({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted truncate">
+      {/* Libellé sur deux lignes au besoin (es/pt plus longs : « Habitaciones », « Casas de banho ») plutôt que tronqué. */}
+      <div className="text-[10px] uppercase tracking-[0.14em] text-ink-muted leading-tight [overflow-wrap:break-word]">
         {label}
       </div>
       <div className="display-serif text-lg mt-0.5 [overflow-wrap:anywhere]">{value}</div>
@@ -738,7 +739,7 @@ function StepFeatures({ property: p }: { property: Property }) {
           >
             <div className="flex items-center gap-2 mb-1 min-w-0">
               <Icon name={it.icon} size={18} className="text-brand-600 dark:text-brand-300" />
-              <span className="text-[11px] uppercase tracking-[0.14em] text-ink-muted truncate">
+              <span className="min-w-0 text-[11px] uppercase tracking-[0.14em] text-ink-muted leading-tight [overflow-wrap:break-word]">
                 {it.label}
               </span>
             </div>

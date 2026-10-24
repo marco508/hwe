@@ -157,3 +157,19 @@ export const LANG_COOKIE_NAME = "hwe_lang";
  * cookie, localStorage, navigateur, fr.
  */
 export const LANG_BOOT_SCRIPT = `(function(){try{var m=document.cookie.match(/(?:^|; )hwe_lang=([a-z]{2})/);var l=m?m[1]:localStorage.getItem('hwe.lang');if(!l){var n=(navigator.languages&&navigator.languages[0])||navigator.language||'';l=String(n).slice(0,2).toLowerCase();}if(['fr','en','es','pt','ar'].indexOf(l)<0)l='fr';var d=document.documentElement;d.lang=l;d.dir=l==='ar'?'rtl':'ltr';}catch(e){}})();`;
+
+/**
+ * Noms des offres créées par la migration (en français). Tant que
+ * l'administrateur ne les renomme pas, ils sont traduits à l'affichage
+ * (clés `ui.plan.<code>` / `plan.name.<code>`) ; un nom personnalisé reste tel quel.
+ */
+export const DEFAULT_PLAN_NAMES: Readonly<Record<string, string>> = {
+  FREE: "Gratuit",
+  SOLO: "Solo",
+  AGENCE: "Agence",
+  RESEAU: "Réseau",
+};
+
+export function isDefaultPlanName(code: string | null | undefined, name: string | null | undefined): boolean {
+  return !!code && !!name && DEFAULT_PLAN_NAMES[code] === name;
+}

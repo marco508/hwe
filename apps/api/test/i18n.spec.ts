@@ -4,12 +4,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import "reflect-metadata";
-import { API_DICTS, API_ERRORS, pdfLang, resetErrorPatterns, t, translateError, withLang } from "../src/i18n/i18n";
+import { API_DICTS, API_ERRORS, pdfLang, planText, resetErrorPatterns, t, translateError, withLang } from "../src/i18n/i18n";
 import { feeLabel, localizeMention, localizePeriod, localizeResponse } from "../src/i18n/labels";
 import { translateConstraint } from "../src/common/validation";
 import { localizeErrorBody } from "../src/common/all-exceptions.filter";
 import * as mail from "../src/mail/templates";
 import { translate } from "../src/shared/hwe-types";
+import { paymentMethodText } from "../src/rents/receipt";
 
 test("repli des clés : langue → en → fr, jamais vide", () => {
   const dicts = { fr: { a: "A fr", b: "B fr" }, en: { a: "A en" }, es: { b: "" } };
@@ -182,4 +183,14 @@ test("PDF : l'arabe sort en anglais tant que le dictionnaire arabe n'a aucun tex
   assert.equal(pdfLang("es"), "es");
   assert.equal(pdfLang("fr"), "fr");
   assert.equal(t("en", "pdf.receipt.title"), "Rent receipt");
+});
+
+test("libellés d'énumérations : moyens de paiement et offres par défaut traduits, saisies libres intactes", () => {
+  assert.equal(paymentMethodText("es", "MOBILE_MONEY"), "Mobile money");
+  assert.equal(paymentMethodText("pt", "TRANSFER"), "Transferência");
+  assert.equal(paymentMethodText("en", "Autre"), "Other");
+  assert.equal(paymentMethodText("ar", "MTN MoMo"), "MTN MoMo");
+  assert.equal(planText("ar", { code: "AGENCE", name: "Agence" }), "وكالة");
+  assert.equal(planText("es", { code: "RESEAU", name: "Réseau" }), "Red");
+  assert.equal(planText("es", { code: "AGENCE", name: "Agence Premium" }), "Agence Premium");
 });

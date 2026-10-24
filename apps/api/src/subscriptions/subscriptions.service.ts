@@ -11,7 +11,7 @@ import { PaymentMethod, Prisma, SubscriptionRequestStatus } from "@prisma/client
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import type { NoticeParams } from "../mail/templates";
-import { asLang, pdfLang, requestLang, t, type Lang } from "../i18n/i18n";
+import { asLang, pdfLang, planText, requestLang, t, type Lang } from "../i18n/i18n";
 import { APP_TIME_ZONE } from "../common/dates";
 import { lockKey, withAdvisoryLock } from "../common/advisory-lock";
 import { agencyLogoUrl } from "../common/media.util";
@@ -335,7 +335,7 @@ export class SubscriptionsService {
     const p = await this.prisma.agencyPayment.findUnique({
       where: { id: paymentId },
       include: {
-        plan: { select: { name: true, monthlyPrice: true } },
+        plan: { select: { code: true, name: true, monthlyPrice: true } },
         agency: { select: { name: true, address: true, city: true, country: true, registrationNumber: true, email: true } },
       },
     });
@@ -362,7 +362,7 @@ export class SubscriptionsService {
         p.agency.registrationNumber ? t(lang, "pdf.invoice.registration", { number: p.agency.registrationNumber }) : "",
         p.agency.email ?? "",
       ],
-      planName: p.plan.name,
+      planName: planText(lang, p.plan),
       months: p.months,
       periodStart: p.periodStart,
       periodEnd: p.periodEnd,
@@ -551,6 +551,7 @@ export class SubscriptionsService {
     await this.notifyManagers(payment.agencyId, "approved", {
       number: payment.number,
       plan: payment.plan.name,
+      planCode: payment.plan.code,
       months: payment.months,
       end: payment.periodEnd,
     });
@@ -654,6 +655,7 @@ export class SubscriptionsService {
     await this.notifyManagers(agencyId, "recorded", {
       number: payment.number,
       plan: payment.plan.name,
+      planCode: payment.plan.code,
       months: payment.months,
       end: payment.periodEnd,
     });

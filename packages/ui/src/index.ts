@@ -2,6 +2,7 @@ export { cn } from "./utils";
 export { Button } from "./components/Button";
 export { Input } from "./components/Input";
 export { Textarea } from "./components/Textarea";
+export { FileInput, type FileInputProps } from "./components/FileInput";
 export { Select } from "./components/Select";
 export { Card, CardHeader, CardBody, CardFooter } from "./components/Card";
 export { Badge } from "./components/Badge";

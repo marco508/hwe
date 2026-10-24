@@ -29,6 +29,7 @@ import {
   OWNER_URL,
   fmtMoney,
   type CategoryRailItem,
+  planLabel,
 } from "@hwe/ui";
 import { t, useLang } from "../lib/i18n";
 import { publicApi } from "../lib/api";
@@ -1022,7 +1023,7 @@ function ProPricing() {
       <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((p) => (
           <li key={p.code} className="rounded-2xl border border-border/70 bg-surface p-5 flex flex-col gap-2 min-w-0" data-plan={p.code}>
-            <span className="font-display text-lg text-ink [overflow-wrap:anywhere]">{p.isFree ? t("pro.pricing.free") : p.name}</span>
+            <span className="font-display text-lg text-ink [overflow-wrap:anywhere]">{p.isFree ? t("pro.pricing.free") : planLabel(p)}</span>
             <PlanPriceLine plan={p} />
             <span className="text-sm text-ink-muted flex items-center gap-1.5">
               <Icon name="users" size={14} />

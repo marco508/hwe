@@ -4,6 +4,7 @@ import {
   fallbackChain,
   interpolate,
   intlLocaleOf,
+  isDefaultPlanName,
   isLang,
   langFromAcceptLanguage,
   normalizeLang,
@@ -94,6 +95,11 @@ export function t(lang: Lang, key: string, params?: Params): string {
 /** Texte d'une clé dans la langue de la requête. */
 export function tr(key: string, params?: Params): string {
   return t(requestLang(), key, params);
+}
+
+/** Nom d'une offre : traduit tant que c'est le nom par défaut (migration), sinon le nom saisi. */
+export function planText(lang: Lang, plan: { code: string; name: string }): string {
+  return isDefaultPlanName(plan.code, plan.name) ? t(lang, `plan.name.${plan.code}`) : plan.name;
 }
 
 // ───────────────────────── Formats ─────────────────────────

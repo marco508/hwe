@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { AdminSubscriptionAgency, PaymentMethod, Plan, PlatformSettings, SubscriptionRequest } from "@hwe/types";
-import { Badge, Button, CurrencyPicker, Icon, Input, Label, Select, Textarea, fmtDate, fmtDateTime, fmtMoney, toast } from "@hwe/ui";
+import { Badge, Button, CurrencyPicker, Icon, Input, Label, Select, Textarea, fmtDate, fmtDateTime, fmtMoney, planLabel, toast } from "@hwe/ui";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import { Modal } from "../Modal";
@@ -83,7 +83,7 @@ export function AdminSubscriptions({ q }: { q: string }) {
                     {r.agency.name} <span className="font-mono text-xs text-ink-muted">{r.agency.code}</span>
                   </p>
                   <p className="text-ink-muted [overflow-wrap:anywhere]">
-                    {r.plan.name} · {t("sub.months", { count: r.months })} · <strong className="text-ink">{fmtMoney(r.amount, r.currency)}</strong> ·{" "}
+                    {planLabel(r.plan)} · {t("sub.months", { count: r.months })} · <strong className="text-ink">{fmtMoney(r.amount, r.currency)}</strong> ·{" "}
                     {t(`sub.method.${r.method}`)} · {t("sub.reference")} : <span className="font-mono">{r.reference}</span>
                   </p>
                   <p className="text-xs text-ink-muted">
@@ -135,7 +135,7 @@ export function AdminSubscriptions({ q }: { q: string }) {
                       {s.manualSuspension && <p className="text-xs text-danger mt-1">{t("sub.admin.manual")}</p>}
                       {a.pendingRequestId && <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">{t("sub.admin.colRequest")} {t("sub.admin.pending")}</p>}
                     </td>
-                    <td className="py-2 pe-3 text-ink-muted">{s.plan?.name ?? "—"}</td>
+                    <td className="py-2 pe-3 text-ink-muted">{s.plan ? planLabel(s.plan) : "—"}</td>
                     <td className="py-2 pe-3 text-ink-muted">
                       {end ? fmtDate(end) : "—"}
                       {s.status === "GRACE" && s.graceEndsAt && <p className="text-xs">{t("sub.graceEnds")} : {fmtDate(s.graceEndsAt)}</p>}
@@ -201,7 +201,7 @@ export function AdminSubscriptions({ q }: { q: string }) {
           onConfirm={(reason) => run(() => api.adminRejectRequest(dialog.request.id, reason))}
         >
           <p>
-            {dialog.request.agency.name} · {dialog.request.plan.name} · {fmtMoney(dialog.request.amount, dialog.request.currency)} · {dialog.request.reference}
+            {dialog.request.agency.name} · {planLabel(dialog.request.plan)} · {fmtMoney(dialog.request.amount, dialog.request.currency)} · {dialog.request.reference}
           </p>
         </ConfirmDialog>
       )}
