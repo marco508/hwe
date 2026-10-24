@@ -232,5 +232,9 @@
   "ui.photo.people/benefit-2": "رجل مبتسم يعمل على حاسوبه المحمول في منزله",
   "ui.photo.people/benefit-3": "أم تلعب مع أطفالها الثلاثة في غرفة جلوس مشرقة",
   "ui.searchCurrency": "ابحث عن عملة…",
-  "ui.noCurrencyMatch": "لا توجد عملة تطابق «{query}»"
+  "ui.noCurrencyMatch": "لا توجد عملة تطابق «{query}»",
+  "ui.payMethod.TRANSFER": "تحويل بنكي",
+  "ui.payMethod.MOBILE_MONEY": "الدفع عبر الهاتف المحمول",
+  "ui.payMethod.CASH": "نقدًا",
+  "ui.payMethod.OTHER": "أخرى"
 }

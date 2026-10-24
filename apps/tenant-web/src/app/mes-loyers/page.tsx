@@ -29,7 +29,8 @@ import {
   useLoginRedirect,
   IconBadge,
   type IconName,
-  Approx
+  Approx,
+  paymentMethodLabel,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
@@ -51,7 +52,7 @@ function periodAmount(p: RentPeriod) {
 const OTHER_METHOD = "OTHER";
 function methodLabel(m: string | null | undefined) {
   if (!m) return "";
-  return m === OTHER_METHOD || m === "Autre" ? t("rent.declare.other") : m;
+  return m === OTHER_METHOD || m === "Autre" ? t("rent.declare.other") : paymentMethodLabel(m);
 }
 
 

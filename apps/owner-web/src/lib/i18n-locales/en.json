@@ -1499,5 +1499,9 @@
   "com.durationN.MONTHS.one": "{count} month",
   "com.durationN.MONTHS.other": "{count} months",
   "com.durationN.YEARS.one": "{count} year",
-  "com.durationN.YEARS.other": "{count} years"
+  "com.durationN.YEARS.other": "{count} years",
+  "ops.admin.role.OWNER": "Owner",
+  "ops.admin.role.TENANT": "Tenant",
+  "ops.admin.role.ADMIN": "Admin",
+  "ops.admin.role.AGENT": "Professional"
 }

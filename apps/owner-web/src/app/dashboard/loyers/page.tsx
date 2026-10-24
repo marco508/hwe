@@ -22,6 +22,7 @@ import {
   IconBadge,
   type IconName,
   Approx,
+  paymentMethodLabel,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -291,7 +292,8 @@ function PeriodCard({
 // ── Page ────────────────────────────────────────────────────────────────────
 
 /** « OTHER » (choix « Autre » du locataire) → libellé traduit. */
-const methodLabel = (m: string) => (m === "OTHER" || m === "Autre" ? t("rent.methodOther") : m);
+/** « via autre moyen » ; codes (TRANSFER, MOBILE_MONEY, CASH) traduits ; libellé libre tel quel. */
+const methodLabel = (m: string) => (m === "OTHER" || m === "Autre" ? t("rent.methodOther") : paymentMethodLabel(m));
 
 export default function LoyersPage() {
   // Session/rôle : dashboard/layout.tsx.

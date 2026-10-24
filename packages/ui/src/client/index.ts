@@ -30,6 +30,7 @@ export {
   timeAgo,
   intlLocale,
   priceUnitSuffix,
+  paymentMethodLabel,
 } from "./format";
 export {
   safeHref,

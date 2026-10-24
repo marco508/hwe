@@ -212,5 +212,9 @@
   "ui.photo.people/benefit-2": "Smiling man working on his laptop at home",
   "ui.photo.people/benefit-3": "Mother playing with her three children in a bright living room",
   "ui.searchCurrency": "Search for a currency…",
-  "ui.noCurrencyMatch": "No currency matches “{query}”"
+  "ui.noCurrencyMatch": "No currency matches “{query}”",
+  "ui.payMethod.TRANSFER": "Bank transfer",
+  "ui.payMethod.MOBILE_MONEY": "Mobile money",
+  "ui.payMethod.CASH": "Cash",
+  "ui.payMethod.OTHER": "Other"
 }

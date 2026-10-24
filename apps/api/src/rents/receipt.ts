@@ -32,6 +32,15 @@ export interface ReceiptData {
   lang?: Lang;
 }
 
+const PAYMENT_METHOD_CODES = new Set(["TRANSFER", "MOBILE_MONEY", "CASH", "OTHER"]);
+
+/** Moyen déclaré : code (TRANSFER…, OTHER) ou « Autre » historique traduits ; libellé libre du bailleur tel quel. */
+export function paymentMethodText(lang: Lang, method: string): string {
+  const m = method.trim();
+  if (m === "Autre") return t(lang, "pdf.method.OTHER");
+  return PAYMENT_METHOD_CODES.has(m) ? t(lang, `pdf.method.${m}`) : m;
+}
+
 export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
   const lang = pdfLang(data.lang ?? "fr");
   const L = (key: string, params?: Record<string, string | number>) => t(lang, `pdf.receipt.${key}`, params);
@@ -101,7 +110,7 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
     // Traçabilité du versement (pleine largeur, police normale)
     doc.x = x;
     doc.font(P.regular).fontSize(10).fillColor(gris);
-    if (data.method) P.text(L("method", { method: data.method === "OTHER" ? t(lang, "pdf.method.OTHER") : data.method }));
+    if (data.method) P.text(L("method", { method: paymentMethodText(lang, data.method) }));
     if (data.reference) P.text(L("reference", { reference: data.reference }));
     P.text(L("confirmed"));
     doc.moveDown(2);

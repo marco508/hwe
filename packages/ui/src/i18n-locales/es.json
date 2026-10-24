@@ -212,5 +212,9 @@
   "ui.photo.people/benefit-2": "Hombre sonriente trabajando con su portátil en casa",
   "ui.photo.people/benefit-3": "Madre jugando con sus tres hijos en un salón luminoso",
   "ui.searchCurrency": "Buscar una moneda…",
-  "ui.noCurrencyMatch": "Ninguna moneda coincide con «{query}»"
+  "ui.noCurrencyMatch": "Ninguna moneda coincide con «{query}»",
+  "ui.payMethod.TRANSFER": "Transferencia",
+  "ui.payMethod.MOBILE_MONEY": "Mobile money",
+  "ui.payMethod.CASH": "Efectivo",
+  "ui.payMethod.OTHER": "Otro"
 }

@@ -121,3 +121,16 @@ export function fmtBytes(bytes: number | null | undefined): string {
   if (bytes < 1024 * 1024) return tUi("ui.bytes.kb", { n: Math.round(bytes / 1024) });
   return tUi("ui.bytes.mb", { n: new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(bytes / (1024 * 1024)) });
 }
+
+const PAYMENT_METHOD_CODES = ["TRANSFER", "MOBILE_MONEY", "CASH", "OTHER"] as const;
+
+/**
+ * Moyen de paiement lisible : code (TRANSFER, MOBILE_MONEY, CASH, OTHER),
+ * « Autre » historique, ou libellé libre du propriétaire (« MTN MoMo ») tel quel.
+ */
+export function paymentMethodLabel(m: string | null | undefined): string {
+  if (!m) return "";
+  const v = m.trim();
+  if (v === "Autre") return tUi("ui.payMethod.OTHER");
+  return (PAYMENT_METHOD_CODES as readonly string[]).includes(v) ? tUi(`ui.payMethod.${v}`) : v;
+}

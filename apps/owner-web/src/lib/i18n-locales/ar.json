@@ -1599,5 +1599,9 @@
   "com.durationN.YEARS.two": "سنتان",
   "com.durationN.YEARS.few": "{count} سنوات",
   "com.durationN.YEARS.many": "{count} سنةً",
-  "com.durationN.YEARS.other": "{count} سنة"
+  "com.durationN.YEARS.other": "{count} سنة",
+  "ops.admin.role.OWNER": "مالك",
+  "ops.admin.role.TENANT": "مستأجر",
+  "ops.admin.role.ADMIN": "مسؤول",
+  "ops.admin.role.AGENT": "محترف"
 }

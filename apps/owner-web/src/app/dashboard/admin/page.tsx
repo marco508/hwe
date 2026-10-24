@@ -291,7 +291,7 @@ export default function AdminPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge tone={u.role === "ADMIN" ? "accent" : "neutral"}>{u.role}</Badge>
+                    <Badge tone={u.role === "ADMIN" ? "accent" : "neutral"} data-role={u.role}>{t(`ops.admin.role.${u.role}`)}</Badge>
                   </td>
                   <td className="px-4 py-3">
                     {u.emailVerifiedAt ? (
