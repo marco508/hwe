@@ -77,8 +77,8 @@ export default function ProPortfolioPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6" role="search">
         <div className="sm:col-span-2 lg:col-span-1 relative">
-          <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle" />
-          <Input aria-label={t("pro.biens.search")} placeholder={t("pro.biens.search")} value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" id="pf-search" />
+          <Icon name="search" size={16} className="absolute start-3 top-1/2 -translate-y-1/2 text-ink-subtle" />
+          <Input aria-label={t("pro.biens.search")} placeholder={t("pro.biens.search")} value={q} onChange={(e) => setQ(e.target.value)} className="ps-9" id="pf-search" />
         </div>
         {manager && (
           <Select aria-label={t("pro.biens.fAgent")} value={agent} onChange={(e) => setAgent(e.target.value)} id="pf-agent">
@@ -181,7 +181,7 @@ export default function ProPortfolioPage() {
                         <span className="truncate">{assigned ? t("pro.biens.assignedTo", { name: assigned }) : t("pro.dash.unassigned")}</span>
                       </div>
                       <Link href={`/dashboard/${p.id}`} className={`${LINK_SM} w-full`}>
-                        {t("pro.biens.manage")} <Icon name="arrowRight" size={14} />
+                        {t("pro.biens.manage")} <Icon name="arrowRight" size={14} className="rtl:rotate-180" />
                       </Link>
                     </div>
                   }

@@ -76,9 +76,9 @@ export default function HomePage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("market.searchPh")}
-                className="h-11 w-full pl-10 pr-3 rounded-lg glass-strong text-sm text-ink outline-none focus-visible:shadow-focus focus-visible:ring-2 focus-visible:ring-brand-400"
+                className="h-11 w-full ps-10 pe-3 rounded-lg glass-strong text-sm text-ink outline-none focus-visible:shadow-focus focus-visible:ring-2 focus-visible:ring-brand-400"
               />
-              <span aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted">
+              <span aria-hidden="true" className="absolute start-3 top-1/2 -translate-y-1/2 text-ink-muted">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.3-4.3" />

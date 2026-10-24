@@ -49,7 +49,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
 
   const segCls = (key: string) =>
     cn(
-      "relative flex flex-col items-start gap-0.5 px-5 py-2.5 sm:py-3 text-left transition-colors min-w-0 cursor-text",
+      "relative flex flex-col items-start gap-0.5 px-5 py-2.5 sm:py-3 text-start transition-colors min-w-0 cursor-text",
       "rounded-2xl sm:rounded-full hover:bg-cream-100/80 dark:hover:bg-white/5",
       "focus-within:bg-surface focus-within:shadow-card focus-within:ring-1 focus-within:ring-border",
       active === key && "bg-surface shadow-card ring-1 ring-border",
@@ -93,7 +93,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
           value={listing}
           onChange={(e) => setListing(e.target.value as SearchComposerListing)}
           onFocus={() => setActive("listing")}
-          className="w-full bg-transparent outline-none text-sm font-medium text-ink cursor-pointer pr-1"
+          className="w-full bg-transparent outline-none text-sm font-medium text-ink cursor-pointer pe-1"
         >
           <option value="ALL">{tUi("ui.allProperties")}</option>
           <option value="RENT">{tUi("ui.forRent")}</option>
@@ -146,7 +146,7 @@ export const SearchComposer: React.FC<SearchComposerProps> = ({
       <button
         type="submit"
         aria-label={tUi("ui.search")}
-        className="mt-1.5 sm:mt-1 sm:ml-2 sm:mb-1 inline-flex items-center justify-center gap-2 h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-brand-600 to-accent-500 text-white text-sm font-medium shadow-md hover:shadow-glow transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-500"
+        className="mt-1.5 sm:mt-1 sm:ms-2 sm:mb-1 inline-flex items-center justify-center gap-2 h-12 px-5 sm:px-6 rounded-full bg-gradient-to-r from-brand-600 to-accent-500 text-white text-sm font-medium shadow-md hover:shadow-glow transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-500"
       >
         <svg
           width="16"

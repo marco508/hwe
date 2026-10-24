@@ -5,7 +5,9 @@
  * et par l'espace locataire (lecture avant signature) : les deux parties
  * lisent donc exactement le même texte.
  *
- * Document juridique rédigé en français volontairement (non traduit).
+ * Textes : dictionnaires `lease-locales/<langue>.json` (fr = version qui fait
+ * foi ; une traduction affiche en tête la note « Traduction fournie à titre
+ * indicatif ; la version française fait foi. »).
  * - Les montants sont toujours formatés dans la devise du bail (`lease.currency`).
  * - Les références à la loi française (loi de 1989, ALUR, IRL) ne sont
  *   insérées que pour un bien situé en France ; ailleurs, renvoi générique
@@ -19,6 +21,13 @@
  */
 
 import type { LeaseContract, PropertyType } from "./index";
+import { intlLocaleOf, translate, type Dict, type Dicts, type Lang } from "./i18n";
+import { countryName } from "./geo";
+import fr from "./lease-locales/fr.json";
+import en from "./lease-locales/en.json";
+import es from "./lease-locales/es.json";
+import pt from "./lease-locales/pt.json";
+import ar from "./lease-locales/ar.json";
 
 export interface LeaseContractPropertyInput {
   addressLine?: string | null;
@@ -44,19 +53,14 @@ export interface LeaseContractInput {
   property?: LeaseContractPropertyInput | null;
   /** Bailleur ; à défaut, `lease.property.owner`. */
   owner?: LeaseContractPartyInput | null;
+  /** Langue du texte (fr par défaut : version qui fait foi). */
+  lang?: Lang;
 }
 
 const RULE = "═══════════════════════════════════════════════════════════════";
 const THIN = "─────────────────────────────────────────────────────";
 
-const PROPERTY_TYPE_FR: Record<string, string> = {
-  APARTMENT: "Appartement",
-  HOUSE: "Maison",
-  STUDIO: "Studio",
-  LAND: "Terrain",
-  COMMERCIAL: "Local commercial",
-  OTHER: "Autre",
-};
+const LEASE_DICTS: Dicts = { fr: fr as Dict, en: en as Dict, es: es as Dict, pt: pt as Dict, ar: ar as Dict };
 
 /** Devise effective d'un bail : celle du bail, sinon celle du bien, sinon EUR. */
 export function leaseCurrency(
@@ -68,27 +72,27 @@ export function leaseCurrency(
   return (fromLease || fromProperty || fallback || "EUR").toUpperCase();
 }
 
-function money(n: number | null | undefined, currency: string): string {
+function money(n: number | null | undefined, currency: string, locale: string): string {
   const v = typeof n === "number" && Number.isFinite(n) ? n : 0;
   try {
-    return new Intl.NumberFormat("fr-FR", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(v);
   } catch {
-    return `${new Intl.NumberFormat("fr-FR").format(v)} ${currency}`;
+    return `${new Intl.NumberFormat(locale).format(v)} ${currency}`;
   }
 }
 
 // Dates de bail = dates civiles : on formate en UTC pour éviter le décalage
 // d'un jour selon le fuseau du lecteur.
-function day(iso: string | null | undefined): string {
+function day(iso: string | null | undefined, locale: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("fr-FR", {
+  return d.toLocaleDateString(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -96,28 +100,17 @@ function day(iso: string | null | undefined): string {
   });
 }
 
-function dateTime(iso: string | null | undefined): string {
+function dateTime(iso: string | null | undefined, locale: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleString("fr-FR", {
+  return d.toLocaleString(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
-}
-
-function countryName(code: string | null | undefined): string {
-  if (!code) return "";
-  const upper = code.trim().toUpperCase();
-  if (!/^[A-Z]{2}$/.test(upper)) return code;
-  try {
-    return new Intl.DisplayNames(["fr"], { type: "region" }).of(upper) ?? upper;
-  } catch {
-    return upper;
-  }
 }
 
 function fullName(p: LeaseContractPartyInput | null | undefined, fallback: string): string {
@@ -133,32 +126,6 @@ function section(title: string, body: string): string {
   return `${RULE}\n${title}\n${RULE}\n\n${body.trim()}\n`;
 }
 
-/** Mentions du mandataire (bien géré par une agence) et de l'auteur du bail. */
-function mandataryLines(lease: LeaseContract): (string | null)[] {
-  const m = lease.managedBy;
-  const out: (string | null)[] = [];
-  if (m) {
-    const details = [
-      m.registrationNumber ? `carte / immatriculation ${m.registrationNumber}` : null,
-      m.email || null,
-      m.phone || null,
-    ].filter(Boolean);
-    out.push(
-      "",
-      "MANDATAIRE",
-      `Bien géré par ${m.name}, mandataire${details.length ? ` (${details.join(", ")})` : ""}${
-        m.mandateReference ? ` — mandat ${m.mandateReference}` : ""
-      }`,
-    );
-  }
-  const p = lease.preparedBy;
-  if (p) {
-    const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim();
-    if (name) out.push(`Bail préparé par ${name}${p.agencyName ? ` (${p.agencyName})` : ""}`);
-  }
-  return out;
-}
-
 /** Nombre de jours entre deux dates (au moins 0). */
 function daysBetween(a: string, b: string): number {
   const ms = new Date(b).getTime() - new Date(a).getTime();
@@ -167,6 +134,13 @@ function daysBetween(a: string, b: string): number {
 
 export function generateLeaseContract(input: LeaseContractInput): string {
   const { lease } = input;
+  const lang: Lang = input.lang ?? "fr";
+  const L = (key: string, params?: Record<string, string | number | null | undefined>) =>
+    translate(LEASE_DICTS, lang, key, params);
+  const loc = intlLocaleOf(lang);
+  const M = (n: number | null | undefined, cur: string) => money(n, cur, loc);
+  const D = (iso: string | null | undefined) => day(iso, loc);
+
   const property: LeaseContractPropertyInput = input.property ?? lease.property ?? {};
   const owner: LeaseContractPartyInput | null =
     input.owner ?? (lease.property?.owner as LeaseContractPartyInput | undefined) ?? null;
@@ -175,45 +149,70 @@ export function generateLeaseContract(input: LeaseContractInput): string {
   const isFrance = (property.country ?? "").trim().toUpperCase() === "FR";
   const shortStay = Boolean(lease.shortStay);
 
-  const ownerName = fullName(owner, "Le propriétaire");
+  const ownerName = fullName(owner, L("owner.default"));
   const tenantName = fullName(
     { firstName: lease.tenantFirstName, lastName: lease.tenantLastName },
-    "Le locataire",
+    L("tenant.default"),
   );
   const address = [
     property.addressLine,
     [property.postalCode, property.city].filter(Boolean).join(" "),
-    countryName(property.country),
+    property.country ? countryName(property.country, lang) : "",
   ]
     .filter((x) => x && String(x).trim())
     .join(", ");
   const nature = property.propertyType
-    ? PROPERTY_TYPE_FR[String(property.propertyType)] ?? String(property.propertyType)
+    ? (() => {
+        const k = `type.${String(property.propertyType)}`;
+        const v = L(k);
+        return v === k ? String(property.propertyType) : v;
+      })()
     : null;
-  const furnishedTxt = lease.furnished ? "meublé" : "non meublé";
+  const furnishedTxt = lease.furnished ? L("furnished.yes") : L("furnished.no");
+
+  /** Mentions du mandataire (bien géré par une agence) et de l'auteur du bail. */
+  const mandataryLines = (): (string | null)[] => {
+    const m = lease.managedBy;
+    const out: (string | null)[] = [];
+    if (m) {
+      const details = [
+        m.registrationNumber ? L("mandatary.registration", { number: m.registrationNumber }) : null,
+        m.email || null,
+        m.phone || null,
+      ].filter(Boolean);
+      out.push(
+        "",
+        L("mandatary.title"),
+        L("mandatary.managedBy", {
+          name: m.name,
+          details: details.length ? ` (${details.join(", ")})` : "",
+          mandate: m.mandateReference ? L("mandatary.mandate", { reference: m.mandateReference }) : "",
+        }),
+      );
+    }
+    const p = lease.preparedBy;
+    if (p) {
+      const name = `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim();
+      if (name) out.push(L("mandatary.preparedBy", { name, agency: p.agencyName ? ` (${p.agencyName})` : "" }));
+    }
+    return out;
+  };
 
   const out: string[] = [];
 
+  // ── Note de traduction ──
+  if (lang !== "fr") out.push(L("note.translation"));
+
   // ── En-tête ──
   if (shortStay) {
-    out.push(
-      lines(
-        "CONTRAT DE LOCATION — SÉJOUR DE COURTE DURÉE",
-        `Logement ${furnishedTxt}`,
-        "",
-        "Location consentie pour un séjour temporaire, qui ne constitue pas la",
-        "résidence principale du locataire.",
-      ),
-    );
+    out.push(lines(L("short.title"), L("short.housing", { furnished: furnishedTxt }), "", L("short.intro")));
   } else {
     out.push(
       lines(
-        "CONTRAT DE BAIL D'HABITATION",
-        lease.furnished ? "MEUBLÉ" : "NON MEUBLÉ",
+        L("long.title"),
+        lease.furnished ? L("furnished.upper.yes") : L("furnished.upper.no"),
         "",
-        isFrance
-          ? "Établi conformément à la loi n° 89-462 du 6 juillet 1989 modifiée\net à la loi n° 2014-366 du 24 mars 2014 (loi ALUR)."
-          : "Établi conformément à la législation applicable dans le pays\nde situation du bien loué.",
+        isFrance ? L("long.lawFr") : L("long.lawOther"),
       ),
     );
   }
@@ -221,24 +220,24 @@ export function generateLeaseContract(input: LeaseContractInput): string {
   // ── Article 1 : parties ──
   out.push(
     section(
-      "ARTICLE 1 — LES PARTIES",
+      L("art1.title"),
       lines(
-        "BAILLEUR (Propriétaire)",
-        `Nom : ${ownerName}`,
-        owner?.email ? `E-mail : ${owner.email}` : null,
-        owner?.phone ? `Téléphone : ${owner.phone}` : null,
-        ...mandataryLines(lease),
+        L("art1.landlord"),
+        L("field.name", { value: ownerName }),
+        owner?.email ? L("field.email", { value: owner.email }) : null,
+        owner?.phone ? L("field.phone", { value: owner.phone }) : null,
+        ...mandataryLines(),
         "",
-        "PRENEUR (Locataire)",
-        `Nom : ${tenantName}`,
-        lease.tenantEmail ? `E-mail : ${lease.tenantEmail}` : null,
-        lease.tenantPhone ? `Téléphone : ${lease.tenantPhone}` : null,
-        lease.tenantAddress ? `Adresse actuelle : ${lease.tenantAddress}` : null,
+        L("art1.tenant"),
+        L("field.name", { value: tenantName }),
+        lease.tenantEmail ? L("field.email", { value: lease.tenantEmail }) : null,
+        lease.tenantPhone ? L("field.phone", { value: lease.tenantPhone }) : null,
+        lease.tenantAddress ? L("field.address", { value: lease.tenantAddress }) : null,
         ...(lease.coTenants ?? []).flatMap((c) => [
           "",
-          "COLOCATAIRE",
-          `Nom : ${fullName(c, "—")}`,
-          c.email ? `E-mail : ${c.email}` : null,
+          L("art1.coTenant"),
+          L("field.name", { value: fullName(c, "—") }),
+          c.email ? L("field.email", { value: c.email }) : null,
         ]),
       ),
     ),
@@ -247,15 +246,15 @@ export function generateLeaseContract(input: LeaseContractInput): string {
   // ── Article 2 : bien ──
   out.push(
     section(
-      "ARTICLE 2 — DÉSIGNATION DU BIEN",
+      L("art2.title"),
       lines(
-        "Le présent contrat porte sur le logement situé à l'adresse suivante :",
+        L("art2.intro"),
         address || "—",
         "",
-        nature ? `Nature : ${nature}` : null,
-        `Surface habitable : ${property.surface ?? "—"} m²`,
-        `Nombre de pièces principales : ${property.rooms ?? "—"}`,
-        `Logement ${furnishedTxt}`,
+        nature ? L("art2.nature", { value: nature }) : null,
+        L("art2.surface", { value: property.surface ?? "—" }),
+        L("art2.rooms", { value: property.rooms ?? "—" }),
+        L("short.housing", { furnished: furnishedTxt }),
       ),
     ),
   );
@@ -266,27 +265,25 @@ export function generateLeaseContract(input: LeaseContractInput): string {
     const nights = lease.endDate ? daysBetween(lease.startDate, lease.endDate) + 1 : null;
     out.push(
       section(
-        "ARTICLE 3 — DURÉE DU SÉJOUR",
+        L("art3.shortTitle"),
         lines(
-          `Séjour du ${day(lease.startDate)} au ${day(lease.endDate)}` +
-            (nights ? ` (${nights} jour${nights > 1 ? "s" : ""}).` : "."),
+          L("art3.stay", { start: D(lease.startDate), end: D(lease.endDate) }) +
+            (nights ? L(nights > 1 ? "art3.nightsN" : "art3.nights1", { n: nights }) : "."),
           "",
-          "Le séjour prend fin de plein droit à la date indiquée, sans qu'il soit",
-          "nécessaire de délivrer un congé. Toute prolongation fait l'objet d'un",
-          "nouvel accord écrit entre les parties.",
+          L("art3.shortEnd"),
         ),
       ),
     );
   } else {
     out.push(
       section(
-        "ARTICLE 3 — DURÉE DU BAIL",
+        L("art3.title"),
         lines(
-          `Le présent bail est conclu pour une ${lease.endDate ? "durée déterminée" : "durée indéterminée"}.`,
-          `Date de prise d'effet : ${day(lease.startDate)}`,
-          lease.endDate ? `Date de fin : ${day(lease.endDate)}` : null,
+          lease.endDate ? L("art3.fixed") : L("art3.open"),
+          L("art3.start", { date: D(lease.startDate) }),
+          lease.endDate ? L("art3.end", { date: D(lease.endDate) }) : null,
           "",
-          `Préavis : ${lease.noticePeriod} mois.`,
+          L("art3.notice", { n: lease.noticePeriod }),
         ),
       ),
     );
@@ -300,42 +297,38 @@ export function generateLeaseContract(input: LeaseContractInput): string {
         : lease.monthlyRent + (lease.charges ?? 0);
     out.push(
       section(
-        "ARTICLE 4 — CONDITIONS FINANCIÈRES",
+        L("art4.title"),
         lines(
-          `Montant total du séjour : ${money(total, currency)}`,
-          "Payable en une seule échéance, au plus tard à la date d'arrivée.",
+          L("art4.stayTotal", { amount: M(total, currency) }),
+          L("art4.stayPay"),
           "",
-          lease.deposit > 0
-            ? `Caution : ${money(lease.deposit, currency)}, restituée à la fin du séjour,\ndéduction faite des éventuelles retenues justifiées.`
-            : "Aucune caution n'est demandée.",
+          lease.deposit > 0 ? L("art4.stayDeposit", { amount: M(lease.deposit, currency) }) : L("art4.noDeposit"),
         ),
       ),
     );
   } else {
     const rentTotal = lease.monthlyRent + (lease.charges ?? 0);
-    const payDay = lease.rentPaymentDay === 1 ? "1er" : String(lease.rentPaymentDay);
+    const payDay = lease.rentPaymentDay === 1 ? L("art4.firstDay") : String(lease.rentPaymentDay);
     const depositMonths =
       lease.monthlyRent > 0 && lease.deposit > 0
         ? Math.round((lease.deposit / lease.monthlyRent) * 10) / 10
         : null;
     out.push(
       section(
-        "ARTICLE 4 — CONDITIONS FINANCIÈRES",
+        L("art4.title"),
         lines(
-          `Loyer mensuel hors charges : ${money(lease.monthlyRent, currency)}`,
-          `Charges mensuelles : ${money(lease.charges, currency)}`,
+          L("art4.rent", { amount: M(lease.monthlyRent, currency) }),
+          L("art4.charges", { amount: M(lease.charges, currency) }),
           THIN,
-          `Total mensuel : ${money(rentTotal, currency)}`,
+          L("art4.total", { amount: M(rentTotal, currency) }),
           "",
-          `Le loyer est payable le ${payDay} de chaque mois.`,
+          L("art4.payDay", { day: payDay }),
           "",
-          `Dépôt de garantie : ${money(lease.deposit, currency)}`,
+          L("art4.deposit", { amount: M(lease.deposit, currency) }),
           depositMonths !== null
-            ? `(soit ${String(depositMonths).replace(".", ",")} mois de loyer hors charges)`
+            ? L("art4.depositMonths", { months: new Intl.NumberFormat(loc, { maximumFractionDigits: 1 }).format(depositMonths) })
             : null,
-          isFrance
-            ? "Le dépôt de garantie sera restitué dans un délai maximal de 2 mois suivant\nla remise des clés, déduction faite des éventuelles retenues justifiées."
-            : "Le dépôt de garantie sera restitué après la remise des clés, déduction\nfaite des éventuelles retenues justifiées, dans les délais prévus par la loi.",
+          isFrance ? L("art4.depositFr") : L("art4.depositOther"),
         ),
       ),
     );
@@ -344,31 +337,27 @@ export function generateLeaseContract(input: LeaseContractInput): string {
   // ── Articles 5 et 6 : obligations ──
   out.push(
     section(
-      "ARTICLE 5 — OBLIGATIONS DU BAILLEUR",
+      L("art5.title"),
       lines(
-        "Le bailleur s'engage à :",
-        "• Délivrer un logement décent et en bon état d'usage et de réparation.",
-        "• Assurer au preneur la jouissance paisible du logement.",
-        shortStay ? null : "• Entretenir les locaux en état de servir à l'usage prévu.",
-        shortStay ? null : "• Effectuer toutes les réparations autres que locatives.",
+        L("art5.intro"),
+        L("art5.decent"),
+        L("art5.peace"),
+        shortStay ? null : L("art5.maintain"),
+        shortStay ? null : L("art5.repairs"),
       ),
     ),
   );
   out.push(
     section(
-      "ARTICLE 6 — OBLIGATIONS DU LOCATAIRE",
+      L("art6.title"),
       lines(
-        "Le locataire s'engage à :",
-        shortStay
-          ? "• Régler le montant du séjour aux conditions convenues."
-          : "• Payer le loyer et les charges aux termes convenus.",
-        "• Utiliser paisiblement les locaux loués suivant la destination prévue.",
-        "• Répondre des dégradations et pertes survenues pendant la durée du contrat.",
-        shortStay
-          ? "• Restituer le logement à la date de fin du séjour."
-          : "• Prendre à sa charge l'entretien courant du logement et les réparations locatives.",
-        shortStay ? null : "• Souscrire une assurance contre les risques locatifs.",
-        "• Ne pas transformer les locaux et équipements sans accord écrit du bailleur.",
+        L("art6.intro"),
+        shortStay ? L("art6.payStay") : L("art6.payRent"),
+        L("art6.use"),
+        L("art6.damage"),
+        shortStay ? L("art6.returnStay") : L("art6.upkeep"),
+        shortStay ? null : L("art6.insurance"),
+        L("art6.noChange"),
       ),
     ),
   );
@@ -377,51 +366,41 @@ export function generateLeaseContract(input: LeaseContractInput): string {
   if (!shortStay) {
     // ── Révision ──
     out.push(
-      section(
-        `ARTICLE ${n++} — RÉVISION DU LOYER`,
-        isFrance
-          ? "Le loyer est révisable annuellement à la date anniversaire du bail,\nselon la variation de l'Indice de Référence des Loyers (IRL) publié\npar l'INSEE, conformément à l'article 17-1 de la loi du 6 juillet 1989."
-          : "Le loyer peut être révisé à la date anniversaire du bail, dans les\nlimites prévues par la législation applicable. Toute révision fait\nl'objet d'un avenant signé par les parties.",
-      ),
+      section(L("article.n", { n: n++, title: L("revision.title") }), isFrance ? L("revision.fr") : L("revision.other")),
     );
     // ── Résiliation ──
     out.push(
       section(
-        `ARTICLE ${n++} — RÉSILIATION`,
+        L("article.n", { n: n++, title: L("termination.title") }),
         lines(
-          "Le preneur peut résilier le bail à tout moment, sous réserve de respecter",
-          `un préavis de ${lease.noticePeriod} mois notifié par écrit au bailleur.`,
+          L("termination.tenant", { n: lease.noticePeriod }),
           "",
-          isFrance
-            ? `Le bailleur peut donner congé pour l'échéance du bail en respectant un\npréavis de ${lease.furnished ? "3 mois" : "6 mois"} et pour l'un des motifs prévus par la loi.`
-            : "Le bailleur peut donner congé dans les conditions et délais prévus par\nla législation applicable.",
+          isFrance ? L("termination.ownerFr", { months: lease.furnished ? 3 : 6 }) : L("termination.ownerOther"),
         ),
       ),
     );
   }
 
   if (lease.specialClauses && lease.specialClauses.trim()) {
-    out.push(section(`ARTICLE ${n++} — CLAUSES PARTICULIÈRES`, lease.specialClauses));
+    out.push(section(L("article.n", { n: n++, title: L("clauses.title") }), lease.specialClauses));
   }
 
   // ── Signatures ──
   const sig = (label: string, name: string, at: string | null | undefined) =>
     at
-      ? `${label} — ${name}\n  ✔ Signé électroniquement le ${dateTime(at)}`
-      : `${label} — ${name}\n  En attente de signature électronique`;
+      ? `${label} — ${name}\n  ${L("sign.signed", { date: dateTime(at, loc) })}`
+      : `${label} — ${name}\n  ${L("sign.pending")}`;
   out.push(
     section(
-      "SIGNATURES",
+      L("sign.title"),
       lines(
-        "Les parties signent le présent contrat par voie électronique depuis",
-        "leur espace hwe ; la date et l'heure de chaque signature sont",
-        "enregistrées ci-dessous.",
+        L("sign.intro"),
         "",
-        sig("Le Bailleur", ownerName, lease.ownerSignedAt) +
+        sig(L("sign.landlord"), ownerName, lease.ownerSignedAt) +
           (lease.ownerSignedAt && lease.ownerSignatureMention ? `\n  ${lease.ownerSignatureMention}` : ""),
         "",
-        sig("Le Locataire", tenantName, lease.tenantSignedAt),
-        ...(lease.coTenants ?? []).flatMap((c) => ["", sig("Colocataire", fullName(c, "—"), c.signedAt)]),
+        sig(L("sign.tenant"), tenantName, lease.tenantSignedAt),
+        ...(lease.coTenants ?? []).flatMap((c) => ["", sig(L("sign.coTenant"), fullName(c, "—"), c.signedAt)]),
       ),
     ),
   );
@@ -429,9 +408,7 @@ export function generateLeaseContract(input: LeaseContractInput): string {
   out.push(
     lines(
       "─────────────────────────────────────────────────────────────────",
-      "Document généré par hwe — plateforme de mise en relation immobilière.",
-      "Modèle fourni à titre indicatif : il est recommandé de le faire valider",
-      "par un professionnel du droit avant signature.",
+      L("footer"),
       "─────────────────────────────────────────────────────────────────",
     ),
   );

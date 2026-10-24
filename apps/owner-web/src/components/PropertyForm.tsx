@@ -1201,7 +1201,7 @@ export function PropertyForm({
                   type="button"
                   onClick={() => set("status", opt.val as PropertyStatus)}
                   aria-pressed={active}
-                  className={`text-left rounded-xl border px-4 py-3 transition-all ${
+                  className={`text-start rounded-xl border px-4 py-3 transition-all ${
                     active
                       ? "border-brand-500 bg-brand-50/50 dark:bg-brand-900/20 ring-2 ring-brand-500/30"
                       : "border-border bg-surface hover:border-ink/30"
@@ -1268,7 +1268,7 @@ function ListingTypeChoice({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`relative text-left rounded-xl border p-4 transition-all ${
+      className={`relative text-start rounded-xl border p-4 transition-all ${
         active
           ? tone === "accent"
             ? "border-accent-500 bg-accent-50/40 dark:bg-accent-700/15 ring-2 ring-accent-500/30"
@@ -1284,7 +1284,7 @@ function ListingTypeChoice({
         </div>
         {active && (
           <span
-            className={`absolute top-3 right-3 h-6 w-6 rounded-full flex items-center justify-center text-white text-xs ${
+            className={`absolute top-3 end-3 h-6 w-6 rounded-full flex items-center justify-center text-white text-xs ${
               tone === "accent" ? "bg-accent-500" : "bg-brand-500"
             }`}
             aria-hidden="true"

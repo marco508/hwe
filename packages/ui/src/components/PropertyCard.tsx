@@ -98,7 +98,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         />
 
         {/* Top-left badges */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+        <div className="absolute top-3 start-3 flex flex-wrap gap-1.5 z-10">
           <span
             className={cn(
               "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium backdrop-blur-md",
@@ -133,7 +133,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               e.stopPropagation();
               onToggleFavorite?.();
             }}
-            className="absolute top-3 right-3 z-20 h-9 w-9 rounded-full bg-white/80 hover:bg-white backdrop-blur-md flex items-center justify-center text-ink dark:bg-black/50 dark:hover:bg-black/70 dark:text-white transition-colors"
+            className="absolute top-3 end-3 z-20 h-9 w-9 rounded-full bg-white/80 hover:bg-white backdrop-blur-md flex items-center justify-center text-ink dark:bg-black/50 dark:hover:bg-black/70 dark:text-white transition-colors"
           >
             <svg
               width="18"
@@ -156,7 +156,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
         {/* Bottom-right rating */}
         {typeof rating === "number" && (
-          <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-white/95 dark:bg-black/65 backdrop-blur-md text-[11px] font-medium text-ink dark:text-white">
+          <div className="absolute bottom-3 end-3 z-10 flex items-center gap-1 px-2 py-1 rounded-full bg-white/95 dark:bg-black/65 backdrop-blur-md text-[11px] font-medium text-ink dark:text-white">
             <svg
               width="11"
               height="11"

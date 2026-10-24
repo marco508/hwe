@@ -209,7 +209,7 @@ export function MessagesView({
             <p className="text-sm text-ink-muted mt-1">
               {subtitle}
               {totalUnread > 0 && (
-                <strong className="ml-1 text-ink">
+                <strong className="ms-1 text-ink">
                   {tUi(totalUnread > 1 ? "ui.msg.unreadN" : "ui.msg.unread1", { n: totalUnread })}
                 </strong>
               )}
@@ -364,7 +364,7 @@ function ActiveConversation({
         <div className="flex-1 min-w-0">
           <div className="font-medium text-ink truncate">
             {partnerName(partner, tUi("ui.msg.anonymous"))}
-            <span className="text-xs font-normal text-ink-muted ml-2">
+            <span className="text-xs font-normal text-ink-muted ms-2">
               · {role === "owner" ? tUi("ui.msg.roleOwner") : tUi("ui.msg.roleContact")}
             </span>
           </div>

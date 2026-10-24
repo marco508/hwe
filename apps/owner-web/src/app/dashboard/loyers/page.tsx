@@ -166,7 +166,7 @@ function PeriodCard({
             <p className="font-medium text-ink [overflow-wrap:anywhere]">{period.lease.tenantName}</p>
             <p className="[overflow-wrap:anywhere]">{period.lease.tenantEmail}</p>
           </div>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ms-auto flex items-center gap-3">
             <p className="text-xs text-ink-muted hidden sm:block">{t("rent.dueOn", { date: fmtDate(period.dueDate) })}</p>
             <Badge tone={STATUS_TONE[period.status]}>{t("rent.status." + period.status)}</Badge>
           </div>
@@ -189,7 +189,7 @@ function PeriodCard({
                 </p>
               )}
               {period.tenantNote && (
-                <p className="text-ink-muted italic [overflow-wrap:anywhere]">« {period.tenantNote} »</p>
+                <p className="text-ink-muted italic [overflow-wrap:anywhere]">{t("common.quote", { text: period.tenantNote })}</p>
               )}
             </div>
 
@@ -379,7 +379,7 @@ export default function LoyersPage() {
               {n > 0 && (
                 <span
                   className={
-                    "ml-1.5 inline-flex items-center justify-center rounded-full px-1.5 text-[11px] font-semibold " +
+                    "ms-1.5 inline-flex items-center justify-center rounded-full px-1.5 text-[11px] font-semibold " +
                     (filter === f.value ? "bg-white/25" : "bg-cream-200 dark:bg-white/10 text-ink-muted")
                   }
                 >

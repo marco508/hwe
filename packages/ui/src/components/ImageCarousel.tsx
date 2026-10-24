@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
-import { tUi } from "./I18nKit";
+import { tUi, uiDir } from "./I18nKit";
 
 export interface ImageCarouselProps {
   images: { url: string; alt?: string | null }[];
@@ -78,7 +78,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
     if (startX.current == null) return;
     const delta = (e.changedTouches[0]?.clientX ?? 0) - startX.current;
     if (Math.abs(delta) > 40) {
-      delta < 0 ? next() : prev();
+      (delta < 0) !== (uiDir() === "rtl") ? next() : prev();
     }
     startX.current = null;
   };
@@ -115,8 +115,10 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onKeyDown={(e) => {
-        if (e.key === "ArrowRight") next();
-        if (e.key === "ArrowLeft") prev();
+        // De droite à gauche (arabe) : la flèche gauche avance.
+        const rtl = uiDir() === "rtl";
+        if (e.key === "ArrowRight") (rtl ? prev : next)();
+        if (e.key === "ArrowLeft") (rtl ? next : prev)();
       }}
       tabIndex={0}
       role="region"
@@ -126,7 +128,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
       {/* Slides track */}
       <div
         className="absolute inset-0 flex transition-transform duration-700 ease-out"
-        style={{ transform: `translateX(-${index * 100}%)` }}
+        style={{ transform: `translateX(${uiDir() === "rtl" ? "" : "-"}${index * 100}%)` }}
       >
         {images.map((img, i) =>
           (broken[img.url] || !img.url) && placeholder ? (
@@ -164,7 +166,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
       {/* Counter */}
       {showCounter && total > 1 && (
-        <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[11px] font-medium text-white/95 bg-black/40 backdrop-blur-md">
+        <div className="absolute top-3 end-3 px-2 py-0.5 rounded-full text-[11px] font-medium text-white/95 bg-black/40 backdrop-blur-md">
           {index + 1} / {total}
         </div>
       )}
@@ -180,9 +182,9 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               e.stopPropagation();
               prev();
             }}
-            className="absolute z-20 left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
+            className="absolute z-20 start-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="rtl:-scale-x-100">
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
@@ -194,9 +196,9 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
               e.stopPropagation();
               next();
             }}
-            className="absolute z-20 right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
+            className="absolute z-20 end-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/85 dark:bg-black/55 backdrop-blur shadow-md text-ink dark:text-white opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity flex items-center justify-center hover:scale-105 active:scale-95"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="rtl:-scale-x-100">
               <polyline points="9 18 15 12 9 6" />
             </svg>
           </button>

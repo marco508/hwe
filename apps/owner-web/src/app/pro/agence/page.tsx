@@ -154,7 +154,7 @@ function ProfileSection({ mine, canManage, onSaved }: { mine: AgencyMine; canMan
             />
             <div className="flex flex-wrap gap-2">
               <Button type="button" size="sm" variant="secondary" onClick={() => fileRef.current?.click()}>
-                <Icon name="image" size={14} className="mr-1.5" /> {logo ? t("pro.agency.logoChange") : t("pro.agency.logoAdd")}
+                <Icon name="image" size={14} className="me-1.5" /> {logo ? t("pro.agency.logoChange") : t("pro.agency.logoAdd")}
               </Button>
               {logo && (
                 <Button type="button" size="sm" variant="ghost" onClick={() => setLogo(null)}>
@@ -283,7 +283,7 @@ function TeamSection({ mine, canManage, onChanged }: { mine: AgencyMine; canMana
             <div className="min-w-0">
               <p className="font-medium [overflow-wrap:anywhere]">
                 {m.user.firstName} {m.user.lastName}
-                {m.userId === mine.me.userId && <span className="ml-2 text-xs text-ink-muted">({t("pro.you")})</span>}
+                {m.userId === mine.me.userId && <span className="ms-2 text-xs text-ink-muted">({t("pro.you")})</span>}
               </p>
               <p className="text-xs text-ink-muted [overflow-wrap:anywhere]">
                 {m.user.email} · {t("pro.team.mandates", { n: m.assignedMandates })}
@@ -332,7 +332,7 @@ function TeamSection({ mine, canManage, onChanged }: { mine: AgencyMine; canMana
               </div>
             </div>
             <Button type="submit" variant="gradient" disabled={busy || !email.trim()}>
-              <Icon name="send" size={15} className="mr-1.5" /> {busy ? t("pro.processing") : t("pro.team.inviteBtn")}
+              <Icon name="send" size={15} className="me-1.5" /> {busy ? t("pro.processing") : t("pro.team.inviteBtn")}
             </Button>
           </form>
           <div className="space-y-3 min-w-0">

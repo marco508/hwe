@@ -64,7 +64,7 @@ function LoginInner() {
       className="py-4 sm:py-8"
     >
       <div className="w-full">
-        <div className="mb-6 text-center lg:text-left">
+        <div className="mb-6 text-center lg:text-start">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-glow" />
             {t("login.badge")}

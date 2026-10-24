@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
-import { tUi } from "./I18nKit";
+import { tUi, uiDir } from "./I18nKit";
 
 export interface CategoryRailItem {
   id: string;
@@ -34,8 +34,10 @@ export const CategoryRail: React.FC<CategoryRailProps> = ({
   const updateArrows = React.useCallback(() => {
     const el = scrollerRef.current;
     if (!el) return;
-    setCanLeft(el.scrollLeft > 5);
-    setCanRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 5);
+    // En RTL, scrollLeft vaut 0 au début puis devient négatif.
+    const pos = Math.abs(el.scrollLeft);
+    setCanLeft(pos > 5);
+    setCanRight(pos + el.clientWidth < el.scrollWidth - 5);
   }, []);
 
   React.useEffect(() => {
@@ -52,7 +54,7 @@ export const CategoryRail: React.FC<CategoryRailProps> = ({
 
   const scrollBy = (dir: 1 | -1) => {
     scrollerRef.current?.scrollBy({
-      left: dir * 320,
+      left: dir * 320 * (uiDir() === "rtl" ? -1 : 1),
       behavior: "smooth",
     });
   };
@@ -65,11 +67,11 @@ export const CategoryRail: React.FC<CategoryRailProps> = ({
         aria-label={tUi("ui.scrollLeft")}
         onClick={() => scrollBy(-1)}
         className={cn(
-          "absolute left-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center h-9 w-9 rounded-full bg-surface border border-border shadow-card transition-opacity",
+          "absolute start-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center h-9 w-9 rounded-full bg-surface border border-border shadow-card transition-opacity",
           canLeft ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="rtl:-scale-x-100">
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
@@ -80,11 +82,11 @@ export const CategoryRail: React.FC<CategoryRailProps> = ({
         aria-label={tUi("ui.scrollRight")}
         onClick={() => scrollBy(1)}
         className={cn(
-          "absolute right-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center h-9 w-9 rounded-full bg-surface border border-border shadow-card transition-opacity",
+          "absolute end-0 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center h-9 w-9 rounded-full bg-surface border border-border shadow-card transition-opacity",
           canRight ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="rtl:-scale-x-100">
           <polyline points="9 18 15 12 9 6" />
         </svg>
       </button>

@@ -66,8 +66,8 @@ export default function ProOwnersPage() {
         }
       />
       <div className="relative max-w-md mb-6">
-        <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle" />
-        <Input aria-label={t("pro.owners.search")} placeholder={t("pro.owners.search")} value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+        <Icon name="search" size={16} className="absolute start-3 top-1/2 -translate-y-1/2 text-ink-subtle" />
+        <Input aria-label={t("pro.owners.search")} placeholder={t("pro.owners.search")} value={q} onChange={(e) => setQ(e.target.value)} className="ps-9" />
       </div>
 
       {loading && !data ? (
@@ -122,7 +122,7 @@ export default function ProOwnersPage() {
                       <InviteLinkBox url={links[g.id]!} title={t("pro.owner.activationLink")} message={t("pro.owner.waMessage", { agency: user?.agency?.name ?? "" })} />
                     ) : (
                       <Button size="sm" variant="secondary" onClick={() => resend(g)}>
-                        <Icon name="send" size={14} className="mr-1.5" /> {t("pro.owner.resend")}
+                        <Icon name="send" size={14} className="me-1.5" /> {t("pro.owner.resend")}
                       </Button>
                     )}
                   </div>

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../utils";
-import { tUi } from "./I18nKit";
+import { tUi, uiDir } from "./I18nKit";
 import { Icon } from "./Icon";
 import { PropertyPlaceholder } from "./Photos";
 
@@ -31,7 +31,8 @@ function useSwipe(onPrev: () => void, onNext: () => void) {
       if (!s || !t) return;
       const dx = t.clientX - s.x;
       const dy = t.clientY - s.y;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) (dx < 0 ? onNext : onPrev)();
+      // De droite à gauche (arabe) : balayer vers la droite avance.
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) ((dx < 0) !== (uiDir() === "rtl") ? onNext : onPrev)();
     },
   };
 }
@@ -116,13 +117,13 @@ export function PropertyGallery({
             <GalleryArrow side="right" onClick={next} />
           </>
         )}
-        <div className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
+        <div className="pointer-events-none absolute bottom-3 start-3 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
           {index + 1} / {total}
         </div>
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-black/60 px-3 py-1.5 text-xs font-medium text-ink dark:text-white backdrop-blur-sm hover:bg-white dark:hover:bg-black/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="absolute bottom-3 end-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-black/60 px-3 py-1.5 text-xs font-medium text-ink dark:text-white backdrop-blur-sm hover:bg-white dark:hover:bg-black/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Icon name="maximize" size={14} />
           <span className="hidden min-[400px]:inline">{total > 1 ? tUi("ui.gallery.all", { n: total }) : tUi("ui.gallery.openFull")}</span>
@@ -189,7 +190,7 @@ function GalleryArrow({ side, onClick, dark }: { side: "left" | "right"; onClick
       }}
       className={cn(
         "absolute top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full shadow-md transition hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400",
-        side === "left" ? "left-3" : "right-3",
+        side === "left" ? "start-3" : "end-3",
         dark
           ? "bg-white/15 text-white hover:bg-white/25 ring-1 ring-white/20"
           : "bg-white/90 text-ink dark:bg-black/60 dark:text-white backdrop-blur",
@@ -226,8 +227,8 @@ function Lightbox({
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      else if (e.key === "ArrowLeft") prev();
-      else if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft") (uiDir() === "rtl" ? next : prev)();
+      else if (e.key === "ArrowRight") (uiDir() === "rtl" ? prev : next)();
     };
     window.addEventListener("keydown", onKey);
     return () => {

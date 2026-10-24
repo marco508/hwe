@@ -76,6 +76,13 @@ export {
   INDICATIVE_RATES,
   RATES_DATE,
   convertAmount,
+  CurrencyPicker,
+  Approx,
+  useRatesNote,
+  currencyName,
+  currencySymbol,
+  announceCountryChoice,
+  COUNTRY_CHOSEN_EVENT,
 } from "./components/CurrencyKit";
 export {
   createI18n,

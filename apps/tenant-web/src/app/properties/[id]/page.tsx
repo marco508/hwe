@@ -322,14 +322,14 @@ function PropertyDetailInner({
             </div>
           </div>
 
-          <div className="lg:text-right">
+          <div className="lg:text-end">
             <div className="text-[10px] uppercase tracking-[0.16em] text-ink-muted mb-1">
               {isSale ? t("prop.price.sale") : p.priceUnit && p.priceUnit !== "MONTHS" ? t("prop.price.rate") : t("prop.price.rent")}
             </div>
             <div className="display-serif text-3xl sm:text-4xl gradient-text leading-none">
               {fmtPrice(mainPrice, p.currency)}
               {!isSale && (
-                <span className="text-sm font-normal text-ink-muted ml-1">{unitSuffix}</span>
+                <span className="text-sm font-normal text-ink-muted ms-1">{unitSuffix}</span>
               )}
             </div>
             {!isSale && p.chargesIncluded === false && p.chargesAmount && (
@@ -526,7 +526,7 @@ function StepOverview({
               </div>
               <div className="display-serif text-3xl gradient-text leading-none">
                 {fmtPrice(mainPrice, p.currency)}
-                {!isSale && <span className="text-sm font-sans text-ink-muted ml-1">{unitSuffix}</span>}
+                {!isSale && <span className="text-sm font-sans text-ink-muted ms-1">{unitSuffix}</span>}
               </div>
               {isSale && p.surface > 0 && (
                 <div className="text-xs text-ink-muted mt-1">
@@ -620,7 +620,7 @@ function AgencyCard({
       {onContact && (
         <div className="px-5 pb-5 -mt-1">
           <Button variant="secondary" className="w-full" onClick={onContact}>
-            <Icon name="message" size={16} className="mr-1.5" />
+            <Icon name="message" size={16} className="me-1.5" />
             {t("pro.contactAgency")}
           </Button>
         </div>
@@ -660,7 +660,7 @@ function OwnerCard({ owner, onContact }: { owner: NonNullable<Property["owner"]>
       {onContact && (
         <div className="px-5 pb-5 -mt-1">
           <Button variant="secondary" className="w-full" onClick={onContact}>
-            <Icon name="message" size={16} className="mr-1.5" />
+            <Icon name="message" size={16} className="me-1.5" />
             {t("vis.owner.contact")}
           </Button>
         </div>
@@ -1073,7 +1073,7 @@ function StepLocation({ property: p }: { property: Property }) {
                   <span className="absolute inset-0 rounded-full bg-brand-500/30 animate-ping" />
                 </div>
               </div>
-              <div className="absolute bottom-3 left-3 right-3 w-fit max-w-full truncate px-3 py-1.5 rounded-full bg-surface text-xs text-ink-muted shadow-card">
+              <div className="absolute bottom-3 start-3 end-3 w-fit max-w-full truncate px-3 py-1.5 rounded-full bg-surface text-xs text-ink-muted shadow-card">
                 {p.city}, {countryName(p.country)}
               </div>
             </div>
@@ -1405,7 +1405,7 @@ function StepContact({
               <div className="space-y-1">
                 <Label htmlFor={`${uid}-date`}>
                   {isSale ? t("prop.form.dateSale") : t("prop.form.dateRent")}
-                  <span className="text-ink-subtle ml-1">
+                  <span className="text-ink-subtle ms-1">
                     {t("prop.form.optional")}
                   </span>
                 </Label>
@@ -1634,7 +1634,7 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-3 ml-0 sm:ml-3 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border bg-cream-50 dark:bg-surface/60 text-sm font-medium text-ink hover:border-brand-400 transition-colors"
+        className="mt-3 ms-0 sm:ms-3 inline-flex items-center gap-2 px-4 h-10 rounded-full border border-border bg-cream-50 dark:bg-surface/60 text-sm font-medium text-ink hover:border-brand-400 transition-colors"
       >
         {t("prop.visit.cta")}
       </button>

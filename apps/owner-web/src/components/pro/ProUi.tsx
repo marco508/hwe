@@ -154,7 +154,7 @@ export function KV({ label, children }: { label: string; children: React.ReactNo
   return (
     <div className="flex items-start justify-between gap-4 py-2 border-b border-border/60 last:border-0 text-sm min-w-0">
       <span className="text-ink-muted shrink-0">{label}</span>
-      <span className="font-medium text-right min-w-0 [overflow-wrap:anywhere]">{children}</span>
+      <span className="font-medium text-end min-w-0 [overflow-wrap:anywhere]">{children}</span>
     </div>
   );
 }
@@ -203,7 +203,7 @@ export function MandateTermsFields({
                 role="radio"
                 aria-checked={active}
                 onClick={() => setType(ty)}
-                className={`text-left rounded-xl border p-3 transition min-w-0 ${
+                className={`text-start rounded-xl border p-3 transition min-w-0 ${
                   active
                     ? "border-brand-500 bg-brand-50 ring-2 ring-brand-500/30 dark:bg-brand-900/30"
                     : "border-border bg-surface hover:border-brand-300"

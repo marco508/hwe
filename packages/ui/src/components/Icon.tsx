@@ -448,6 +448,9 @@ export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, "name"> {
   label?: string;
 }
 
+/** Icônes directionnelles : retournées en écriture de droite à gauche (arabe). */
+const DIRECTIONAL = new Set<string>(["arrowRight", "arrowLeft", "chevronLeft", "chevronRight", "send"]);
+
 export function Icon({ name, size = 20, strokeWidth = 1.8, label, className, ...rest }: IconProps) {
   return (
     <svg
@@ -463,7 +466,7 @@ export function Icon({ name, size = 20, strokeWidth = 1.8, label, className, ...
       aria-label={label}
       aria-hidden={label ? undefined : true}
       focusable="false"
-      className={cn("inline-block shrink-0 align-[-0.15em]", className)}
+      className={cn("inline-block shrink-0 align-[-0.15em]", DIRECTIONAL.has(name) && "rtl:-scale-x-100", className)}
       {...rest}
     >
       {PATHS[name]}

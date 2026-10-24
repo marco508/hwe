@@ -124,7 +124,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
         <div
           role="dialog"
           aria-label={tUi("ui.chooseLocation")}
-          className="fixed inset-x-4 top-[4.5rem] sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2 sm:w-[360px] rounded-2xl border border-border bg-surface shadow-elevated z-50 overflow-hidden animate-scale-in origin-top-right"
+          className="fixed inset-x-4 top-[4.5rem] sm:absolute sm:inset-x-auto sm:top-auto sm:end-0 sm:mt-2 sm:w-[360px] rounded-2xl border border-border bg-surface shadow-elevated z-50 overflow-hidden animate-scale-in origin-top-right"
         >
           {/* Tabs */}
           <div className="flex border-b border-border bg-cream-100/40 dark:bg-surface/60">
@@ -138,7 +138,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
             >
               {tUi("ui.cityTab")}
               {cities.length > 0 && (
-                <span className="ml-1 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-cream-200 dark:bg-surface text-[10px] text-ink-muted">
+                <span className="ms-1 inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-cream-200 dark:bg-surface text-[10px] text-ink-muted">
                   {cities.length}
                 </span>
               )}
@@ -161,9 +161,9 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={tUi("ui.searchCountry")}
-                    className="h-9 w-full pl-9 pr-3 rounded-full border border-border bg-cream-100/40 dark:bg-surface/60 text-sm text-ink placeholder:text-ink-subtle outline-none focus-visible:border-brand-500 focus-visible:shadow-focus"
+                    className="h-9 w-full ps-9 pe-3 rounded-full border border-border bg-cream-100/40 dark:bg-surface/60 text-sm text-ink placeholder:text-ink-subtle outline-none focus-visible:border-brand-500 focus-visible:shadow-focus"
                   />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted">
+                  <span className="absolute start-3 top-1/2 -translate-y-1/2 text-ink-muted">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="8" />
                       <path d="m21 21-4.3-4.3" />
@@ -188,7 +188,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                     )}
                   >
                     <Icon name="globe" size={20} className="text-brand-600 dark:text-brand-300" />
-                    <span className="flex-1 text-left">{tUi("ui.allCountries")}</span>
+                    <span className="flex-1 text-start">{tUi("ui.allCountries")}</span>
                     {totalCount > 0 && (
                       <span className="text-[11px] text-ink-subtle whitespace-nowrap">
                         {totalCount > 1
@@ -237,7 +237,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                               <span aria-hidden="true" className="text-xl leading-none shrink-0">
                                 {c.flag}
                               </span>
-                              <span className="flex-1 min-w-0 text-left">
+                              <span className="flex-1 min-w-0 text-start">
                                 {countryLabel(c.code, c.name)}
                                 <span className="block text-[10px] text-ink-subtle">
                                   {c.currency}
@@ -285,7 +285,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                   )}
                 >
                   <Icon name="globe" size={16} className="text-brand-600 dark:text-brand-300" />
-                  <span className="flex-1 text-left">
+                  <span className="flex-1 text-start">
                     {tUi("ui.wholeCountry", { name: label(country.code, country.name) })}
                   </span>
                   {city === null && (
@@ -312,7 +312,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                       )}
                     >
                       <Icon name="mapPin" size={16} className="text-ink-subtle" />
-                      <span className="flex-1 min-w-0 text-left [overflow-wrap:anywhere]">{c}</span>
+                      <span className="flex-1 min-w-0 text-start [overflow-wrap:anywhere]">{c}</span>
                       {active && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />

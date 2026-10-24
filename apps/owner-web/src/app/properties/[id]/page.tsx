@@ -178,7 +178,7 @@ export default function PropertyDetailPage() {
             <div className="text-3xl font-display gradient-text leading-tight [overflow-wrap:anywhere]">
               {(p.displayPrice ?? p.price) > 0 ? fmtPrice(p.displayPrice ?? p.price, p.currency) : t("prop.priceOnGrid")}
               {p.listingType === "RENT" && (p.displayPrice ?? p.price) > 0 && (
-                <span className="text-sm font-normal text-ink-muted ml-1">
+                <span className="text-sm font-normal text-ink-muted ms-1">
                   {priceUnitSuffix(p.priceUnit)}
                 </span>
               )}

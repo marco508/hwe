@@ -318,7 +318,7 @@ function DeclareForm({
           type="file"
           accept={IMAGE_ACCEPT}
           onChange={onFile}
-          className="block w-full text-xs text-ink-muted file:mr-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-semibold hover:file:bg-brand-700 file:cursor-pointer"
+          className="block w-full text-xs text-ink-muted file:me-3 file:rounded-lg file:border-0 file:bg-brand-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-semibold hover:file:bg-brand-700 file:cursor-pointer"
         />
         {proof && (
           <SafeImage src={proof} alt={t("rent.declare.proofAlt")} className="mt-2 max-h-40 max-w-full rounded-lg border border-border" />
@@ -383,7 +383,7 @@ function PeriodRow({
         <p className="display-serif text-base text-ink tabular-nums">{fmtMoney(periodAmount(period), currency)}</p>
         <Badge tone={STATUS_TONE[period.status]}>{t("rent.status." + period.status)}</Badge>
 
-        <div className="ml-auto flex gap-2">
+        <div className="ms-auto flex gap-2">
           {(period.status === "DUE" || period.status === "LATE") && (
             <Button size="sm" variant={declaring ? "ghost" : "primary"} onClick={() => setDeclaring((v) => !v)}>
               {declaring ? t("rent.row.close") : t("rent.row.declare")}
@@ -398,19 +398,19 @@ function PeriodRow({
       </div>
 
       {period.status === "DECLARED" && (
-        <p className="mt-1.5 ml-6 text-xs text-ink-muted">
+        <p className="mt-1.5 ms-6 text-xs text-ink-muted">
           {t("rent.row.declaredOn", { date: period.declaredAt ? fmtDate(period.declaredAt) : "—" })}
           {period.declaredMethod ? ` ${t("rent.row.via")} ${methodLabel(period.declaredMethod)}` : ""} · {t("rent.row.awaiting")}
         </p>
       )}
       {period.status === "PAID" && period.receiptNo && (
-        <p className="mt-1.5 ml-6 text-xs text-ink-muted">
+        <p className="mt-1.5 ms-6 text-xs text-ink-muted">
           {t("rent.row.receiptNo", { no: period.receiptNo })}
           {period.paidAt ? ` · ${t("rent.row.confirmedOn", { date: fmtDate(period.paidAt) })}` : ""}
         </p>
       )}
       {period.rejectReason && period.status !== "PAID" && period.status !== "DECLARED" && (
-        <p className="mt-1.5 ml-6 text-xs text-danger [overflow-wrap:anywhere]">
+        <p className="mt-1.5 ms-6 text-xs text-danger [overflow-wrap:anywhere]">
           {t("rent.row.rejected")} {period.rejectReason}
         </p>
       )}
@@ -525,7 +525,7 @@ export default function MesLoyersPage() {
                   </div>
                   {b.lease.shortStay ? (
                     // Séjour courte durée : une seule échéance du montant total (contrat §9).
-                    <div className="sm:text-right">
+                    <div className="sm:text-end">
                       <p className="display-serif text-lg text-ink">
                         {fmtMoney(b.lease.stayTotal ?? b.lease.monthlyRent + b.lease.charges, b.lease.currency)}
                       </p>
@@ -539,7 +539,7 @@ export default function MesLoyersPage() {
                       </p>
                     </div>
                   ) : (
-                    <div className="sm:text-right">
+                    <div className="sm:text-end">
                       <p className="display-serif text-lg text-ink">{fmtMoney(b.lease.monthlyRent + b.lease.charges, b.lease.currency)}<span className="text-xs text-ink-muted font-sans"> {t("rent.page.perMonth")}</span></p>
                       <p className="text-xs text-ink-muted">{payDayText(b.lease.rentPaymentDay)}</p>
                     </div>

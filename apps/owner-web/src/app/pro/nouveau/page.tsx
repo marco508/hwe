@@ -307,7 +307,7 @@ export default function ProNewPropertyPage() {
               {t("pro.back")}
             </Button>
             <Button type="submit" variant="gradient">
-              {t("pro.next")} <Icon name="arrowRight" size={16} className="ml-1.5" />
+              {t("pro.next")} <Icon name="arrowRight" size={16} className="ms-1.5 rtl:rotate-180" />
             </Button>
           </div>
         </form>
@@ -398,7 +398,7 @@ function ChoiceCard({ icon, title, text, onClick }: { icon: "checkCircle" | "use
     <button
       type="button"
       onClick={onClick}
-      className="text-left rounded-2xl border border-border bg-surface p-5 hover:border-brand-400 hover:shadow-card transition min-w-0"
+      className="text-start rounded-2xl border border-border bg-surface p-5 hover:border-brand-400 hover:shadow-card transition min-w-0"
     >
       <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
         <Icon name={icon} size={22} />

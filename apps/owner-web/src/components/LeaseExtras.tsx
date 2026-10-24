@@ -470,11 +470,11 @@ function AmendmentsBlock({
               {!a.ownerSignedAt &&
                 (!pro ? (
                   <Button size="sm" variant="secondary" disabled={signing} onClick={() => signAmendment(a)}>
-                    <Icon name="signature" size={14} className="mr-1" /> {t("pro.amend.sign")}
+                    <Icon name="signature" size={14} className="me-1" /> {t("pro.amend.sign")}
                   </Button>
                 ) : proAccess?.can.SIGN_LEASE ? (
                   <Button size="sm" variant="secondary" disabled={signing} onClick={() => setBehalf(a)}>
-                    <Icon name="signature" size={14} className="mr-1" /> {t("pro.amend.signBehalf")}
+                    <Icon name="signature" size={14} className="me-1" /> {t("pro.amend.signBehalf")}
                   </Button>
                 ) : (
                   <Badge tone="accent">{t("pro.amend.awaitingOwner")}</Badge>

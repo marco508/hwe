@@ -66,7 +66,7 @@ function ProposalPanel({ i, pro }: { i: Inquiry; pro: boolean }) {
           {t("pro.inq.proposedBy", { who, date: fmtDate(i.proposedAt, "medium") })}
         </p>
       )}
-      {i.proposalNote && <p className="mt-1 text-ink-muted italic [overflow-wrap:anywhere]">« {i.proposalNote} »</p>}
+      {i.proposalNote && <p className="mt-1 text-ink-muted italic [overflow-wrap:anywhere]">{t("common.quote", { text: i.proposalNote })}</p>}
       {awaitingOwner(i) && (
         <p className="mt-1 text-xs text-ink-muted">{pro ? t("pro.inq.awaitingOwnerPro") : t("pro.inq.awaitingOwner")}</p>
       )}
@@ -76,12 +76,13 @@ function ProposalPanel({ i, pro }: { i: Inquiry; pro: boolean }) {
             date: i.ownerDecisionAt ? fmtDate(i.ownerDecisionAt, "medium") : "",
           })}
           {i.ownerDecisionNote
-            ? ` — « ${
-                // Note posée par l'API lors d'une acceptation pour le compte du propriétaire.
-                i.ownerDecisionNote.startsWith("Approuvé par le mandataire pour le compte")
-                  ? t("pro.inq.behalfAutoNote")
-                  : i.ownerDecisionNote
-              } »`
+            ? ` — ${t("common.quote", {
+                text:
+                  // Note posée par l'API lors d'une acceptation pour le compte du propriétaire.
+                  i.ownerDecisionNote.startsWith("Approuvé par le mandataire pour le compte")
+                    ? t("pro.inq.behalfAutoNote")
+                    : i.ownerDecisionNote,
+              })}`
             : ""}
         </p>
       )}
@@ -112,10 +113,10 @@ function InquiryActions({
       return (
         <>
           <Button size={size} variant="danger" disabled={busy} className={cls} onClick={() => onAct({ kind: "decide", i, decision: "DECLINED" })}>
-            <Icon name="x" size={15} className="mr-1" /> {t("pro.inq.decline")}
+            <Icon name="x" size={15} className="me-1" /> {t("pro.inq.decline")}
           </Button>
           <Button size={size} variant="gradient" disabled={busy} className={cls} onClick={() => onAct({ kind: "decide", i, decision: "APPROVED" })}>
-            <Icon name="check" size={15} className="mr-1" /> {t("pro.inq.approve")}
+            <Icon name="check" size={15} className="me-1" /> {t("pro.inq.approve")}
           </Button>
         </>
       );
@@ -123,11 +124,11 @@ function InquiryActions({
     return (
       <>
         <Button size={size} variant="danger" disabled={busy} className={cls} onClick={() => onAct({ kind: "respond", id: i.id, decision: "REJECTED" })}>
-          <Icon name="x" size={15} className="mr-1" />
+          <Icon name="x" size={15} className="me-1" />
           {t("com.reject")}
         </Button>
         <Button size={size} variant="gradient" disabled={busy} className={cls} onClick={() => onAct({ kind: "respond", id: i.id, decision: "ACCEPTED" })}>
-          {!busy && <Icon name="check" size={15} className="mr-1" />}
+          {!busy && <Icon name="check" size={15} className="me-1" />}
           {busy ? "…" : t("com.accept")}
         </Button>
       </>
@@ -138,17 +139,17 @@ function InquiryActions({
   return (
     <>
       <Button size={size} variant="danger" disabled={busy} className={cls} onClick={() => onAct({ kind: "respond", id: i.id, decision: "REJECTED" })}>
-        <Icon name="x" size={15} className="mr-1" />
+        <Icon name="x" size={15} className="me-1" />
         {t("com.reject")}
       </Button>
       {!i.proposedAt && (
         <Button size={size} variant="gradient" disabled={busy} className={cls} onClick={() => onAct({ kind: "propose", i })}>
-          <Icon name="handshake" size={15} className="mr-1" /> {t("pro.inq.propose")}
+          <Icon name="handshake" size={15} className="me-1" /> {t("pro.inq.propose")}
         </Button>
       )}
       {!ownerActivated && (
         <Button size={size} variant="secondary" disabled={busy} className={cls} onClick={() => onAct({ kind: "behalf", i })} title={t("pro.inq.behalfHint", { owner: ownerName })}>
-          <Icon name="signature" size={15} className="mr-1" /> {t("pro.inq.behalf")}
+          <Icon name="signature" size={15} className="me-1" /> {t("pro.inq.behalf")}
         </Button>
       )}
     </>
@@ -366,12 +367,12 @@ function InquiryDetailModal({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 h-8 w-8 rounded-full bg-surface/80 hover:bg-surface flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
+            className="absolute top-4 end-4 h-8 w-8 rounded-full bg-surface/80 hover:bg-surface flex items-center justify-center text-ink-muted hover:text-ink transition-colors"
             aria-label={t("com.close")}
           >
             <Icon name="x" size={16} strokeWidth={2.2} />
           </button>
-          <div className="flex items-center gap-4 flex-wrap pr-8">
+          <div className="flex items-center gap-4 flex-wrap pe-8">
             <SenderAvatar
               avatarUrl={inquiry.sender?.avatarUrl}
               firstName={inquiry.sender?.firstName}
@@ -543,7 +544,7 @@ function InquiryDetailModal({
             </div>
           ) : inquiry.status === "ACCEPTED" && !isSale && inquiry.leaseId ? (
             <Link href={`/dashboard/${inquiry.propertyId}/lease`} className={`${LINK_GRADIENT} w-full h-10`}>
-              <Icon name="clipboard" size={16} className="mr-1.5" />
+              <Icon name="clipboard" size={16} className="me-1.5" />
               {t("com.viewLease")}
             </Link>
           ) : inquiry.status === "ACCEPTED" && isSale ? (
@@ -693,18 +694,18 @@ function InquiryCard({
               variant="secondary"
               onClick={() => onViewDetails(i)}
             >
-              <Icon name="eye" size={15} className="mr-1.5" />
+              <Icon name="eye" size={15} className="me-1.5" />
               {t("com.details")}
             </Button>
             <Link href={chatHref(i)} className={`${LINK_BTN} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}>
-              <Icon name="message" size={15} className="mr-1.5" />
+              <Icon name="message" size={15} className="me-1.5" />
               {t("com.discuss")}
             </Link>
             {isPending ? (
               <InquiryActions i={i} ctx={ctx} busy={isLoading} size="sm" onAct={onAct} />
             ) : i.status === "ACCEPTED" && !isSale && i.leaseId ? (
               <Link href={`/dashboard/${i.propertyId}/lease`} className={LINK_GRADIENT}>
-                <Icon name="clipboard" size={15} className="mr-1.5" />
+                <Icon name="clipboard" size={15} className="me-1.5" />
                 {t("com.contract")}
               </Link>
             ) : null}
@@ -923,7 +924,7 @@ function ReceivedInquiriesInner() {
               <Icon name={icon} size={15} />
               <span>{t(labelKey)}</span>
               <span
-                className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                className={`ms-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
                   isActive
                     ? "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200"
                     : "bg-cream-100 dark:bg-white/5 text-ink-muted"

@@ -7,7 +7,7 @@ import { api } from "../../../../lib/api";
 import { useAuth } from "../../../../lib/auth-context";
 import { t } from "../../../../lib/i18n";
 import { PropertyForm, PropertyFormValue, toPropertyBody } from "../../../../components/PropertyForm";
-import { tUi, AnimatedBackground, ErrorState, isNotFound, toast, EmptyState } from "@hwe/ui";
+import { tUi, countryLabel, AnimatedBackground, ErrorState, isNotFound, toast, EmptyState } from "@hwe/ui";
 import type { Property, PricingRate, LeaseDurationUnit } from "@hwe/types";
 
 // Lien stylé en bouton (pas de <button> dans un <a>).
@@ -135,7 +135,7 @@ export default function EditPropertyPage() {
           {t("pf.edit.title")} <span className="gradient-text">{property.title}</span>
         </h1>
         <p className="text-ink-muted [overflow-wrap:anywhere]">
-          {property.city}, {property.country} · {property.surface} m² · {property.rooms} {property.rooms > 1 ? t("pf.edit.roomsPlural") : t("pf.edit.room")}
+          {property.city}, {countryLabel(property.country ?? "", property.country ?? "")} · {property.surface} m² · {property.rooms} {property.rooms > 1 ? t("pf.edit.roomsPlural") : t("pf.edit.room")}
         </p>
 
         <div className="flex flex-wrap gap-2 mt-5">

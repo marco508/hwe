@@ -695,5 +695,6 @@
   "pro.amendment.awaitingOwner": "En attente de la signature du propriétaire",
   "pro.inspection.mention": "Signature bailleur : {mention}",
   "pro.rents.payAgency": "Loyer à régler à l'agence {name}, mandataire du propriétaire.",
-  "pro.rents.transferTo": "Virement — {name}"
+  "pro.rents.transferTo": "Virement — {name}",
+  "rental.contract.frenchVersion": "Version française (fait foi)"
 }

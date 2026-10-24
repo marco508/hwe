@@ -398,7 +398,7 @@ export default function HomePage() {
                     />
                   ) : (
                     <Link href={loginHref("/")} className="text-sm text-ink-muted hover:underline">
-                      <Icon name="heart" size={16} className="mr-1" />
+                      <Icon name="heart" size={16} className="me-1" />
                       {t("acc.fav.save")}
                     </Link>
                   )}

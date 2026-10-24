@@ -25,6 +25,7 @@ import { api } from "../../../../lib/api";
 import { LeaseExtras } from "../../../../components/LeaseExtras";
 import { t } from "../../../../lib/i18n";
 import { generateLeaseContract, leaseCurrency } from "@hwe/types";
+import { getUiLang } from "@hwe/ui";
 import { usePortfolioItem } from "../../../../lib/pro";
 import { ConfirmDialog, LockedNote, WarningNote } from "../../../../components/pro/ProUi";
 import type { Property, LeaseContract, LeaseStatus } from "@hwe/types";
@@ -244,6 +245,8 @@ export default function LeasePage() {
           lease: selectedLease,
           property,
           owner: property.owner ?? user ?? undefined,
+          // Langue de l'interface ; la version française fait foi.
+          lang: getUiLang(),
         })
       : "";
 
@@ -286,7 +289,7 @@ export default function LeasePage() {
           <h1 className="font-display text-2xl">{t("lease.previewTitle")}</h1>
           <div className="flex gap-2 flex-wrap">
             <Button onClick={downloadContract} variant="secondary">
-              <Icon name="download" size={16} className="mr-1.5" />
+              <Icon name="download" size={16} className="me-1.5" />
               {t("lease.download")}
             </Button>
             {!selectedLease.ownerSignedAt && !pro && (
@@ -303,13 +306,13 @@ export default function LeasePage() {
                   }
                 }}
               >
-                <Icon name="signature" size={16} className="mr-1.5" />
+                <Icon name="signature" size={16} className="me-1.5" />
                 {t("lease.signBtn")}
               </Button>
             )}
             {!selectedLease.ownerSignedAt && canSignAsPro && (
               <Button variant="secondary" onClick={() => setBehalfOpen(true)}>
-                <Icon name="signature" size={16} className="mr-1.5" />
+                <Icon name="signature" size={16} className="me-1.5" />
                 {t("pro.lease.signBehalf", { owner: ownerName })}
               </Button>
             )}
@@ -323,7 +326,7 @@ export default function LeasePage() {
         </div>
         {selectedLease.preparedBy && (
           <p className="mb-3 text-sm text-ink-muted" data-prepared-by>
-            <Icon name="clipboard" size={14} className="mr-1" />
+            <Icon name="clipboard" size={14} className="me-1" />
             {t("pro.lease.preparedBy", {
               name: `${selectedLease.preparedBy.firstName} ${selectedLease.preparedBy.lastName}${selectedLease.preparedBy.agencyName ? ` (${selectedLease.preparedBy.agencyName})` : ""}`,
             })}
@@ -661,7 +664,7 @@ export default function LeasePage() {
                     {lease.shortStay ? (
                       // Contrat §9 : séjour courte durée = une échéance du total.
                       <span>
-                        <Icon name="calendar" size={14} className="mr-1 text-ink-subtle" />
+                        <Icon name="calendar" size={14} className="me-1 text-ink-subtle" />
                         <strong>
                           {t("lease.stayLine", {
                             start: fmtDate(lease.startDate),
@@ -673,7 +676,7 @@ export default function LeasePage() {
                     ) : (
                       <>
                         <span>
-                          <Icon name="calendar" size={14} className="mr-1 text-ink-subtle" />{t("lease.cardStart")} <strong>{fmtDate(lease.startDate)}</strong>
+                          <Icon name="calendar" size={14} className="me-1 text-ink-subtle" />{t("lease.cardStart")} <strong>{fmtDate(lease.startDate)}</strong>
                         </span>
                         {lease.endDate && (
                           <span>
@@ -681,7 +684,7 @@ export default function LeasePage() {
                           </span>
                         )}
                         <span>
-                          <Icon name="wallet" size={14} className="mr-1 text-ink-subtle" />
+                          <Icon name="wallet" size={14} className="me-1 text-ink-subtle" />
                           <strong>
                             {fmtMoney(lease.monthlyRent + lease.charges, cur)} {t("lease.perMonth")}
                           </strong>
@@ -695,7 +698,7 @@ export default function LeasePage() {
                       </>
                     )}
                     <span>
-                      <Icon name="lock" size={14} className="mr-1 text-ink-subtle" />{t("lease.cardDeposit")} <strong>{fmtMoney(lease.deposit, cur)}</strong>
+                      <Icon name="lock" size={14} className="me-1 text-ink-subtle" />{t("lease.cardDeposit")} <strong>{fmtMoney(lease.deposit, cur)}</strong>
                       {/* F21 : pas de « Infinity mois » si le loyer vaut 0. */}
                       {!lease.shortStay && lease.monthlyRent > 0 && lease.deposit > 0 && (
                         <span className="text-ink-muted">

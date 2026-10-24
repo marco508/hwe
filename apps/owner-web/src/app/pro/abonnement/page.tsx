@@ -321,23 +321,23 @@ export default function SubscriptionPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm" data-invoices>
-                <thead className="text-left text-ink-muted">
+                <thead className="text-start text-ink-muted">
                   <tr>
-                    <th className="py-2 pr-3 font-medium">{t("sub.colNumber")}</th>
-                    <th className="py-2 pr-3 font-medium">{t("sub.colPlan")}</th>
-                    <th className="py-2 pr-3 font-medium">{t("sub.colPeriod")}</th>
-                    <th className="py-2 pr-3 font-medium text-right">{t("sub.colAmount")}</th>
+                    <th className="py-2 pe-3 font-medium">{t("sub.colNumber")}</th>
+                    <th className="py-2 pe-3 font-medium">{t("sub.colPlan")}</th>
+                    <th className="py-2 pe-3 font-medium">{t("sub.colPeriod")}</th>
+                    <th className="py-2 pe-3 font-medium text-end">{t("sub.colAmount")}</th>
                     <th className="py-2" />
                   </tr>
                 </thead>
                 <tbody>
                   {s.payments.map((p) => (
                     <tr key={p.id} className="border-t border-border">
-                      <td className="py-2 pr-3 font-mono text-xs">{p.number}</td>
-                      <td className="py-2 pr-3">{p.plan.name} · {t("sub.months", { n: p.months })}</td>
-                      <td className="py-2 pr-3 text-ink-muted">{t("sub.period", { from: fmtDate(p.periodStart), to: fmtDate(p.periodEnd) })}</td>
-                      <td className="py-2 pr-3 text-right tabular-nums">{fmtMoney(p.amount, p.currency)}</td>
-                      <td className="py-2 text-right">
+                      <td className="py-2 pe-3 font-mono text-xs">{p.number}</td>
+                      <td className="py-2 pe-3">{p.plan.name} · {t("sub.months", { n: p.months })}</td>
+                      <td className="py-2 pe-3 text-ink-muted">{t("sub.period", { from: fmtDate(p.periodStart), to: fmtDate(p.periodEnd) })}</td>
+                      <td className="py-2 pe-3 text-end tabular-nums">{fmtMoney(p.amount, p.currency)}</td>
+                      <td className="py-2 text-end">
                         <Button size="sm" variant="secondary" onClick={() => api.downloadInvoice(p.id).catch((e) => toast.error(e))}>
                           <Icon name="download" size={14} /> {t("sub.download")}
                         </Button>

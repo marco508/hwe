@@ -193,7 +193,7 @@ export default function DocumentsPage() {
     <section className="min-w-0">
       <div className="mb-2">
         <Link href={`/dashboard/${params?.id}/edit`} className="text-sm text-ink-muted hover:underline">
-          ← {t("acc.docs.back")}
+          <span className="inline-block rtl:rotate-180">←</span> {t("acc.docs.back")}
         </Link>
       </div>
       <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
@@ -353,7 +353,7 @@ export default function DocumentsPage() {
             href={`/dashboard/${params?.id}/lease`}
             className="inline-flex items-center h-10 px-4 rounded-md text-sm font-medium bg-surface text-ink border border-border hover:border-ink/30"
           >
-            <Icon name="clipboard" size={16} className="mr-1.5" /> {t("acc.docs.manageLeases")}
+            <Icon name="clipboard" size={16} className="me-1.5" /> {t("acc.docs.manageLeases")}
           </Link>
         )}
         <Link

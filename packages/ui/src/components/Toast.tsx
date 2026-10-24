@@ -70,7 +70,7 @@ export function Toaster() {
 
   return (
     <div
-      className="fixed z-[100] bottom-4 inset-x-4 sm:inset-x-auto sm:right-4 sm:w-96 flex flex-col gap-2 pointer-events-none"
+      className="fixed z-[100] bottom-4 inset-x-4 sm:inset-x-auto sm:end-4 sm:w-96 flex flex-col gap-2 pointer-events-none"
       aria-live="polite"
       role="status"
     >
@@ -109,7 +109,7 @@ export function Toaster() {
             type="button"
             onClick={() => dismiss(it.id)}
             aria-label={tUi("ui.close")}
-            className="shrink-0 -mr-1 h-6 w-6 inline-flex items-center justify-center rounded-full text-ink-muted hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="shrink-0 -me-1 h-6 w-6 inline-flex items-center justify-center rounded-full text-ink-muted hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Icon name="x" size={14} strokeWidth={2.2} />
           </button>

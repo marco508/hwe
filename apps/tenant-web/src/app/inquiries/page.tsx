@@ -275,7 +275,7 @@ function InquiryDetailModal({
                 {t("com.inq.acceptedNote", { email: inquiry.contactEmail ?? "" })}
               </div>
               <Link href={chatHref(inquiry)}>
-                <Button size="sm" variant="gradient"><Icon name="message" size={15} className="mr-1.5" />{t("com.chat")}</Button>
+                <Button size="sm" variant="gradient"><Icon name="message" size={15} className="me-1.5" />{t("com.chat")}</Button>
               </Link>
             </div>
           )}
@@ -360,11 +360,11 @@ function InquiryCard({
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Button size="sm" variant="secondary" onClick={() => onViewDetails(i)}>
-              <Icon name="eye" size={15} className="mr-1.5" />{t("com.details")}
+              <Icon name="eye" size={15} className="me-1.5" />{t("com.details")}
             </Button>
             <Link href={chatHref(i)}>
               <Button size="sm" variant="gradient">
-                <Icon name="message" size={15} className="mr-1.5" />{t("com.chat")}
+                <Icon name="message" size={15} className="me-1.5" />{t("com.chat")}
               </Button>
             </Link>
             {i.status === "PENDING" && (
@@ -457,7 +457,7 @@ export default function SentInquiriesPage() {
             >
               <Icon name={icon} size={15} />
               <span>{t("com.tab." + key)}</span>
-              <span className={`ml-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+              <span className={`ms-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
                 isActive ? "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300" : "bg-cream-100 dark:bg-white/5 text-ink-muted"
               }`}>
                 {count}

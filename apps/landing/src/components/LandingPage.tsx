@@ -85,9 +85,10 @@ function prepEnPays(name: string): string {
 
 /** Complément de lieu selon la langue courante (plus de détection par traduction, U4). */
 function placeOf(lang: string, code: string, frName: string, city?: string | null): string {
-  if (city) return lang === "fr" ? `à ${city}` : `in ${city}`;
+  if (city) return t("place.inCity", { city });
   if (code === ALL_COUNTRIES_CODE) return t("place.all");
-  return lang === "fr" ? prepEnPays(frName) : `in ${countryLabel(code, frName)}`;
+  // Français : article selon le pays (règle ci-dessus) ; autres langues : clé du dictionnaire.
+  return lang === "fr" ? prepEnPays(frName) : t("place.inCountry", { name: countryLabel(code, frName) });
 }
 
 /** Libellé de pays, « Tous les pays » compris. */
@@ -124,7 +125,9 @@ function LandingInner() {
   const isAll = countryCode === ALL_COUNTRIES_CODE;
   const cName = countryName(country.code, country.name);
   const place = placeOf(lang, country.code, country.name, city);
-  const plural = (n: number) => (lang === "fr" ? (n !== 1 ? "s" : "") : n !== 1 ? "ies" : "y");
+  /** Singulier / pluriel par clés du dictionnaire (`<clé>.one` / `<clé>.other`). */
+  const plural = (key: string, n: number, params: Record<string, string | number> = {}) =>
+    t(`${key}.${n === 1 ? "one" : "other"}`, { n, ...params });
   const CATEGORIES = buildCategories();
   const STEPS = buildSteps();
   const BENEFITS = buildBenefits();
@@ -362,14 +365,14 @@ function LandingInner() {
                 {!indexReady && !stats
                   ? t("hero.loading")
                   : localCount > 0
-                    ? t("hero.count", { n: localCount, s: plural(localCount), place })
+                    ? plural("hero.count", localCount, { place })
                     : t("hero.coming", { place })}
               </span>
 
               <h1 className="display-serif text-[2.6rem] leading-[1.04] sm:text-display-md xl:text-display-lg text-ink">
                 <span className="block">{t("hero.title1")}</span>
                 {/* Marge basse : background-clip:text coupait les jambages (g, y) avec un interligne serré. */}
-                <span className="block italic gradient-text pb-[0.14em] pr-[0.06em]">{t("hero.title2")}</span>
+                <span className="block italic gradient-text pb-[0.14em] pe-[0.06em]">{t("hero.title2")}</span>
               </h1>
 
               <p className="text-ink-muted text-lg sm:text-xl max-w-xl mt-5 leading-relaxed [overflow-wrap:anywhere]">
@@ -379,7 +382,7 @@ function LandingInner() {
 
             {/* Visuel : photo principale + vignette + pastilles */}
             <div className="relative min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
-              <div className="relative overflow-hidden rounded-[1.75rem] lg:rounded-[2.25rem] ring-1 ring-border/60 shadow-elevated aspect-[16/11] sm:aspect-[16/10] lg:aspect-[4/5] lg:ml-8 bg-brand-900">
+              <div className="relative overflow-hidden rounded-[1.75rem] lg:rounded-[2.25rem] ring-1 ring-border/60 shadow-elevated aspect-[16/11] sm:aspect-[16/10] lg:aspect-[4/5] lg:ms-8 bg-brand-900">
                 <Photo
                   id="hero/hero-main"
                   priority
@@ -387,16 +390,16 @@ function LandingInner() {
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-                <div className="absolute left-3 bottom-3 sm:left-4 sm:bottom-4 lg:left-auto lg:right-4 flex flex-wrap gap-2 max-w-[calc(100%-1.5rem)]">
+                <div className="absolute start-3 bottom-3 sm:start-4 sm:bottom-4 lg:start-auto lg:end-4 flex flex-wrap gap-2 max-w-[calc(100%-1.5rem)]">
                   <HeroChip icon="handshake">{t("hero.chip1")}</HeroChip>
                   <HeroChip icon="pen" className="hidden min-[400px]:inline-flex">{t("hero.chip2")}</HeroChip>
                 </div>
               </div>
               {/* Vignette « remise des clés » (grand écran) */}
-              <div className="hidden lg:block absolute -left-4 xl:-left-8 bottom-10 w-[38%] overflow-hidden rounded-3xl ring-4 ring-background shadow-elevated aspect-[4/5] bg-brand-900">
+              <div className="hidden lg:block absolute -start-4 xl:-start-8 bottom-10 w-[38%] overflow-hidden rounded-3xl ring-4 ring-background shadow-elevated aspect-[4/5] bg-brand-900">
                 <Photo id="hero/hero-keys" sizes="220px" className="h-full w-full object-cover" />
               </div>
-              <div className="hidden lg:flex absolute -top-4 left-0 xl:-left-2 items-center gap-2 rounded-full glass-strong px-3.5 py-2 text-xs font-medium text-ink shadow-card">
+              <div className="hidden lg:flex absolute -top-4 start-0 xl:-start-2 items-center gap-2 rounded-full glass-strong px-3.5 py-2 text-xs font-medium text-ink shadow-card">
                 <Icon name="globe" size={16} className="text-brand-600 dark:text-brand-300" />
                 {t("hero.chip3")}
               </div>
@@ -454,7 +457,7 @@ function LandingInner() {
                   key={d.key}
                   name={d.name}
                   image={d.image}
-                  badge={d.count > 0 ? t("dest.count", { n: d.count, s: plural(d.count) }) : undefined}
+                  badge={d.count > 0 ? plural("dest.count", d.count) : undefined}
                   cta={
                     <>
                       <span>{t("dest.discover")}</span>
@@ -493,7 +496,7 @@ function LandingInner() {
 
           <div className="flex items-center justify-between mt-6 flex-wrap gap-4">
             <div className="text-sm text-ink-muted" aria-live="polite">
-              {catalogLoading ? t("cat.loading") : t("cat.selection", { n: total, s: plural(total) })}
+              {catalogLoading ? t("cat.loading") : plural("cat.selection", total)}
             </div>
             <div className="inline-flex p-1 rounded-full bg-surface border border-border text-sm" role="group">
               {(["ALL", "RENT", "SALE"] as const).map((k) => (
@@ -642,7 +645,7 @@ function LandingInner() {
                   <Photo id={s.photo} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="h-full w-full object-cover" />
                   <span
                     aria-hidden="true"
-                    className="absolute top-3 left-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 display-serif text-lg text-brand-700 dark:text-brand-300 shadow-card"
+                    className="absolute top-3 start-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-background/95 display-serif text-lg text-brand-700 dark:text-brand-300 shadow-card"
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
@@ -719,10 +722,10 @@ function LandingInner() {
         <div className="container-app">
           <RevealOnScroll>
             <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 dark:from-brand-950 dark:via-brand-900 dark:to-brand-800 text-cream-50 px-6 sm:px-16 py-14 sm:py-24">
-              <span aria-hidden="true" className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-accent-400/25 blur-3xl" />
-              <span aria-hidden="true" className="absolute -bottom-24 -left-12 w-80 h-80 rounded-full bg-brand-300/15 blur-3xl" />
+              <span aria-hidden="true" className="absolute -top-20 -end-20 w-96 h-96 rounded-full bg-accent-400/25 blur-3xl" />
+              <span aria-hidden="true" className="absolute -bottom-24 -start-12 w-80 h-80 rounded-full bg-brand-300/15 blur-3xl" />
               {/* Photo d'intérieur en fondu sur la droite (grand écran) */}
-              <div aria-hidden="true" className="hidden lg:block absolute inset-y-0 right-0 w-[42%]">
+              <div aria-hidden="true" className="hidden lg:block absolute inset-y-0 end-0 w-[42%]">
                 <Photo id="hero/hero-interior" alt="" sizes="40vw" className="h-full w-full object-cover" />
                 <span className="absolute inset-0 bg-gradient-to-r from-brand-900 via-brand-900/40 to-transparent dark:from-brand-950 dark:via-brand-950/40" />
               </div>
@@ -790,8 +793,8 @@ function EmptyCountry({
   const place = placeOf(lang, countryCode, countryFrName);
   return (
     <div className="relative rounded-3xl border border-dashed border-border bg-surface/60 p-6 sm:p-16 text-center overflow-hidden">
-      <span aria-hidden="true" className="absolute -top-16 -left-16 w-48 h-48 rounded-full bg-brand-200/40 dark:bg-brand-800/30 blur-3xl" />
-      <span aria-hidden="true" className="absolute -bottom-16 -right-16 w-48 h-48 rounded-full bg-accent-200/40 dark:bg-accent-700/20 blur-3xl" />
+      <span aria-hidden="true" className="absolute -top-16 -start-16 w-48 h-48 rounded-full bg-brand-200/40 dark:bg-brand-800/30 blur-3xl" />
+      <span aria-hidden="true" className="absolute -bottom-16 -end-16 w-48 h-48 rounded-full bg-accent-200/40 dark:bg-accent-700/20 blur-3xl" />
       <div className="relative">
         <IlloSearchHome className="mx-auto mb-4 w-40" />
         <div className="text-3xl mb-3" aria-hidden="true">

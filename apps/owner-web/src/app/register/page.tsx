@@ -88,7 +88,7 @@ function RegisterInner() {
       className="py-4 sm:py-8"
     >
       <div className="w-full">
-        <div className="mb-6 text-center lg:text-left">
+        <div className="mb-6 text-center lg:text-start">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
             <span className="h-1.5 w-1.5 rounded-full bg-accent-500 animate-pulse-glow" />
             {t("register.badge")}
@@ -114,7 +114,7 @@ function RegisterInner() {
                       role="radio"
                       aria-checked={kind === k}
                       onClick={() => setKind(k)}
-                      className={`text-left rounded-xl border p-3 transition ${
+                      className={`text-start rounded-xl border p-3 transition ${
                         kind === k
                           ? "border-brand-500 bg-brand-50 ring-2 ring-brand-500/30 dark:bg-brand-900/30"
                           : "border-border bg-surface hover:border-brand-300"

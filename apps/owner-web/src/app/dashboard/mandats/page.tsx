@@ -64,7 +64,7 @@ function Inner() {
         sub={t("pro.own.sub")}
         actions={
           <Button variant="gradient" onClick={() => setEntrustOpen((o) => !o)}>
-            <Icon name="handshake" size={16} className="mr-1.5" /> {t("pro.own.entrust")}
+            <Icon name="handshake" size={16} className="me-1.5" /> {t("pro.own.entrust")}
           </Button>
         }
       />
@@ -174,7 +174,7 @@ function PendingMandate({ m, onDone }: { m: Mandate; onDone: () => void }) {
           {t("pro.m.reject")}
         </Button>
         <Button variant="gradient" disabled={busy} onClick={() => act(true)}>
-          <Icon name="check" size={16} className="mr-1.5" /> {t("pro.m.accept")}
+          <Icon name="check" size={16} className="me-1.5" /> {t("pro.m.accept")}
         </Button>
       </div>
       {rejecting && (
@@ -243,7 +243,7 @@ function PendingRequest({ r, properties, onDone }: { r: MandateRequest; properti
                   onChange={(e) => setSel((s) => (e.target.checked ? [...s, p.id] : s.filter((x) => x !== p.id)))}
                 />
                 <span className="truncate min-w-0">{p.title}</span>
-                <span className="text-ink-muted text-xs ml-auto shrink-0">{p.city}</span>
+                <span className="text-ink-muted text-xs ms-auto shrink-0">{p.city}</span>
               </label>
             ))}
           </div>
@@ -254,7 +254,7 @@ function PendingRequest({ r, properties, onDone }: { r: MandateRequest; properti
           {t("pro.m.reject")}
         </Button>
         <Button variant="gradient" disabled={busy || sel.length === 0} onClick={accept}>
-          <Icon name="check" size={16} className="mr-1.5" /> {t("pro.own.entrustN", { n: sel.length })}
+          <Icon name="check" size={16} className="me-1.5" /> {t("pro.own.entrustN", { n: sel.length })}
         </Button>
       </div>
     </div>
@@ -341,7 +341,7 @@ function EntrustForm({
                   ) : (
                     results.map((a) => (
                       <li key={a.id}>
-                        <button type="button" role="option" aria-selected={false} onClick={() => setAgency(a)} className="w-full flex items-center gap-3 px-3 py-2 text-left hover:bg-brand-50 dark:hover:bg-brand-900/30">
+                        <button type="button" role="option" aria-selected={false} onClick={() => setAgency(a)} className="w-full flex items-center gap-3 px-3 py-2 text-start hover:bg-brand-50 dark:hover:bg-brand-900/30">
                           <AgencyLogo name={a.name} logoUrl={a.logoUrl} size="sm" />
                           <span className="min-w-0">
                             <span className="block text-sm font-medium truncate">{a.name}</span>

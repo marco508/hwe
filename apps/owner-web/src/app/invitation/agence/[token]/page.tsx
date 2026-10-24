@@ -103,7 +103,7 @@ export default function AgencyInvitationPage() {
               <div className="space-y-4 text-center">
                 <p>{t("pro.inv.loggedAs", { name: `${user.firstName} ${user.lastName}` })}</p>
                 <Button variant="gradient" disabled={busy} onClick={accept} className="w-full">
-                  <Icon name="check" size={16} className="mr-1.5" /> {t("pro.inv.accept")}
+                  <Icon name="check" size={16} className="me-1.5" /> {t("pro.inv.accept")}
                 </Button>
               </div>
             ) : (

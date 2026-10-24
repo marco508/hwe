@@ -122,7 +122,7 @@ export default function DashboardPage() {
             href="/dashboard/new"
             className="inline-flex items-center justify-center h-12 px-6 rounded-md text-base font-medium text-white hover:text-white bg-gradient-to-r from-brand-600 via-brand-500 to-accent-500 shadow-md hover:shadow-glow"
           >
-            <Icon name="plus" size={18} strokeWidth={2.2} className="mr-1.5" /> {t("dash.add")}
+            <Icon name="plus" size={18} strokeWidth={2.2} className="me-1.5" /> {t("dash.add")}
           </Link>
         </div>
 

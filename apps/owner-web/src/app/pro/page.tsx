@@ -76,12 +76,12 @@ export default function ProDashboardPage() {
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
                   <table className="w-full text-sm min-w-[520px]">
                     <thead>
-                      <tr className="text-left text-xs uppercase tracking-wide text-ink-muted border-b border-border">
+                      <tr className="text-start text-xs uppercase tracking-wide text-ink-muted border-b border-border">
                         <th className="py-2 px-4 sm:px-2 font-medium">{t("pro.dash.agent")}</th>
-                        <th className="py-2 px-2 font-medium text-right">{t("pro.stat.properties")}</th>
-                        <th className="py-2 px-2 font-medium text-right">{t("pro.dash.colPending")}</th>
-                        <th className="py-2 px-2 font-medium text-right">{t("pro.dash.colRents")}</th>
-                        <th className="py-2 px-4 sm:px-2 font-medium text-right">{t("pro.dash.colTickets")}</th>
+                        <th className="py-2 px-2 font-medium text-end">{t("pro.stat.properties")}</th>
+                        <th className="py-2 px-2 font-medium text-end">{t("pro.dash.colPending")}</th>
+                        <th className="py-2 px-2 font-medium text-end">{t("pro.dash.colRents")}</th>
+                        <th className="py-2 px-4 sm:px-2 font-medium text-end">{t("pro.dash.colTickets")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -93,14 +93,14 @@ export default function ProDashboardPage() {
                             ) : (
                               <span className="font-medium">
                                 {a.firstName} {a.lastName}
-                                {a.role === "MANAGER" && <span className="ml-2 text-xs text-ink-muted">{t("pro.role.MANAGER")}</span>}
+                                {a.role === "MANAGER" && <span className="ms-2 text-xs text-ink-muted">{t("pro.role.MANAGER")}</span>}
                               </span>
                             )}
                           </td>
-                          <td className="py-2.5 px-2 text-right tabular-nums">{a.properties}</td>
-                          <td className="py-2.5 px-2 text-right tabular-nums">{a.pendingMandates}</td>
-                          <td className="py-2.5 px-2 text-right tabular-nums">{a.rentsToVerify}</td>
-                          <td className="py-2.5 px-4 sm:px-2 text-right tabular-nums">{a.openTickets}</td>
+                          <td className="py-2.5 px-2 text-end tabular-nums">{a.properties}</td>
+                          <td className="py-2.5 px-2 text-end tabular-nums">{a.pendingMandates}</td>
+                          <td className="py-2.5 px-2 text-end tabular-nums">{a.rentsToVerify}</td>
+                          <td className="py-2.5 px-4 sm:px-2 text-end tabular-nums">{a.openTickets}</td>
                         </tr>
                       ))}
                     </tbody>

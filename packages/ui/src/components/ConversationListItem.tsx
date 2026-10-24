@@ -41,7 +41,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-left flex items-start gap-3 px-3 py-3 rounded-xl transition-colors group",
+        "w-full text-start flex items-start gap-3 px-3 py-3 rounded-xl transition-colors group",
         active
           ? "bg-cream-200/60 dark:bg-brand-900/30"
           : "hover:bg-cream-100 dark:hover:bg-white/[0.04]",
@@ -59,7 +59,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
           />
         </span>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1">
+          <span className="absolute -top-1 -end-1">
             <UnreadBadge count={unreadCount} />
           </span>
         )}

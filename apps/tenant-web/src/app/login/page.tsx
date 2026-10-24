@@ -52,7 +52,7 @@ function LoginInner() {
       ]}
       className="py-2 sm:py-6"
     >
-      <div className="mb-6 text-center lg:text-left">
+      <div className="mb-6 text-center lg:text-start">
         <h1 className="font-display text-3xl mb-1">
           {t("login.title1")} <span className="gradient-text">hwe</span>
         </h1>

@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { tUi } from "./I18nKit";
+import { announceCountryChoice } from "./CurrencyKit";
 
 // ─── Pays supportés ──────────────────────────────────────────────────────────
 export type CountryRegion =
@@ -12,6 +14,7 @@ export type CountryRegion =
   | "africa-islands"
   | "europe";
 
+/** Libellés français des régions (référence) ; affichage : `regionLabel()` (clés ui.region.*). */
 export const REGION_LABELS: Record<CountryRegion, string> = {
   "africa-west": "Afrique de l'Ouest",
   "africa-central": "Afrique centrale",
@@ -21,6 +24,11 @@ export const REGION_LABELS: Record<CountryRegion, string> = {
   "africa-islands": "Océan Indien",
   europe: "Europe",
 };
+
+/** Nom de la région dans la langue courante. */
+export function regionLabel(r: CountryRegion): string {
+  return tUi(`ui.region.${r}`);
+}
 
 /** Display order of regions (Africa first because of primary audience). */
 export const REGION_ORDER: CountryRegion[] = [
@@ -136,7 +144,7 @@ export function groupCountriesByRegion(): {
   }
   return REGION_ORDER.map((r) => ({
     region: r,
-    label: REGION_LABELS[r],
+    label: regionLabel(r),
     countries: groups[r],
   })).filter((g) => g.countries.length > 0);
 }
@@ -203,6 +211,9 @@ export const LocationProvider: React.FC<LocationProviderProps> = ({
     setCityRaw(null);
     setIsAutoDetected(false);
     writeStored({ countryCode: upper, city: null });
+    // Choix explicite d'un pays : la devise d'affichage suit (modifiable ensuite).
+    const chosen = SUPPORTED_COUNTRIES.find((c) => c.code === upper);
+    if (chosen) announceCountryChoice(chosen.code, chosen.currency);
   }, []);
 
   const setCity = React.useCallback(

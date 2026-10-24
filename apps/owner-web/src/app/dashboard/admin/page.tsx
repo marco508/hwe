@@ -143,7 +143,7 @@ export default function AdminPage() {
 
       {overview.smtpConfigured === false && (
         <div role="alert" className="mb-6 rounded-xl border border-danger/40 bg-danger/5 px-4 py-3 text-sm text-ink">
-          <Icon name="alert" size={16} className="text-danger mr-1.5" />{t("ops.admin.smtpOff")}
+          <Icon name="alert" size={16} className="text-danger me-1.5" />{t("ops.admin.smtpOff")}
         </div>
       )}
 
@@ -229,7 +229,7 @@ export default function AdminPage() {
       ) : tab === "agencies" ? (
         <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full text-sm">
-            <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
+            <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-start">
               <tr>
                 <th className="px-4 py-3 font-medium">{t("pro.admin.colAgency")}</th>
                 <th className="px-4 py-3 font-medium">{t("pro.admin.colManagers")}</th>
@@ -260,7 +260,7 @@ export default function AdminPage() {
       ) : tab === "users" ? (
         <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full text-sm">
-            <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
+            <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-start">
               <tr>
                 <th className="px-4 py-3 font-medium">{t("ops.admin.colAccount")}</th>
                 <th className="px-4 py-3 font-medium">{t("ops.admin.colRole")}</th>
@@ -280,7 +280,7 @@ export default function AdminPage() {
                     <p className="text-ink-muted">{u.email}</p>
                     {u.agency && (
                       <p className="text-xs text-ink-muted mt-0.5">
-                        <Icon name="store" size={12} className="mr-1" />
+                        <Icon name="store" size={12} className="me-1" />
                         {u.agency.name} · {t(`pro.role.${u.agency.role}`)}
                       </p>
                     )}
@@ -304,7 +304,7 @@ export default function AdminPage() {
                     {u._count.properties} / {u._count.inquiries}
                   </td>
                   <td className="px-4 py-3 text-ink-muted">{fmtDate(u.createdAt)}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-end">
                     {!u.emailVerifiedAt && (
                       <Button
                         size="sm"
@@ -323,7 +323,7 @@ export default function AdminPage() {
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full text-sm">
-            <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">
+            <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-start">
               <tr>
                 <th className="px-4 py-3 font-medium">{t("ops.admin.colListing")}</th>
                 <th className="px-4 py-3 font-medium">{t("ops.admin.colOwner")}</th>
@@ -350,7 +350,7 @@ export default function AdminPage() {
                     {p._count.inquiries} / {p._count.leases}
                   </td>
                   <td className="px-4 py-3 text-ink-muted">{fmtDate(p.createdAt)}</td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-end">
                     <Select
                       value={p.status}
                       aria-label={t("ops.admin.statusAria", { title: p.title })}

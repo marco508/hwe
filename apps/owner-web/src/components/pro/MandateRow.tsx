@@ -30,11 +30,11 @@ export function MandateRow({ m, href, who }: { m: Mandate; href: string; who: "o
             {m.property.city}
           </p>
         </div>
-        <div className="hidden sm:block text-right shrink-0">
+        <div className="hidden sm:block text-end shrink-0">
           <p className="text-xs text-ink-muted">{t("pro.fees.due")}</p>
           <p className="font-display text-lg tabular-nums">{fmtMoney(m.feesSummary.due, m.feesSummary.currency)}</p>
         </div>
-        <Icon name="chevronRight" size={18} className="text-ink-subtle shrink-0" />
+        <Icon name="chevronRight" size={18} className="text-ink-subtle shrink-0 rtl:rotate-180" />
       </Link>
     </li>
   );

@@ -90,7 +90,7 @@ export function AdminSubscriptions({ q }: { q: string }) {
                     {r.createdBy ? `${r.createdBy.firstName} ${r.createdBy.lastName} (${r.createdBy.email}) · ` : ""}
                     {fmtDateTime(r.createdAt)}
                   </p>
-                  {r.note && <p className="text-xs mt-1 [overflow-wrap:anywhere]">« {r.note} »</p>}
+                  {r.note && <p className="text-xs mt-1 [overflow-wrap:anywhere]">{t("common.quote", { text: r.note })}</p>}
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="primary" disabled={busy} onClick={() => run(() => api.adminApproveRequest(r.id))} data-approve>
@@ -109,13 +109,13 @@ export function AdminSubscriptions({ q }: { q: string }) {
       <SectionCard title={t("sub.admin.agencies")} icon="store">
         <div className="overflow-x-auto">
           <table className="w-full text-sm" data-sub-agencies>
-            <thead className="text-left text-ink-muted">
+            <thead className="text-start text-ink-muted">
               <tr>
-                <th className="py-2 pr-3 font-medium">{t("sub.admin.colAgency")}</th>
-                <th className="py-2 pr-3 font-medium">{t("sub.admin.colStatus")}</th>
-                <th className="py-2 pr-3 font-medium">{t("sub.admin.colPlan")}</th>
-                <th className="py-2 pr-3 font-medium">{t("sub.admin.colUntil")}</th>
-                <th className="py-2 pr-3 font-medium">{t("sub.admin.colUsage")}</th>
+                <th className="py-2 pe-3 font-medium">{t("sub.admin.colAgency")}</th>
+                <th className="py-2 pe-3 font-medium">{t("sub.admin.colStatus")}</th>
+                <th className="py-2 pe-3 font-medium">{t("sub.admin.colPlan")}</th>
+                <th className="py-2 pe-3 font-medium">{t("sub.admin.colUntil")}</th>
+                <th className="py-2 pe-3 font-medium">{t("sub.admin.colUsage")}</th>
                 <th className="py-2 font-medium">{t("sub.admin.colActions")}</th>
               </tr>
             </thead>
@@ -125,22 +125,22 @@ export function AdminSubscriptions({ q }: { q: string }) {
                 const end = s.status === "TRIAL" ? s.trialEndsAt : s.paidUntil ?? s.trialEndsAt;
                 return (
                   <tr key={a.id} className="border-t border-border align-top" data-sub-agency={a.code}>
-                    <td className="py-2 pr-3">
+                    <td className="py-2 pe-3">
                       <p className="font-medium">{a.name}</p>
                       <p className="text-xs text-ink-muted font-mono">{a.code}</p>
                       <p className="text-xs text-ink-muted">{a.managers.map((m) => m.email).join(", ")}</p>
                     </td>
-                    <td className="py-2 pr-3">
+                    <td className="py-2 pe-3">
                       <Badge tone={TONE[s.status]}>{t(`sub.status.${s.status}`)}</Badge>
                       {s.manualSuspension && <p className="text-xs text-danger mt-1">{t("sub.admin.manual")}</p>}
                       {a.pendingRequestId && <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">{t("sub.admin.colRequest")} {t("sub.admin.pending")}</p>}
                     </td>
-                    <td className="py-2 pr-3 text-ink-muted">{s.plan?.name ?? "—"}</td>
-                    <td className="py-2 pr-3 text-ink-muted">
+                    <td className="py-2 pe-3 text-ink-muted">{s.plan?.name ?? "—"}</td>
+                    <td className="py-2 pe-3 text-ink-muted">
                       {end ? fmtDate(end) : "—"}
                       {s.status === "GRACE" && s.graceEndsAt && <p className="text-xs">{t("sub.graceEnds")} : {fmtDate(s.graceEndsAt)}</p>}
                     </td>
-                    <td className="py-2 pr-3 text-ink-muted tabular-nums">
+                    <td className="py-2 pe-3 text-ink-muted tabular-nums">
                       {s.usage.agents}/{lim(s.limits.maxAgents)} · {s.usage.activeMandates}/{lim(s.limits.maxActiveMandates)}
                     </td>
                     <td className="py-2">

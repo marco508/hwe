@@ -49,7 +49,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     <div
       className={cn(
         "flex items-end gap-2 max-w-[85%] min-w-0",
-        fromMe ? "ml-auto flex-row-reverse" : "mr-auto",
+        fromMe ? "ms-auto flex-row-reverse" : "me-auto",
       )}
     >
       {/* Avatar */}
@@ -75,8 +75,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           className={cn(
             "max-w-full px-4 py-2.5 rounded-2xl text-sm whitespace-pre-line leading-relaxed shadow-sm [overflow-wrap:anywhere]",
             fromMe
-              ? "bg-gradient-to-br from-brand-600 to-brand-500 text-cream-50 rounded-br-md"
-              : "bg-surface border border-border text-ink rounded-bl-md",
+              ? "bg-gradient-to-br from-brand-600 to-brand-500 text-cream-50 rounded-ee-md"
+              : "bg-surface border border-border text-ink rounded-es-md",
           )}
         >
           {content}

@@ -65,7 +65,7 @@ export function ManagedByBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 max-w-full rounded-full border border-brand-200 bg-brand-50 pl-0.5 pr-2.5 py-0.5 text-xs font-medium text-brand-800",
+        "inline-flex items-center gap-1.5 max-w-full rounded-full border border-brand-200 bg-brand-50 ps-0.5 pe-2.5 py-0.5 text-xs font-medium text-brand-800",
         "dark:border-brand-800 dark:bg-brand-900/40 dark:text-brand-200",
         className,
       )}

@@ -81,9 +81,9 @@ function SoftLayer() {
 function BlobsLayer() {
   return (
     <div className="absolute inset-0 -z-0 overflow-hidden" aria-hidden="true">
-      <span className="blob-deco animate-blob bg-brand-300/60 dark:bg-brand-700/50 w-[420px] h-[420px] -top-20 -left-16" />
-      <span className="blob-deco animate-blob-slow bg-accent-300/55 dark:bg-accent-600/40 w-[380px] h-[380px] top-1/3 right-[-100px]" />
-      <span className="blob-deco animate-blob bg-ocean-300/50 dark:bg-ocean-700/40 w-[460px] h-[460px] bottom-[-160px] left-1/3" />
+      <span className="blob-deco animate-blob bg-brand-300/60 dark:bg-brand-700/50 w-[420px] h-[420px] -top-20 -start-16" />
+      <span className="blob-deco animate-blob-slow bg-accent-300/55 dark:bg-accent-600/40 w-[380px] h-[380px] top-1/3 end-[-100px]" />
+      <span className="blob-deco animate-blob bg-ocean-300/50 dark:bg-ocean-700/40 w-[460px] h-[460px] bottom-[-160px] start-1/3" />
     </div>
   );
 }

@@ -114,7 +114,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1">
+          <span className="absolute -top-1 -end-1">
             <UnreadBadge count={unreadCount} />
           </span>
         )}
@@ -124,7 +124,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
         <div
           role="dialog"
           aria-label={label}
-          className="absolute right-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-surface shadow-elevated z-50 overflow-hidden animate-scale-in origin-top-right"
+          className="absolute end-0 mt-2 w-[340px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-surface shadow-elevated z-50 overflow-hidden animate-scale-in origin-top-right"
         >
           <div className="px-4 py-3 border-b border-border flex items-center justify-between">
             <div className="font-display text-base text-ink">{label}</div>
@@ -169,7 +169,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
                         )}
                       </span>
                       {item.unread && (
-                        <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-surface" />
+                        <span className="absolute top-0 end-0 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-surface" />
                       )}
                     </span>
                     <div className="flex-1 min-w-0">

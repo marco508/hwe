@@ -150,7 +150,7 @@ export function ImageUploader({ value, onChange, maxImages = 20 }: ImageUploader
 
               {/* Position badge */}
               {i === 0 && (
-                <span className="absolute top-1.5 left-1.5 bg-brand-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                <span className="absolute top-1.5 start-1.5 bg-brand-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
                   {t("pf.up.main")}
                 </span>
               )}

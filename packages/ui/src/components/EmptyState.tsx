@@ -30,11 +30,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     {/* Decorative blobs */}
     <span
       aria-hidden="true"
-      className="absolute -top-12 -left-12 w-40 h-40 rounded-full bg-brand-200/40 dark:bg-brand-800/30 blur-2xl animate-blob-slow"
+      className="absolute -top-12 -start-12 w-40 h-40 rounded-full bg-brand-200/40 dark:bg-brand-800/30 blur-2xl animate-blob-slow"
     />
     <span
       aria-hidden="true"
-      className="absolute -bottom-12 -right-12 w-40 h-40 rounded-full bg-accent-200/40 dark:bg-accent-700/20 blur-2xl animate-blob"
+      className="absolute -bottom-12 -end-12 w-40 h-40 rounded-full bg-accent-200/40 dark:bg-accent-700/20 blur-2xl animate-blob"
     />
     <div className="relative">
       {illustration ? (

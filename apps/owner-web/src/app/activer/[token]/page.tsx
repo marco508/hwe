@@ -101,7 +101,7 @@ export default function ActivateOwnerPage() {
               </div>
             )}
             <Button type="submit" variant="gradient" disabled={busy} className="w-full">
-              <Icon name="key" size={16} className="mr-1.5" /> {busy ? t("pro.processing") : t("pro.act.submit")}
+              <Icon name="key" size={16} className="me-1.5" /> {busy ? t("pro.processing") : t("pro.act.submit")}
             </Button>
             <p className="text-xs text-ink-muted text-center">{t("pro.act.optional")}</p>
           </form>

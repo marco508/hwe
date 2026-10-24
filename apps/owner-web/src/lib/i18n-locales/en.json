@@ -1456,5 +1456,6 @@
   "sub.admin.save": "Save",
   "sub.admin.saved": "Saved",
   "sub.admin.confirm": "Confirm",
-  "sub.admin.pending": "pending"
+  "sub.admin.pending": "pending",
+  "common.quote": "“{text}”"
 }

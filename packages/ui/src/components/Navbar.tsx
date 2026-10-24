@@ -106,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               key: i,
               className: cn(
                 "relative hover:text-ink transition-colors",
-                "after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-brand-500 after:transition-all hover:after:w-full",
+                "after:absolute after:start-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-brand-500 after:transition-all hover:after:w-full",
                 (child as any).props?.className,
               ),
             }),

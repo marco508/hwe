@@ -9,7 +9,8 @@
   "loc.auto": "· suggested from your browser language",
   "loc.seeAll": "See all of {country}",
   "hero.loading": "Loading listings…",
-  "hero.count": "{n} propert{s} {place}",
+  "hero.count.one": "{n} property {place}",
+  "hero.count.other": "{n} properties {place}",
   "hero.coming": "The platform is coming {place}",
   "hero.title1": "Rent, buy, sell —",
   "hero.title2": "no agency.",
@@ -24,7 +25,8 @@
   "dest.title1": "Explore",
   "dest.title2": "by city",
   "dest.desc": "Pick a city to see its listings.",
-  "dest.count": "{n} propert{s}",
+  "dest.count.one": "{n} property",
+  "dest.count.other": "{n} properties",
   "dest.discover": "Discover",
   "cat.eyebrow": "Listings",
   "cat.title1": "Available",
@@ -32,7 +34,8 @@
   "cat.descCity": "Everything for rent or sale in {city}.",
   "cat.descCountry": "Filter by property type {place}.",
   "cat.loading": "Loading…",
-  "cat.selection": "{n} propert{s} in this selection",
+  "cat.selection.one": "{n} property in this selection",
+  "cat.selection.other": "{n} properties in this selection",
   "cat.all": "All",
   "cat.rent": "Rent",
   "cat.sale": "Sale",
@@ -128,5 +131,7 @@
   "legal.toc": "Contents",
   "legal.todo": "[To be completed]",
   "legal.back": "Back to home",
-  "legal.translationNote": "Translation provided for information only; the French version prevails."
+  "legal.translationNote": "Translation provided for information only; the French version prevails.",
+  "place.inCity": "in {city}",
+  "place.inCountry": "in {name}"
 }

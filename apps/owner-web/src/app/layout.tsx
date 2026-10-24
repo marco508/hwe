@@ -49,8 +49,8 @@ export default function RootLayout({
               aria-hidden="true"
               className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
             >
-              <span className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-brand-300/15 dark:bg-brand-800/20 blur-3xl" />
-              <span className="absolute bottom-[-200px] right-[-100px] w-[500px] h-[500px] rounded-full bg-accent-300/12 dark:bg-accent-700/15 blur-3xl" />
+              <span className="absolute -top-32 -start-32 w-[500px] h-[500px] rounded-full bg-brand-300/15 dark:bg-brand-800/20 blur-3xl" />
+              <span className="absolute bottom-[-200px] end-[-100px] w-[500px] h-[500px] rounded-full bg-accent-300/12 dark:bg-accent-700/15 blur-3xl" />
             </div>
 
             <AppNavbar />

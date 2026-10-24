@@ -115,7 +115,7 @@ export function MandateDetailView({ id, backHref }: { id: string; backHref: stri
   return (
     <section className="space-y-6" data-mandate={m.reference}>
       <Link href={backHref} className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink">
-        <Icon name="chevronLeft" size={14} /> {t("pro.m.back")}
+        <Icon name="chevronLeft" size={14} className="rtl:rotate-180" /> {t("pro.m.back")}
       </Link>
 
       <div className="rounded-2xl border border-border bg-surface p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:items-center">
@@ -146,7 +146,7 @@ export function MandateDetailView({ id, backHref }: { id: string; backHref: stri
                 {t("pro.m.reject")}
               </Button>
               <Button variant="gradient" disabled={busy} onClick={accept}>
-                <Icon name="check" size={16} className="mr-1.5" /> {t("pro.m.accept")}
+                <Icon name="check" size={16} className="me-1.5" /> {t("pro.m.accept")}
               </Button>
             </>
           )}
@@ -161,7 +161,7 @@ export function MandateDetailView({ id, backHref }: { id: string; backHref: stri
       {m.status === "ENDED" && (
         <p className="rounded-xl border border-border bg-cream-50/70 dark:bg-white/5 px-4 py-3 text-sm">
           {t("pro.m.endedOn", { date: m.endedAt ? fmtDate(m.endedAt) : "—" })}
-          {m.endReason ? ` — « ${m.endReason} »` : ""}
+          {m.endReason ? ` — ${t("common.quote", { text: m.endReason })}` : ""}
           {!asOwner && <span className="block text-ink-muted mt-1">{t("pro.m.endedProNote")}</span>}
         </p>
       )}
@@ -226,7 +226,7 @@ export function MandateDetailView({ id, backHref }: { id: string; backHref: stri
                 <InviteLinkBox url={inviteUrl} title={t("pro.owner.activationLink")} message={t("pro.owner.waMessage", { agency: m.agency.name })} />
               ) : (
                 <Button size="sm" variant="secondary" onClick={resend}>
-                  <Icon name="send" size={14} className="mr-1.5" /> {t("pro.owner.resend")}
+                  <Icon name="send" size={14} className="me-1.5" /> {t("pro.owner.resend")}
                 </Button>
               )}
             </div>
@@ -354,7 +354,7 @@ export function StatementSection({ mandateId, currency }: { mandateId: string; c
             <Input id={`st-${mandateId}`} type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-9 w-40" />
           </div>
           <Button size="sm" variant="secondary" onClick={download} disabled={dl}>
-            <Icon name="file" size={14} className="mr-1.5" /> {dl ? t("pro.processing") : t("pro.st.pdf")}
+            <Icon name="file" size={14} className="me-1.5" /> {dl ? t("pro.processing") : t("pro.st.pdf")}
           </Button>
         </div>
       }
@@ -439,13 +439,13 @@ const EVENT_ICON: Record<string, Parameters<typeof Icon>[0]["name"]> = {
 export function Timeline({ events }: { events: MandateEvent[] }) {
   if (events.length === 0) return <p className="text-sm text-ink-muted">{t("pro.m.noEvents")}</p>;
   return (
-    <ol className="relative border-l border-border ml-3 space-y-4" data-timeline>
+    <ol className="relative border-s border-border ms-3 space-y-4" data-timeline>
       {[...events].reverse().map((e) => {
         const mention = typeof e.data?.mention === "string" ? (e.data.mention as string) : null;
         const reason = typeof e.data?.reason === "string" ? (e.data.reason as string) : null;
         return (
-          <li key={e.id} className="ml-5">
-            <span className="absolute -left-3 mt-0.5 h-6 w-6 rounded-full bg-surface ring-1 ring-border inline-flex items-center justify-center text-brand-700 dark:text-brand-300">
+          <li key={e.id} className="ms-5">
+            <span className="absolute -start-3 mt-0.5 h-6 w-6 rounded-full bg-surface ring-1 ring-border inline-flex items-center justify-center text-brand-700 dark:text-brand-300">
               <Icon name={EVENT_ICON[e.kind] ?? "dots"} size={13} />
             </span>
             <p className="text-sm font-medium" data-event={e.kind}>

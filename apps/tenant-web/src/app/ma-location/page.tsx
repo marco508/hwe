@@ -18,11 +18,12 @@ import {
   useLoginRedirect,
   Icon,
   AgencyLogo,
+  countryLabel,
 } from "@hwe/ui";
 import { generateLeaseContract, leaseCurrency } from "@hwe/types";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
-import { t } from "../../lib/i18n";
+import { t, useLang } from "../../lib/i18n";
 import { payDayText } from "../../lib/rent-format";
 import { LeaseTenantExtras } from "../../components/LeaseTenantExtras";
 import type { LeaseContract, LeaseStatus } from "@hwe/types";
@@ -186,7 +187,13 @@ function LeaseCard({
     !!user && lease.tenantEmail.trim().toLowerCase() === user.email.trim().toLowerCase();
   const hasTenantSigned = !!lease.tenantSignedAt;
   // F7 : même générateur que l'espace propriétaire (signatures, devise, séjour).
-  const contractText = React.useMemo(() => generateLeaseContract({ lease }), [lease]);
+  // Texte dans la langue de l'interface ; la version française fait foi.
+  const { lang } = useLang();
+  const contractText = React.useMemo(() => generateLeaseContract({ lease, lang }), [lease, lang]);
+  const contractTextFr = React.useMemo(
+    () => (lang === "fr" ? contractText : generateLeaseContract({ lease, lang: "fr" })),
+    [lease, lang, contractText],
+  );
 
   const handleSign = async () => {
     if (!confirm(t("rental.sign.confirm"))) return;
@@ -213,7 +220,7 @@ function LeaseCard({
             </h2>
             <p className="text-sm text-ink-muted mt-0.5 [overflow-wrap:anywhere]">
               {property?.addressLine}, {property?.postalCode} {property?.city},{" "}
-              {property?.country}
+              {property?.country ? countryLabel(property.country, property.country) : ""}
             </p>
           </div>
           <Badge tone={STATUS_TONE[lease.status]}>
@@ -255,6 +262,15 @@ function LeaseCard({
               >
                 {t("fix.lease.download")}
               </button>
+              {lang !== "fr" && (
+                <button
+                  type="button"
+                  onClick={() => downloadText(contractTextFr, `contrat-bail-${lease.id.slice(0, 8)}-fr.txt`)}
+                  className="text-sm font-medium text-ink-muted hover:text-ink hover:underline"
+                >
+                  {t("rental.contract.frenchVersion")}
+                </button>
+              )}
             </div>
           </div>
 
@@ -319,7 +335,7 @@ function LeaseCard({
                 {t("rental.rentsLink.text")}
               </p>
             </div>
-            <span className="text-brand-600 dark:text-brand-300" aria-hidden="true">→</span>
+            <span className="inline-block text-brand-600 dark:text-brand-300 rtl:rotate-180" aria-hidden="true">→</span>
           </Link>
         )}
 
@@ -443,7 +459,7 @@ function LeaseCard({
             </div>
             <Link
               href={`/agences/${encodeURIComponent(lease.managedBy.slug)}`}
-              className="ml-auto shrink-0 text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
+              className="ms-auto shrink-0 text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
             >
               {t("pro.seeAgency")}
             </Link>

@@ -108,7 +108,7 @@ export function ActionCenter() {
           >
             {a.agency ? <AgencyLogo name={a.agency.name} logoUrl={a.agency.logoUrl} size="sm" /> : <IconBadge name="bell" tone="accent" size="sm" />}
             <span className="flex-1 min-w-0 font-medium [overflow-wrap:anywhere]">{a.text}</span>
-            <Icon name="arrowRight" size={18} className="shrink-0 text-accent-600 dark:text-accent-300" />
+            <Icon name="arrowRight" size={18} className="shrink-0 rtl:rotate-180 text-accent-600 dark:text-accent-300" />
           </Link>
         ))}
       </div>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
-import { getUiLang, tUi } from "./I18nKit";
+import { tUi } from "./I18nKit";
 
 /**
  * Banque de photos locale (servie par chaque app depuis public/images, aucune
@@ -10,47 +10,48 @@ import { getUiLang, tUi } from "./I18nKit";
  *
  * Chaque entrée = un fichier WebP par largeur : /images/<id>-<w>.webp.
  */
-type PhotoDef = { widths: number[]; w: number; h: number; fr: string; en: string };
+/** Texte alternatif : clé `ui.photo.<id>` des dictionnaires de packages/ui. */
+type PhotoDef = { widths: number[]; w: number; h: number };
 
-const P = (widths: number[], w: number, h: number, fr: string, en: string): PhotoDef => ({ widths, w, h, fr, en });
+const P = (widths: number[], w: number, h: number): PhotoDef => ({ widths, w, h });
 const CARD = [480, 800];
 
 export const PHOTOS = {
-  "hero/hero-main": P([640, 1280, 1920], 1920, 1280, "Famille souriante, parents et trois enfants, assise sur un canapé dans un salon lumineux", "Smiling family, two parents and three children, sitting on a sofa in a bright living room"),
-  "hero/hero-keys": P(CARD, 800, 1000, "Jeune femme souriante montrant la clé de son nouveau logement, blottie contre son conjoint", "Smiling young woman showing the key to her new home, leaning against her partner"),
-  "hero/hero-interior": P(CARD, 800, 1000, "Salon lumineux avec canapé bleu, coussins jaunes et fauteuil en bois", "Bright living room with a blue sofa, yellow cushions and a wooden armchair"),
+  "hero/hero-main": P([640, 1280, 1920], 1920, 1280),
+  "hero/hero-keys": P(CARD, 800, 1000),
+  "hero/hero-interior": P(CARD, 800, 1000),
 
-  "cities/paris": P(CARD, 800, 1000, "Rue parisienne bordée d'immeubles haussmanniens avec la tour Eiffel en perspective", "Parisian street lined with Haussmann buildings, with the Eiffel Tower in the distance"),
-  "cities/lyon": P(CARD, 800, 1000, "Quais de Saône à Lyon, dominés par la basilique de Fourvière", "The Saône riverbanks in Lyon, overlooked by the Fourvière basilica"),
-  "cities/marseille": P(CARD, 800, 1000, "Voiliers sur le Vieux-Port de Marseille, avec Notre-Dame de la Garde sur la colline", "Sailboats in Marseille's Old Port, with Notre-Dame de la Garde on the hill"),
-  "cities/bordeaux": P(CARD, 800, 1000, "Place de la Bourse à Bordeaux et la fontaine des Trois Grâces sous un ciel bleu", "Place de la Bourse in Bordeaux with the Three Graces fountain under a blue sky"),
-  "cities/dakar": P(CARD, 800, 1000, "Mosquée de la Divinité à Ouakam, au bord de l'océan sur la corniche de Dakar", "The Mosque of the Divinity in Ouakam, by the ocean on Dakar's corniche"),
-  "cities/abidjan": P(CARD, 800, 1000, "Tours du Plateau à Abidjan vues depuis la lagune Ébrié", "High-rise towers of Abidjan's Plateau seen across the Ébrié lagoon"),
-  "cities/douala": P(CARD, 800, 1000, "Rue animée de Douala avec motos, taxis et passants", "Busy street in Douala with motorbikes, taxis and pedestrians"),
-  "cities/yaounde": P(CARD, 800, 1000, "Carrefour Nlongkak à Yaoundé avec taxis jaunes et collines verdoyantes", "Nlongkak junction in Yaoundé with yellow taxis and green hills"),
-  "cities/cotonou": P(CARD, 800, 1000, "Rue de quartier à Cotonou, une femme portant un panier sur la tête, mosquée en arrière-plan", "Neighbourhood street in Cotonou, a woman carrying a basket on her head, a mosque in the background"),
-  "cities/lome": P(CARD, 800, 1000, "Route du bord de mer à Lomé bordée de grands cocotiers", "Seaside road in Lomé lined with tall coconut palms"),
-  "cities/casablanca": P(CARD, 800, 1000, "Minaret de la mosquée Hassan II à Casablanca", "The minaret of the Hassan II Mosque in Casablanca"),
-  "cities/default": P(CARD, 800, 1000, "Rue résidentielle calme bordée d'arbres", "Quiet tree-lined residential street"),
+  "cities/paris": P(CARD, 800, 1000),
+  "cities/lyon": P(CARD, 800, 1000),
+  "cities/marseille": P(CARD, 800, 1000),
+  "cities/bordeaux": P(CARD, 800, 1000),
+  "cities/dakar": P(CARD, 800, 1000),
+  "cities/abidjan": P(CARD, 800, 1000),
+  "cities/douala": P(CARD, 800, 1000),
+  "cities/yaounde": P(CARD, 800, 1000),
+  "cities/cotonou": P(CARD, 800, 1000),
+  "cities/lome": P(CARD, 800, 1000),
+  "cities/casablanca": P(CARD, 800, 1000),
+  "cities/default": P(CARD, 800, 1000),
 
-  "types/apartment": P(CARD, 800, 1000, "Photo d'illustration : façade d'immeuble d'habitation avec balcons et volets", "Illustrative photo: apartment building facade with balconies and shutters"),
-  "types/house": P(CARD, 800, 1000, "Photo d'illustration : maison individuelle contemporaine blanche avec allée pavée et jardin", "Illustrative photo: white contemporary detached house with a paved driveway and garden"),
-  "types/studio": P(CARD, 800, 1000, "Photo d'illustration : studio meublé lumineux avec lit, coin repas et cuisine", "Illustrative photo: bright furnished studio with a bed, dining corner and kitchen"),
-  "types/land": P(CARD, 800, 1000, "Photo d'illustration : terrain de terre rouge en début de chantier, quelques ouvriers au fond", "Illustrative photo: red-soil plot at the start of construction, a few workers in the background"),
-  "types/commercial": P(CARD, 800, 1000, "Photo d'illustration : local commercial vide et lumineux avec piliers blancs et sol carrelé", "Illustrative photo: empty, bright commercial space with white pillars and tiled floor"),
-  "types/other": P(CARD, 800, 1000, "Photo d'illustration : salon neutre avec canapé gris, table basse en verre et grande fenêtre", "Illustrative photo: neutral living room with a grey sofa, glass coffee table and large window"),
+  "types/apartment": P(CARD, 800, 1000),
+  "types/house": P(CARD, 800, 1000),
+  "types/studio": P(CARD, 800, 1000),
+  "types/land": P(CARD, 800, 1000),
+  "types/commercial": P(CARD, 800, 1000),
+  "types/other": P(CARD, 800, 1000),
 
-  "steps/search": P([640], 640, 480, "Femme assise sur un canapé consultant des annonces sur son téléphone", "Woman sitting on a sofa browsing listings on her phone"),
-  "steps/visit": P([640], 640, 480, "Visite d'une maison : le propriétaire accueille un couple et son bébé", "A house viewing: the owner welcomes a couple and their baby"),
-  "steps/sign": P([640], 640, 480, "Poignée de main au-dessus d'un contrat signé sur une table", "Handshake over a signed contract on a table"),
-  "steps/move": P([640], 640, 480, "Couple souriant emménageant avec des cartons et une plante", "Smiling couple moving in with cardboard boxes and a plant"),
+  "steps/search": P([640], 640, 480),
+  "steps/visit": P([640], 640, 480),
+  "steps/sign": P([640], 640, 480),
+  "steps/move": P([640], 640, 480),
 
-  "auth/auth-tenant": P([640, 1080], 1080, 1350, "Parents et leur fils détendus sur le canapé de leur salon", "Parents and their son relaxing on the sofa in their living room"),
-  "auth/auth-owner": P([640, 1080], 1080, 1350, "Homme souriant, bras ouverts, devant une maison blanche", "Smiling man with open arms in front of a white house"),
+  "auth/auth-tenant": P([640, 1080], 1080, 1350),
+  "auth/auth-owner": P([640, 1080], 1080, 1350),
 
-  "people/benefit-1": P([640], 640, 480, "Jeune couple portant des cartons dans son nouveau logement", "Young couple carrying boxes in their new home"),
-  "people/benefit-2": P([640], 640, 480, "Homme souriant travaillant sur son ordinateur portable chez lui", "Smiling man working on his laptop at home"),
-  "people/benefit-3": P([640], 640, 480, "Mère jouant avec ses trois enfants dans un salon lumineux", "Mother playing with her three children in a bright living room"),
+  "people/benefit-1": P([640], 640, 480),
+  "people/benefit-2": P([640], 640, 480),
+  "people/benefit-3": P([640], 640, 480),
 } satisfies Record<string, PhotoDef>;
 
 export type PhotoId = keyof typeof PHOTOS;
@@ -60,8 +61,7 @@ const url = (id: string, w: number) => `${BASE}${id}-${w}.webp`;
 
 /** Texte alternatif de la photo dans la langue courante. */
 export function photoAlt(id: PhotoId): string {
-  const d = PHOTOS[id];
-  return getUiLang() === "en" ? d.en : d.fr;
+  return tUi(`ui.photo.${id}`);
 }
 
 /** Attributs <img> (src, srcSet, dimensions intrinsèques) d'une photo de la banque. */
@@ -189,7 +189,7 @@ export function PropertyPlaceholder({
     <div className={cn("relative w-full h-full overflow-hidden bg-cream-200 dark:bg-brand-950", className)}>
       <Photo id={id} sizes={sizes} className="absolute inset-0 h-full w-full object-cover" />
       {showLabel && (
-        <span className="absolute bottom-2 left-2 z-[2] rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white/95 backdrop-blur-sm">
+        <span className="absolute bottom-2 start-2 z-[2] rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white/95 backdrop-blur-sm">
           {tUi("ui.illustrativePhoto")}
         </span>
       )}
@@ -254,7 +254,7 @@ export function CityCard({
       )}
       <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/0" />
       {badge && (
-        <span className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 rounded-full bg-white/90 dark:bg-black/60 px-2.5 py-0.5 text-[11px] font-medium text-ink dark:text-white backdrop-blur-md">
+        <span className="absolute top-2.5 end-2.5 sm:top-3 sm:end-3 rounded-full bg-white/90 dark:bg-black/60 px-2.5 py-0.5 text-[11px] font-medium text-ink dark:text-white backdrop-blur-md">
           {badge}
         </span>
       )}
@@ -274,7 +274,7 @@ export function CityCard({
     </>
   );
   const cls = cn(
-    "group relative block aspect-[4/5] w-full min-w-0 rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-border/60 bg-brand-900 text-left hover-lift focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
+    "group relative block aspect-[4/5] w-full min-w-0 rounded-2xl sm:rounded-3xl overflow-hidden ring-1 ring-border/60 bg-brand-900 text-start hover-lift focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
     className,
   );
   return href ? (

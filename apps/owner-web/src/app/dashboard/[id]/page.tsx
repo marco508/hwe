@@ -103,7 +103,7 @@ export default function PropertyHubPage() {
   return (
     <section className="space-y-6">
       <Link href={pro ? "/pro/biens" : "/dashboard"} className="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink">
-        <Icon name="chevronLeft" size={14} /> {pro ? t("pro.hub.backPortfolio") : t("pf.back")}
+        <Icon name="chevronLeft" size={14} className="rtl:rotate-180" /> {pro ? t("pro.hub.backPortfolio") : t("pf.back")}
       </Link>
 
       <div className="rounded-2xl border border-border bg-surface overflow-hidden">
@@ -127,7 +127,7 @@ export default function PropertyHubPage() {
             </p>
             {p.status === "SOLD" && p.soldPrice != null && (
               <p className="mt-2 text-sm" data-sold-price>
-                <Icon name="checkCircle" size={16} className="text-success mr-1" />
+                <Icon name="checkCircle" size={16} className="text-success me-1" />
                 {t("pro.hub.soldFor", { price: fmtMoney(p.soldPrice, p.currency), date: p.soldAt ? fmtDate(p.soldAt) : "—" })}
               </p>
             )}
@@ -137,7 +137,7 @@ export default function PropertyHubPage() {
               </Link>
               {p.listingType === "SALE" && p.status !== "SOLD" && (!pro || can?.EDIT_LISTING) && (
                 <Button variant="gradient" onClick={() => setSoldOpen(true)}>
-                  <Icon name="party" size={16} className="mr-1.5" /> {t("pro.hub.markSold")}
+                  <Icon name="party" size={16} className="me-1.5" /> {t("pro.hub.markSold")}
                 </Button>
               )}
             </div>
@@ -182,7 +182,7 @@ export default function PropertyHubPage() {
                 ) : (
                   current?.status === "ACTIVE" && (
                     <Button variant="secondary" onClick={resend}>
-                      <Icon name="send" size={16} className="mr-1.5" /> {t("pro.owner.resend")}
+                      <Icon name="send" size={16} className="me-1.5" /> {t("pro.owner.resend")}
                     </Button>
                   )
                 )}

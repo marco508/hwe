@@ -98,8 +98,8 @@ function Inner() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6" role="search">
         <div className="relative">
-          <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-subtle" />
-          <Input aria-label={t("pro.mlist.search")} placeholder={t("pro.mlist.search")} value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />
+          <Icon name="search" size={16} className="absolute start-3 top-1/2 -translate-y-1/2 text-ink-subtle" />
+          <Input aria-label={t("pro.mlist.search")} placeholder={t("pro.mlist.search")} value={q} onChange={(e) => setQ(e.target.value)} className="ps-9" />
         </div>
         <Select aria-label={t("pro.mlist.fStatus")} value={status} onChange={(e) => setStatus(e.target.value as MandateStatus | "")} id="ml-status">
           <option value="">{t("pro.mlist.allStatuses")}</option>

@@ -695,5 +695,6 @@
   "pro.amendment.awaitingOwner": "Awaiting the landlord's signature",
   "pro.inspection.mention": "Landlord signature: {mention}",
   "pro.rents.payAgency": "Pay the rent to {name}, the landlord's managing agency.",
-  "pro.rents.transferTo": "Bank transfer — {name}"
+  "pro.rents.transferTo": "Bank transfer — {name}",
+  "rental.contract.frenchVersion": "French version (legally binding)"
 }

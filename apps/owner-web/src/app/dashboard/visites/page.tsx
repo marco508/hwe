@@ -58,7 +58,7 @@ function VisitCard({ visit, onUpdate, actor }: { visit: Visit; onUpdate: (v: Vis
               ? `${visit.requester.firstName} ${visit.requester.lastName} · ${visit.requester.email}${visit.requester.phone ? ` · ${visit.requester.phone}` : ""}`
               : ""}
           </p>
-          {visit.note && <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">« {visit.note} »</p>}
+          {visit.note && <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">{t("common.quote", { text: visit.note })}</p>}
           {visit.ownerNote && (
             <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">{t("ops.visits.yourReply")} {visit.ownerNote}{actor ? ` (${actor})` : ""}</p>
           )}

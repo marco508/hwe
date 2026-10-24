@@ -45,18 +45,18 @@ export const Stepper: React.FC<StepperProps> = ({
         {/* Connecting line */}
         <span
           aria-hidden="true"
-          className="absolute left-[19px] top-2 bottom-2 w-px bg-border"
+          className="absolute start-[19px] top-2 bottom-2 w-px bg-border"
         />
         {steps.map((s, i) => {
           const active = s.id === activeId;
           const passed = i < activeIndex || s.done;
           return (
-            <li key={s.id} className="relative pl-12 pb-6 last:pb-0">
+            <li key={s.id} className="relative ps-12 pb-6 last:pb-0">
               <button
                 type="button"
                 onClick={() => onChange(s.id)}
                 className={cn(
-                  "absolute left-0 top-0 h-10 w-10 rounded-full flex items-center justify-center text-sm transition-all",
+                  "absolute start-0 top-0 h-10 w-10 rounded-full flex items-center justify-center text-sm transition-all",
                   active
                     ? "bg-brand-600 text-white ring-4 ring-brand-500/20"
                     : passed
@@ -84,7 +84,7 @@ export const Stepper: React.FC<StepperProps> = ({
               <button
                 type="button"
                 onClick={() => onChange(s.id)}
-                className="text-left block"
+                className="text-start block"
               >
                 <div
                   className={cn(
@@ -154,7 +154,7 @@ export const Stepper: React.FC<StepperProps> = ({
                     s.icon ?? <span className="font-display">{i + 1}</span>
                   )}
                 </span>
-                <div className="text-left hidden sm:block">
+                <div className="text-start hidden sm:block">
                   <div
                     className={cn(
                       "text-[11px] uppercase tracking-[0.14em]",

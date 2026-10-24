@@ -1456,5 +1456,6 @@
   "sub.admin.save": "Enregistrer",
   "sub.admin.saved": "Enregistré",
   "sub.admin.confirm": "Confirmer",
-  "sub.admin.pending": "en attente"
+  "sub.admin.pending": "en attente",
+  "common.quote": "« {text} »"
 }
