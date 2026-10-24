@@ -1,3 +1,5 @@
+// Polices auto-hébergées (packages/ui/src/fonts) : aucune requête vers Google Fonts.
+import "@hwe/ui/fonts.css";
 import "./globals.css";
 import { LANG_BOOT_SCRIPT } from "@hwe/types";
 import type { Metadata } from "next";
@@ -22,16 +24,6 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;500&family=Noto+Sans+Arabic:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
         <script dangerouslySetInnerHTML={{ __html: LANG_BOOT_SCRIPT }} />
         <script
           dangerouslySetInnerHTML={{

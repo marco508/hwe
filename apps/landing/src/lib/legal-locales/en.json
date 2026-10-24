@@ -307,7 +307,7 @@
             "The authorities, only upon a legally grounded request."
           ],
           "Landlords' email addresses and phone numbers are not displayed publicly: contact goes through the messaging. An agency may choose to display its business contact details on its public page.",
-          "Exchange rates are retrieved by our servers from public sources (open.er-api.com, with the European Central Bank as a fallback): no personal data is sent to them. The website's fonts are loaded from Google Fonts: your browser then shares your IP address with Google."
+          "Exchange rates are retrieved by our servers from public sources (open.er-api.com, with the European Central Bank as a fallback): no personal data is sent to them. The website's fonts are hosted on our own servers: displaying them involves no third-party service."
         ]
       },
       {

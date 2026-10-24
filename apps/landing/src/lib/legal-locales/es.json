@@ -307,7 +307,7 @@
             "Las autoridades, únicamente previa solicitud legalmente fundada."
           ],
           "La dirección de correo electrónico y el teléfono de los propietarios no se muestran públicamente: el contacto se realiza a través de la mensajería. Una agencia puede optar por mostrar sus datos de contacto profesionales en su página pública.",
-          "Nuestros servidores obtienen los tipos de cambio de fuentes públicas (open.er-api.com y, como respaldo, el Banco Central Europeo): no se les transmite ningún dato personal. Las fuentes tipográficas del sitio se cargan desde Google Fonts: su navegador comunica entonces su dirección IP a Google."
+          "Nuestros servidores obtienen los tipos de cambio de fuentes públicas (open.er-api.com y, como respaldo, el Banco Central Europeo): no se les transmite ningún dato personal. Las fuentes tipográficas del sitio se alojan en nuestros propios servidores: su visualización no recurre a ningún servicio de terceros."
         ]
       },
       {

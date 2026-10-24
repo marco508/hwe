@@ -307,7 +307,7 @@
             "Les autorités, uniquement sur demande légalement fondée."
           ],
           "L'adresse e-mail et le téléphone des propriétaires ne sont pas affichés publiquement : le contact passe par la messagerie. Une agence peut choisir d'afficher ses coordonnées professionnelles sur sa page publique.",
-          "Les taux de change sont récupérés par nos serveurs auprès de sources publiques (open.er-api.com, puis la Banque centrale européenne en secours) : aucune donnée personnelle ne leur est transmise. Les polices de caractères du site sont chargées depuis Google Fonts : votre navigateur communique alors votre adresse IP à Google."
+          "Les taux de change sont récupérés par nos serveurs auprès de sources publiques (open.er-api.com, puis la Banque centrale européenne en secours) : aucune donnée personnelle ne leur est transmise. Les polices de caractères du site sont hébergées sur nos propres serveurs : leur affichage ne fait appel à aucun service tiers."
         ]
       },
       {
