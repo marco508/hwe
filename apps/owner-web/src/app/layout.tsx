@@ -11,7 +11,7 @@ import { AppToaster } from "../components/AppToaster";
 
 export const metadata: Metadata = {
   title: "hwe — Espace propriétaire",
-  description: "Gérez vos biens immobiliers à la vente ou à la location.",
+  description: "Propriétaires et professionnels : gérez vos biens à la vente ou à la location, vos mandats, baux et loyers.",
 };
 
 export default function RootLayout({

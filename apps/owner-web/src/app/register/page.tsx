@@ -91,7 +91,7 @@ function RegisterInner() {
         <div className="mb-6 text-center lg:text-start">
           <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
             <span className="h-1.5 w-1.5 rounded-full bg-accent-500 animate-pulse-glow" />
-            {t("register.badge")}
+            {kind === "AGENT" ? t("register.badgePro") : t("register.badge")}
           </span>
           <h1 className="font-display text-4xl mb-1">
             {t("register.title1")} <span className="gradient-text">{kind === "AGENT" ? t("register.title2Pro") : t("register.title2")}</span>
