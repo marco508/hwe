@@ -1,7 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, HttpException, Injectable, NotFoundException } from "@nestjs/common";
 import { AgencyRole, MandateStatus, MandateType, Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { today as todayDay } from "./dates";
+import { SUBSCRIPTION_CODES, loadAgencySubscription, loadWritableMandates, mandateWriteGate } from "./subscription";
 
 /**
  * PERMISSIONS SUR UN BIEN — point unique de décision.
@@ -11,6 +12,11 @@ import { today as todayDay } from "./dates";
  * bien, à condition d'être MANAGER de l'agence ou l'agent ASSIGNÉ au mandat.
  * Toute autre personne (autre agence, agent non assigné, mandat en attente,
  * refusé ou terminé) est refusée.
+ *
+ * Abonnement : un pro dont l'agence est SUSPENDED (ou dont le mandat dépasse
+ * la limite de l'offre) garde la LECTURE mais toute écriture est refusée
+ * (402 SUBSCRIPTION_SUSPENDED / PLAN_LIMIT_MANDATES). Le propriétaire n'est
+ * jamais concerné.
  *
  * La règle elle-même (`decideAccess`) est PURE et testée unitairement ; le
  * service charge le contexte (bien, propriétaire, adhésion, mandat) et lève
@@ -86,7 +92,15 @@ export interface AccessContext {
   mandate: AccessMandate | null;
   /** Jour courant (fuseau plateforme) */
   today: Date;
+  /**
+   * Verrou d'abonnement de l'agence sur ce mandat (null/absent : écritures
+   * permises). Seules READ et LEASE_READ restent possibles s'il est posé.
+   */
+  writeGate?: { code: string; message: string } | null;
 }
+
+/** Actions de pure lecture : toujours permises, même agence suspendue. */
+export const READ_ONLY_ACTIONS = new Set<AccessAction>(["READ", "LEASE_READ"]);
 
 export type AccessAs = "OWNER" | "PRO" | "NONE";
 
@@ -151,6 +165,10 @@ export function decideAccess(ctx: AccessContext, action: AccessAction): AccessDe
   if (action === "OWNER_NOTICE" && m.type !== "MANAGEMENT") {
     return deny("PRO", "MANDATE_SCOPE", "Le congé bailleur par le professionnel exige un mandat de gestion.");
   }
+  // Abonnement : lecture seule (agence suspendue ou mandat hors limite).
+  if (ctx.writeGate && !READ_ONLY_ACTIONS.has(action)) {
+    return deny("PRO", ctx.writeGate.code, ctx.writeGate.message);
+  }
   if (OWNER_DECISIONS.has(action)) {
     if (ctx.ownerActivated) {
       return deny(
@@ -166,13 +184,20 @@ export function decideAccess(ctx: AccessContext, action: AccessAction): AccessDe
   return { allowed: true, as: "PRO", onBehalf: false };
 }
 
-export function accessDenied(d: AccessDecision): ForbiddenException {
+export function accessDenied(d: AccessDecision): HttpException {
+  // Codes d'abonnement : 402 (le filtre d'exceptions l'impose aussi).
+  if (d.code && SUBSCRIPTION_CODES.has(d.code)) {
+    return new HttpException({ statusCode: 402, code: d.code, message: d.message }, 402);
+  }
   return new ForbiddenException({ statusCode: 403, code: d.code, message: d.message });
 }
 
 // ─────────────────────────── Chargement du contexte ───────────────────────────
 
-type Db = Pick<PrismaService, "property" | "agencyMember" | "mandate" | "leaseContract" | "user">;
+type Db = Pick<
+  PrismaService,
+  "property" | "agencyMember" | "mandate" | "leaseContract" | "user" | "agency" | "plan" | "platformSettings"
+>;
 
 /** Instant de complétion d'un mandat LETTING (bail doublement signé depuis son début). */
 async function lettingCompletion(
@@ -250,8 +275,15 @@ export async function loadAccessContext(db: Db, propertyId: string, userId: stri
     const since = m.acceptedAt ?? m.createdAt;
     lettingCompletedAt = (await lettingCompletion(db, [propertyId], new Map([[propertyId, since]]))).get(propertyId) ?? null;
   }
+  // Verrou d'abonnement (seulement utile si le mandat donne accès).
+  let writeGate: AccessContext["writeGate"] = null;
+  if (m.status === "ACTIVE") {
+    const sub = await loadAgencySubscription(db, membership.agencyId);
+    writeGate = mandateWriteGate(sub, sub.writable ? await loadWritableMandates(db, sub) : null, m.id);
+  }
   return {
     ...base,
+    writeGate,
     membership,
     mandate: {
       id: m.id,
@@ -287,6 +319,8 @@ export async function managedPropertyIds(db: Db, userId: string, action: AccessA
     },
     select: { ...MANDATE_ACCESS_SELECT, property: { select: { owner: { select: { activatedAt: true } } } } },
   });
+  const sub = await loadAgencySubscription(db, membership.agencyId);
+  const writable = sub.writable ? await loadWritableMandates(db, sub) : null;
   const letting = mandates.filter((m) => m.type === "LETTING");
   const completion = await lettingCompletion(
     db,
@@ -312,6 +346,7 @@ export async function managedPropertyIds(db: Db, userId: string, action: AccessA
             lettingCompletedAt: completion.get(m.propertyId) ?? null,
           },
           today,
+          writeGate: mandateWriteGate(sub, writable, m.id),
         },
         action,
       ).allowed,

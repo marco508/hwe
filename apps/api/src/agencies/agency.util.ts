@@ -3,6 +3,7 @@ import { AgencyRole, Prisma } from "@prisma/client";
 import { createHash, randomBytes } from "crypto";
 import { lockKey } from "../common/advisory-lock";
 import { normalizeEmail } from "../common/email.util";
+import { assertCanAddAgent, loadSettings } from "../common/subscription";
 
 type Tx = Prisma.TransactionClient;
 
@@ -75,6 +76,11 @@ async function uniqueCode(tx: Tx): Promise<string> {
 /**
  * Crée une agence dont `userId` devient MANAGER. Refus (409) si
  * l'utilisateur appartient déjà à une agence.
+ *
+ * Essai gratuit (`trialDays`, 60 par défaut) : un seul par personne. Si le
+ * créateur a déjà consommé le sien (`User.proTrialUsedAt`, posé à la
+ * création de sa première agence), la nouvelle agence n'a PAS d'essai
+ * (`trialEndsAt` null) : offre gratuite, ou lecture seule si elle est coupée.
  */
 export async function createAgencyFor(
   tx: Tx,
@@ -91,8 +97,16 @@ export async function createAgencyFor(
     });
   }
   const name = data.name.trim().slice(0, 120);
+  const [{ settings }, user] = await Promise.all([
+    loadSettings(tx),
+    tx.user.findUniqueOrThrow({ where: { id: userId }, select: { proTrialUsedAt: true } }),
+  ]);
+  const now = new Date();
+  const trialEndsAt = user.proTrialUsedAt ? null : new Date(now.getTime() + settings.trialDays * 24 * 3600 * 1000);
+  if (!user.proTrialUsedAt) await tx.user.update({ where: { id: userId }, data: { proTrialUsedAt: now } });
   const agency = await tx.agency.create({
     data: {
+      trialEndsAt,
       name,
       slug: await uniqueSlug(tx, name),
       code: await uniqueCode(tx),
@@ -153,6 +167,9 @@ export async function joinAgencyWithInvite(tx: Tx, user: { id: string; email: st
   if (count === 0) {
     throw new ConflictException({ statusCode: 409, code: "INVITE_USED", message: "Cette invitation a déjà été utilisée." });
   }
+  // Abonnement : agence non suspendue et limite d'agents de l'offre.
+  await lockKey(tx, `agency:${invite.agencyId}`);
+  await assertCanAddAgent(tx, invite.agencyId, { countPendingInvites: false });
   await tx.agencyMember.create({ data: { agencyId: invite.agencyId, userId: user.id, role: invite.role } });
   return { agencyId: invite.agencyId, role: invite.role };
 }

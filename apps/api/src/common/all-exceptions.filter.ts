@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import type { Response } from "express";
+import { SUBSCRIPTION_CODES } from "./subscription";
 
 /**
  * Format d'erreur unique : `{ statusCode, message, code? }`.
@@ -40,6 +41,8 @@ export function toErrorBody(exception: unknown): ErrorBody {
       message: r.message ?? r.error ?? exception.message,
     };
     if (r.code) body.code = r.code;
+    // Abonnement : toujours 402, même levé via une 403 de refus d'accès.
+    if (r.code && SUBSCRIPTION_CODES.has(r.code)) body.statusCode = 402;
     return body;
   }
 

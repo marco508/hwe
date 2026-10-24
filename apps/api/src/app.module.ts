@@ -22,6 +22,7 @@ import { MediaModule } from "./media/media.module";
 import { AgencyCoreModule } from "./mandates/core.module";
 import { AgenciesModule } from "./agencies/agencies.module";
 import { MandatesModule } from "./mandates/mandates.module";
+import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
 import { HealthController } from "./health/health.controller";
 import { AllExceptionsFilter } from "./common/all-exceptions.filter";
 import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interceptor";
@@ -50,6 +51,7 @@ import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interc
     MediaModule,
     AgenciesModule,
     MandatesModule,
+    SubscriptionsModule,
   ],
   controllers: [HealthController],
   providers: [

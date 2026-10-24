@@ -9,7 +9,8 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { assertEmailVerified } from "../common/email-verified.util";
 import { MEDIA_SELECT, USER_PUBLIC_SELECT, withMediaUrl } from "../common/media.util";
-import { PropertyAccessService } from "../common/property-access";
+import { PropertyAccessService, accessDenied } from "../common/property-access";
+import { SUBSCRIPTION_CODES } from "../common/subscription";
 
 // Interlocuteur : nom et avatar (URL) seulement — ni e-mail ni téléphone :
 // démarrer une conversation ne doit pas suffire à récupérer les coordonnées
@@ -89,7 +90,10 @@ export class ConversationsService {
     action: "READ" | "MESSAGES" = "READ",
   ): Promise<boolean> {
     if (convo.ownerId === userId) return true;
-    return (await this.access.check(convo.propertyId, userId, action)).decision.allowed;
+    const { decision } = await this.access.check(convo.propertyId, userId, action);
+    // Pro dont l'agence est en lecture seule (abonnement) : refus explicite (402).
+    if (!decision.allowed && decision.code && SUBSCRIPTION_CODES.has(decision.code)) throw accessDenied(decision);
+    return decision.allowed;
   }
 
   /**

@@ -13,6 +13,15 @@ import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { AuthService } from "../auth/auth.service";
 import { PropertiesService } from "../properties/properties.service";
+import {
+  assertAgencyWritable,
+  assertCanAddMandates,
+  loadAgencySubscription,
+  loadWritableMandates,
+  mandateWriteGate,
+  subscriptionError,
+  withinLimit,
+} from "../common/subscription";
 import { lockKey } from "../common/advisory-lock";
 import { addDays, dayOf, monthEnd, monthStart, today as todayDay, toDay, yearOf } from "../common/dates";
 import { normalizeEmail } from "../common/email.util";
@@ -100,6 +109,36 @@ export class MandatesService {
       });
     }
     return m;
+  }
+
+  /**
+   * Côté propriétaire (confier un bien, accepter un mandat ou une demande) :
+   * l'agence doit pouvoir recevoir `n` mandats de plus (abonnement non
+   * suspendu, limite de l'offre). Le propriétaire n'est jamais bloqué sur ses
+   * propres biens : seul ce nouveau mandat est refusé (409 AGENCY_UNAVAILABLE).
+   */
+  private async assertAgencyAvailable(agencyId: string, n: number): Promise<void> {
+    const sub = await loadAgencySubscription(this.prisma, agencyId);
+    const unavailable = () =>
+      new ConflictException({
+        statusCode: 409,
+        code: "AGENCY_UNAVAILABLE",
+        message: "Cette agence ne peut pas recevoir de nouveau mandat pour l'instant (abonnement). Contactez-la ou choisissez-en une autre.",
+      });
+    if (!sub.writable) throw unavailable();
+    const max = sub.limits.maxActiveMandates;
+    if (n > 0 && max !== null) {
+      const open = await this.prisma.mandate.count({ where: { agencyId, status: { in: ["ACTIVE", "PENDING_OWNER"] } } });
+      if (!withinLimit(max, open, n)) throw unavailable();
+    }
+  }
+
+  /** Écriture d'un pro sur un mandat : agence non suspendue et mandat sous la limite de l'offre. */
+  private async assertMandateWritable(agencyId: string, mandateId: string, status: string): Promise<void> {
+    const sub = await assertAgencyWritable(this.prisma, agencyId);
+    if (status !== "ACTIVE") return;
+    const gate = mandateWriteGate(sub, await loadWritableMandates(this.prisma, sub), mandateId);
+    if (gate) throw subscriptionError(gate.code, gate.message);
   }
 
   /** Référence MAN-<année>-<n> : compteur annuel incrémenté atomiquement. */
@@ -358,6 +397,8 @@ export class MandatesService {
     const terms = this.terms(dto, dto.type);
     await this.assertAgencyIban(member.agencyId, terms.rentPayee);
     const assignedAgentId = await this.resolveAssignee(member, dto.assignedAgentId);
+    // Abonnement : agence non suspendue, limite de mandats (une demande compte pour un).
+    await assertCanAddMandates(this.prisma, member.agencyId, Math.max(1, new Set(dto.propertyIds ?? []).size));
     const agency = await this.prisma.agency.findUniqueOrThrow({ where: { id: member.agencyId }, select: { name: true } });
     const url = `${ownerWebBase()}/dashboard/mandats`;
 
@@ -435,6 +476,7 @@ export class MandatesService {
     assertMandateMatchesListing(dto.mandate.type, dto.property.listingType);
     await this.assertAgencyIban(member.agencyId, terms.rentPayee);
     const assignedAgentId = await this.resolveAssignee(member, dto.assignedAgentId);
+    await assertCanAddMandates(this.prisma, member.agencyId, 1);
 
     const exists = (msg?: string) =>
       new ConflictException({
@@ -551,6 +593,7 @@ export class MandatesService {
     if (m.status !== "ACTIVE" && m.status !== "PENDING_OWNER") {
       throw new ConflictException({ statusCode: 409, code: "MANDATE_INACTIVE", message: "Ce mandat n'est plus actif." });
     }
+    await this.assertMandateWritable(m.agencyId, m.id, m.status);
     const ownerInviteUrl = await this.sendOwnerInvite(m.ownerId, m.agencyId);
     await this.event(this.prisma, m.id, user.sub, "OWNER_INVITE_SENT");
     return { ownerInviteUrl, emailSent: this.mailer.isConfigured };
@@ -561,6 +604,8 @@ export class MandatesService {
   async accept(user: AuthUser, id: string) {
     const m = await this.load(id);
     if (m.ownerId !== user.sub) throw notFound();
+    // Mandat déjà compté dans la limite tant qu'il est en attente : seul l'abonnement compte.
+    if (m.status === "PENDING_OWNER") await this.assertAgencyAvailable(m.agencyId, 0);
     await this.prisma.$transaction(async (tx) => {
       await lockKey(tx, `mandate:property:${m.propertyId}`);
       const active = await tx.mandate.findFirst({
@@ -637,6 +682,7 @@ export class MandatesService {
         message: "Les conditions d'un mandat accepté ne se modifient plus : mettez-y fin et proposez-en un nouveau.",
       });
     }
+    await this.assertMandateWritable(m.agencyId, m.id, m.status);
     const data: Prisma.MandateUncheckedUpdateInput = {};
     if (touchesTerms) {
       const merged = {
@@ -682,6 +728,7 @@ export class MandatesService {
     assertMandateMatchesListing(dto.type, property.listingType);
     const terms = this.terms(dto, dto.type);
     await this.assertAgencyIban(agency.id, terms.rentPayee);
+    await this.assertAgencyAvailable(agency.id, 1);
     const id = await this.prisma.$transaction(async (tx) => {
       await this.assertNoOpenMandate(tx, property.id);
       const m = await tx.mandate.create({
@@ -754,6 +801,7 @@ export class MandatesService {
       throw new BadRequestException({ statusCode: 400, code: "PROPERTY_NOT_OWNED", message: "Choisissez parmi vos biens." });
     }
     for (const p of props) assertMandateMatchesListing(r.type, p.listingType);
+    await this.assertAgencyAvailable(r.agencyId, props.length);
     const created = await this.prisma.$transaction(async (tx) => {
       const { count } = await tx.mandateRequest.updateMany({
         where: { id, status: "PENDING" },
@@ -873,6 +921,7 @@ export class MandatesService {
       throw new ForbiddenException({ statusCode: 403, code: "MANAGER_ONLY", message: "Seul un responsable marque les honoraires comme réglés." });
     }
     assertFeeTransition(fee.status, status);
+    await assertAgencyWritable(this.prisma, member.agencyId);
     const updated = await this.prisma.feeEntry.update({
       where: { id },
       data: { status, settledAt: status === "SETTLED" ? new Date() : null },

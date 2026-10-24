@@ -348,4 +348,11 @@ export class MailerService implements OnModuleInit {
         `Approuvez ou refusez ce candidat depuis votre espace :\n\n${url}\n\nhwe`,
     );
   }
+
+  // ─────────────────────── Abonnement des professionnels ───────────────────────
+
+  /** Rappels et décisions d'abonnement (envoyés aux responsables de l'agence). */
+  subscriptionNotice(to: string, name: string, subject: string, body: string, url: string) {
+    return this.send(to, `hwe — ${subject}`, `Bonjour ${name},\n\n${body}\n\n${url}\n\nhwe`);
+  }
 }

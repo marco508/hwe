@@ -17,6 +17,7 @@ import { MEDIA_SELECT, agencyLogoUrl, withMediaUrl } from "../common/media.util"
 import { monthEnd, monthStart, today as todayDay } from "../common/dates";
 import { sumMoney } from "../common/money";
 import { PropertyAccessService } from "../common/property-access";
+import { assertCanAddAgent } from "../common/subscription";
 import { derivePriceDisplay } from "../properties/properties.service";
 import {
   AGENCY_INVITE_DAYS,
@@ -186,6 +187,8 @@ export class AgenciesService {
 
   async invite(userId: string, dto: InviteAgentDto) {
     const m = await this.managerOf(userId);
+    // Abonnement : agence non suspendue, membres + invitations en attente sous la limite.
+    await assertCanAddAgent(this.prisma, m.agencyId, { countPendingInvites: true });
     const email = normalizeEmail(dto.email);
     const existing = await this.prisma.user.findFirst({
       where: { email: { equals: email, mode: "insensitive" } },
