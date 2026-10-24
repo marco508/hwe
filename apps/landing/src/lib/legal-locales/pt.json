@@ -1,1 +1,332 @@
-{}
+{
+  "legal": {
+    "title": "Informações legais",
+    "intro": "Informações relativas ao editor e ao alojamento do sítio hwe, nos termos do artigo 6.º da lei francesa n.º 2004-575, de 21 de junho de 2004, para a confiança na economia digital (LCEN).",
+    "sections": [
+      {
+        "id": "editeur",
+        "title": "Editor do sítio",
+        "blocks": [
+          [
+            "Denominação social: {{TODO}}",
+            "Forma jurídica e capital social: {{TODO}}",
+            "Sede social: {{TODO}}",
+            "Registo (RCS / SIREN): {{TODO}}",
+            "Número de IVA intracomunitário: {{TODO}}"
+          ]
+        ]
+      },
+      {
+        "id": "publication",
+        "title": "Diretor da publicação",
+        "blocks": [
+          "Diretor ou diretora da publicação: {{TODO}}"
+        ]
+      },
+      {
+        "id": "hebergeur",
+        "title": "Alojamento",
+        "blocks": [
+          [
+            "Prestador de alojamento: {{TODO}}",
+            "Endereço do prestador de alojamento: {{TODO}}",
+            "Contacto do prestador de alojamento: {{TODO}}"
+          ]
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Contacto",
+        "blocks": [
+          "Para qualquer questão relativa ao sítio, a um conteúdo publicado ou aos seus dados pessoais, pode escrever-nos:",
+          [
+            "Endereço de e-mail: {{TODO}}",
+            "Telefone: {{TODO}}",
+            "Endereço postal: {{TODO}}"
+          ],
+          "Para denunciar um anúncio ou uma mensagem ilícita, indique a ligação da página em causa e o motivo da denúncia."
+        ]
+      },
+      {
+        "id": "service",
+        "title": "Natureza do serviço",
+        "blocks": [
+          "A hwe é uma plataforma que põe em contacto proprietários e candidatos a inquilinos ou compradores. Disponibiliza ferramentas: publicação de anúncios, mensagens, pedidos de visita, modelos de contrato de arrendamento, autos de vistoria, acompanhamento das rendas e dos recibos.",
+          "A hwe não é uma agência imobiliária, nem um administrador de imóveis, nem um consultor jurídico. A plataforma não recebe, não detém nem transfere quaisquer quantias: rendas, cauções e preços de venda são pagos diretamente entre as partes."
+        ]
+      },
+      {
+        "id": "propriete",
+        "title": "Propriedade intelectual",
+        "blocks": [
+          "A estrutura do sítio, a sua identidade gráfica, os seus textos, logótipos e software estão protegidos pelo direito da propriedade intelectual. É proibida qualquer reprodução ou reutilização sem autorização escrita.",
+          "Os anúncios, fotografias e mensagens continuam a ser propriedade dos respetivos autores, que concedem à hwe o direito de os apresentar na plataforma para as necessidades do serviço."
+        ]
+      },
+      {
+        "id": "credits-photos",
+        "title": "Créditos fotográficos",
+        "blocks": [
+          "Fotografias ilustrativas provenientes do Unsplash (licença Unsplash, unsplash.com/license) e do Pexels (licença Pexels, pexels.com/license), que autorizam a utilização comercial. As fotografias ilustrativas não representam os imóveis publicados. Lista detalhada: /images/CREDITS.md.",
+          [
+            "Família negra sorridente num sofá — Monstera Production (Pexels)",
+            "Mulher sorridente a mostrar uma chave — Kindel Media (Pexels)",
+            "Sala luminosa, sofá azul — Curtis Adams (Pexels)",
+            "Torre Eiffel vista da rue de Monttessuy — Teodor Kuduschiev (Unsplash)",
+            "Margens do Saône e basílica de Fourvière — Godefroy Boutet (Unsplash)",
+            "Vieux-Port e Notre-Dame de la Garde — Lien Van Win (Unsplash)",
+            "Place de la Bourse e fonte das Três Graças — F DALLAY (Unsplash)",
+            "Mesquita da Divindade, corniche Ouest (Ouakam) — Eyelit Studio (Unsplash)",
+            "Torres do Plateau à beira da lagoa — Jean Marc Bonnel (Pexels)",
+            "Cena de rua animada em Bessengue — Edouard TAMBA (Unsplash)",
+            "Cruzamento de Nlongkak e colinas — Ariel Nathan ADA MBITA (Unsplash)",
+            "Rua de bairro com uma mesquita — Vurzie Kim (Pexels)",
+            "Estrada à beira-mar ladeada de coqueiros — Kab Visuals (Pexels)",
+            "Mesquita Hassan II — Hamza Bouchikhi (Unsplash)",
+            "Rua residencial arborizada — Sami TÜRK (Pexels)",
+            "Fachada de prédio com varandas — Andrew Patrick Photo (Pexels)",
+            "Moradia contemporânea branca e acesso — Julia Kuzenkov (Pexels)",
+            "Estúdio mobilado (cama, zona de refeições) — Max Vakhtbovych (Pexels)",
+            "Parcela de terra vermelha em início de obra — Divaris Shirichena (Unsplash)",
+            "Espaço comercial / escritório vazio e luminoso — Andrea De Santis (Pexels)",
+            "Sala neutra — Curtis Adams (Pexels)",
+            "Mulher a pesquisar no telemóvel — David Kwewum (Pexels)",
+            "Visita a uma casa — Kindel Media (Pexels)",
+            "Aperto de mão sobre um contrato — Ron Lach (Pexels)",
+            "Casal sorridente com caixas — RDNE Stock project (Pexels)",
+            "Pais e filho num sofá — Mizuno K (Pexels)",
+            "Homem em frente a uma casa branca — Aj Collins Artistry (Pexels)",
+            "Casal jovem a mudar-se com caixas — Gustavo Fring (Pexels)",
+            "Homem a trabalhar num computador portátil — RDNE Stock project (Pexels)",
+            "Mãe e filhos a brincar na sala — Monstera Production (Pexels)"
+          ]
+        ]
+      },
+      {
+        "id": "responsabilite",
+        "title": "Responsabilidade",
+        "blocks": [
+          "Os anúncios são publicados sob a exclusiva responsabilidade dos utilizadores que os redigem. A hwe não garante a exatidão das informações publicadas nem o resultado de um arrendamento ou de uma venda.",
+          "A hwe esforça-se por assegurar o acesso contínuo ao sítio, mas não pode ser responsabilizada por uma interrupção, um erro técnico ou um dano resultante da utilização do sítio."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Condições gerais de utilização",
+    "intro": "As presentes condições regem a utilização da plataforma hwe (sítio institucional, área do inquilino e área do proprietário). Ao criar uma conta, o utilizador aceita-as.",
+    "sections": [
+      {
+        "id": "objet",
+        "title": "1. Objeto",
+        "blocks": [
+          "A hwe põe em contacto proprietários que propõem um imóvel para arrendamento ou venda e pessoas que procuram habitação ou pretendem comprar. A plataforma fornece ferramentas de publicação, de mensagens e de gestão de arrendamentos.",
+          "A hwe não intervém na negociação, não representa nenhuma das partes e não é parte nos contratos celebrados entre utilizadores."
+        ]
+      },
+      {
+        "id": "comptes",
+        "title": "2. Registo e contas",
+        "blocks": [
+          "O registo é gratuito. Existem dois tipos de conta:",
+          [
+            "conta de proprietário: publicação de anúncios, resposta aos pedidos, preparação e assinatura dos contratos de arrendamento, acompanhamento das rendas;",
+            "conta de inquilino / comprador: pesquisa, favoritos, pedidos de arrendamento ou propostas de compra, visitas, assinatura do contrato, declaração dos pagamentos."
+          ],
+          "Deve fornecer informações exatas, confirmar o seu endereço de e-mail e manter a sua palavra-passe confidencial. Qualquer ação realizada a partir da sua conta presume-se feita por si."
+        ]
+      },
+      {
+        "id": "obligations",
+        "title": "3. Obrigações dos utilizadores",
+        "blocks": [
+          "Cada utilizador compromete-se a:",
+          [
+            "respeitar a legislação aplicável, nomeadamente em matéria de habitação condigna, de não discriminação e de proteção de dados;",
+            "publicar apenas imóveis de que disponha e informações verdadeiras;",
+            "não utilizar a plataforma para angariação abusiva, burla ou conteúdos ilícitos, injuriosos ou enganosos;",
+            "não recolher os dados de outros utilizadores para fins diferentes da transação prevista."
+          ]
+        ]
+      },
+      {
+        "id": "annonces",
+        "title": "4. Anúncios",
+        "blocks": [
+          "O proprietário é o único responsável pelo conteúdo dos seus anúncios (descrição, fotografias, preço, disponibilidade, certificações técnicas). A hwe pode retirar ou suspender um anúncio manifestamente ilícito, enganoso ou denunciado com fundamento.",
+          "Os montantes apresentados numa moeda diferente da do anúncio são conversões indicativas: apenas faz fé o montante do anúncio."
+        ]
+      },
+      {
+        "id": "messagerie",
+        "title": "5. Mensagens e pedidos",
+        "blocks": [
+          "As mensagens servem exclusivamente para as comunicações relacionadas com um imóvel. Não devem conter dados bancários sensíveis nem documentos de identificação: para isso, utilize a área «processo» prevista para o efeito.",
+          "Nunca entregue dinheiro antes de ter visitado o imóvel e assinado um contrato. Desconfie de qualquer pedido de pagamento urgente ou por um meio não rastreável."
+        ]
+      },
+      {
+        "id": "documents",
+        "title": "6. Documentos e comprovativos",
+        "blocks": [
+          "Os documentos de identificação e comprovativos carregados no seu processo permanecem privados. Só são comunicados a um proprietário se optar por partilhar o seu processo com um pedido.",
+          "Os modelos de contrato de arrendamento, autos de vistoria e recibos gerados pela hwe são fornecidos a título indicativo. Não substituem um aconselhamento jurídico; cabe às partes verificar a sua conformidade com a lei do país onde se situa o imóvel."
+        ]
+      },
+      {
+        "id": "paiements",
+        "title": "7. Ausência de pagamento através da plataforma",
+        "blocks": [
+          "A hwe não recebe, não detém nem entrega quaisquer quantias. Rendas, encargos, cauções, despesas e preços de venda são pagos diretamente entre as partes, pelos meios que estas escolherem.",
+          "As funções de «declaração de pagamento» e de recibo limitam-se a documentar um pagamento efetuado fora da plataforma; a hwe não garante a sua veracidade."
+        ]
+      },
+      {
+        "id": "responsabilite",
+        "title": "8. Responsabilidade",
+        "blocks": [
+          "A hwe fornece um serviço de intermediação e ferramentas, sem garantia de resultado. A plataforma não pode ser responsabilizada pelas relações, litígios ou danos entre utilizadores, nem pelo conteúdo por eles publicado.",
+          "A hwe aplica meios razoáveis para assegurar a disponibilidade e a segurança do serviço, sem poder garantir a ausência total de interrupções ou erros."
+        ]
+      },
+      {
+        "id": "suspension",
+        "title": "9. Suspensão e eliminação de conta",
+        "blocks": [
+          "Em caso de incumprimento das presentes condições, a hwe pode suspender ou eliminar uma conta ou um anúncio, após informar o utilizador, salvo em caso de urgência ou obrigação legal.",
+          "Pode pedir a eliminação da sua conta a qualquer momento através do contacto indicado nas informações legais."
+        ]
+      },
+      {
+        "id": "donnees",
+        "title": "10. Dados pessoais",
+        "blocks": [
+          "O tratamento dos seus dados é descrito na política de privacidade."
+        ]
+      },
+      {
+        "id": "modification",
+        "title": "11. Alteração das condições",
+        "blocks": [
+          "A hwe pode alterar as presentes condições. Os utilizadores são informados das alterações importantes; a continuação da utilização implica a aceitação da nova versão."
+        ]
+      },
+      {
+        "id": "droit",
+        "title": "12. Lei aplicável e litígios",
+        "blocks": [
+          "As presentes condições estão sujeitas ao direito {{TODO}}. Em caso de litígio, as partes procuram primeiro uma solução amigável. O consumidor pode recorrer gratuitamente a um mediador de consumo: {{TODO}}. Na falta de acordo, são competentes os tribunais designados por lei."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Política de privacidade",
+    "intro": "Esta política explica que dados pessoais a hwe trata, porquê, durante quanto tempo e quais são os seus direitos, nos termos do Regulamento Geral sobre a Proteção de Dados (RGPD).",
+    "sections": [
+      {
+        "id": "responsable",
+        "title": "1. Responsável pelo tratamento",
+        "blocks": [
+          "O responsável pelo tratamento é o editor do sítio: {{TODO}} (ver as informações legais).",
+          "Encarregado da proteção de dados ou contacto «dados pessoais»: {{TODO}}"
+        ]
+      },
+      {
+        "id": "donnees",
+        "title": "2. Dados recolhidos",
+        "blocks": [
+          [
+            "Conta: apelido, nome próprio, endereço de e-mail, telefone (facultativo), fotografia de perfil (facultativa), função, palavra-passe (armazenada de forma cifrada).",
+            "Anúncios: descrição do imóvel, morada, fotografias, preço, documentos do imóvel.",
+            "Comunicações: mensagens, pedidos de arrendamento ou de compra, pedidos de visita.",
+            "Gestão de arrendamentos: contratos de arrendamento, assinaturas eletrónicas com carimbo temporal, autos de vistoria, prestações e declarações de pagamento, ocorrências.",
+            "Comprovativos: documentos de identificação, comprovativos de rendimentos ou de fiador, certificado de seguro, que carrega voluntariamente.",
+            "Dados técnicos: registos de ligação e de segurança necessários ao funcionamento do serviço."
+          ],
+          "A hwe não efetua qualquer geolocalização a partir do seu endereço IP. As suas preferências de idioma, de moeda e de país são guardadas apenas no seu navegador."
+        ]
+      },
+      {
+        "id": "finalites",
+        "title": "3. Finalidades e fundamentos jurídicos",
+        "blocks": [
+          [
+            "Prestar o serviço (conta, anúncios, mensagens, contratos, rendas): execução do contrato (CGU).",
+            "Proteger a plataforma, prevenir a fraude e os abusos: interesse legítimo.",
+            "Enviar os e-mails de serviço (confirmação de endereço, reposição da palavra-passe, notificações relacionadas com os seus pedidos): execução do contrato.",
+            "Cumprir as nossas obrigações legais (conservação de determinados dados, resposta às autoridades): obrigação legal."
+          ],
+          "Nenhum dado é vendido nem utilizado para fins publicitários."
+        ]
+      },
+      {
+        "id": "conservation",
+        "title": "4. Prazos de conservação",
+        "blocks": [
+          [
+            "Conta e anúncios: durante o período de utilização da conta e, depois, eliminação ou anonimização após o seu encerramento.",
+            "Contas inativas: {{TODO}}.",
+            "Comprovativos: até que os elimine e, o mais tardar, no encerramento da conta.",
+            "Contratos de arrendamento, recibos e documentos relacionados com um arrendamento: {{TODO}} (consoante os prazos de prescrição aplicáveis).",
+            "Registos técnicos: {{TODO}}."
+          ]
+        ]
+      },
+      {
+        "id": "destinataires",
+        "title": "5. Destinatários",
+        "blocks": [
+          [
+            "A outra parte num pedido: o proprietário recebe o seu pedido e, se assim o escolher, o seu processo; o candidato vê as informações públicas do anúncio e o nome do proprietário.",
+            "Os nossos subcontratantes técnicos: alojamento ({{TODO}}) e envio de e-mails ({{TODO}}), obrigados à confidencialidade.",
+            "As autoridades, apenas mediante pedido legalmente fundamentado."
+          ],
+          "O endereço de e-mail e o telefone dos proprietários não são apresentados publicamente: o contacto é feito através das mensagens."
+        ]
+      },
+      {
+        "id": "transferts",
+        "title": "6. Transferências para fora da União Europeia",
+        "blocks": [
+          "Localização dos servidores e eventuais transferências para fora da UE: {{TODO}}. Qualquer transferência está sujeita a garantias adequadas (cláusulas contratuais-tipo da Comissão Europeia ou decisão de adequação)."
+        ]
+      },
+      {
+        "id": "securite",
+        "title": "7. Segurança",
+        "blocks": [
+          "As palavras-passe são cifradas, as comunicações passam por uma ligação segura (HTTPS) e o acesso aos comprovativos está limitado ao seu titular e às pessoas com quem este os partilha. Uma vez que nenhum sistema é infalível, comunique-nos qualquer incidente suspeito."
+        ]
+      },
+      {
+        "id": "droits",
+        "title": "8. Os seus direitos",
+        "blocks": [
+          "Dispõe dos direitos de acesso, retificação, apagamento, limitação, oposição e portabilidade dos seus dados, bem como do direito de definir diretrizes sobre o destino dos mesmos após a sua morte.",
+          "Para os exercer, escreva para: {{TODO}}. Ser-lhe-á dada resposta no prazo de um mês.",
+          "Se considerar que os seus direitos não são respeitados, pode apresentar uma reclamação junto da CNIL (www.cnil.fr) ou da autoridade de proteção de dados do seu país."
+        ]
+      },
+      {
+        "id": "cookies",
+        "title": "9. Cookies e armazenamento local",
+        "blocks": [
+          "A hwe não utiliza qualquer rastreador publicitário nem ferramenta de medição de audiências de terceiros. Apenas são guardados no seu navegador os elementos estritamente necessários (armazenamento local):",
+          [
+            "o token de sessão, para se manter ligado à sua área;",
+            "as suas preferências de idioma, de moeda de apresentação, de país e de tema (claro ou escuro)."
+          ],
+          "Estes elementos não exigem consentimento; pode apagá-los a qualquer momento nas definições do seu navegador."
+        ]
+      },
+      {
+        "id": "modification",
+        "title": "10. Alteração da política",
+        "blocks": [
+          "Esta política pode ser alterada. A data da última atualização figura no topo da página."
+        ]
+      }
+    ]
+  }
+}
