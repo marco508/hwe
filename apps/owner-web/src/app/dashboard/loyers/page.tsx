@@ -23,6 +23,7 @@ import {
   type IconName,
   Approx,
   paymentMethodLabel,
+  intlLocale,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -99,17 +100,104 @@ function StatCard({ icon, value, label, highlight }: { icon: IconName; value: Re
   );
 }
 
+// ── Qui reçoit les loyers ───────────────────────────────────────────────────
+
+type PayeeCase =
+  | { who: "owner"; kind: "direct" | "agency" | "mixed"; agencies: string[] }
+  | { who: "pro"; kind: "agency" | "owner" | "mixed" };
+
+/**
+ * Cas d'encaissement des baux affichés (un par bail) : biens en direct →
+ * coordonnées du propriétaire ; bien sous mandat où l'agence encaisse →
+ * l'agence ; plusieurs biens → cas mixte. Vu d'un professionnel (biens d'autres
+ * propriétaires) : son agence ou le propriétaire.
+ */
+function payeeCase(periods: OwnerRentPeriod[], userId: string | null): PayeeCase {
+  const leases = new Map(periods.map((p) => [p.lease.id, p.lease]));
+  const list = [...leases.values()];
+  const own = list.filter((l) => !l.property.ownerId || l.property.ownerId === userId);
+  const managed = list.filter((l) => l.property.ownerId && l.property.ownerId !== userId);
+  const isAgency = (l: OwnerRentPeriod["lease"]) => l.payee === "AGENCY";
+  if (own.length === 0 && managed.length > 0) {
+    const a = managed.filter(isAgency).length;
+    return { who: "pro", kind: a === 0 ? "owner" : a === managed.length ? "agency" : "mixed" };
+  }
+  const viaAgency = own.filter(isAgency);
+  const agencies = [...new Set(viaAgency.map((l) => l.agency?.name).filter((n): n is string => !!n))];
+  const kind = viaAgency.length === 0 ? "direct" : viaAgency.length === own.length ? "agency" : "mixed";
+  return { who: "owner", kind, agencies };
+}
+
+function joinNames(names: string[]): string {
+  try {
+    return new Intl.ListFormat(intlLocale(), { style: "long", type: "conjunction" }).format(names);
+  } catch {
+    return names.join(", ");
+  }
+}
+
+function RentsIntro({ periods, userId }: { periods: OwnerRentPeriod[]; userId: string | null }) {
+  const c = payeeCase(periods, userId);
+  const link = (href: string, label: string) => (
+    <Link href={href} className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
+      {label}
+    </Link>
+  );
+  let body: React.ReactNode;
+  if (c.who === "pro") {
+    body =
+      c.kind === "owner" ? (
+        t("rent.introPro.owner")
+      ) : (
+        <>
+          {t(`rent.introPro.${c.kind}1`)}
+          {link("/pro/agence", t("rent.introPro.agencyLink"))}
+          {t(`rent.introPro.${c.kind}2`)}
+        </>
+      );
+  } else if (c.kind === "agency") {
+    body =
+      c.agencies.length > 1
+        ? t("rent.intro.agencies", { agencies: joinNames(c.agencies) })
+        : t("rent.intro.agency", { agency: c.agencies[0] ?? "" });
+  } else if (c.kind === "mixed") {
+    body = (
+      <>
+        {t("rent.intro.mixed1")}
+        {link("/profile", t("rent.introProfileLink"))}
+        {t("rent.intro.mixed2", { agencies: joinNames(c.agencies) })}
+      </>
+    );
+  } else {
+    body = (
+      <>
+        {t("rent.intro1")}
+        {link("/profile", t("rent.introProfileLink"))}
+        {t("rent.intro2")}
+      </>
+    );
+  }
+  return (
+    <p className="text-ink-muted max-w-xl" data-rent-intro={`${c.who}-${c.kind}`}>
+      {body}
+    </p>
+  );
+}
+
 // ── Carte d'une échéance ────────────────────────────────────────────────────
 
 function PeriodCard({
   period,
   onReviewed,
   actor,
+  showPayee,
 }: {
   period: OwnerRentPeriod;
   onReviewed: (p: OwnerRentPeriod) => void;
   /** « par <auteur> » de la validation (pro / agence). */
   actor?: string | null;
+  /** Afficher le destinataire du loyer (cas mixte : agence ou propriétaire). */
+  showPayee?: boolean;
 }) {
   const [showProof, setShowProof] = React.useState(false);
   const [rejecting, setRejecting] = React.useState(false);
@@ -164,6 +252,13 @@ function PeriodCard({
             <p className="text-xs text-ink-muted mt-0.5 [overflow-wrap:anywhere]">
               {period.lease.property.title}, {period.lease.property.city}
             </p>
+            {showPayee && (
+              <p className="text-[11px] text-ink-muted mt-0.5 [overflow-wrap:anywhere]" data-rent-payee={period.lease.payee ?? "OWNER"}>
+                {period.lease.payee === "AGENCY"
+                  ? t("rent.payee.agency", { agency: period.lease.agency?.name ?? "" })
+                  : t("rent.payee.owner")}
+              </p>
+            )}
           </div>
           <div className="text-xs text-ink-muted min-w-0">
             <p className="font-medium text-ink [overflow-wrap:anywhere]">{period.lease.tenantName}</p>
@@ -328,6 +423,7 @@ export default function LoyersPage() {
   }, [periods]);
 
   const shown = periods.filter((p) => filter === "ALL" || p.status === filter);
+  const mixedPayees = payeeCase(periods, user?.id ?? null).kind === "mixed";
 
   if (error && !data) return <ErrorState error={error} title={t("rent.loadErrorTitle")} onRetry={reload} />;
   if (working && !data) return <LoadingSkeleton />;
@@ -341,13 +437,7 @@ export default function LoyersPage() {
             <h1 className="font-display text-3xl sm:text-4xl mb-1">
               {t("rent.title1")} <span className="gradient-text">{t("rent.title2")}</span>
             </h1>
-            <p className="text-ink-muted max-w-xl">
-              {t("rent.intro1")}
-              <Link href="/profile" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
-                {t("rent.introProfileLink")}
-              </Link>
-              {t("rent.intro2")}
-            </p>
+            <RentsIntro periods={periods} userId={user?.id ?? null} />
           </div>
         </div>
 
@@ -421,6 +511,7 @@ export default function LoyersPage() {
               key={p.id}
               period={p}
               actor={actorLabel(p.reviewedById, p.lease.property.id)}
+              showPayee={mixedPayees}
               onReviewed={(updated) =>
                 setPeriods((prev) => prev.map((x) => (x.id === updated.id ? { ...x, ...updated } : x)))
               }

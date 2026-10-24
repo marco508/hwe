@@ -79,6 +79,15 @@ export function shapePeriod(p: PeriodRow, currency: string) {
 
 const TENANT_VISIBLE_STATUSES: LeaseStatus[] = ["SIGNED", "ACTIVE", "EXPIRED", "TERMINATED"];
 
+/**
+ * Règle d'encaissement : l'agence encaisse les loyers si le mandat actif le
+ * prévoit (`rentPayee = AGENCY`) et qu'elle a renseigné ses coordonnées de
+ * paiement ; sinon le locataire paie le propriétaire (ses moyens de paiement).
+ */
+export function agencyCollectsRent(m: { rentPayee: string; agency: { paymentIban: string | null } }): boolean {
+  return m.rentPayee === "AGENCY" && !!m.agency.paymentIban;
+}
+
 @Injectable()
 export class RentsService {
   private readonly logger = new Logger(RentsService.name);
@@ -245,7 +254,7 @@ export class RentsService {
     });
     const agencyMethods = (propertyId: string) => {
       const m = mandates.find((x) => x.propertyId === propertyId);
-      if (!m || m.rentPayee !== "AGENCY" || !m.agency.paymentIban) return null;
+      if (!m || !agencyCollectsRent(m)) return null;
       return [
         {
           id: `agency-${m.agency.id}`,
@@ -288,8 +297,22 @@ export class RentsService {
     const propertyWhere = await this.access.propertyWhere(ownerId, "READ");
     const leases = await this.prisma.leaseContract.findMany({
       where: { property: propertyWhere },
-      include: { property: { select: { id: true, title: true, addressLine: true, city: true } } },
+      include: { property: { select: { id: true, title: true, addressLine: true, city: true, ownerId: true } } },
     });
+    // Destinataire des loyers, même règle que l'espace locataire (`myRents`) :
+    // l'agence si un mandat actif prévoit qu'elle encaisse ET qu'elle a des
+    // coordonnées de paiement ; sinon le propriétaire.
+    const mandates = await this.prisma.mandate.findMany({
+      where: { propertyId: { in: [...new Set(leases.map((l) => l.property.id))] }, status: "ACTIVE" },
+      select: { propertyId: true, rentPayee: true, agency: { select: { id: true, name: true, paymentIban: true } } },
+    });
+    const payeeOf = (propertyId: string) => {
+      const m = mandates.find((x) => x.propertyId === propertyId);
+      return {
+        payee: m && agencyCollectsRent(m) ? ("AGENCY" as const) : ("OWNER" as const),
+        agency: m ? { id: m.agency.id, name: m.agency.name } : null,
+      };
+    };
     const periods = await this.prisma.rentPeriod.findMany({
       where: { leaseId: { in: leases.map((l) => l.id) }, ...(status ? { status } : {}) },
       orderBy: [{ status: "asc" }, { dueDate: "desc" }],
@@ -307,6 +330,8 @@ export class RentsService {
           currency: l.currency,
           shortStay: l.shortStay,
           property: l.property,
+          /** Qui reçoit les loyers ; `agency` = agence sous mandat actif (encaissant ou non). */
+          ...payeeOf(l.property.id),
         },
       };
     });

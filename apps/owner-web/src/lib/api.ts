@@ -83,7 +83,15 @@ export interface OwnerRentPeriod extends RentPeriod {
     tenantName: string;
     tenantEmail: string;
     currency?: string | null;
-    property: { id: string; title: string; addressLine: string; city: string; currency?: string };
+    property: { id: string; title: string; addressLine: string; city: string; currency?: string; ownerId?: string };
+    /**
+     * Destinataire des loyers (même règle que l'espace locataire) : l'agence si
+     * le mandat actif prévoit qu'elle encaisse et qu'elle a des coordonnées de
+     * paiement, sinon le propriétaire.
+     */
+    payee?: "OWNER" | "AGENCY";
+    /** Agence sous mandat actif (qu'elle encaisse ou non). */
+    agency?: { id: string; name: string } | null;
   };
 }
 
