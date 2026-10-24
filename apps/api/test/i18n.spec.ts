@@ -104,9 +104,9 @@ test("e-mail en anglais : sujet et corps", () => {
   assert.equal(m.subject, "hwe — your rent payment was not approved (October 2026)");
   assert.equal(
     m.text,
-    "Hello Ana Diallo,\n\nYour landlord could not confirm receiving your payment for October 2026.\nReason: montant incomplet\n\n" +
+    "Hello Ana Diallo,\n\nReceipt of your payment for October 2026 could not be confirmed.\nReason: montant incomplet\n\n" +
       "Check the amount, the number used and the transaction ID, then report the payment again from My rents.\n" +
-      "If you are sure you paid, contact your landlord through the messaging.\n\nhwe",
+      "If you are sure you paid, contact your landlord (or the agency managing the property) through the messaging.\n\nhwe",
   );
   const v = mail.rentValidated("en", { tenantName: "Ana", period: { year: 2026, month: 10 }, amount: 850, receiptNo: "Q-2026-00001", currency: "EUR" });
   assert.match(v.text, /Your payment of €850\.00 for October 2026 has been confirmed/);
@@ -120,9 +120,9 @@ test("e-mails en français : texte identique à l'historique", () => {
   assert.equal(r.subject, "hwe — votre déclaration de loyer n'a pas été validée (octobre 2026)");
   assert.equal(
     r.text,
-    "Bonjour Ana Diallo,\n\nVotre propriétaire n'a pas pu confirmer la réception de votre versement pour octobre 2026.\nMotif : montant incomplet\n" +
+    "Bonjour Ana Diallo,\n\nLa réception de votre versement pour octobre 2026 n'a pas pu être confirmée.\nMotif : montant incomplet\n" +
       "\nVérifiez le montant, le numéro utilisé et l'identifiant de transaction, puis déclarez à nouveau depuis Mes loyers.\n" +
-      "Si vous êtes certain d'avoir payé, contactez votre propriétaire via la messagerie.\n\nhwe",
+      "Si vous êtes certain d'avoir payé, contactez votre propriétaire (ou l'agence qui gère le bien) via la messagerie.\n\nhwe",
   );
   const e = mail.leaseExpiry("fr", { name: "Paul", propertyTitle: "T3 Lyon", daysLeft: 7, isOwner: true });
   assert.equal(e.subject, "hwe — le bail de « T3 Lyon » se termine dans 7 jours");
