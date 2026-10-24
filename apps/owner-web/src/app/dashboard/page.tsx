@@ -252,7 +252,10 @@ function StatCard({
       title={title ?? (typeof value === "string" ? value : undefined)}
     >
       <div className="flex items-center gap-3 min-w-0">
-        <IconBadge name={icon} size="sm" />
+        {/* Sur mobile, la place va au chiffre (un prix entier doit tenir). */}
+        <span className="hidden sm:inline-flex">
+          <IconBadge name={icon} size="sm" />
+        </span>
         <div className="min-w-0">
           {/* Un montant ne se coupe jamais au milieu (« 520 00 / 0 € ») : tronqué au pire, valeur en infobulle. */}
           <div className="font-display text-lg sm:text-xl leading-tight gradient-text whitespace-nowrap truncate">
