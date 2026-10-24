@@ -66,3 +66,19 @@ export function legalDoc(lang: Lang, doc: LegalDocId): { content: LegalDoc; tran
   const trees = chain.map((l) => (SOURCES[l] as Record<string, Tree>)?.[doc]);
   return { content: pick(trees, (fr as Record<string, Tree>)[doc]) as LegalDoc, translated: lang !== "fr" };
 }
+
+/** Formulations variables (abonnement) dans la langue : voir `vars` de fr.json. */
+export interface LegalVars {
+  trial: string;
+  noTrial: string;
+  afterFREE: string;
+  afterFREE0: string;
+  afterSUSPENDED: string;
+  afterSUSPENDED0: string;
+}
+
+export function legalVars(lang: Lang): LegalVars {
+  const chain: Lang[] = [lang, "en", "fr"].filter((l, i, a) => a.indexOf(l) === i) as Lang[];
+  const trees = chain.map((l) => (SOURCES[l] as Record<string, Tree>)?.vars);
+  return pick(trees, (fr as Record<string, Tree>).vars) as LegalVars;
+}

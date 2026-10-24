@@ -193,7 +193,7 @@
           "As long as the landlord has not activated the space created for them by the professional, the professional may take these decisions on their behalf, as mandatary: every action is logged and remains visible to the landlord.",
           "Sale: hwe stops at putting the parties in touch. Negotiation, the preliminary contract and the deed of sale are concluded outside the platform, with the authorised professionals (notary or equivalent).",
           "Fees: the fees set out in the mandate are calculated and tracked on the platform for information, with a monthly statement; they are paid directly to the professional, outside hwe.",
-          "Subscription: the professional space is paid for by the agency, never by the landlord or the tenant. It starts with a 60-day (2-month) free trial, with no credit card. At the end of the trial, the agency has a 7-day grace period; without payment, it automatically moves to the limited free plan (1 agent, 2 active mandates): access is not cut off, but properties beyond the limit can still be viewed but no longer edited. The paid plans (currently Solo, Agence and Réseau, from €19 per month) and their prices, possibly set in other currencies, are shown on the website and in the professional space; hwe may change them, with no effect on a period already paid.",
+          "Subscription: the professional space is paid for by the agency, never by the landlord or the tenant. {trialSentence} {afterTrial} The paid plans ({paidPlans}) and their prices, possibly set in other currencies, are shown on the website and in the professional space; hwe may change them, with no effect on a period already paid.",
           "Payment of the subscription: offline only (bank transfer, mobile money, cash), following the instructions shown in the professional space. The agency declares its payment, hwe checks it, activates the paid period and makes the invoice available. No online card payment is offered.",
           "In the event of a breach of these terms, hwe may suspend a professional account: the team can then still view the properties, history and statements, and the landlord can take back the management of their property or end the mandate."
         ]
@@ -354,5 +354,13 @@
         ]
       }
     ]
+  },
+  "vars": {
+    "trial": "It starts with a free trial of {trialDurationLong}, with no credit card.",
+    "noTrial": "No free trial is currently offered.",
+    "afterFREE": "At the end of the trial or of a paid period, the agency has {graceDuration} of grace; without payment, it automatically moves to the limited free plan ({freeAgentsText}, {freeMandatesText}): access is not cut off, but properties beyond the limit can still be viewed but no longer edited.",
+    "afterFREE0": "At the end of the trial or of a paid period, without payment, the agency automatically moves to the limited free plan ({freeAgentsText}, {freeMandatesText}): access is not cut off, but properties beyond the limit can still be viewed but no longer edited.",
+    "afterSUSPENDED": "At the end of the trial or of a paid period, the agency has {graceDuration} of grace; without payment, the professional space then becomes read-only until payment: the team can still view properties, history and statements but can no longer act, and the landlord keeps control of their properties.",
+    "afterSUSPENDED0": "At the end of the trial or of a paid period, without payment, the professional space becomes read-only until payment: the team can still view properties, history and statements but can no longer act, and the landlord keeps control of their properties."
   }
 }

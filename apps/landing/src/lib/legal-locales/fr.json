@@ -193,7 +193,7 @@
           "Tant que le propriétaire n'a pas activé l'espace créé pour lui par le professionnel, celui-ci peut prendre ces décisions pour son compte, en qualité de mandataire : chaque action est journalisée et reste visible du propriétaire.",
           "Vente : hwe s'arrête à la mise en relation. La négociation, l'avant-contrat et l'acte de vente se concluent en dehors de la plateforme, avec les professionnels habilités (notaire ou équivalent).",
           "Honoraires : les honoraires prévus au mandat sont calculés et suivis sur la plateforme à titre informatif, avec un relevé mensuel ; ils sont réglés directement au professionnel, en dehors de hwe.",
-          "Abonnement : l'espace professionnel est payé par l'agence, jamais par le propriétaire ni par le locataire. Il commence par un essai gratuit de 60 jours (2 mois), sans carte bancaire. À son terme, l'agence dispose de 7 jours de grâce ; sans paiement, elle passe automatiquement à l'offre gratuite limitée (1 agent, 2 mandats actifs) : l'accès n'est pas coupé, mais les biens au-delà de la limite restent consultables sans pouvoir être modifiés. Les offres payantes (à ce jour Solo, Agence et Réseau, à partir de 19 € par mois) et leurs prix, éventuellement fixés dans d'autres devises, sont affichés sur le site et dans l'espace professionnel ; hwe peut les faire évoluer, sans effet sur une période déjà payée.",
+          "Abonnement : l'espace professionnel est payé par l'agence, jamais par le propriétaire ni par le locataire. {trialSentence} {afterTrial} Les offres payantes ({paidPlans}) et leurs prix, éventuellement fixés dans d'autres devises, sont affichés sur le site et dans l'espace professionnel ; hwe peut les faire évoluer, sans effet sur une période déjà payée.",
           "Paiement de l'abonnement : uniquement hors ligne (virement, mobile money, espèces), selon les instructions affichées dans l'espace professionnel. L'agence déclare son paiement, hwe le vérifie, active la période payée et met la facture à disposition. Aucun paiement par carte en ligne n'est proposé.",
           "En cas de manquement aux présentes conditions, hwe peut suspendre un compte professionnel : l'équipe conserve alors la consultation des biens, de l'historique et des relevés, et le propriétaire peut reprendre la gestion de son bien ou mettre fin au mandat."
         ]
@@ -354,5 +354,13 @@
         ]
       }
     ]
+  },
+  "vars": {
+    "trial": "Il commence par un essai gratuit de {trialDurationLong}, sans carte bancaire.",
+    "noTrial": "Aucun essai gratuit n'est proposé à ce jour.",
+    "afterFREE": "À l'issue de l'essai ou d'une période payée, l'agence dispose de {graceDuration} de grâce ; sans paiement, elle passe automatiquement à l'offre gratuite limitée ({freeAgentsText}, {freeMandatesText}) : l'accès n'est pas coupé, mais les biens au-delà de la limite restent consultables sans pouvoir être modifiés.",
+    "afterFREE0": "À l'issue de l'essai ou d'une période payée, sans paiement, l'agence passe automatiquement à l'offre gratuite limitée ({freeAgentsText}, {freeMandatesText}) : l'accès n'est pas coupé, mais les biens au-delà de la limite restent consultables sans pouvoir être modifiés.",
+    "afterSUSPENDED": "À l'issue de l'essai ou d'une période payée, l'agence dispose de {graceDuration} de grâce ; sans paiement, l'espace professionnel passe ensuite en lecture seule jusqu'au paiement : l'équipe conserve la consultation des biens, de l'historique et des relevés, mais ne peut plus agir, et le propriétaire garde la main sur ses biens.",
+    "afterSUSPENDED0": "À l'issue de l'essai ou d'une période payée, sans paiement, l'espace professionnel passe en lecture seule jusqu'au paiement : l'équipe conserve la consultation des biens, de l'historique et des relevés, mais ne peut plus agir, et le propriétaire garde la main sur ses biens."
   }
 }

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import type { MySubscription } from "@hwe/types";
-import { ApiError, AUTH_EVENTS, Button, Icon, errorText, fmtDate, registerSubscriptionDialog, useAsync } from "@hwe/ui";
+import { ApiError, AUTH_EVENTS, Button, Icon, errorText, fmtDate, registerSubscriptionDialog, useAsync, agentsText, mandatesText } from "@hwe/ui";
 import { api } from "../../lib/api";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
@@ -93,7 +93,7 @@ export function SubscriptionBanner({ hideCta = false }: { hideCta?: boolean }) {
         tone = "warn";
         icon = "alert";
         body = free.enabled
-          ? t("sub.banner.trialEndingFree", { date: date(sub.trialEndsAt), agents: free.maxAgents ?? "∞", mandates: free.maxActiveMandates ?? "∞" })
+          ? t("sub.banner.trialEndingFree", { date: date(sub.trialEndsAt), agentsText: agentsText(free.maxAgents), mandatesText: mandatesText(free.maxActiveMandates) })
           : t("sub.banner.trialEndingRo", { date: date(sub.trialEndsAt) });
         action = cta(payLabel);
       } else {
@@ -119,7 +119,7 @@ export function SubscriptionBanner({ hideCta = false }: { hideCta?: boolean }) {
       icon = "info";
       body = (
         <span>
-          {t("sub.banner.free", { agents: sub.limits.maxAgents ?? "∞", mandates: sub.limits.maxActiveMandates ?? "∞" })}
+          {t("sub.banner.free", { agentsText: agentsText(sub.limits.maxAgents), mandatesText: mandatesText(sub.limits.maxActiveMandates) })}
           {sub.usage.readOnlyMandates > 0 && <> {t("sub.banner.freeOver", { count: sub.usage.readOnlyMandates })}</>}
         </span>
       );

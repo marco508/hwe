@@ -161,8 +161,29 @@ export const UI_DICT: Record<Lang, Dict> = {
   ar: { ...(uiAr as Dict), ...(proAr as Dict) },
 };
 
+// ── Paramètres globaux des textes ──
+// Valeurs injectées dans TOUS les textes (placeholders `{trialDuration}`,
+// `{graceDays}`, `{minPrice}`… : réglages de l'abonnement lus en base, voir
+// PlatformKit). Les paramètres passés à t() l'emportent.
+type GlobalParams = (lang: Lang) => Record<string, string | number>;
+let globalParams: GlobalParams | null = null;
+
+/** Enregistre le fournisseur des paramètres globaux (PlatformKit). */
+export function setGlobalParams(fn: GlobalParams | null) {
+  globalParams = fn;
+}
+
+/** Paramètres d'un texte : globaux de la langue + paramètres de l'appel. */
+export function withGlobalParams(
+  lang: Lang,
+  params?: Record<string, string | number | null | undefined>,
+): Record<string, string | number | null | undefined> | undefined {
+  if (!globalParams) return params;
+  return { ...globalParams(lang), ...(params ?? {}) };
+}
+
 export function tUi(key: string, params?: Record<string, string | number>): string {
-  return translate(UI_DICT, uiLang, key, params);
+  return translate(UI_DICT, uiLang, key, withGlobalParams(uiLang, params));
 }
 
 /** Demande un changement de langue depuis l'extérieur du provider (connexion : User.locale). */
@@ -175,7 +196,7 @@ export function createI18n(dicts: Dicts) {
   let locale: Lang = "fr";
 
   function t(key: string, params?: Record<string, string | number>): string {
-    return translate(dicts, locale, key, params);
+    return translate(dicts, locale, key, withGlobalParams(locale, params));
   }
 
   const Ctx = React.createContext<{ lang: Lang; setLang: (l: Lang) => void }>({

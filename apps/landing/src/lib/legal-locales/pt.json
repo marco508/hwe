@@ -193,7 +193,7 @@
           "Enquanto o proprietário não ativar a área criada para ele pelo profissional, este pode tomar essas decisões por sua conta, na qualidade de mandatário: cada ação fica registada e visível para o proprietário.",
           "Venda: a hwe limita-se a pôr as partes em contacto. A negociação, o contrato-promessa e a escritura de compra e venda são celebrados fora da plataforma, com os profissionais habilitados (notário ou equivalente).",
           "Honorários: os honorários previstos no mandato são calculados e acompanhados na plataforma a título informativo, com um extrato mensal; são pagos diretamente ao profissional, fora da hwe.",
-          "Subscrição: a área profissional é paga pela agência, nunca pelo proprietário nem pelo inquilino. Começa com um período de teste gratuito de 60 dias (2 meses), sem cartão bancário. No final, a agência dispõe de 7 dias de tolerância; sem pagamento, passa automaticamente para a oferta gratuita limitada (1 agente, 2 mandatos ativos): o acesso não é cortado, mas os imóveis acima do limite continuam consultáveis sem poderem ser alterados. As ofertas pagas (atualmente Solo, Agence e Réseau, a partir de 19 € por mês) e os seus preços, eventualmente fixados noutras moedas, são apresentados no site e na área profissional; a hwe pode alterá-los, sem efeito sobre um período já pago.",
+          "Subscrição: a área profissional é paga pela agência, nunca pelo proprietário nem pelo inquilino. {trialSentence} {afterTrial} As ofertas pagas ({paidPlans}) e os seus preços, eventualmente fixados noutras moedas, são apresentados no site e na área profissional; a hwe pode alterá-los, sem efeito sobre um período já pago.",
           "Pagamento da subscrição: apenas fora de linha (transferência, mobile money, numerário), segundo as instruções apresentadas na área profissional. A agência declara o seu pagamento, a hwe verifica-o, ativa o período pago e disponibiliza a fatura. Não é proposto qualquer pagamento online com cartão.",
           "Em caso de incumprimento das presentes condições, a hwe pode suspender uma conta profissional: a equipa mantém então a consulta dos imóveis, do histórico e dos extratos, e o proprietário pode retomar a gestão do seu imóvel ou pôr termo ao mandato."
         ]
@@ -354,5 +354,13 @@
         ]
       }
     ]
+  },
+  "vars": {
+    "trial": "Começa com um período de teste gratuito de {trialDurationLong}, sem cartão bancário.",
+    "noTrial": "De momento, não é proposto qualquer período de teste gratuito.",
+    "afterFREE": "No final do teste ou de um período pago, a agência dispõe de {graceDuration} de tolerância; sem pagamento, passa automaticamente para a oferta gratuita limitada ({freeAgentsText}, {freeMandatesText}): o acesso não é cortado, mas os imóveis acima do limite continuam consultáveis sem poderem ser alterados.",
+    "afterFREE0": "No final do teste ou de um período pago, sem pagamento, a agência passa automaticamente para a oferta gratuita limitada ({freeAgentsText}, {freeMandatesText}): o acesso não é cortado, mas os imóveis acima do limite continuam consultáveis sem poderem ser alterados.",
+    "afterSUSPENDED": "No final do teste ou de um período pago, a agência dispõe de {graceDuration} de tolerância; sem pagamento, a área profissional fica depois só de leitura até ao pagamento: a equipa continua a poder consultar os imóveis, o histórico e os extratos, mas deixa de poder agir, e o proprietário mantém o controlo dos seus imóveis.",
+    "afterSUSPENDED0": "No final do teste ou de um período pago, sem pagamento, a área profissional fica só de leitura até ao pagamento: a equipa continua a poder consultar os imóveis, o histórico e os extratos, mas deixa de poder agir, e o proprietário mantém o controlo dos seus imóveis."
   }
 }

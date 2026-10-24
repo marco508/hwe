@@ -193,7 +193,7 @@
           "Mientras el propietario no haya activado el espacio que el profesional creó para él, este puede tomar dichas decisiones por su cuenta, en calidad de mandatario: cada acción queda registrada y es visible para el propietario.",
           "Venta: hwe se limita a poner en contacto a las partes. La negociación, el contrato preliminar y la escritura de compraventa se formalizan fuera de la plataforma, con los profesionales habilitados (notario o equivalente).",
           "Honorarios: los honorarios previstos en el mandato se calculan y siguen en la plataforma a título informativo, con una liquidación mensual; se abonan directamente al profesional, fuera de hwe.",
-          "Suscripción: el espacio profesional lo paga la agencia, nunca el propietario ni el inquilino. Empieza con una prueba gratuita de 60 días (2 meses), sin tarjeta bancaria. Al finalizar, la agencia dispone de 7 días de gracia; sin pago, pasa automáticamente a la oferta gratuita limitada (1 agente, 2 mandatos activos): el acceso no se corta, pero los inmuebles que superen el límite siguen siendo consultables sin poder modificarse. Las ofertas de pago (actualmente Solo, Agence y Réseau, desde 19 € al mes) y sus precios, eventualmente fijados en otras monedas, se muestran en el sitio y en el espacio profesional; hwe puede modificarlos, sin efecto sobre un periodo ya pagado.",
+          "Suscripción: el espacio profesional lo paga la agencia, nunca el propietario ni el inquilino. {trialSentence} {afterTrial} Las ofertas de pago ({paidPlans}) y sus precios, eventualmente fijados en otras monedas, se muestran en el sitio y en el espacio profesional; hwe puede modificarlos, sin efecto sobre un periodo ya pagado.",
           "Pago de la suscripción: únicamente fuera de línea (transferencia, mobile money, efectivo), según las instrucciones que figuran en el espacio profesional. La agencia declara su pago, hwe lo verifica, activa el periodo pagado y pone la factura a su disposición. No se ofrece ningún pago con tarjeta en línea.",
           "En caso de incumplimiento de las presentes condiciones, hwe puede suspender una cuenta profesional: el equipo conserva entonces la consulta de los inmuebles, del historial y de las liquidaciones, y el propietario puede retomar la gestión de su inmueble o poner fin al mandato."
         ]
@@ -354,5 +354,13 @@
         ]
       }
     ]
+  },
+  "vars": {
+    "trial": "Empieza con una prueba gratuita de {trialDurationLong}, sin tarjeta bancaria.",
+    "noTrial": "Actualmente no se ofrece ninguna prueba gratuita.",
+    "afterFREE": "Al finalizar la prueba o un periodo pagado, la agencia dispone de {graceDuration} de gracia; sin pago, pasa automáticamente a la oferta gratuita limitada ({freeAgentsText}, {freeMandatesText}): el acceso no se corta, pero los inmuebles que superen el límite siguen siendo consultables sin poder modificarse.",
+    "afterFREE0": "Al finalizar la prueba o un periodo pagado, sin pago, la agencia pasa automáticamente a la oferta gratuita limitada ({freeAgentsText}, {freeMandatesText}): el acceso no se corta, pero los inmuebles que superen el límite siguen siendo consultables sin poder modificarse.",
+    "afterSUSPENDED": "Al finalizar la prueba o un periodo pagado, la agencia dispone de {graceDuration} de gracia; sin pago, el espacio profesional pasa después a solo lectura hasta el pago: el equipo conserva la consulta de los inmuebles, del historial y de las liquidaciones, pero ya no puede actuar, y el propietario mantiene el control de sus inmuebles.",
+    "afterSUSPENDED0": "Al finalizar la prueba o un periodo pagado, sin pago, el espacio profesional pasa a solo lectura hasta el pago: el equipo conserva la consulta de los inmuebles, del historial y de las liquidaciones, pero ya no puede actuar, y el propietario mantiene el control de sus inmuebles."
   }
 }

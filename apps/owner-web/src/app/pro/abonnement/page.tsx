@@ -17,6 +17,9 @@ import {
   toast,
   useAsync,
   planLabel,
+  durationText,
+  agentsText,
+  mandatesText,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -206,6 +209,8 @@ export default function SubscriptionPage() {
       </div>
 
       {!s.trialEndsAt && s.status !== "ACTIVE" && <p className="text-sm text-ink-muted mb-6">{t("sub.noTrial")}</p>}
+
+      <SubscriptionRules s={s} />
 
       <div className="grid lg:grid-cols-3 gap-6 mb-6">
         <SectionCard title={t("sub.usage")} icon="layers" className="lg:col-span-1">
@@ -400,5 +405,32 @@ export default function SubscriptionPage() {
         </SectionCard>
       )}
     </section>
+  );
+}
+
+/**
+ * Règles en vigueur (durée d'essai, grâce, suite sans paiement) : valeurs de
+ * la base renvoyées avec l'abonnement (PlatformSettings, offre FREE).
+ */
+function SubscriptionRules({ s }: { s: MySubscription }) {
+  const items = [
+    s.trialDays > 0 ? t("sub.rules.trial", { trialDuration: durationText(s.trialDays) }) : null,
+    s.graceDays > 0 ? t("sub.rules.grace", { graceDuration: durationText(s.graceDays) }) : null,
+    s.freePlan.enabled
+      ? t("sub.rules.FREE", { freeAgentsText: agentsText(s.freePlan.maxAgents), freeMandatesText: mandatesText(s.freePlan.maxActiveMandates) })
+      : t("sub.rules.SUSPENDED"),
+  ].filter(Boolean) as string[];
+  return (
+    <div className="mb-6 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-ink-muted" data-sub-rules>
+      <p className="font-medium text-ink flex items-center gap-1.5 mb-1">
+        <Icon name="info" size={14} />
+        {t("sub.rules.title")}
+      </p>
+      <ul className="list-disc ps-5 space-y-0.5">
+        {items.map((x) => (
+          <li key={x}>{x}</li>
+        ))}
+      </ul>
+    </div>
   );
 }

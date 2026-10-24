@@ -106,6 +106,20 @@ export {
   useDismiss,
   type Lang,
 } from "./components/I18nKit";
+export {
+  PLATFORM_DEFAULTS,
+  usePlatformState,
+  usePlatformSettings,
+  usePlatformTexts,
+  refreshPlatformSettings,
+  platformParams,
+  durationText,
+  agentsText,
+  mandatesText,
+  minPriceText,
+  type PlatformSettingsData,
+  type PlatformParams,
+} from "./components/PlatformKit";
 export { Toaster, toast, type ToastTone } from "./components/Toast";
 export { SafeImage, type SafeImageProps } from "./components/SafeImage";
 export {

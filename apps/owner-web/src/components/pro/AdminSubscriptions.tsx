@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { AdminSubscriptionAgency, PaymentMethod, Plan, PlatformSettings, SubscriptionRequest } from "@hwe/types";
-import { Badge, Button, CurrencyPicker, Icon, Input, Label, Select, Textarea, fmtDate, fmtDateTime, fmtMoney, planLabel, toast } from "@hwe/ui";
+import { Badge, Button, CurrencyPicker, Icon, Input, Label, Select, Textarea, fmtDate, fmtDateTime, fmtMoney, planLabel, refreshPlatformSettings, toast } from "@hwe/ui";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import { Modal } from "../Modal";
@@ -64,6 +64,8 @@ export function AdminSubscriptions({ q }: { q: string }) {
     } finally {
       setBusy(false);
       load().catch(() => {});
+      // Textes de toute l'interface (essai, grâce, limites, prix) : réglages rechargés.
+      void refreshPlatformSettings(true);
     }
   };
 

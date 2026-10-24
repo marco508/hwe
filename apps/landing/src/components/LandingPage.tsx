@@ -30,6 +30,9 @@ import {
   fmtMoney,
   type CategoryRailItem,
   planLabel,
+  usePlatformSettings,
+  usePlatformState,
+  usePlatformTexts,
 } from "@hwe/ui";
 import { t, useLang } from "../lib/i18n";
 import { publicApi } from "../lib/api";
@@ -683,10 +686,7 @@ function LandingInner() {
                   {t("pro.title")}
                 </h2>
                 <p className="text-ink-muted text-lg mt-4 leading-relaxed">{t("pro.sub")}</p>
-                <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-accent-300/60 bg-accent-50 dark:bg-accent-700/15 px-3 py-1 text-sm font-medium text-ink" data-pro-trial>
-                  <Icon name="sparkles" size={15} className="text-accent-500" />
-                  {t("pro.trial")}
-                </p>
+                <ProTrialChip />
                 <ul className="mt-8 space-y-5">
                   {(
                     [
@@ -1009,17 +1009,31 @@ function PlanPriceLine({ plan }: { plan: PublicPlans["plans"][number] }) {
   );
 }
 
+/** « 2 mois d'essai gratuit » : durée lue en base (GET /plans), masquée sans essai. */
+function ProTrialChip() {
+  const { trialDays } = usePlatformSettings();
+  usePlatformTexts();
+  if (trialDays <= 0) return null;
+  return (
+    <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-accent-300/60 bg-accent-50 dark:bg-accent-700/15 px-3 py-1 text-sm font-medium text-ink" data-pro-trial>
+      <Icon name="sparkles" size={15} className="text-accent-500" />
+      {t("pro.trial")}
+    </p>
+  );
+}
+
 function ProPricing() {
-  const [plans, setPlans] = React.useState<PublicPlans | null>(null);
-  React.useEffect(() => {
-    publicApi.plans().then(setPlans).catch(() => setPlans(null));
-  }, []);
+  // Réglages partagés (une requête GET /plans par page, voir PlatformKit).
+  const { raw: plans } = usePlatformState();
+  const settings = usePlatformSettings();
+  usePlatformTexts();
   if (!plans || (plans.plans.length === 0 && !plans.freePlan)) return null;
   const cards = [...(plans.freePlan ? [plans.freePlan] : []), ...plans.plans];
+  const after = `pro.pricing.after.${settings.freePlanEnabled ? "FREE" : "SUSPENDED"}${settings.graceDays > 0 ? "" : "0"}`;
   return (
     <div className="mt-12" data-pro-pricing>
       <h3 className="display-serif text-2xl text-ink">{t("pro.pricing.title")}</h3>
-      <p className="text-sm text-ink-muted mt-1">{t("pro.pricing.sub", { count: plans.trialDays })}</p>
+      <p className="text-sm text-ink-muted mt-1">{settings.trialDays > 0 ? t("pro.pricing.subTrial") : t("pro.pricing.subNoTrial")}</p>
       <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((p) => (
           <li key={p.code} className="rounded-2xl border border-border/70 bg-surface p-5 flex flex-col gap-2 min-w-0" data-plan={p.code}>
@@ -1036,7 +1050,8 @@ function ProPricing() {
           </li>
         ))}
       </ul>
-      <p className="text-xs text-ink-muted mt-3">{t("pro.pricing.note")}</p>
+      <p className="text-sm text-ink-muted mt-3" data-pro-after>{t(after)}</p>
+      <p className="text-xs text-ink-muted mt-1">{t("pro.pricing.note")}</p>
     </div>
   );
 }
