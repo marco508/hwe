@@ -1,5 +1,6 @@
 import PDFDocument = require("pdfkit");
 import { APP_TIME_ZONE } from "../common/dates";
+import { pdfText } from "../common/pdf-text";
 import { moneyPdf, pdfLang, shortDate, t, type Lang } from "../i18n/i18n";
 
 /**
@@ -42,28 +43,31 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
     doc.on("data", (c: Buffer) => chunks.push(c));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
+    // Texte gauche-à-droite (Helvetica) ou droite-à-gauche (arabe, police embarquée).
+    const P = pdfText(doc, lang);
 
     const vert = "#1a642f";
     const gris = "#6b7280";
     const ligne = "#d8e0e8";
 
     // En-tête
-    doc.fontSize(20).fillColor(vert).font("Helvetica-Bold").text(L("title"));
+    doc.fontSize(20).fillColor(vert).font(P.bold);
+    P.text(L("title"));
     doc.moveDown(0.2);
-    doc.fontSize(10).fillColor(gris).font("Helvetica")
-      .text(L("number", { number: data.receiptNo, date: jour(data.paidAt) }));
+    doc.fontSize(10).fillColor(gris).font(P.regular);
+    P.text(L("number", { number: data.receiptNo, date: jour(data.paidAt) }));
     doc.moveDown(1.2);
 
     // Parties
     doc.fontSize(11).fillColor("#1f2430");
-    doc.font("Helvetica-Bold").text(L("landlord"), { continued: true }).font("Helvetica").text(data.ownerName);
-    doc.font("Helvetica-Bold").text(L("tenant"), { continued: true }).font("Helvetica").text(data.tenantName);
-    doc.font("Helvetica-Bold").text(L("home"), { continued: true }).font("Helvetica")
-      .text(`${data.propertyTitle}${data.propertyAddress ? " — " + data.propertyAddress : ""}`);
+    P.labelValue(L("landlord"), data.ownerName);
+    P.labelValue(L("tenant"), data.tenantName);
+    P.labelValue(L("home"), `${data.propertyTitle}${data.propertyAddress ? " — " + data.propertyAddress : ""}`);
     doc.moveDown(1);
 
     // Corps
-    doc.font("Helvetica").fontSize(11).text(
+    doc.font(P.regular).fontSize(11);
+    P.text(
       L("body", { owner: data.ownerName, tenant: data.tenantName, total: EUR(data.total), period: data.periodLabel }),
       { align: "justify", lineGap: 3 },
     );
@@ -73,10 +77,10 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
     const x = doc.x;
     const largeur = 483;
     const row = (label: string, value: string, bold = false) => {
-      doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(11);
+      doc.font(bold ? P.bold : P.regular).fontSize(11);
       const y = doc.y;
-      doc.text(label, x, y, { width: largeur - 140 });
-      doc.text(value, x + largeur - 140, y, { width: 140, align: "right" });
+      P.text(label, { x, y, width: largeur - 140 });
+      P.text(value, { x: x + largeur - 140, y, width: 140, align: "right" });
       doc.moveDown(0.35);
     };
     row(L("rent"), EUR(data.rent));
@@ -88,16 +92,16 @@ export function buildReceiptPdf(data: ReceiptData): Promise<Buffer> {
 
     // Traçabilité du versement
     doc.fontSize(10).fillColor(gris);
-    if (data.method) doc.text(L("method", { method: data.method === "OTHER" ? t(lang, "pdf.method.OTHER") : data.method }));
-    if (data.reference) doc.text(L("reference", { reference: data.reference }));
-    doc.text(L("confirmed"));
+    if (data.method) P.text(L("method", { method: data.method === "OTHER" ? t(lang, "pdf.method.OTHER") : data.method }));
+    if (data.reference) P.text(L("reference", { reference: data.reference }));
+    P.text(L("confirmed"));
     doc.moveDown(2);
 
     // Signature
-    doc.fillColor("#1f2430").fontSize(11)
-      .text(L("doneOn", { date: jour(data.paidAt) }), { align: "right" })
-      .moveDown(0.3)
-      .text(data.ownerName, { align: "right" });
+    doc.fillColor("#1f2430").fontSize(11);
+    P.text(L("doneOn", { date: jour(data.paidAt) }), { align: "right" });
+    doc.moveDown(0.3);
+    P.text(data.ownerName, { align: "right" });
 
     doc.end();
   });

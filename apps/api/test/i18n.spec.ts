@@ -116,8 +116,16 @@ test("libellés stockés en français : honoraires, mentions, périodes", () => 
   assert.equal(res.fees[0]!.label, "Letting fees — lease of A B");
 });
 
-test("PDF : l'arabe sort en anglais (polices standard sans glyphes arabes)", () => {
-  assert.equal(pdfLang("ar"), "en");
+test("PDF : l'arabe sort en anglais tant que le dictionnaire arabe n'a aucun texte de PDF", () => {
+  const ar = API_DICTS.ar;
+  try {
+    API_DICTS.ar = { "mail.greeting": "مرحبا {name}،" };
+    assert.equal(pdfLang("ar"), "en");
+    API_DICTS.ar = { "pdf.receipt.title": "إيصال إيجار" };
+    assert.equal(pdfLang("ar"), "ar");
+  } finally {
+    API_DICTS.ar = ar;
+  }
   assert.equal(pdfLang("es"), "es");
   assert.equal(pdfLang("fr"), "fr");
   assert.equal(t("en", "pdf.receipt.title"), "Rent receipt");

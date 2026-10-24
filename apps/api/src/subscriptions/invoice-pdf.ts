@@ -1,5 +1,6 @@
 import PDFDocument = require("pdfkit");
 import { APP_TIME_ZONE } from "../common/dates";
+import { pdfText } from "../common/pdf-text";
 import { moneyPdf, pdfLang, shortDate, t, type Lang } from "../i18n/i18n";
 
 /**
@@ -35,6 +36,8 @@ export function buildInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
     doc.on("data", (c: Buffer) => chunks.push(c));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
+    // Texte gauche-à-droite (Helvetica) ou droite-à-gauche (arabe, police embarquée).
+    const P = pdfText(doc, lang);
 
     const vert = "#1a642f";
     const gris = "#6b7280";
@@ -42,23 +45,28 @@ export function buildInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
     const x = 56;
     const largeur = 483;
 
-    doc.fontSize(18).fillColor(vert).font("Helvetica-Bold").text(L("title", { number: data.number }));
+    doc.fontSize(18).fillColor(vert).font(P.bold);
+    P.text(L("title", { number: data.number }));
     doc.moveDown(0.2);
-    doc.fontSize(10).fillColor(gris).font("Helvetica").text(L("issued", { date: jour(data.issuedAt) }));
+    doc.fontSize(10).fillColor(gris).font(P.regular);
+    P.text(L("issued", { date: jour(data.issuedAt) }));
     doc.moveDown(1);
 
     doc.fontSize(11).fillColor("#1f2430");
-    doc.font("Helvetica-Bold").text(L("issuer"), { continued: true }).font("Helvetica").text(L("issuerName"));
-    doc.font("Helvetica-Bold").text(L("client"), { continued: true }).font("Helvetica").text(data.agencyName);
-    for (const l of data.agencyDetails.filter(Boolean)) doc.fontSize(9).fillColor(gris).text(l);
+    P.labelValue(L("issuer"), L("issuerName"));
+    P.labelValue(L("client"), data.agencyName);
+    for (const l of data.agencyDetails.filter(Boolean)) {
+      doc.fontSize(9).fillColor(gris);
+      P.text(l);
+    }
     doc.moveDown(1);
 
     const row = (label: string, value: string, bold = false, color = "#1f2430") => {
-      doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(10).fillColor(color);
+      doc.font(bold ? P.bold : P.regular).fontSize(10).fillColor(color);
       const y = doc.y;
-      doc.text(label, x, y, { width: largeur - 130 });
+      P.text(label, { x, y, width: largeur - 130 });
       const h = doc.y;
-      doc.text(value, x + largeur - 130, y, { width: 130, align: "right" });
+      P.text(value, { x: x + largeur - 130, y, width: 130, align: "right" });
       doc.y = Math.max(h, doc.y);
       doc.moveDown(0.3);
     };
@@ -67,7 +75,8 @@ export function buildInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
       doc.moveDown(0.4);
     };
 
-    doc.font("Helvetica-Bold").fontSize(12).fillColor(vert).text(L("detail"), x);
+    doc.font(P.bold).fontSize(12).fillColor(vert);
+    P.text(L("detail"), { x });
     doc.moveDown(0.3);
     row(
       L("line", {
@@ -86,12 +95,8 @@ export function buildInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
     if (data.reference) row(L("reference"), data.reference);
     doc.moveDown(1.5);
 
-    doc.fontSize(9).fillColor(gris).font("Helvetica").text(
-      L("footer"),
-      x,
-      doc.y,
-      { width: largeur, align: "justify" },
-    );
+    doc.fontSize(9).fillColor(gris).font(P.regular);
+    P.text(L("footer"), { x, y: doc.y, width: largeur, align: "justify" });
     doc.end();
   });
 }

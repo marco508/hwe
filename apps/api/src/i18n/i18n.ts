@@ -230,11 +230,17 @@ export function resetErrorPatterns() {
 // ───────────────────────── PDF ─────────────────────────
 
 /**
- * Langue d'un PDF. Les polices standard de PDFKit (Helvetica, WinAnsi) ne
- * savent pas écrire l'arabe (ni le mettre en forme de droite à gauche) : un
- * PDF demandé en arabe sort en anglais. À lever en embarquant une police
- * arabe (ex. Noto Naskh Arabic) et une mise en forme bidi.
+ * Langue d'un PDF. L'arabe est écrit de droite à gauche avec une police
+ * embarquée (common/pdf-text.ts). Tant que le dictionnaire arabe n'a aucun
+ * texte de PDF (`pdf.*`), un PDF demandé en arabe sort en anglais plutôt
+ * qu'en anglais mis en page de droite à gauche.
  */
 export function pdfLang(lang: Lang): Lang {
-  return lang === "ar" ? "en" : lang;
+  if (lang === "ar" && !hasPdfTexts("ar")) return "en";
+  return lang;
+}
+
+function hasPdfTexts(lang: Lang): boolean {
+  const dict = API_DICTS[lang];
+  return !!dict && Object.entries(dict).some(([k, v]) => k.startsWith("pdf.") && typeof v === "string" && v !== "");
 }
