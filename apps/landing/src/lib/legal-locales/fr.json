@@ -287,12 +287,12 @@
         "blocks": [
           [
             "Compte et annonces : pendant la durée d'utilisation du compte, puis suppression ou anonymisation après sa clôture.",
-            "Comptes inactifs : {{TODO}}.",
+            "Comptes inactifs : après 3 ans sans connexion, nous vous prévenons par e-mail ; sans réaction de votre part, le compte est supprimé ou anonymisé (sauf les documents à conserver pour les durées indiquées ci-dessous).",
             "Pièces justificatives : jusqu'à leur suppression par vous, et au plus tard à la clôture du compte.",
-            "Mandats, honoraires et relevés de gérance : {{TODO}}.",
-            "Factures et déclarations de paiement des abonnements : {{TODO}} (selon les obligations comptables applicables).",
-            "Baux, quittances et documents liés à une location : {{TODO}} (selon les délais de prescription applicables).",
-            "Journaux techniques : {{TODO}}."
+            "Mandats, honoraires et relevés de gérance : pendant toute la durée du mandat, puis 5 ans après sa fin (prescription de droit commun) ; les pièces comptables correspondantes sont conservées 10 ans.",
+            "Factures et déclarations de paiement des abonnements : 10 ans (obligations comptables applicables en France et dans l'espace OHADA).",
+            "Baux, quittances et documents liés à une location : pendant toute la durée de la relation de location, puis 5 ans après sa fin (délais de prescription applicables).",
+            "Journaux techniques : 12 mois au maximum."
           ]
         ]
       },

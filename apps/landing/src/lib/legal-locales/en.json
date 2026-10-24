@@ -287,12 +287,12 @@
         "blocks": [
           [
             "Account and listings: for as long as the account is used, then deleted or anonymised after it is closed.",
-            "Inactive accounts: {{TODO}}.",
+            "Inactive accounts: after 3 years without logging in, we notify you by e-mail; if you do not respond, the account is deleted or anonymised (except for documents that must be kept for the periods listed below).",
             "Supporting documents: until you delete them, and at the latest when the account is closed.",
-            "Mandates, fees and management statements: {{TODO}}.",
-            "Subscription invoices and payment declarations: {{TODO}} (according to applicable accounting obligations).",
-            "Leases, receipts and rental documents: {{TODO}} (according to applicable limitation periods).",
-            "Technical logs: {{TODO}}."
+            "Mandates, fees and management statements: for the whole term of the mandate, then 5 years after it ends (general limitation period); the related accounting records are kept for 10 years.",
+            "Subscription invoices and payment declarations: 10 years (accounting obligations applicable in France and in the OHADA area).",
+            "Leases, receipts and rental documents: for the whole term of the rental relationship, then 5 years after it ends (applicable limitation periods).",
+            "Technical logs: 12 months at most."
           ]
         ]
       },

@@ -287,12 +287,12 @@
         "blocks": [
           [
             "Conta e anúncios: durante o período de utilização da conta e, depois, eliminação ou anonimização após o seu encerramento.",
-            "Contas inativas: {{TODO}}.",
+            "Contas inativas: após 3 anos sem início de sessão, avisamo-lo por e-mail; sem resposta da sua parte, a conta é eliminada ou anonimizada (exceto os documentos que devam ser conservados durante os prazos indicados abaixo).",
             "Comprovativos: até que os elimine e, o mais tardar, no encerramento da conta.",
-            "Mandatos, honorários e extratos de gestão: {{TODO}}.",
-            "Faturas e declarações de pagamento das subscrições: {{TODO}} (de acordo com as obrigações contabilísticas aplicáveis).",
-            "Contratos de arrendamento, recibos e documentos relacionados com um arrendamento: {{TODO}} (consoante os prazos de prescrição aplicáveis).",
-            "Registos técnicos: {{TODO}}."
+            "Mandatos, honorários e extratos de gestão: durante toda a vigência do mandato e, depois, 5 anos após o seu fim (prescrição de direito comum); os documentos contabilísticos correspondentes são conservados durante 10 anos.",
+            "Faturas e declarações de pagamento das subscrições: 10 anos (obrigações contabilísticas aplicáveis em França e no espaço OHADA).",
+            "Contratos de arrendamento, recibos e documentos relacionados com um arrendamento: durante toda a relação de arrendamento e, depois, 5 anos após o seu fim (prazos de prescrição aplicáveis).",
+            "Registos técnicos: 12 meses no máximo."
           ]
         ]
       },

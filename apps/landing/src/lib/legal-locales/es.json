@@ -287,12 +287,12 @@
         "blocks": [
           [
             "Cuenta y anuncios: mientras se utilice la cuenta; después, eliminación o anonimización tras su cierre.",
-            "Cuentas inactivas: {{TODO}}.",
+            "Cuentas inactivas: tras 3 años sin conexión, le avisamos por correo electrónico; si no responde, la cuenta se elimina o se anonimiza (salvo los documentos que deban conservarse durante los plazos indicados a continuación).",
             "Justificantes: hasta que usted los elimine y, como máximo, hasta el cierre de la cuenta.",
-            "Mandatos, honorarios y liquidaciones de gestión: {{TODO}}.",
-            "Facturas y declaraciones de pago de las suscripciones: {{TODO}} (según las obligaciones contables aplicables).",
-            "Contratos, recibos y documentos relacionados con un alquiler: {{TODO}} (según los plazos de prescripción aplicables).",
-            "Registros técnicos: {{TODO}}."
+            "Mandatos, honorarios y liquidaciones de gestión: durante toda la vigencia del mandato y, después, 5 años tras su fin (prescripción de derecho común); los justificantes contables correspondientes se conservan 10 años.",
+            "Facturas y declaraciones de pago de las suscripciones: 10 años (obligaciones contables aplicables en Francia y en el espacio OHADA).",
+            "Contratos, recibos y documentos relacionados con un alquiler: durante toda la relación de alquiler y, después, 5 años tras su fin (plazos de prescripción aplicables).",
+            "Registros técnicos: 12 meses como máximo."
           ]
         ]
       },
