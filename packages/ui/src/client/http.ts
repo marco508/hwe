@@ -1,5 +1,5 @@
 import { API_URL } from "./config";
-import { ApiError, parseErrorBody } from "./errors";
+import { ApiError, isSubscriptionError, parseErrorBody } from "./errors";
 
 /**
  * Cœur HTTP partagé par owner-web et tenant-web (Q1).
@@ -8,6 +8,8 @@ import { ApiError, parseErrorBody } from "./errors";
  *   `hwe:unauthorized`, redirection vers /login?next=<chemin courant> (A2).
  * - 403 EMAIL_NOT_VERIFIED → événement `hwe:email-not-verified` (encart de
  *   vérification) ; la session est conservée.
+ * - 402 SUBSCRIPTION_SUSPENDED / PLAN_LIMIT_* → événement
+ *   `hwe:subscription-blocked` (fenêtre avec lien vers l'abonnement).
  * - réseau / 429 / 5xx → ApiError « réessayable », la session est conservée (A1).
  */
 
@@ -41,6 +43,7 @@ export const tokenStore = {
 export const AUTH_EVENTS = {
   unauthorized: "hwe:unauthorized",
   emailNotVerified: "hwe:email-not-verified",
+  subscriptionBlocked: "hwe:subscription-blocked",
 } as const;
 
 function emit(name: string, detail?: unknown) {
@@ -129,6 +132,7 @@ export async function rawRequest(path: string, opts: RequestOptions = {}): Promi
   }
   if (res.status === 401 && auth && token) handleUnauthorized();
   if (err.isEmailNotVerified) emit(AUTH_EVENTS.emailNotVerified);
+  if (isSubscriptionError(err)) emit(AUTH_EVENTS.subscriptionBlocked, { code: err.code, messages: err.messages });
   throw err;
 }
 

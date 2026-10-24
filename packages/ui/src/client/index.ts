@@ -1,6 +1,14 @@
 // Client API & utilitaires partagés par owner-web, tenant-web et landing.
 export { API_URL, OWNER_URL, TENANT_URL, LANDING_URL } from "./config";
-export { ApiError, isApiError, errorText, parseErrorBody } from "./errors";
+export {
+  ApiError,
+  isApiError,
+  errorText,
+  parseErrorBody,
+  isSubscriptionError,
+  registerSubscriptionDialog,
+  SUBSCRIPTION_ERROR_CODES,
+} from "./errors";
 export {
   tokenStore,
   request,

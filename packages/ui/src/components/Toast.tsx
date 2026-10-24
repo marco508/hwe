@@ -4,7 +4,7 @@ import * as React from "react";
 import { cn } from "../utils";
 import { tUi } from "./I18nKit";
 import { Icon } from "./Icon";
-import { errorText } from "../client/errors";
+import { errorText, isSubscriptionError, subscriptionDialogMounted } from "../client/errors";
 
 /**
  * Notifications non bloquantes (remplacent les `alert()` bruts, F17).
@@ -50,8 +50,11 @@ export const toast = {
   success: (text: string, opts?: { durationMs?: number }) => push("success", text, opts),
   info: (text: string, opts?: { durationMs?: number; action?: ToastItem["action"] }) => push("info", text, opts),
   /** Erreur : texte ou objet d'erreur (ApiError, Error…). */
-  error: (e: unknown, opts?: { durationMs?: number; action?: ToastItem["action"] }) =>
-    push("error", typeof e === "string" ? e : errorText(e), opts),
+  error: (e: unknown, opts?: { durationMs?: number; action?: ToastItem["action"] }) => {
+    // Refus d'abonnement : déjà affiché par la fenêtre dédiée (lien vers l'abonnement).
+    if (isSubscriptionError(e) && subscriptionDialogMounted()) return 0;
+    return push("error", typeof e === "string" ? e : errorText(e), opts);
+  },
   dismiss,
 };
 

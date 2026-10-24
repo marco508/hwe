@@ -26,12 +26,13 @@ import {
   countryLabel,
   TENANT_URL,
   OWNER_URL,
+  fmtMoney,
   type CategoryRailItem,
 } from "@hwe/ui";
 import { t, useLang } from "../lib/i18n";
 import { publicApi } from "../lib/api";
 import { SiteProviders, SiteHeader, SiteFooter, ArrowRightIcon } from "../components/SiteShell";
-import type { Property, ListingType, PropertyType, PropertyStats, Paginated } from "@hwe/types";
+import type { Property, ListingType, PropertyType, PropertyStats, Paginated, PublicPlans } from "@hwe/types";
 
 // Taille de page du catalogue (l'API plafonne à 50, contrat §8).
 const PAGE_SIZE = 24;
@@ -678,6 +679,10 @@ function LandingInner() {
                   {t("pro.title")}
                 </h2>
                 <p className="text-ink-muted text-lg mt-4 leading-relaxed">{t("pro.sub")}</p>
+                <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-accent-300/60 bg-accent-50 dark:bg-accent-700/15 px-3 py-1 text-sm font-medium text-ink" data-pro-trial>
+                  <Icon name="sparkles" size={15} className="text-accent-500" />
+                  {t("pro.trial")}
+                </p>
                 <ul className="mt-8 space-y-5">
                   {(
                     [
@@ -704,6 +709,7 @@ function LandingInner() {
                 </a>
               </div>
             </div>
+            <ProPricing />
           </RevealOnScroll>
         </div>
       </section>
@@ -971,5 +977,45 @@ function IconCity() {
       <path d="M3 22V8l5-2v16M8 22V4l5 2v16M13 22V10l5-2v14" />
       <path d="M3 22h18" />
     </IconSvg>
+  );
+}
+
+/**
+ * Tarifs des professionnels, lus depuis l'API publique (GET /plans) : offre
+ * gratuite (si activée) puis offres payantes actives. Rien n'est affiché si
+ * l'API ne répond pas (la section reste lisible sans tarifs).
+ */
+function ProPricing() {
+  const [plans, setPlans] = React.useState<PublicPlans | null>(null);
+  React.useEffect(() => {
+    publicApi.plans().then(setPlans).catch(() => setPlans(null));
+  }, []);
+  if (!plans || (plans.plans.length === 0 && !plans.freePlan)) return null;
+  const cards = [...(plans.freePlan ? [plans.freePlan] : []), ...plans.plans];
+  return (
+    <div className="mt-12" data-pro-pricing>
+      <h3 className="display-serif text-2xl text-ink">{t("pro.pricing.title")}</h3>
+      <p className="text-sm text-ink-muted mt-1">{t("pro.pricing.sub", { days: plans.trialDays })}</p>
+      <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {cards.map((p) => (
+          <li key={p.code} className="rounded-2xl border border-border/70 bg-surface p-5 flex flex-col gap-2 min-w-0" data-plan={p.code}>
+            <span className="font-display text-lg text-ink [overflow-wrap:anywhere]">{p.isFree ? t("pro.pricing.free") : p.name}</span>
+            <span className="font-display text-3xl text-ink tabular-nums">
+              {fmtMoney(p.monthlyPrice, p.currency)}
+              <span className="text-sm text-ink-muted font-sans"> {t("pro.pricing.perMonth")}</span>
+            </span>
+            <span className="text-sm text-ink-muted flex items-center gap-1.5">
+              <Icon name="users" size={14} />
+              {p.maxAgents === null ? t("pro.pricing.agentsUnl") : t("pro.pricing.agents", { n: p.maxAgents })}
+            </span>
+            <span className="text-sm text-ink-muted flex items-center gap-1.5">
+              <Icon name="handshake" size={14} />
+              {p.maxActiveMandates === null ? t("pro.pricing.mandatesUnl") : t("pro.pricing.mandates", { n: p.maxActiveMandates })}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-xs text-ink-muted mt-3">{t("pro.pricing.note")}</p>
+    </div>
   );
 }

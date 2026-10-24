@@ -7,6 +7,7 @@ import { Button, Card, CardBody, Icon, Input, Label, toast, tUi, useLoginRedirec
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
+import { SubscriptionBanner, SubscriptionProvider } from "../../components/pro/SubscriptionKit";
 
 /** Garde de l'espace pro : compte AGENT, rattaché à une agence. */
 export default function ProLayout({ children }: { children: React.ReactNode }) {
@@ -49,7 +50,13 @@ export default function ProLayout({ children }: { children: React.ReactNode }) {
 
   if (!auth.user.agency) return <CreateAgency />;
 
-  return <>{children}</>;
+  // Abonnement de l'agence : bandeau selon le statut sur toutes les pages pro.
+  return (
+    <SubscriptionProvider>
+      <SubscriptionBanner />
+      {children}
+    </SubscriptionProvider>
+  );
 }
 
 function CreateAgency() {

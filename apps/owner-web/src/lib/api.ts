@@ -42,6 +42,17 @@ import type {
   MandateType,
   OwnerInviteInfo,
   Statement,
+  AdminSubscriptionAgency,
+  AgencyPayment,
+  MySubscription,
+  OwnerAgencyAlert,
+  PaymentMethod,
+  Plan,
+  PlatformSettings,
+  PublicPlans,
+  SubscriptionRequest,
+  SubscriptionRequestStatus,
+  SubscriptionSummary,
 } from "@hwe/types";
 import { commonApi, qs, rawRequest, request as coreRequest, tokenStore, downloadBlob } from "@hwe/ui";
 
@@ -549,6 +560,46 @@ export const api = {
     const name = /filename="([^"]+)"/.exec(cd)?.[1] ?? `releve-${month}.pdf`;
     downloadBlob(blob, name);
   },
+
+  // ── Abonnement de l'agence ──
+  publicPlans: () => request<PublicPlans>("/plans"),
+  mySubscription: () => request<MySubscription>("/agencies/me/subscription", {}, true),
+  declarePayment: (body: { planCode: string; months: number; method: PaymentMethod; reference: string; note?: string }) =>
+    request<SubscriptionRequest>("/agencies/me/subscription/requests", { method: "POST", body: JSON.stringify(body) }, true),
+  cancelPaymentRequest: (id: string) =>
+    request<SubscriptionRequest>(`/agencies/me/subscription/requests/${id}`, { method: "DELETE" }, true),
+  downloadInvoice: async (paymentId: string, admin = false) => {
+    const path = admin ? `/admin/subscriptions/payments/${paymentId}/pdf` : `/agencies/me/subscription/payments/${paymentId}/pdf`;
+    const res = await rawRequest(path, { auth: true });
+    const blob = await res.blob();
+    const cd = res.headers.get("Content-Disposition") ?? "";
+    downloadBlob(blob, /filename="([^"]+)"/.exec(cd)?.[1] ?? "facture.pdf");
+  },
+  /** Propriétaire : agences mandataires suspendues ou hors limite. */
+  ownerAgencyAlerts: () => request<OwnerAgencyAlert[]>("/subscriptions/owner-alerts", {}, true),
+
+  // ── Admin : abonnements ──
+  adminSubscriptionRequests: (status?: SubscriptionRequestStatus) =>
+    request<SubscriptionRequest[]>(`/admin/subscriptions/requests${qs({ status })}`, {}, true),
+  adminApproveRequest: (id: string) =>
+    request<{ request: SubscriptionRequest; payment: AgencyPayment; subscription: SubscriptionSummary }>(
+      `/admin/subscriptions/requests/${id}/approve`, { method: "POST" }, true),
+  adminRejectRequest: (id: string, reason: string) =>
+    request<SubscriptionRequest>(`/admin/subscriptions/requests/${id}/reject`, { method: "POST", body: JSON.stringify({ reason }) }, true),
+  adminSubscriptionAgencies: (q?: string) =>
+    request<AdminSubscriptionAgency[]>(`/admin/subscriptions/agencies${qs({ q })}`, {}, true),
+  adminUpdateAgencySubscription: (id: string, body: { trialEndsAt?: string | null; paidUntil?: string | null; planCode?: string | null; manualSuspension?: boolean }) =>
+    request<unknown>(`/admin/subscriptions/agencies/${id}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+  adminRecordPayment: (id: string, body: { planCode: string; months: number; method: PaymentMethod; reference?: string }) =>
+    request<{ payment: AgencyPayment }>(`/admin/subscriptions/agencies/${id}/payments`, { method: "POST", body: JSON.stringify(body) }, true),
+  adminPayments: (agencyId?: string) =>
+    request<AgencyPayment[]>(`/admin/subscriptions/payments${qs({ agencyId })}`, {}, true),
+  adminPlans: () => request<Plan[]>("/admin/plans", {}, true),
+  adminUpdatePlan: (id: string, body: Partial<Pick<Plan, "name" | "monthlyPrice" | "currency" | "maxAgents" | "maxActiveMandates" | "active" | "position">>) =>
+    request<Plan>(`/admin/plans/${id}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+  adminSettings: () => request<PlatformSettings>("/admin/settings", {}, true),
+  adminUpdateSettings: (body: Partial<Pick<PlatformSettings, "trialDays" | "graceDays" | "freePlanEnabled" | "paymentInstructions">>) =>
+    request<PlatformSettings>("/admin/settings", { method: "PATCH", body: JSON.stringify(body) }, true),
 
   // ── Activation d'un compte propriétaire créé par un pro ──
   ownerInviteInfo: (token: string) =>

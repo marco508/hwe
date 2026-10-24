@@ -32,6 +32,27 @@ export function isApiError(e: unknown): e is ApiError {
   return e instanceof ApiError;
 }
 
+/** Codes « abonnement » de l'API (HTTP 402) : lecture seule ou limite de l'offre. */
+export const SUBSCRIPTION_ERROR_CODES = new Set(["SUBSCRIPTION_SUSPENDED", "PLAN_LIMIT_AGENTS", "PLAN_LIMIT_MANDATES"]);
+
+/** Refus lié à l'abonnement de l'agence (message clair + lien vers l'abonnement). */
+export function isSubscriptionError(e: unknown): e is ApiError {
+  return isApiError(e) && !!e.code && SUBSCRIPTION_ERROR_CODES.has(e.code);
+}
+
+/**
+ * Fenêtre « abonnement » montée (espace pro) : les erreurs d'abonnement y
+ * sont affichées, avec un lien vers la page abonnement, plutôt qu'en toast.
+ */
+let subscriptionDialogs = 0;
+export function registerSubscriptionDialog(): () => void {
+  subscriptionDialogs += 1;
+  return () => {
+    subscriptionDialogs = Math.max(0, subscriptionDialogs - 1);
+  };
+}
+export const subscriptionDialogMounted = () => subscriptionDialogs > 0;
+
 /** Parse un corps d'erreur JSON (ou texte) sans jamais lever. */
 export function parseErrorBody(status: number, raw: string): ApiError {
   let messages: string[] = [];

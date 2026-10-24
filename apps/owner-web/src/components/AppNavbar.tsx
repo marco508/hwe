@@ -19,6 +19,7 @@ import { EmailVerifyBanner } from "./EmailVerifyBanner";
 import { t, LangSwitch } from "../lib/i18n";
 import { isManager, isPro } from "../lib/pro";
 import { Icon, type IconName } from "@hwe/ui";
+import { SubscriptionBlockedDialog } from "./pro/SubscriptionKit";
 
 /** Navigation de l'espace pro (ordre du cahier des charges). */
 const PRO_LINKS: { href: string; label: string; icon: IconName; manager?: boolean; exact?: boolean }[] = [
@@ -33,6 +34,7 @@ const PRO_LINKS: { href: string; label: string; icon: IconName; manager?: boolea
   { href: "/dashboard/messages", label: "nav.messages", icon: "messages" },
   { href: "/pro/honoraires", label: "nav.pro.fees", icon: "coins" },
   { href: "/pro/agence", label: "nav.pro.agency", icon: "store" },
+  { href: "/pro/abonnement", label: "nav.pro.subscription", icon: "creditCard" },
 ];
 
 function ProNav({ manager, pathname }: { manager: boolean; pathname: string }) {
@@ -208,6 +210,8 @@ export function AppNavbar() {
       {user && <Link href="/profile" className="hidden lg:inline">{t("nav.profile")}</Link>}
     </Navbar>
     {pro && <ProNav manager={manager} pathname={pathname ?? ""} />}
+    {/* Refus d'abonnement (402) : fenêtre claire avec lien vers l'abonnement. */}
+    {pro && <SubscriptionBlockedDialog />}
     <EmailVerifyBanner />
     </>
   );

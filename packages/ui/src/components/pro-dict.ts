@@ -50,6 +50,14 @@ export const PRO_UI_FR: Record<string, string> = {
   "ui.pro.err.AGENT_NOT_IN_AGENCY": "Cet agent ne fait pas partie de l'agence.",
   "ui.pro.err.PROPERTY_NOT_OWNED": "Ce bien n'appartient pas à ce propriétaire.",
   "ui.pro.err.FEE_CANCELLED": "Cet honoraire est annulé.",
+  "ui.pro.err.SUBSCRIPTION_SUSPENDED": "Abonnement de l'agence suspendu : compte en lecture seule. Réglez votre abonnement pour agir à nouveau.",
+  "ui.pro.err.PLAN_LIMIT_AGENTS": "Limite d'agents de votre offre atteinte : passez à une offre supérieure pour inviter un agent.",
+  "ui.pro.err.PLAN_LIMIT_MANDATES": "Limite de mandats actifs de votre offre atteinte (ou mandat au-delà, en lecture seule) : passez à une offre supérieure.",
+  "ui.pro.err.AGENCY_UNAVAILABLE": "Cette agence ne peut pas recevoir de nouveau mandat pour l'instant (abonnement). Contactez-la ou choisissez-en une autre.",
+  "ui.pro.err.REQUEST_ALREADY_PENDING": "Une déclaration de paiement est déjà en attente de validation.",
+  "ui.sub.blockedTitle": "Action impossible",
+  "ui.sub.seePlan": "Voir l'abonnement",
+  "ui.sub.close": "Fermer",
 };
 
 export const PRO_UI_EN: Record<string, string> = {
@@ -101,4 +109,12 @@ export const PRO_UI_EN: Record<string, string> = {
   "ui.pro.err.AGENT_NOT_IN_AGENCY": "This agent isn't part of the agency.",
   "ui.pro.err.PROPERTY_NOT_OWNED": "This property doesn't belong to this landlord.",
   "ui.pro.err.FEE_CANCELLED": "This fee is cancelled.",
+  "ui.pro.err.SUBSCRIPTION_SUSPENDED": "Your agency's subscription is suspended: the account is read-only. Settle your subscription to act again.",
+  "ui.pro.err.PLAN_LIMIT_AGENTS": "Your plan's agent limit is reached: upgrade to invite another agent.",
+  "ui.pro.err.PLAN_LIMIT_MANDATES": "Your plan's active mandate limit is reached (or this mandate is beyond it and read-only): upgrade your plan.",
+  "ui.pro.err.AGENCY_UNAVAILABLE": "This agency can't take new mandates right now (subscription). Contact it or choose another agency.",
+  "ui.pro.err.REQUEST_ALREADY_PENDING": "A payment declaration is already awaiting validation.",
+  "ui.sub.blockedTitle": "Action unavailable",
+  "ui.sub.seePlan": "See the subscription",
+  "ui.sub.close": "Close",
 };

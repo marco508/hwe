@@ -10,6 +10,7 @@ import * as p5 from "./i18n-parts/account";
 import * as p6 from "./i18n-parts/fixes";
 import * as pv from "./i18n-parts/visual";
 import * as pp from "./i18n-parts/pro";
+import * as pa from "./i18n-parts/abonnement";
 
 // fr = textes d'origine ; en = traduction. Couvre la coque de l'app
 // (navigation, auth, tableau de bord) — les écrans de gestion restent en français.
@@ -174,6 +175,6 @@ const en: Record<string, string> = {
 };
 
 export const { t, LangProvider, useLang, LangSwitch } = createI18n({
-  fr: { ...fr, ...p0.fr, ...p1.fr, ...p2.fr, ...p3.fr, ...p4.fr, ...p5.fr, ...p6.fr, ...pv.fr, ...pp.fr },
-  en: { ...en, ...p0.en, ...p1.en, ...p2.en, ...p3.en, ...p4.en, ...p5.en, ...p6.en, ...pv.en, ...pp.en },
+  fr: { ...fr, ...p0.fr, ...p1.fr, ...p2.fr, ...p3.fr, ...p4.fr, ...p5.fr, ...p6.fr, ...pv.fr, ...pp.fr, ...pa.fr },
+  en: { ...en, ...p0.en, ...p1.en, ...p2.en, ...p3.en, ...p4.en, ...p5.en, ...p6.en, ...pv.en, ...pp.en, ...pa.en },
 });

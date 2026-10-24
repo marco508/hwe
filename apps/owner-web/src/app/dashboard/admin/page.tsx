@@ -5,6 +5,7 @@ import { Badge, Button, Input, Select, ErrorState, toast, fmtDate as fmtDateShar
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
+import { AdminSubscriptions } from "../../../components/pro/AdminSubscriptions";
 
 type Overview = {
   users: Record<string, number>;
@@ -83,7 +84,7 @@ export default function AdminPage() {
   const { user } = useAuth();
   const [error, setError] = React.useState<unknown>(null);
   const [overview, setOverview] = React.useState<Overview | null>(null);
-  const [tab, setTab] = React.useState<"users" | "properties" | "agencies">("users");
+  const [tab, setTab] = React.useState<"users" | "properties" | "agencies" | "subscriptions">("users");
   const [agencies, setAgencies] = React.useState<AdminAgency[]>([]);
   const [q, setQ] = React.useState("");
   const [users, setUsers] = React.useState<AdminUser[]>([]);
@@ -199,6 +200,19 @@ export default function AdminPage() {
           >
             {t("pro.admin.tabAgencies")} ({agencies.length})
           </button>
+          <button
+            type="button"
+            aria-pressed={tab === "subscriptions"}
+            onClick={() => setTab("subscriptions")}
+            data-tab="subscriptions"
+            className={`px-3 py-1.5 rounded-full text-sm border ${
+              tab === "subscriptions"
+                ? "bg-brand-600 text-white border-brand-600"
+                : "border-border text-ink-muted"
+            }`}
+          >
+            {t("sub.admin.tab")}
+          </button>
         </div>
         <Input
           className="w-full sm:max-w-xs"
@@ -210,7 +224,9 @@ export default function AdminPage() {
         />
       </div>
 
-      {tab === "agencies" ? (
+      {tab === "subscriptions" ? (
+        <AdminSubscriptions q={q} />
+      ) : tab === "agencies" ? (
         <div className="overflow-x-auto rounded-2xl border border-border bg-surface">
           <table className="w-full text-sm">
             <thead className="bg-brand-50/60 dark:bg-brand-900/20 text-left">

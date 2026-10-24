@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { tUi, TENANT_URL, useLoginRedirect, Icon } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
+import { OwnerAgencyAlerts } from "../../components/OwnerAgencyAlerts";
 
 /**
  * Garde de rôle côté client pour tout /dashboard (F4, A4) — sans middleware :
@@ -82,7 +83,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  return <>{children}</>;
+  // Propriétaire : agence mandataire suspendue ou hors limite → bandeau.
+  return (
+    <>
+      {role === "OWNER" && !adminOnly && <OwnerAgencyAlerts />}
+      {children}
+    </>
+  );
 }
 
 function Redirect({ to }: { to: string }) {
