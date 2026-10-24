@@ -38,13 +38,18 @@ const PRO_LINKS: { href: string; label: string; icon: IconName; manager?: boolea
 ];
 
 function ProNav({ manager, pathname }: { manager: boolean; pathname: string }) {
+  const listRef = React.useRef<HTMLDivElement>(null);
+  // La barre défile horizontalement : l'onglet actif (souvent « Abonnement », le dernier) reste visible.
+  React.useEffect(() => {
+    listRef.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [pathname]);
   return (
     <nav
       aria-label={t("nav.pro.aria")}
       data-pro-nav
       className="hidden lg:block sticky top-16 z-20 border-b border-border/70 bg-cream-50/90 dark:bg-background/85 backdrop-blur-xl"
     >
-      <div className="container-app flex items-center gap-1 overflow-x-auto py-2">
+      <div ref={listRef} className="container-app flex items-center gap-1 overflow-x-auto py-2">
         {PRO_LINKS.filter((l) => !l.manager || manager).map((l) => {
           const active = l.exact ? pathname === l.href : pathname === l.href || pathname.startsWith(l.href + "/");
           return (

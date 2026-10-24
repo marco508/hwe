@@ -247,11 +247,15 @@ function StatCard({
   title?: string;
 }) {
   return (
-    <div className="glass rounded-xl px-4 py-3 hover-lift min-w-0" title={title}>
+    <div
+      className="glass rounded-xl px-4 py-3 hover-lift min-w-0"
+      title={title ?? (typeof value === "string" ? value : undefined)}
+    >
       <div className="flex items-center gap-3 min-w-0">
         <IconBadge name={icon} size="sm" />
         <div className="min-w-0">
-          <div className="font-display text-lg sm:text-xl leading-tight gradient-text [overflow-wrap:anywhere]">
+          {/* Un montant ne se coupe jamais au milieu (« 520 00 / 0 € ») : tronqué au pire, valeur en infobulle. */}
+          <div className="font-display text-lg sm:text-xl leading-tight gradient-text whitespace-nowrap truncate">
             {value}
           </div>
           <div className="text-[11px] text-ink-muted mt-0.5">{label}</div>
