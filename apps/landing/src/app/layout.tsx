@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_LANDING_URL || "https://hwe.dkpsolution.tech").replace(/\/+$/, "");
 const DESCRIPTION =
-  "Trouvez un logement, gérez vos biens ou vendez sans agence. Une plateforme éditoriale qui connecte locataires et propriétaires avec soin.";
+  "Trouvez un logement, louez ou vendez votre bien en direct ou avec un professionnel, et suivez baux et loyers en ligne. Locataires, propriétaires et agences, en 5 langues.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: SITE_URL,
     locale: "fr_FR",
-    alternateLocale: ["en_GB"],
+    alternateLocale: ["en_GB", "es_ES", "pt_PT", "ar_AR"],
   },
   twitter: { card: "summary", title: "hwe — Habiter avec élégance", description: DESCRIPTION },
 };
