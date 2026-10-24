@@ -9,6 +9,8 @@ import {
 import { MandateStatus, MandateType, Prisma, Role } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
+import { asLang, monthYear, pdfLang, requestLang, t } from "../i18n/i18n";
+import { feeLabel, localizePeriod } from "../i18n/labels";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { AuthService } from "../auth/auth.service";
@@ -414,7 +416,7 @@ export class MandatesService {
           ...terms,
         },
       });
-      this.mailer.mandateProposed(owner.email, owner.firstName, agency.name, "un ou plusieurs de vos biens", url).catch(() => {});
+      this.mailer.mandateProposed(owner.email, owner.firstName, agency.name, null, url).catch(() => {});
       return { mandates: [], request: await this.shapeRequest(request.id) };
     }
 
@@ -458,7 +460,7 @@ export class MandatesService {
       return out;
     });
     this.mailer
-      .mandateProposed(owner.email, owner.firstName, agency.name, props.map((p) => `« ${p.title} »`).join(", "), url)
+      .mandateProposed(owner.email, owner.firstName, agency.name, props.map((p) => p.title), url)
       .catch(() => {});
     const rows = await this.prisma.mandate.findMany({ where: { id: { in: created } }, include: MANDATE_INCLUDE });
     return { mandates: await this.shape(rows, user), request: null };
@@ -558,7 +560,7 @@ export class MandatesService {
       return { mandateId: m.id, ownerUserId: oid };
     });
 
-    const ownerInviteUrl = await this.sendOwnerInvite(ownerUserId, member.agencyId);
+    const ownerInviteUrl = await this.sendOwnerInvite(ownerUserId, member.agencyId, user.sub);
     return {
       mandate: await this.shapeOne(mandateId, user),
       ownerInviteUrl,
@@ -568,7 +570,7 @@ export class MandatesService {
   }
 
   /** Lien d'activation (toujours renvoyé) + e-mail si SMTP. */
-  private async sendOwnerInvite(ownerId: string, agencyId: string): Promise<string> {
+  private async sendOwnerInvite(ownerId: string, agencyId: string, actorId: string): Promise<string> {
     const owner = await this.prisma.user.findUniqueOrThrow({ where: { id: ownerId } });
     const url = await this.auth.ownerInviteUrl(owner);
     const [agency, props] = await Promise.all([
@@ -578,7 +580,9 @@ export class MandatesService {
         select: { property: { select: { title: true } } },
       }),
     ]);
-    this.mailer.ownerInvite(owner.email, owner.firstName, agency.name, props.map((p) => p.property.title), url).catch(() => {});
+    // Propriétaire sans langue choisie : celle du professionnel qui l'invite.
+    const fallback = await this.mailer.userLang(actorId);
+    this.mailer.ownerInvite(owner.email, owner.firstName, agency.name, props.map((p) => p.property.title), url, fallback).catch(() => {});
     return url;
   }
 
@@ -594,7 +598,7 @@ export class MandatesService {
       throw new ConflictException({ statusCode: 409, code: "MANDATE_INACTIVE", message: "Ce mandat n'est plus actif." });
     }
     await this.assertMandateWritable(m.agencyId, m.id, m.status);
-    const ownerInviteUrl = await this.sendOwnerInvite(m.ownerId, m.agencyId);
+    const ownerInviteUrl = await this.sendOwnerInvite(m.ownerId, m.agencyId, user.sub);
     await this.event(this.prisma, m.id, user.sub, "OWNER_INVITE_SENT");
     return { ownerInviteUrl, emailSent: this.mailer.isConfigured };
   }
@@ -622,7 +626,7 @@ export class MandatesService {
       if (count === 0) throw new ConflictException({ statusCode: 409, code: "MANDATE_NOT_PENDING", message: "Ce mandat n'est plus en attente." });
       await this.event(tx, id, user.sub, "ACCEPTED");
     });
-    this.notifyAgency(m, "Mandat accepté", `Le propriétaire a accepté le mandat ${m.reference} (« ${m.property.title} »).`);
+    this.notifyAgency(m, "accepted", { reference: m.reference, title: m.property.title });
     return this.shapeOne(id, user);
   }
 
@@ -635,7 +639,7 @@ export class MandatesService {
     });
     if (count === 0) throw new ConflictException({ statusCode: 409, code: "MANDATE_NOT_PENDING", message: "Ce mandat n'est plus en attente." });
     await this.event(this.prisma, id, user.sub, "REJECTED", reason ? { reason } : undefined);
-    this.notifyAgency(m, "Mandat refusé", `Le propriétaire a refusé le mandat ${m.reference} (« ${m.property.title} »).`);
+    this.notifyAgency(m, "rejected", { reference: m.reference, title: m.property.title });
     return this.shapeOne(id, user);
   }
 
@@ -653,9 +657,9 @@ export class MandatesService {
     if (count === 0) throw new ConflictException({ statusCode: 409, code: "MANDATE_INACTIVE", message: "Ce mandat est déjà terminé." });
     await this.event(this.prisma, id, user.sub, "ENDED", { reason, by: viewer.as });
     if (viewer.as === "OWNER") {
-      this.notifyAgency(m, "Fin de mandat", `Le propriétaire a mis fin au mandat ${m.reference} (« ${m.property.title} ») : ${reason}`);
+      this.notifyAgency(m, "endedByOwner", { reference: m.reference, title: m.property.title, reason });
     } else {
-      this.notifyOwner(m, "Fin de mandat", `${m.agency.name} a mis fin au mandat ${m.reference} (« ${m.property.title} ») : ${reason}`);
+      this.notifyOwner(m, "endedByAgency", { agency: m.agency.name, reference: m.reference, title: m.property.title, reason });
     }
     return this.shapeOne(id, user);
   }
@@ -751,7 +755,7 @@ export class MandatesService {
       return m.id;
     });
     const m = await this.load(id);
-    this.notifyAgency(m, "Nouveau bien confié", `Un propriétaire vous confie « ${property.title} » (mandat ${m.reference}).`);
+    this.notifyAgency(m, "entrusted", { reference: m.reference, title: property.title });
     return this.shapeOne(id, user);
   }
 
@@ -844,7 +848,7 @@ export class MandatesService {
       return out;
     });
     const rows = await this.prisma.mandate.findMany({ where: { id: { in: created } }, include: MANDATE_INCLUDE });
-    for (const m of rows) this.notifyAgency(m, "Mandat accepté", `Le propriétaire vous confie « ${m.property.title} » (mandat ${m.reference}).`);
+    for (const m of rows) this.notifyAgency(m, "requestAccepted", { reference: m.reference, title: m.property.title });
     return { request: await this.shapeRequest(id), mandates: await this.shape(rows, user) };
   }
 
@@ -1003,20 +1007,30 @@ export class MandatesService {
 
   async statementPdf(user: AuthUser, id: string, month: string) {
     const s = await this.statement(user, id, month);
+    // Langue du document : celle de l'utilisateur qui télécharge.
+    const me = await this.prisma.user.findUnique({ where: { id: user.sub }, select: { locale: true } });
+    const lang = pdfLang(asLang(me?.locale, requestLang()));
+    const b = this.monthBounds(month);
     const buffer = await buildStatementPdf({
-      title: `Relevé de gérance — ${s.monthLabel}`,
+      lang,
+      title: t(lang, "pdf.statement.title", { month: monthYear(lang, b.year, b.month) }),
       reference: s.mandate.reference,
       agencyName: s.agency.name,
       agencyDetails: [
         [s.agency.address, s.agency.city].filter(Boolean).join(", "),
         [s.agency.email, s.agency.phone].filter(Boolean).join(" — "),
-        s.agency.registrationNumber ? `N° ${s.agency.registrationNumber}` : "",
+        s.agency.registrationNumber ? t(lang, "pdf.statement.registration", { number: s.agency.registrationNumber }) : "",
       ],
       ownerName: `${s.owner.firstName} ${s.owner.lastName}`,
       propertyLines: [`${s.property.title}${s.property.addressLine ? ` — ${s.property.addressLine}, ${s.property.city}` : ""}`],
       currency: s.currency,
-      rents: s.rents.map((r) => ({ label: `Loyer ${r.periodLabel}`, tenant: r.tenantName, paidAt: r.paidAt, amount: r.amount })),
-      fees: s.fees.map((f) => ({ label: f.label, status: f.status, amount: f.amount })),
+      rents: s.rents.map((r) => ({
+        label: t(lang, "label.rent", { period: localizePeriod(r.periodLabel, lang) }),
+        tenant: r.tenantName,
+        paidAt: r.paidAt,
+        amount: r.amount,
+      })),
+      fees: s.fees.map((f) => ({ label: feeLabel({ kind: f.kind, label: f.label, currency: f.currency }, lang), status: f.status, amount: f.amount })),
       totals: s.totals,
       generatedAt: new Date(),
     });
@@ -1080,20 +1094,20 @@ export class MandatesService {
 
   // ─────────────────────────── Notifications (best-effort) ───────────────────────────
 
-  private notifyAgency(m: MandateRow, subject: string, body: string) {
+  private notifyAgency(m: MandateRow, kind: string, params: Record<string, string>) {
     (async () => {
       const recipients = await this.prisma.user.findMany({
         where: m.assignedAgentId ? { id: m.assignedAgentId } : { agencyMember: { agencyId: m.agencyId, role: "MANAGER" } },
         select: { email: true, firstName: true },
       });
-      for (const r of recipients) await this.mailer.mandateUpdate(r.email, r.firstName, subject, body, `${ownerWebBase()}/pro/mandats`);
+      for (const r of recipients) await this.mailer.mandateUpdate(r.email, r.firstName, kind, params, `${ownerWebBase()}/pro/mandats`);
     })().catch(() => {});
   }
 
-  private notifyOwner(m: MandateRow, subject: string, body: string) {
+  private notifyOwner(m: MandateRow, kind: string, params: Record<string, string>) {
     (async () => {
       const o = await this.prisma.user.findUnique({ where: { id: m.ownerId }, select: { email: true, firstName: true, activatedAt: true } });
-      if (o?.activatedAt) await this.mailer.mandateUpdate(o.email, o.firstName, subject, body, `${ownerWebBase()}/dashboard/mandats`);
+      if (o?.activatedAt) await this.mailer.mandateUpdate(o.email, o.firstName, kind, params, `${ownerWebBase()}/dashboard/mandats`);
     })().catch(() => {});
   }
 

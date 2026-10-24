@@ -1,4 +1,5 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { langOfRequest, translateError } from "../i18n/i18n";
 // Parseurs d'express (= body-parser), résolus via @nestjs/platform-express :
 // avec pnpm, ni express ni body-parser ne sont des dépendances directes.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -45,14 +46,14 @@ export function bodyParserMiddleware(opts: { defaultLimit: string; uploadLimit: 
         res.status(413).json({
           statusCode: 413,
           code: "PAYLOAD_TOO_LARGE",
-          message: "Envoi trop volumineux — réduisez la taille ou le nombre des fichiers.",
+          message: translateError("Envoi trop volumineux — réduisez la taille ou le nombre des fichiers.", langOfRequest(req)),
         });
         return;
       }
       res.status(400).json({
         statusCode: 400,
         code: "BAD_INPUT",
-        message: "Corps de requête invalide (JSON mal formé).",
+        message: translateError("Corps de requête invalide (JSON mal formé).", langOfRequest(req)),
       });
     };
     const parser = isUploadRoute(req.method, req.originalUrl || req.url) ? big : small;
@@ -69,12 +70,12 @@ export function rejectControlCharsInUrl(req: Request, res: Response, next: NextF
   try {
     decoded = decodeURIComponent(req.originalUrl || req.url || "");
   } catch {
-    res.status(400).json({ statusCode: 400, code: "BAD_INPUT", message: "Adresse de requête invalide." });
+    res.status(400).json({ statusCode: 400, code: "BAD_INPUT", message: translateError("Adresse de requête invalide.", langOfRequest(req)) });
     return;
   }
   // eslint-disable-next-line no-control-regex
   if (/[\u0000-\u001f\u007f]/.test(decoded)) {
-    res.status(400).json({ statusCode: 400, code: "BAD_INPUT", message: "Adresse de requête invalide." });
+    res.status(400).json({ statusCode: 400, code: "BAD_INPUT", message: translateError("Adresse de requête invalide.", langOfRequest(req)) });
     return;
   }
   next();

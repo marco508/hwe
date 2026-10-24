@@ -2,7 +2,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
-import { RentsService, periodLabel } from "./rents.service";
+import { RentsService } from "./rents.service";
 import { addDays, APP_TIME_ZONE, today as todayDay } from "../common/dates";
 import { withAdvisoryLock } from "../common/advisory-lock";
 
@@ -92,7 +92,7 @@ export class RentSchedulerService implements OnApplicationBootstrap {
       await this.mailer.rentReminder(
         p.lease.tenantEmail,
         `${p.lease.tenantFirstName} ${p.lease.tenantLastName}`.trim(),
-        periodLabel(p.periodYear, p.periodMonth),
+        { year: p.periodYear, month: p.periodMonth },
         p.amount,
         p.status === "LATE",
         p.lease.currency,

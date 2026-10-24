@@ -355,7 +355,9 @@ export async function assertCanAddAgent(
   if (!withinLimit(max, members + invites, 1)) {
     throw subscriptionError(
       "PLAN_LIMIT_AGENTS",
-      `Votre offre permet ${max} membre(s) dans l'agence (${members} membre(s)${invites ? `, ${invites} invitation(s) en attente` : ""}) : passez à une offre supérieure pour en ajouter.`,
+      invites
+        ? `Votre offre permet ${max} membre(s) dans l'agence (${members} membre(s), ${invites} invitation(s) en attente) : passez à une offre supérieure pour en ajouter.`
+        : `Votre offre permet ${max} membre(s) dans l'agence (${members} membre(s)) : passez à une offre supérieure pour en ajouter.`,
     );
   }
 }

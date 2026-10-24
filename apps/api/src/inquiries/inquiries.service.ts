@@ -220,14 +220,14 @@ export class InquiriesService {
         property.owner.email,
         property.owner.firstName,
         property.title,
-        sender ? `${sender.firstName} ${sender.lastName}` : "Un visiteur",
+        sender ? `${sender.firstName} ${sender.lastName}` : null,
         `${ownerBase}/dashboard/inquiries`,
       )
       .catch(() => {});
     // Bien géré : le pro (agent assigné, sinon responsables) est aussi prévenu.
     for (const r of await this.access.proRecipients(property.id)) {
       this.mailer
-        .inquiryReceived(r.email, r.firstName, property.title, sender ? `${sender.firstName} ${sender.lastName}` : "Un visiteur", `${ownerBase}/dashboard/inquiries`)
+        .inquiryReceived(r.email, r.firstName, property.title, sender ? `${sender.firstName} ${sender.lastName}` : null, `${ownerBase}/dashboard/inquiries`)
         .catch(() => {});
     }
 

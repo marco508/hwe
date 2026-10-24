@@ -8,6 +8,7 @@ import {
 } from "@nestjs/common";
 import { AgencyRole } from "@prisma/client";
 import { randomBytes } from "crypto";
+import { asLang } from "../i18n/i18n";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { lockKey } from "../common/advisory-lock";
@@ -221,9 +222,11 @@ export class AgenciesService {
     const inviteUrl = agencyInviteUrl(token);
     const [agency, inviter] = await Promise.all([
       this.prisma.agency.findUniqueOrThrow({ where: { id: m.agencyId }, select: { name: true } }),
-      this.prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { firstName: true, lastName: true } }),
+      this.prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { firstName: true, lastName: true, locale: true } }),
     ]);
-    this.mailer.agencyInvite(email, agency.name, `${inviter.firstName} ${inviter.lastName}`, inviteUrl).catch(() => {});
+    this.mailer
+      .agencyInvite(email, agency.name, `${inviter.firstName} ${inviter.lastName}`, inviteUrl, asLang(inviter.locale))
+      .catch(() => {});
     // Le lien est TOUJOURS renvoyé : à copier / partager (WhatsApp), le SMTP peut manquer.
     return { invite, inviteUrl, emailSent: this.mailer.isConfigured };
   }

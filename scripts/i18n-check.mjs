@@ -97,6 +97,8 @@ function extractApiMessages(src) {
     if (stack.some(Boolean)) return true;
     const before = src.slice(Math.max(0, pos - 80), pos);
     if (/message\s*:\s*$/.test(before)) return true;
+    // Table de messages par code (« PLAN_LIMIT_AGENTS: "…" »).
+    if (/\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\s*:\s*$/.test(before)) return true;
     if (/[A-Z_]*MESSAGE\s*=\s*$/.test(before)) return true;
     return false;
   };
@@ -185,7 +187,8 @@ function extractApiMessages(src) {
     }
     if (ch === "(") {
       const before = src.slice(Math.max(0, i - 40), i);
-      stack.push(/Exception\s*$/.test(before));
+      // Appel …Exception(…) ou assistant qui construit une erreur (deny, bad, exists, subscriptionError).
+      stack.push(/(Exception|\bdeny|\bbad|\bexists|\bsubscriptionError|\btranslateError)\s*$/.test(before));
     } else if (ch === ")") {
       stack.pop();
     }

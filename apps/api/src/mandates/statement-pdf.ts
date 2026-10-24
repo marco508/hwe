@@ -1,6 +1,6 @@
 import PDFDocument = require("pdfkit");
-import { formatMoneyPdf } from "../common/money";
 import { APP_TIME_ZONE } from "../common/dates";
+import { moneyPdf, pdfLang, shortDate, t, type Lang } from "../i18n/i18n";
 
 /**
  * Relevé de gérance mensuel en PDF (même facture que la quittance) :
@@ -19,11 +19,15 @@ export interface StatementPdfData {
   fees: Array<{ label: string; status: string; amount: number }>;
   totals: { collected: number; fees: number; net: number };
   generatedAt: Date;
+  /** Langue du document ; fr par défaut. */
+  lang?: Lang;
 }
 
 export function buildStatementPdf(data: StatementPdfData): Promise<Buffer> {
-  const M = (n: number) => formatMoneyPdf(n, data.currency);
-  const jour = (d: Date) => d.toLocaleDateString("fr-FR", { timeZone: APP_TIME_ZONE });
+  const lang = pdfLang(data.lang ?? "fr");
+  const L = (key: string, params?: Record<string, string | number>) => t(lang, `pdf.statement.${key}`, params);
+  const M = (n: number) => moneyPdf(lang, n, data.currency);
+  const jour = (d: Date) => shortDate(lang, d, APP_TIME_ZONE);
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: "A4", margin: 56 });
     const chunks: Buffer[] = [];
@@ -40,16 +44,20 @@ export function buildStatementPdf(data: StatementPdfData): Promise<Buffer> {
     doc.fontSize(18).fillColor(vert).font("Helvetica-Bold").text(data.title);
     doc.moveDown(0.2);
     doc.fontSize(10).fillColor(gris).font("Helvetica")
-      .text(`${data.reference ? `Mandat ${data.reference} — ` : ""}édité le ${jour(data.generatedAt)}`);
+      .text(
+        data.reference
+          ? L("editedWithMandate", { reference: data.reference, date: jour(data.generatedAt) })
+          : L("edited", { date: jour(data.generatedAt) }),
+      );
     doc.moveDown(1);
 
     doc.fontSize(11).fillColor("#1f2430");
-    doc.font("Helvetica-Bold").text("Mandataire : ", { continued: true }).font("Helvetica").text(data.agencyName);
+    doc.font("Helvetica-Bold").text(L("agent"), { continued: true }).font("Helvetica").text(data.agencyName);
     for (const l of data.agencyDetails.filter(Boolean)) doc.fontSize(9).fillColor(gris).text(l);
     doc.fontSize(11).fillColor("#1f2430");
-    doc.font("Helvetica-Bold").text("Propriétaire : ", { continued: true }).font("Helvetica").text(data.ownerName);
+    doc.font("Helvetica-Bold").text(L("owner"), { continued: true }).font("Helvetica").text(data.ownerName);
     for (const l of data.propertyLines) {
-      doc.font("Helvetica-Bold").text("Bien : ", { continued: true }).font("Helvetica").text(l);
+      doc.font("Helvetica-Bold").text(L("property"), { continued: true }).font("Helvetica").text(l);
     }
     doc.moveDown(1);
 
@@ -67,33 +75,32 @@ export function buildStatementPdf(data: StatementPdfData): Promise<Buffer> {
       doc.moveDown(0.4);
     };
 
-    doc.font("Helvetica-Bold").fontSize(12).fillColor(vert).text("Loyers encaissés", x);
+    doc.font("Helvetica-Bold").fontSize(12).fillColor(vert).text(L("rents"), x);
     doc.moveDown(0.3);
-    if (data.rents.length === 0) row("Aucun loyer validé sur la période.", "", false, gris);
+    if (data.rents.length === 0) row(L("noRents"), "", false, gris);
     for (const r of data.rents) {
-      row(`${r.label} — ${r.tenant}${r.paidAt ? ` (validé le ${jour(r.paidAt)})` : ""}`, M(r.amount));
+      row(`${r.label} — ${r.tenant}${r.paidAt ? ` ${L("validatedOn", { date: jour(r.paidAt) })}` : ""}`, M(r.amount));
     }
     rule();
-    row("Total encaissé", M(data.totals.collected), true);
+    row(L("totalCollected"), M(data.totals.collected), true);
     doc.moveDown(0.8);
 
-    doc.font("Helvetica-Bold").fontSize(12).fillColor(vert).text("Honoraires de l'agence", x);
+    doc.font("Helvetica-Bold").fontSize(12).fillColor(vert).text(L("fees"), x);
     doc.moveDown(0.3);
-    if (data.fees.length === 0) row("Aucun honoraire sur la période.", "", false, gris);
+    if (data.fees.length === 0) row(L("noFees"), "", false, gris);
     for (const f of data.fees) {
-      row(`${f.label}${f.status === "SETTLED" ? " — réglé" : " — dû"}`, `- ${M(f.amount)}`);
+      row(`${f.label} — ${f.status === "SETTLED" ? L("settled") : L("due")}`, `- ${M(f.amount)}`);
     }
     rule();
-    row("Total honoraires", `- ${M(data.totals.fees)}`, true);
+    row(L("totalFees"), `- ${M(data.totals.fees)}`, true);
     doc.moveDown(0.8);
 
     rule();
-    row("Net propriétaire", M(data.totals.net), true, vert);
+    row(L("net"), M(data.totals.net), true, vert);
     doc.moveDown(1.5);
 
     doc.fontSize(9).fillColor(gris).font("Helvetica").text(
-      "Relevé établi à partir des loyers validés et des honoraires calculés sur la plateforme hwe, " +
-        "selon les conditions du mandat. hwe ne détient pas les fonds : les règlements se font hors plateforme.",
+      L("footer"),
       x,
       doc.y,
       { width: largeur, align: "justify" },

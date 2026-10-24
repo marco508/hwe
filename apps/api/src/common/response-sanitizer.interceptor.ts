@@ -6,13 +6,17 @@ import {
 } from "@nestjs/common";
 import { Observable, map } from "rxjs";
 import { avatarUrlFromKey, mediaUrl } from "./media.util";
+import { requestLang } from "../i18n/i18n";
+import { localizeResponse } from "../i18n/labels";
 
 /**
  * Défense en profondeur sur TOUTES les réponses JSON :
  *  - supprime toute clé `password` / `tokenVersion` (un `include: { owner: true }`
  *    oublié renvoyait le hash bcrypt du propriétaire au locataire) ;
  *  - remplace `avatarKey` par `avatarUrl` (URL publique servie par /media) ;
- *  - remplace l'`url` data: d'un média de bien par son URL publique.
+ *  - remplace l'`url` data: d'un média de bien par son URL publique ;
+ *  - rend dans la langue de la requête les libellés stockés en français
+ *    (honoraires, mentions de signature, périodes) — i18n/labels.ts.
  */
 const SECRET_KEYS = new Set(["password", "tokenVersion"]);
 
@@ -56,6 +60,7 @@ export function sanitizeResponse(value: unknown, depth = 0): unknown {
 @Injectable()
 export class ResponseSanitizerInterceptor implements NestInterceptor {
   intercept(_ctx: ExecutionContext, next: CallHandler): Observable<unknown> {
-    return next.handle().pipe(map((data) => sanitizeResponse(data)));
+    const lang = requestLang();
+    return next.handle().pipe(map((data) => localizeResponse(sanitizeResponse(data), lang)));
   }
 }

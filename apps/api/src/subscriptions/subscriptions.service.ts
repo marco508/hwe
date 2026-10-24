@@ -10,6 +10,8 @@ import { Cron } from "@nestjs/schedule";
 import { PaymentMethod, Prisma, SubscriptionRequestStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
+import type { NoticeParams } from "../mail/templates";
+import { asLang, pdfLang, requestLang, t, type Lang } from "../i18n/i18n";
 import { APP_TIME_ZONE } from "../common/dates";
 import { lockKey, withAdvisoryLock } from "../common/advisory-lock";
 import { agencyLogoUrl } from "../common/media.util";
@@ -41,12 +43,8 @@ import {
 
 type Tx = Prisma.TransactionClient;
 
-const METHOD_LABEL: Record<PaymentMethod, string> = {
-  TRANSFER: "Virement",
-  MOBILE_MONEY: "Mobile money",
-  CASH: "Espèces",
-  OTHER: "Autre",
-};
+/** Libellé d'un moyen de paiement dans la langue (factures). */
+const methodLabel = (lang: Lang, m: PaymentMethod) => t(lang, `pdf.method.${m}`);
 
 const num = (d: Prisma.Decimal | number | null | undefined) => (d == null ? null : Number(d));
 
@@ -90,7 +88,6 @@ const PAYMENT_INCLUDE = {
 
 type PaymentRow = Prisma.AgencyPaymentGetPayload<{ include: typeof PAYMENT_INCLUDE }>;
 
-const jour = (d: Date) => d.toLocaleDateString("fr-FR", { timeZone: APP_TIME_ZONE });
 
 /**
  * Abonnement des professionnels (phase 1 : paiement MANUEL, aucun
@@ -352,13 +349,17 @@ export class SubscriptionsService {
       }
     }
     const amount = num(p.amount) ?? 0;
+    // Langue du document : celle de l'utilisateur qui télécharge.
+    const me = await this.prisma.user.findUnique({ where: { id: user.sub }, select: { locale: true } });
+    const lang = pdfLang(asLang(me?.locale, requestLang()));
     const buffer = await buildInvoicePdf({
+      lang,
       number: p.number,
       issuedAt: p.createdAt,
       agencyName: p.agency.name,
       agencyDetails: [
         [p.agency.address, p.agency.city, p.agency.country].filter(Boolean).join(", "),
-        p.agency.registrationNumber ? `N° d'immatriculation : ${p.agency.registrationNumber}` : "",
+        p.agency.registrationNumber ? t(lang, "pdf.invoice.registration", { number: p.agency.registrationNumber }) : "",
         p.agency.email ?? "",
       ],
       planName: p.plan.name,
@@ -368,7 +369,7 @@ export class SubscriptionsService {
       monthlyPrice: p.months > 0 ? Math.round((amount / p.months) * 100) / 100 : amount,
       amount,
       currency: p.currency,
-      method: METHOD_LABEL[p.method],
+      method: methodLabel(lang, p.method),
       reference: p.reference,
     });
     return { buffer, filename: `facture-${p.number}.pdf` };
@@ -413,34 +414,20 @@ export class SubscriptionsService {
 
   // ─────────────────────────── Rappels ───────────────────────────
 
-  private reminderText(kind: ReminderKind, agencyName: string, end: Date | null, s: { graceDays: number }) {
-    const fin = end ? jour(end) : "";
-    const graceEnd = end ? jour(new Date(end.getTime() + s.graceDays * 24 * 3600 * 1000)) : "";
+  /** Rappel → clé d'e-mail `mail.sub.<kind>` et paramètres (dates formatées par destinataire). */
+  private reminderNotice(kind: ReminderKind, agencyName: string, end: Date | null, s: { graceDays: number }) {
+    const graceEnd = end ? new Date(end.getTime() + s.graceDays * 24 * 3600 * 1000) : null;
     switch (kind) {
       case "D15":
       case "D7":
-      case "D1": {
-        const n = kind === "D15" ? 15 : kind === "D7" ? 7 : 1;
-        return {
-          subject: `abonnement de ${agencyName} : fin dans ${n} jour${n > 1 ? "s" : ""}`,
-          body: `La période en cours (essai ou abonnement) de « ${agencyName} » se termine le ${fin}. Réglez votre abonnement pour continuer sans limite.`,
-        };
-      }
+      case "D1":
+        return { kind: "reminderDays", params: { agency: agencyName, n: kind === "D15" ? 15 : kind === "D7" ? 7 : 1, end } };
       case "GRACE":
-        return {
-          subject: `abonnement de ${agencyName} : période de grâce`,
-          body: `La période en cours de « ${agencyName} » s'est terminée le ${fin}. Réglez votre abonnement avant le ${graceEnd} pour conserver toutes les fonctionnalités.`,
-        };
+        return { kind: "grace", params: { agency: agencyName, end, graceEnd } };
       case "FREE":
-        return {
-          subject: `${agencyName} passe à l'offre gratuite`,
-          body: `Sans paiement, « ${agencyName} » fonctionne désormais avec l'offre gratuite (nombre d'agents et de mandats limité). Les biens au-delà de la limite restent consultables mais ne sont plus modifiables.`,
-        };
+        return { kind: "free", params: { agency: agencyName } };
       default:
-        return {
-          subject: `${agencyName} : compte en lecture seule`,
-          body: `L'abonnement de « ${agencyName} » est suspendu : votre équipe peut consulter les biens, l'historique et les relevés, mais plus agir. Réglez votre abonnement pour réactiver le compte.`,
-        };
+        return { kind: "suspended", params: { agency: agencyName } };
     }
   }
 
@@ -460,9 +447,9 @@ export class SubscriptionsService {
       where: { agencyMember: { agencyId, role: "MANAGER" } },
       select: { email: true, firstName: true },
     });
-    const { subject, body } = this.reminderText(r.kind, agency.name, r.end, sub.settings);
+    const { kind, params } = this.reminderNotice(r.kind, agency.name, r.end, sub.settings);
     for (const u of managers) {
-      this.mailer.subscriptionNotice(u.email, u.firstName, subject, body, `${ownerWebBase()}/pro/abonnement`).catch(() => {});
+      this.mailer.subscriptionNotice(u.email, u.firstName, kind, params, `${ownerWebBase()}/pro/abonnement`).catch(() => {});
     }
     return r.key;
   }
@@ -533,13 +520,13 @@ export class SubscriptionsService {
     return payment;
   }
 
-  private async notifyManagers(agencyId: string, subject: string, body: string) {
+  private async notifyManagers(agencyId: string, kind: string, params: NoticeParams) {
     const managers = await this.prisma.user.findMany({
       where: { agencyMember: { agencyId, role: "MANAGER" } },
       select: { email: true, firstName: true },
     });
     for (const u of managers) {
-      this.mailer.subscriptionNotice(u.email, u.firstName, subject, body, `${ownerWebBase()}/pro/abonnement`).catch(() => {});
+      this.mailer.subscriptionNotice(u.email, u.firstName, kind, params, `${ownerWebBase()}/pro/abonnement`).catch(() => {});
     }
   }
 
@@ -561,11 +548,12 @@ export class SubscriptionsService {
       return p.id;
     });
     const payment = await this.prisma.agencyPayment.findUniqueOrThrow({ where: { id: paymentId }, include: PAYMENT_INCLUDE });
-    await this.notifyManagers(
-      payment.agencyId,
-      `paiement validé (${payment.number})`,
-      `Votre paiement pour l'offre ${payment.plan.name} (${payment.months} mois) est validé. Abonnement actif jusqu'au ${jour(payment.periodEnd)}. Facture ${payment.number} téléchargeable depuis la page Abonnement.`,
-    );
+    await this.notifyManagers(payment.agencyId, "approved", {
+      number: payment.number,
+      plan: payment.plan.name,
+      months: payment.months,
+      end: payment.periodEnd,
+    });
     const request = await this.prisma.subscriptionRequest.findUniqueOrThrow({ where: { id }, include: REQUEST_INCLUDE });
     return { request: this.shapeRequest(request), payment: this.shapePayment(payment), subscription: await this.summary(payment.agencyId) };
   }
@@ -580,7 +568,7 @@ export class SubscriptionsService {
     if (count === 0) {
       throw new ConflictException({ statusCode: 409, code: "REQUEST_NOT_PENDING", message: "Cette demande n'est plus en attente." });
     }
-    await this.notifyManagers(r.agencyId, "déclaration de paiement refusée", `Votre déclaration de paiement (référence ${r.reference}) a été refusée : ${reason}`);
+    await this.notifyManagers(r.agencyId, "rejected", { reference: r.reference, reason });
     return this.shapeRequest(await this.prisma.subscriptionRequest.findUniqueOrThrow({ where: { id }, include: REQUEST_INCLUDE }));
   }
 
@@ -599,13 +587,23 @@ export class SubscriptionsService {
         createdAt: true,
         members: { where: { role: "MANAGER" }, select: { user: { select: { id: true, email: true, firstName: true, lastName: true } } } },
         subscriptionRequests: { where: { status: "PENDING" }, select: { id: true } },
+        billingCurrency: true,
+        country: true,
       },
       orderBy: { createdAt: "desc" },
       take: 200,
     });
     const out = [];
     for (const { members, subscriptionRequests, ...a } of rows) {
-      out.push({ ...a, managers: members.map((x) => x.user), pendingRequestId: subscriptionRequests[0]?.id ?? null, subscription: await this.summary(a.id) });
+      const { billingCurrency, country, ...rest } = a;
+      out.push({
+        ...rest,
+        // Devise de facturation effective (choisie, sinon celle du pays).
+        billingCurrency: billingCurrencyOf({ billingCurrency, country }).currency,
+        managers: members.map((x) => x.user),
+        pendingRequestId: subscriptionRequests[0]?.id ?? null,
+        subscription: await this.summary(a.id),
+      });
     }
     return out;
   }
@@ -635,13 +633,7 @@ export class SubscriptionsService {
     const before = await loadAgencySubscription(this.prisma, id);
     await this.prisma.agency.update({ where: { id }, data });
     if (dto.manualSuspension !== undefined && dto.manualSuspension !== before.manualSuspension) {
-      await this.notifyManagers(
-        id,
-        dto.manualSuspension ? "compte suspendu par l'administrateur" : "compte réactivé",
-        dto.manualSuspension
-          ? "Votre agence a été suspendue par l'administrateur de hwe : compte en lecture seule. Contactez le support."
-          : "Votre agence a été réactivée par l'administrateur de hwe.",
-      );
+      await this.notifyManagers(id, dto.manualSuspension ? "adminSuspended" : "adminReactivated", {});
     }
     return this.adminAgency(id);
   }
@@ -659,11 +651,12 @@ export class SubscriptionsService {
       this.recordPayment(tx, agencyId, plan, dto.months, dto.method, dto.reference?.trim() || null, adminId, null),
     );
     const payment = await this.prisma.agencyPayment.findUniqueOrThrow({ where: { id: p.id }, include: PAYMENT_INCLUDE });
-    await this.notifyManagers(
-      agencyId,
-      `paiement enregistré (${payment.number})`,
-      `Un paiement pour l'offre ${payment.plan.name} (${payment.months} mois) a été enregistré. Abonnement actif jusqu'au ${jour(payment.periodEnd)}.`,
-    );
+    await this.notifyManagers(agencyId, "recorded", {
+      number: payment.number,
+      plan: payment.plan.name,
+      months: payment.months,
+      end: payment.periodEnd,
+    });
     return { payment: this.shapePayment(payment), subscription: await this.summary(agencyId) };
   }
 

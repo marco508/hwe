@@ -1,3 +1,4 @@
+import { tr } from "../i18n/i18n";
 import { BadRequestException } from "@nestjs/common";
 
 // Validation des fichiers envoyés en data-URL (photos, justificatifs, pièces).
@@ -37,7 +38,7 @@ export function parseDataUrl(value: string): ParsedDataUrl | null {
 }
 
 function humanSize(bytes: number): string {
-  return `${Math.round(bytes / (1024 * 1024))} Mo`;
+  return tr("size.mb", { n: Math.round(bytes / (1024 * 1024)) });
 }
 
 /**

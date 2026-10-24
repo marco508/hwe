@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { normalizeEmail } from "./email.util";
+import { requestLang, translateError } from "../i18n/i18n";
 
 /**
  * Limitation de débit des routes sensibles d'authentification.
@@ -95,10 +96,11 @@ export function authRateLimitMiddleware(
 
     if (wait > 0) {
       res.setHeader("Retry-After", String(wait));
+      const minutes = Math.ceil(wait / 60);
       res.status(429).json({
         statusCode: 429,
         code: "TOO_MANY_REQUESTS",
-        message: `Trop de tentatives — réessayez dans ${Math.ceil(wait / 60)} minute(s).`,
+        message: translateError(`Trop de tentatives — réessayez dans ${minutes} minute(s).`, requestLang()),
       });
       return;
     }

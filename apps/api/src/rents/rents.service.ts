@@ -14,6 +14,8 @@ import { leasePartyFlags } from "../common/lease-party.util";
 import { MailerService } from "../mail/mailer.service";
 import { today as todayDay, yearOf } from "../common/dates";
 import { buildReceiptPdf } from "./receipt";
+import { asLang, pdfLang, requestLang, tr } from "../i18n/i18n";
+import { periodLabel as periodLabelIn } from "../i18n/labels";
 import { periodsUpTo } from "./rent-calc";
 import { PropertyAccessService, decideAccess, loadAccessContext } from "../common/property-access";
 import { FeesService } from "../mandates/fees.service";
@@ -248,10 +250,10 @@ export class RentsService {
         {
           id: `agency-${m.agency.id}`,
           ownerId: null,
-          label: `Virement — ${m.agency.name}`,
+          label: tr("label.agencyTransfer", { agency: m.agency.name }),
           value: m.agency.paymentIban,
           holder: m.agency.paymentHolder ?? m.agency.name,
-          instructions: `Loyer encaissé par ${m.agency.name}, mandataire du propriétaire.`,
+          instructions: tr("label.agencyTransferInstructions", { agency: m.agency.name }),
         },
       ];
     };
@@ -363,7 +365,7 @@ export class RentsService {
       });
       for (const r of recipients) {
         this.mailer
-          .rentDeclared(r.email, `${r.firstName} ${r.lastName}`, `${user.firstName} ${user.lastName}`, periodLabel(period.periodYear, period.periodMonth), period.amount, lease.currency)
+          .rentDeclared(r.email, `${r.firstName} ${r.lastName}`, `${user.firstName} ${user.lastName}`, { year: period.periodYear, month: period.periodMonth }, period.amount, lease.currency)
           .catch(() => {});
       }
     }
@@ -373,7 +375,7 @@ export class RentsService {
           owner.email,
           `${owner.firstName} ${owner.lastName}`,
           `${user.firstName} ${user.lastName}`,
-          periodLabel(period.periodYear, period.periodMonth),
+          { year: period.periodYear, month: period.periodMonth },
           period.amount,
           lease.currency,
         )
@@ -414,6 +416,7 @@ export class RentsService {
 
     const tenantName = `${period.lease.tenantFirstName} ${period.lease.tenantLastName}`;
     const libelle = periodLabel(period.periodYear, period.periodMonth);
+    const periode = { year: period.periodYear, month: period.periodMonth };
     const currency = period.lease.currency;
 
     if (!accept) {
@@ -433,7 +436,7 @@ export class RentsService {
       await this.fees.onRentCancelled(this.prisma, periodId);
       await logPro("RENT_REJECTED", { periodId });
       const maj = await this.prisma.rentPeriod.findUniqueOrThrow({ where: { id: periodId } });
-      this.mailer.rentRejected(period.lease.tenantEmail, tenantName, libelle, reason?.trim() || "").catch(() => {});
+      this.mailer.rentRejected(period.lease.tenantEmail, tenantName, periode, reason?.trim() || "").catch(() => {});
       return shapePeriod(maj, currency);
     }
 
@@ -451,7 +454,7 @@ export class RentsService {
     });
     await logPro("RENT_VALIDATED", { periodId, receiptNo: maj.receiptNo });
     this.mailer
-      .rentValidated(period.lease.tenantEmail, tenantName, libelle, period.amount, maj.receiptNo!, currency)
+      .rentValidated(period.lease.tenantEmail, tenantName, periode, period.amount, maj.receiptNo!, currency)
       .catch(() => {});
     this.logger.log(`Loyer ${libelle} validé (${maj.receiptNo}) — bail ${period.leaseId}.`);
     return shapePeriod(maj, currency);
@@ -494,7 +497,7 @@ export class RentsService {
     // Accessible au propriétaire du bien, aux locataires du bail (e-mail vérifié), à l'admin.
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, emailVerifiedAt: true },
+      select: { id: true, email: true, emailVerifiedAt: true, locale: true },
     });
     const flags = user ? leasePartyFlags(period.lease, user) : null;
     let autorise = role === Role.ADMIN || !!flags?.isOwner || !!flags?.isTenant;
@@ -505,10 +508,13 @@ export class RentsService {
     if (!autorise) throw new ForbiddenException("Cette quittance ne vous concerne pas.");
 
     const owner = period.lease.property.owner;
+    // Langue du document : celle de l'utilisateur qui télécharge.
+    const lang = pdfLang(asLang(user?.locale, requestLang()));
     const buffer = await buildReceiptPdf({
+      lang,
       receiptNo: period.receiptNo,
       paidAt: period.paidAt,
-      periodLabel: periodLabel(period.periodYear, period.periodMonth),
+      periodLabel: periodLabelIn(lang, period.periodYear, period.periodMonth),
       propertyTitle: period.lease.property.title,
       propertyAddress: [period.lease.property.addressLine, period.lease.property.city].filter(Boolean).join(", "),
       ownerName: `${owner.firstName} ${owner.lastName}`,

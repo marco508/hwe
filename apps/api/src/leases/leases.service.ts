@@ -20,6 +20,7 @@ import {
   ChargeRegularizationDto,
 } from "./dto/lease.dto";
 import { MailerService } from "../mail/mailer.service";
+import { requestLang, shortDate } from "../i18n/i18n";
 import { RentsService } from "../rents/rents.service";
 import { resolveLeaseParty, leasePartyFlags } from "../common/lease-party.util";
 import { assertDataUrl } from "../common/upload.util";
@@ -459,8 +460,9 @@ export class LeasesService {
       throw new ConflictException("Ce bail n'est pas en cours.");
     }
     if (lease.noticeGivenAt) {
+      const date = lease.noticeEffectiveDate ? shortDate(requestLang(), lease.noticeEffectiveDate) : "";
       throw new ConflictException(
-        `Préavis déjà donné — fin de bail le ${lease.noticeEffectiveDate?.toLocaleDateString("fr-FR", { timeZone: "UTC" })}.`,
+        `Préavis déjà donné — fin de bail le ${date}.`,
       );
     }
     if (lease.ownerNoticeGivenAt) {
@@ -799,8 +801,9 @@ export class LeasesService {
       throw new ConflictException("Ce bail n'est pas en cours.");
     }
     if (lease.ownerNoticeGivenAt) {
+      const date = lease.ownerNoticeEffectiveDate ? shortDate(requestLang(), lease.ownerNoticeEffectiveDate) : "";
       throw new ConflictException(
-        `Congé déjà donné — fin de bail le ${lease.ownerNoticeEffectiveDate?.toLocaleDateString("fr-FR", { timeZone: "UTC" })}.`,
+        `Congé déjà donné — fin de bail le ${date}.`,
       );
     }
     if (lease.noticeGivenAt) {

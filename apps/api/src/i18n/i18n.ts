@@ -55,10 +55,15 @@ type Params = Record<string, string | number | null | undefined>;
 
 const als = new AsyncLocalStorage<{ lang: Lang }>();
 
+/** Langue d'une requête express (Accept-Language), fr par défaut. */
+export function langOfRequest(req: Pick<Request, "headers">): Lang {
+  const header = req.headers["accept-language"];
+  return langFromAcceptLanguage(Array.isArray(header) ? header[0] : header) ?? "fr";
+}
+
 /** Middleware express : langue de la requête (Accept-Language), fr par défaut. */
 export function langMiddleware(req: Request, _res: Response, next: NextFunction) {
-  const header = req.headers["accept-language"];
-  const lang = langFromAcceptLanguage(Array.isArray(header) ? header[0] : header) ?? "fr";
+  const lang = langOfRequest(req);
   als.run({ lang }, () => next());
 }
 
@@ -220,4 +225,16 @@ export function translateError(message: string, lang: Lang): string {
 /** Réinitialise le cache des motifs (tests). */
 export function resetErrorPatterns() {
   patterns = null;
+}
+
+// ───────────────────────── PDF ─────────────────────────
+
+/**
+ * Langue d'un PDF. Les polices standard de PDFKit (Helvetica, WinAnsi) ne
+ * savent pas écrire l'arabe (ni le mettre en forme de droite à gauche) : un
+ * PDF demandé en arabe sort en anglais. À lever en embarquant une police
+ * arabe (ex. Noto Naskh Arabic) et une mise en forme bidi.
+ */
+export function pdfLang(lang: Lang): Lang {
+  return lang === "ar" ? "en" : lang;
 }

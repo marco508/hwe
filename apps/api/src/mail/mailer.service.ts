@@ -2,8 +2,10 @@ import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as nodemailer from "nodemailer";
 import { maskEmail } from "../common/email.util";
-import { formatMoney } from "../common/money";
-import { APP_TIME_ZONE, formatDayFr } from "../common/dates";
+import { PrismaService } from "../prisma/prisma.service";
+import { asLang, type Lang } from "../i18n/i18n";
+import * as tpl from "./templates";
+import type { MailContent, NoticeParams, Period } from "./templates";
 
 /**
  * Envoi d'e-mails de suivi (loyers, fins de bail).
@@ -16,13 +18,21 @@ import { APP_TIME_ZONE, formatDayFr } from "../common/dates";
  *
  * Tous les envois sont « best effort » : un e-mail qui échoue ne doit jamais
  * faire échouer l'opération métier qui l'a déclenché.
+ *
+ * Langue : celle du DESTINATAIRE (User.locale, retrouvé par e-mail), fr par
+ * défaut ; pour une adresse sans compte ou sans langue choisie, `fallback`
+ * (langue de l'expéditeur : invitation d'agent, propriétaire invité).
+ * Textes : mail/templates.ts + i18n/locales/<langue>.json (`mail.*`).
  */
 @Injectable()
 export class MailerService implements OnModuleInit {
   private readonly logger = new Logger(MailerService.name);
   private transporter: nodemailer.Transporter | null = null;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {
     const host = this.config.get<string>("SMTP_HOST");
     if (host) {
       this.transporter = nodemailer.createTransport({
@@ -78,257 +88,143 @@ export class MailerService implements OnModuleInit {
     }
   }
 
+  /** Langue du destinataire : User.locale (e-mail insensible à la casse), sinon `fallback`, sinon fr. */
+  async langOf(email: string, fallback?: Lang | string | null): Promise<Lang> {
+    let locale: string | null = null;
+    try {
+      const u = await this.prisma.user.findFirst({
+        where: { email: { equals: email.trim(), mode: "insensitive" } },
+        select: { locale: true },
+      });
+      locale = u?.locale ?? null;
+    } catch {
+      /* best effort : langue par défaut */
+    }
+    return asLang(locale ?? fallback ?? null, "fr");
+  }
+
+  /** Langue préférée d'un utilisateur (par id), null s'il n'en a pas choisi. */
+  async userLang(userId: string | null | undefined): Promise<Lang | null> {
+    if (!userId) return null;
+    const u = await this.prisma.user.findUnique({ where: { id: userId }, select: { locale: true } }).catch(() => null);
+    return u?.locale ? asLang(u.locale) : null;
+  }
+
+  private async deliver(to: string, build: (lang: Lang) => MailContent, fallback?: Lang | string | null) {
+    if (!to) return;
+    const { subject, text } = build(await this.langOf(to, fallback));
+    return this.send(to, subject, text);
+  }
+
   // ───────────────────────────── Loyers ─────────────────────────────
 
-  rentDeclared(ownerEmail: string, ownerName: string, tenantName: string, periode: string, montant: number, currency = "EUR") {
-    return this.send(
-      ownerEmail,
-      `hwe — loyer déclaré à vérifier (${periode})`,
-      `Bonjour ${ownerName},\n\n${tenantName} déclare avoir versé ${formatMoney(montant, currency)} pour le loyer de ${periode}.\n\n` +
-        `Vérifiez la réception SUR VOTRE COMPTE (relevé de l'opérateur), pas seulement sur la capture jointe : ` +
-        `une capture se falsifie, un relevé non.\n\nValidez ou refusez depuis votre espace propriétaire, rubrique Loyers.\n\nhwe`,
-    );
+  rentDeclared(ownerEmail: string, ownerName: string, tenantName: string, period: Period, amount: number, currency = "EUR") {
+    return this.deliver(ownerEmail, (l) => tpl.rentDeclared(l, { ownerName, tenantName, period, amount, currency }));
   }
 
-  rentValidated(tenantEmail: string, tenantName: string, periode: string, montant: number, receiptNo: string, currency = "EUR") {
-    return this.send(
-      tenantEmail,
-      `hwe — quittance de loyer ${periode}`,
-      `Bonjour ${tenantName},\n\nVotre paiement de ${formatMoney(montant, currency)} pour ${periode} a été confirmé par votre propriétaire.\n` +
-        `Votre quittance n° ${receiptNo} est disponible dans votre espace locataire, rubrique Mes loyers.\n\nhwe`,
-    );
+  rentValidated(tenantEmail: string, tenantName: string, period: Period, amount: number, receiptNo: string, currency = "EUR") {
+    return this.deliver(tenantEmail, (l) => tpl.rentValidated(l, { tenantName, period, amount, receiptNo, currency }));
   }
 
-  rentRejected(tenantEmail: string, tenantName: string, periode: string, motif: string) {
-    return this.send(
-      tenantEmail,
-      `hwe — votre déclaration de loyer n'a pas été validée (${periode})`,
-      `Bonjour ${tenantName},\n\nVotre propriétaire n'a pas pu confirmer la réception de votre versement pour ${periode}.\n` +
-        (motif ? `Motif : ${motif}\n` : "") +
-        `\nVérifiez le montant, le numéro utilisé et l'identifiant de transaction, puis déclarez à nouveau depuis Mes loyers.\n` +
-        `Si vous êtes certain d'avoir payé, contactez votre propriétaire via la messagerie.\n\nhwe`,
-    );
+  rentRejected(tenantEmail: string, tenantName: string, period: Period, reason: string) {
+    return this.deliver(tenantEmail, (l) => tpl.rentRejected(l, { tenantName, period, reason }));
   }
 
-  rentReminder(tenantEmail: string, tenantName: string, periode: string, montant: number, enRetard: boolean, currency = "EUR") {
-    return this.send(
-      tenantEmail,
-      enRetard ? `hwe — loyer ${periode} en retard` : `hwe — loyer ${periode} à régler`,
-      `Bonjour ${tenantName},\n\n` +
-        (enRetard
-          ? `Le loyer de ${periode} (${formatMoney(montant, currency)}) est arrivé à échéance et n'a pas encore été réglé.\n`
-          : `Le loyer de ${periode} (${formatMoney(montant, currency)}) arrive à échéance.\n`) +
-        `Les coordonnées de paiement de votre propriétaire et la déclaration de versement sont dans votre espace, rubrique Mes loyers.\n\nhwe`,
-    );
+  rentReminder(tenantEmail: string, tenantName: string, period: Period, amount: number, late: boolean, currency = "EUR") {
+    return this.deliver(tenantEmail, (l) => tpl.rentReminder(l, { tenantName, period, amount, late, currency }));
   }
 
   // ─────────────────────────── Fins de bail ───────────────────────────
 
   leaseExpiry(to: string, name: string, propertyTitle: string, daysLeft: number, isOwner: boolean) {
-    const quand = daysLeft <= 0 ? "aujourd'hui" : daysLeft === 1 ? "demain" : `dans ${daysLeft} jours`;
-    return this.send(
-      to,
-      `hwe — le bail de « ${propertyTitle} » se termine ${quand}`,
-      `Bonjour ${name},\n\nLe bail ${isOwner ? "de votre bien" : "de votre logement"} « ${propertyTitle} » arrive à échéance ${quand}.\n` +
-        (isOwner
-          ? `Pensez à préparer le renouvellement, l'état des lieux de sortie ou la remise en location.\n`
-          : `Rapprochez-vous de votre propriétaire pour le renouvellement ou l'état des lieux de sortie.\n`) +
-        `\nhwe`,
-    );
+    return this.deliver(to, (l) => tpl.leaseExpiry(l, { name, propertyTitle, daysLeft, isOwner }));
   }
 
   leaseExpired(to: string, name: string, propertyTitle: string, isOwner: boolean) {
-    return this.send(
-      to,
-      `hwe — le bail de « ${propertyTitle} » est arrivé à échéance`,
-      `Bonjour ${name},\n\nLe bail de « ${propertyTitle} » est arrivé à son terme et a été marqué comme expiré.\n` +
-        (isOwner ? `Le bien peut être remis en location depuis votre espace.\n` : ``) +
-        `\nhwe`,
-    );
+    return this.deliver(to, (l) => tpl.leaseExpired(l, { name, propertyTitle, isOwner }));
   }
 
-  // ─────────────────────── Vérification d'e-mail ───────────────────────
+  // ─────────────────────── Compte ───────────────────────
 
   emailVerification(to: string, name: string, url: string) {
-    return this.send(
-      to,
-      "hwe — confirmez votre adresse e-mail",
-      `Bonjour ${name},\n\nConfirmez votre adresse e-mail pour activer toutes les fonctions de votre compte ` +
-        `(publier, contacter, accéder à votre bail) :\n\n${url}\n\n` +
-        `Ce lien est valable 48 heures. Si vous n'avez pas créé de compte hwe, ignorez cet e-mail.\n\nhwe`,
-    );
+    return this.deliver(to, (l) => tpl.emailVerification(l, { name, url }));
+  }
+
+  passwordReset(to: string, name: string, url: string) {
+    return this.deliver(to, (l) => tpl.passwordReset(l, { name, url }));
   }
 
   // ─────────────────────── Demandes & messages ───────────────────────
 
-  inquiryReceived(ownerEmail: string, ownerName: string, propertyTitle: string, senderName: string, url: string) {
-    return this.send(
-      ownerEmail,
-      `hwe — nouvelle demande pour « ${propertyTitle} »`,
-      `Bonjour ${ownerName},\n\n${senderName} vous a envoyé une demande pour « ${propertyTitle} ».\n` +
-        `Répondez-lui depuis votre espace :\n\n${url}\n\nhwe`,
-    );
+  /** `senderName` null : « Un visiteur » dans la langue du destinataire. */
+  inquiryReceived(ownerEmail: string, ownerName: string, propertyTitle: string, senderName: string | null, url: string) {
+    return this.deliver(ownerEmail, (l) => tpl.inquiryReceived(l, { ownerName, propertyTitle, senderName, url }));
   }
 
   messageReceived(to: string, name: string, senderName: string, propertyTitle: string, url: string) {
-    return this.send(
-      to,
-      `hwe — nouveau message de ${senderName}`,
-      `Bonjour ${name},\n\n${senderName} vous a écrit au sujet de « ${propertyTitle} ».\n` +
-        `Répondez depuis votre messagerie :\n\n${url}\n\nhwe`,
-    );
+    return this.deliver(to, (l) => tpl.messageReceived(l, { name, senderName, propertyTitle, url }));
   }
 
   // ─────────────────────── Tickets (incidents) ───────────────────────
 
   ticketOpened(ownerEmail: string, ownerName: string, propertyTitle: string, title: string, url: string) {
-    return this.send(
-      ownerEmail,
-      `hwe — incident signalé sur « ${propertyTitle} »`,
-      `Bonjour ${ownerName},\n\nVotre locataire a signalé un incident : « ${title} ».\n` +
-        `Consultez et traitez la demande :\n\n${url}\n\nhwe`,
-    );
+    return this.deliver(ownerEmail, (l) => tpl.ticketOpened(l, { ownerName, propertyTitle, title, url }));
   }
 
   ticketResolved(tenantEmail: string, tenantName: string, title: string) {
-    return this.send(
-      tenantEmail,
-      `hwe — incident résolu : « ${title} »`,
-      `Bonjour ${tenantName},\n\nVotre incident « ${title} » a été marqué comme résolu par le propriétaire.\n\nhwe`,
-    );
+    return this.deliver(tenantEmail, (l) => tpl.ticketResolved(l, { tenantName, title }));
   }
-
 
   // ─────────── Préavis, avenants, visites ───────────
 
   noticeGiven(ownerEmail: string, ownerName: string, propertyTitle: string, tenantName: string, effectiveDate: Date) {
-    return this.send(
-      ownerEmail,
-      `hwe — préavis reçu pour « ${propertyTitle} »`,
-      `Bonjour ${ownerName},\n\n${tenantName} a donné son préavis. Fin de bail effective le ${formatDayFr(effectiveDate)}.\n` +
-        `Pensez à planifier l'état des lieux de sortie et la restitution de la caution.\n\nhwe`,
-    );
+    return this.deliver(ownerEmail, (l) => tpl.noticeGiven(l, { ownerName, propertyTitle, tenantName, effectiveDate }));
   }
 
   amendmentCreated(tenantEmail: string, tenantName: string, propertyTitle: string, url: string) {
-    return this.send(
-      tenantEmail,
-      `hwe — avenant à signer pour « ${propertyTitle} »`,
-      `Bonjour ${tenantName},\n\nVotre propriétaire propose un avenant à votre bail (loyer, charges ou durée).\n` +
-        `Il ne s'applique qu'après votre signature :\n\n${url}\n\nhwe`,
-    );
+    return this.deliver(tenantEmail, (l) => tpl.amendmentCreated(l, { tenantName, propertyTitle, url }));
   }
 
   amendmentSigned(ownerEmail: string, ownerName: string, propertyTitle: string) {
-    return this.send(
-      ownerEmail,
-      `hwe — avenant signé (« ${propertyTitle} »)`,
-      `Bonjour ${ownerName},\n\nVotre locataire a signé l'avenant : il s'applique au bail à sa date d'effet.\n\nhwe`,
-    );
+    return this.deliver(ownerEmail, (l) => tpl.amendmentSigned(l, { ownerName, propertyTitle }));
   }
 
   visitRequested(ownerEmail: string, ownerName: string, propertyTitle: string, requesterName: string, date: Date, url: string) {
-    return this.send(
-      ownerEmail,
-      `hwe — demande de visite pour « ${propertyTitle} »`,
-      `Bonjour ${ownerName},\n\n${requesterName} propose de visiter « ${propertyTitle} » le ` +
-        `${date.toLocaleDateString("fr-FR", { timeZone: APP_TIME_ZONE })} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: APP_TIME_ZONE })}.\n` +
-        `Confirmez ou proposez autre chose :\n\n${url}\n\nhwe`,
-    );
+    return this.deliver(ownerEmail, (l) => tpl.visitRequested(l, { ownerName, propertyTitle, requesterName, date, url }));
   }
 
   visitAnswered(to: string, name: string, propertyTitle: string, date: Date, confirmed: boolean, note?: string) {
-    return this.send(
-      to,
-      confirmed
-        ? `hwe — visite confirmée (« ${propertyTitle} »)`
-        : `hwe — visite non retenue (« ${propertyTitle} »)`,
-      `Bonjour ${name},\n\n` +
-        (confirmed
-          ? `Votre visite de « ${propertyTitle} » est confirmée le ${date.toLocaleDateString("fr-FR", { timeZone: APP_TIME_ZONE })} à ${date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: APP_TIME_ZONE })}.\n`
-          : `Le propriétaire n'a pas retenu ce créneau pour « ${propertyTitle} ».\n`) +
-        (note ? `Message : ${note}\n` : "") +
-        `\nhwe`,
-    );
+    return this.deliver(to, (l) => tpl.visitAnswered(l, { name, propertyTitle, date, confirmed, note }));
   }
 
-
   ownerNoticeGiven(tenantEmail: string, tenantName: string, propertyTitle: string, reason: string, effectiveDate: Date) {
-    const motifs: Record<string, string> = {
-      SALE: "mise en vente du logement",
-      REPOSSESSION: "reprise du logement",
-      OTHER: "motif légitime et sérieux",
-    };
-    return this.send(
-      tenantEmail,
-      `hwe — congé donné par votre propriétaire (« ${propertyTitle} »)`,
-      `Bonjour ${tenantName},\n\nVotre propriétaire vous donne congé pour ${motifs[reason] ?? "motif légitime"}.\n` +
-        `Fin de bail effective le ${formatDayFr(effectiveDate)}.\n` +
-        `Les détails sont dans votre espace, rubrique Ma location.\n\nhwe`,
-    );
+    return this.deliver(tenantEmail, (l) => tpl.ownerNoticeGiven(l, { tenantName, propertyTitle, reason, effectiveDate }));
   }
 
   chargeRegularization(tenantEmail: string, tenantName: string, propertyTitle: string, periodLabel: string, balance: number, currency = "EUR") {
-    const fmt = formatMoney(Math.abs(balance), currency);
-    return this.send(
-      tenantEmail,
-      `hwe — régularisation des charges ${periodLabel} (« ${propertyTitle} »)`,
-      `Bonjour ${tenantName},\n\nVotre propriétaire a régularisé les charges de la période ${periodLabel}.\n` +
-        (balance > 0
-          ? `Complément à verser : ${fmt}.\n`
-          : balance < 0
-            ? `Trop-perçu à vous rembourser : ${fmt}.\n`
-            : `Provisions et charges réelles s'équilibrent — rien à régler.\n`) +
-        `Le détail est dans votre espace, rubrique Ma location.\n\nhwe`,
-    );
-  }
-
-  // ─────────────────────── Réinitialisation de mot de passe ───────────────────────
-
-  passwordReset(to: string, name: string, url: string) {
-    return this.send(
-      to,
-      "hwe — réinitialisation de votre mot de passe",
-      `Bonjour ${name},\n\nVous avez demandé à réinitialiser votre mot de passe. ` +
-        `Ouvrez ce lien (valable 30 minutes, utilisable une seule fois) pour définir un nouveau mot de passe :\n\n${url}\n\n` +
-        `Si vous n'êtes pas à l'origine de cette demande, ignorez cet e-mail — votre mot de passe reste inchangé.\n\nhwe`,
-    );
+    return this.deliver(tenantEmail, (l) => tpl.chargeRegularization(l, { tenantName, propertyTitle, periodLabel, balance, currency }));
   }
 
   // ─────────────────────── Professionnels (agences, mandats) ───────────────────────
 
-  agencyInvite(to: string, agencyName: string, inviterName: string, url: string) {
-    return this.send(
-      to,
-      `hwe — ${agencyName} vous invite à rejoindre son équipe`,
-      `Bonjour,\n\n${inviterName} vous invite à rejoindre l'agence « ${agencyName} » sur hwe.\n` +
-        `Ouvrez ce lien (valable 14 jours) pour accepter l'invitation :\n\n${url}\n\n` +
-        `Si vous ne connaissez pas cette agence, ignorez cet e-mail.\n\nhwe`,
-    );
+  /** `fallback` : langue de l'invitant (l'adresse n'a souvent pas encore de compte). */
+  agencyInvite(to: string, agencyName: string, inviterName: string, url: string, fallback?: Lang | null) {
+    return this.deliver(to, (l) => tpl.agencyInvite(l, { agencyName, inviterName, url }), fallback);
   }
 
-  ownerInvite(to: string, name: string, agencyName: string, propertyTitles: string[], url: string) {
-    const biens = propertyTitles.length ? propertyTitles.map((t) => `« ${t} »`).join(", ") : "votre bien";
-    return this.send(
-      to,
-      `hwe — ${agencyName} gère votre bien : activez votre espace`,
-      `Bonjour ${name},\n\n${agencyName} gère ${biens} sur hwe et a créé votre espace propriétaire.\n` +
-        `Choisissez votre mot de passe pour suivre votre bien (demandes, bail, loyers, honoraires) et valider les décisions clés :\n\n${url}\n\n` +
-        `Vous pouvez aussi utiliser « mot de passe oublié » avec cette adresse.\n\nhwe`,
-    );
+  /** `fallback` : langue du professionnel qui a créé le compte (propriétaire invité sans langue). */
+  ownerInvite(to: string, name: string, agencyName: string, propertyTitles: string[], url: string, fallback?: Lang | null) {
+    return this.deliver(to, (l) => tpl.ownerInvite(l, { name, agencyName, propertyTitles, url }), fallback);
   }
 
-  mandateProposed(to: string, name: string, agencyName: string, what: string, url: string) {
-    return this.send(
-      to,
-      `hwe — ${agencyName} vous propose un mandat`,
-      `Bonjour ${name},\n\n${agencyName} vous propose de gérer ${what}.\n` +
-        `Consultez les conditions et acceptez ou refusez depuis « Mes mandats » :\n\n${url}\n\nhwe`,
-    );
+  /** `propertyTitles` null : demande de mandat sans bien désigné (« un ou plusieurs de vos biens »). */
+  mandateProposed(to: string, name: string, agencyName: string, propertyTitles: string[] | null, url: string) {
+    return this.deliver(to, (l) => tpl.mandateProposed(l, { name, agencyName, propertyTitles, url }));
   }
 
-  mandateUpdate(to: string, name: string, subject: string, body: string, url: string) {
-    return this.send(to, `hwe — ${subject}`, `Bonjour ${name},\n\n${body}\n\n${url}\n\nhwe`);
+  /** Avis de mandat : `kind` = accepted | rejected | endedByOwner | endedByAgency | entrusted | requestAccepted. */
+  mandateUpdate(to: string, name: string, kind: string, params: NoticeParams, url: string) {
+    return this.deliver(to, (l) => tpl.notice(l, { name, base: `mandate.${kind}`, params, url }));
   }
 
   candidateProposed(
@@ -340,19 +236,17 @@ export class MailerService implements OnModuleInit {
     note: string | null,
     url: string,
   ) {
-    return this.send(
-      ownerEmail,
-      `hwe — ${agencyName} vous propose un candidat pour « ${propertyTitle} »`,
-      `Bonjour ${ownerName},\n\n${agencyName} vous propose ${candidateName} comme locataire pour « ${propertyTitle} ».\n` +
-        (note ? `Note du professionnel : ${note}\n` : "") +
-        `Approuvez ou refusez ce candidat depuis votre espace :\n\n${url}\n\nhwe`,
-    );
+    return this.deliver(ownerEmail, (l) => tpl.candidateProposed(l, { ownerName, propertyTitle, candidateName, agencyName, note, url }));
   }
 
   // ─────────────────────── Abonnement des professionnels ───────────────────────
 
-  /** Rappels et décisions d'abonnement (envoyés aux responsables de l'agence). */
-  subscriptionNotice(to: string, name: string, subject: string, body: string, url: string) {
-    return this.send(to, `hwe — ${subject}`, `Bonjour ${name},\n\n${body}\n\n${url}\n\nhwe`);
+  /**
+   * Rappels et décisions d'abonnement (envoyés aux responsables de l'agence) :
+   * `kind` = reminderDays | grace | free | suspended | approved | rejected |
+   * adminSuspended | adminReactivated | recorded (clés `mail.sub.<kind>.*`).
+   */
+  subscriptionNotice(to: string, name: string, kind: string, params: NoticeParams, url: string) {
+    return this.deliver(to, (l) => tpl.notice(l, { name, base: `sub.${kind}`, params, url }));
   }
 }
