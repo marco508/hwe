@@ -51,8 +51,8 @@
         "id": "service",
         "title": "Nature of the service",
         "blocks": [
-          "hwe is a platform that connects landlords with prospective tenants or buyers. It provides tools: listings, messaging, visit requests, lease templates, inventories, rent tracking and receipts.",
-          "hwe is not a real-estate agency, a property manager or a legal adviser. The platform does not collect, hold or transfer any money: rents, deposits and sale prices are paid directly between the parties."
+          "hwe is a platform that connects landlords, real-estate professionals (agencies, canvassers, sales agents) and prospective tenants or buyers. It provides tools: listing publication, messaging, visit requests, lease templates with a simple electronic signature, inventory reports, rent and receipt tracking, and a professional space for managing properties under mandate.",
+          "hwe is neither a real-estate agency, nor a property manager, nor a legal adviser: professionals on the platform act in their own name and under their own responsibility. hwe does not collect, hold or transfer any rent, deposit, fee or sale price: these sums are paid directly between the parties. Only the subscription taken out by professionals is paid to hwe."
         ]
       },
       {
@@ -114,26 +114,28 @@
   },
   "terms": {
     "title": "Terms of use",
-    "intro": "These terms govern the use of the hwe platform (public website, tenant space and landlord space). By creating an account, you accept them.",
+    "intro": "These terms govern the use of the hwe platform (showcase website, tenant space, landlord space and professional space). By creating an account, you accept them.",
     "sections": [
       {
         "id": "objet",
         "title": "1. Purpose",
         "blocks": [
-          "hwe connects landlords offering a property for rent or sale with people looking for a home or wishing to buy. The platform provides listing, messaging and rental management tools.",
-          "hwe does not take part in negotiations, does not represent either party and is not a party to the contracts concluded between users."
+          "hwe connects landlords who offer a property for rent or sale — themselves or through a professional they mandate — with people looking for a home or wishing to buy. The platform provides tools for publishing, messaging, rental management and management under mandate.",
+          "hwe takes no part in negotiations, represents none of the parties and is not a party to any contract concluded between users (lease, sale, mandate)."
         ]
       },
       {
         "id": "comptes",
         "title": "2. Registration and accounts",
         "blocks": [
-          "Registration is free. There are two types of accounts:",
+          "Registration is free. There are three types of account:",
           [
-            "landlord account: publishing listings, answering requests, preparing and signing leases, tracking rents;",
-            "tenant / buyer account: searching, favorites, rental requests or purchase offers, visits, signing the lease, declaring payments."
+            "landlord account: publishing listings, answering requests, preparing and signing leases, tracking rents, entrusting a property to a professional and following their mandate;",
+            "tenant / buyer account: searching, favorites, rental applications or purchase offers, visits, signing the lease, declaring payments;",
+            "professional account (agency, canvasser, sales agent): managing properties entrusted by landlords under mandate, team of agents, fee tracking and management statements, under the conditions of article 8."
           ],
-          "You must provide accurate information, confirm your email address and keep your password confidential. Any action taken from your account is deemed to have been taken by you."
+          "hwe is free for landlords and tenants / buyers: only the professional space is subject to a subscription, paid by the professional.",
+          "You must provide accurate information, confirm your email address and keep your password confidential. Any action carried out from your account is deemed to have been carried out by you."
         ]
       },
       {
@@ -143,9 +145,10 @@
           "Every user undertakes to:",
           [
             "comply with applicable law, in particular regarding decent housing, non-discrimination and data protection;",
-            "only list properties they are entitled to offer, with truthful information;",
-            "not use the platform for unsolicited canvassing, fraud or unlawful, abusive or misleading content;",
-            "not collect other users' data for any purpose other than the intended transaction."
+            "only publish properties they are entitled to offer, or that a landlord has entrusted to them under a mandate, and truthful information;",
+            "not use the platform for unsolicited prospecting (spam), fraud, or unlawful, abusive or misleading content;",
+            "not collect other users' data for any purpose other than the intended transaction;",
+            "for professionals: hold the authorisations required by the law of the country where they operate (professional licence, registration…) and only act on a property within the limits of the current mandate."
           ]
         ]
       },
@@ -153,8 +156,8 @@
         "id": "annonces",
         "title": "4. Listings",
         "blocks": [
-          "The landlord is solely responsible for the content of their listings (description, photos, price, availability, diagnostics). hwe may remove or suspend a listing that is clearly unlawful, misleading or rightly reported.",
-          "Amounts shown in a currency other than the listing's are indicative conversions: only the listing amount is binding."
+          "The landlord — or the professional publishing the listing on their behalf — is responsible for the content of the listing (description, photos, price, availability, diagnostics). hwe may remove or suspend a listing that is manifestly unlawful, misleading or rightly reported.",
+          "Amounts shown in a currency other than that of the listing are indicative conversions, calculated with exchange rates updated daily from public sources (the CFA franc, XOF and XAF, follows its fixed parity with the euro): only the amount in the listing is binding."
         ]
       },
       {
@@ -169,21 +172,35 @@
         "id": "documents",
         "title": "6. Documents and supporting files",
         "blocks": [
-          "Identity documents and supporting files stored in your file remain private. They are only shared with a landlord if you choose to share your file with a request.",
-          "Lease templates, inventories and receipts generated by hwe are provided for information only. They do not replace legal advice; the parties must check that they comply with the law of the country where the property is located."
+          "Identity documents and supporting files uploaded to your application file remain private. They are only shared with the landlord — and, if the property is entrusted to a professional, with that professional — if you choose to share your file with a request.",
+          "The signature offered by hwe is a simple electronic signature: acceptance from your account, time-stamped and recorded on the document. It is not an advanced or qualified electronic signature within the meaning of the European eIDAS regulation.",
+          "The lease templates, inventory reports, receipts and statements generated by hwe are provided for information only. They do not replace legal advice; it is up to the parties to check that they comply with the law of the country where the property is located."
         ]
       },
       {
         "id": "paiements",
         "title": "7. No payments through the platform",
         "blocks": [
-          "hwe does not collect, hold or pay out any money. Rents, charges, deposits, fees and sale prices are paid directly between the parties, by the means they choose.",
-          "The « payment declaration » and receipt features only document a payment made outside the platform; hwe does not guarantee that it actually took place."
+          "hwe offers no online payment and does not collect, hold or pay out any sum between users. Rent, charges, deposits, professionals' fees and sale prices are paid directly between the parties, by the means they choose.",
+          "The \"payment declaration\", receipt, fee-tracking and management-statement features only document payments made outside the platform; hwe does not guarantee that they actually took place."
+        ]
+      },
+      {
+        "id": "professionnels",
+        "title": "8. Professional space, mandates and subscription",
+        "blocks": [
+          "Mandates. A professional only acts on a property under a mandate (full rental management, letting or sale), proposed by the professional and accepted by the landlord, or entrusted directly by the landlord. The landlord follows the actions taken on their property and keeps the key decisions (choice of tenant, signature of the lease and amendments). Either party can end the mandate from their space; any commitments agreed between them outside hwe remain their sole responsibility.",
+          "As long as the landlord has not activated the space created for them by the professional, the professional may take these decisions on their behalf, as mandatary: every action is logged and remains visible to the landlord.",
+          "Sale: hwe stops at putting the parties in touch. Negotiation, the preliminary contract and the deed of sale are concluded outside the platform, with the authorised professionals (notary or equivalent).",
+          "Fees: the fees set out in the mandate are calculated and tracked on the platform for information, with a monthly statement; they are paid directly to the professional, outside hwe.",
+          "Subscription: the professional space is paid for by the agency, never by the landlord or the tenant. It starts with a 60-day (2-month) free trial, with no credit card. At the end of the trial, the agency has a 7-day grace period; without payment, it automatically moves to the limited free plan (1 agent, 2 active mandates): access is not cut off, but properties beyond the limit can still be viewed but no longer edited. The paid plans (currently Solo, Agence and Réseau, from €19 per month) and their prices, possibly set in other currencies, are shown on the website and in the professional space; hwe may change them, with no effect on a period already paid.",
+          "Payment of the subscription: offline only (bank transfer, mobile money, cash), following the instructions shown in the professional space. The agency declares its payment, hwe checks it, activates the paid period and makes the invoice available. No online card payment is offered.",
+          "In the event of a breach of these terms, hwe may suspend a professional account: the team can then still view the properties, history and statements, and the landlord can take back the management of their property or end the mandate."
         ]
       },
       {
         "id": "responsabilite",
-        "title": "8. Liability",
+        "title": "9. Liability",
         "blocks": [
           "hwe provides a matchmaking service and tools, with no guarantee of results. The platform cannot be held liable for relationships, disputes or damage between users, nor for the content they publish.",
           "hwe uses reasonable means to ensure the availability and security of the service, without being able to guarantee that it will be free of interruptions or errors."
@@ -191,7 +208,7 @@
       },
       {
         "id": "suspension",
-        "title": "9. Account suspension and deletion",
+        "title": "10. Account suspension and deletion",
         "blocks": [
           "In the event of a breach of these terms, hwe may suspend or delete an account or a listing, after informing the user unless there is an emergency or legal obligation.",
           "You can ask for your account to be deleted at any time using the contact details given in the legal notice."
@@ -199,21 +216,21 @@
       },
       {
         "id": "donnees",
-        "title": "10. Personal data",
+        "title": "11. Personal data",
         "blocks": [
           "How your data is processed is described in the privacy policy."
         ]
       },
       {
         "id": "modification",
-        "title": "11. Changes to the terms",
+        "title": "12. Changes to the terms",
         "blocks": [
           "hwe may update these terms. Users are informed of significant changes; continued use means acceptance of the new version."
         ]
       },
       {
         "id": "droit",
-        "title": "12. Governing law and disputes",
+        "title": "13. Governing law and disputes",
         "blocks": [
           "These terms are governed by the law of {{TODO}}. In the event of a dispute, the parties first seek an amicable solution. Consumers may use a consumer mediator free of charge: {{TODO}}. Failing that, the competent courts are those designated by law."
         ]
@@ -237,14 +254,16 @@
         "title": "2. Data collected",
         "blocks": [
           [
-            "Account: last name, first name, email address, phone (optional), profile photo (optional), role, password (stored encrypted).",
+            "Account: surname, first name, email address, phone number (optional), profile photo (optional), role, chosen language, password (stored in encrypted form).",
             "Listings: property description, address, photos, price, property documents.",
             "Exchanges: messages, rental or purchase requests, visit requests.",
-            "Rental management: leases, time-stamped electronic signatures, inventories, rent instalments and payment declarations, incidents.",
+            "Rental management: leases, time-stamped electronic signatures, inventory reports, due dates and payment declarations, incidents.",
             "Supporting documents: identity documents, proof of income or guarantor documents, insurance certificate, which you upload voluntarily.",
-            "Technical data: connection and security logs needed to run the service."
+            "Professional space: agency (name, contact details, registration, logo, collection account details where applicable), members and invitations, mandates and their history, fees, management statements.",
+            "Professionals' subscription: chosen plan, billing currency, payment declarations (method, reference), invoices.",
+            "Technical data: connection and security logs required for the service to operate."
           ],
-          "hwe does not geolocate you from your IP address. Your language, currency and country preferences are stored only in your browser."
+          "hwe does not geolocate you from your IP address: language and country are suggested based on your browser language. The language you choose is saved in your account, so that we can write to you and produce your documents (emails, PDFs, error messages) in that language; the display currency, country and theme remain stored in your browser."
         ]
       },
       {
@@ -253,6 +272,8 @@
         "blocks": [
           [
             "Providing the service (account, listings, messaging, leases, rents): performance of the contract (terms of use).",
+            "Enabling professionals to manage the properties entrusted to them (mandates, team, fees, statements) and landlords to follow their work: performance of the contract (Terms).",
+            "Managing professionals' subscriptions, approving their payments and invoicing: performance of the contract and legal obligation (retention of invoices).",
             "Securing the platform, preventing fraud and abuse: legitimate interest.",
             "Sending service emails (address confirmation, password reset, notifications about your requests): performance of the contract.",
             "Complying with our legal obligations (retention of certain data, answering authorities): legal obligation."
@@ -268,6 +289,8 @@
             "Account and listings: for as long as the account is used, then deleted or anonymised after it is closed.",
             "Inactive accounts: {{TODO}}.",
             "Supporting documents: until you delete them, and at the latest when the account is closed.",
+            "Mandates, fees and management statements: {{TODO}}.",
+            "Subscription invoices and payment declarations: {{TODO}} (according to applicable accounting obligations).",
             "Leases, receipts and rental documents: {{TODO}} (according to applicable limitation periods).",
             "Technical logs: {{TODO}}."
           ]
@@ -278,11 +301,13 @@
         "title": "5. Recipients",
         "blocks": [
           [
-            "The other party to a request: the landlord receives your request and, if you choose, your file; the applicant sees the public listing information and the landlord's name.",
-            "Our technical processors: hosting ({{TODO}}) and email delivery ({{TODO}}), bound by confidentiality.",
-            "Authorities, only upon a legally founded request."
+            "The other party to a request: the landlord — and, if the property is entrusted to a professional, that professional and the members of their team in charge of the property — receives your request and, if you so choose, your application file; the applicant sees the public information in the listing and the name of the landlord or of the agency offering it.",
+            "The mandated professional and the landlord: each sees the mandate, its history, the fees and the statements; the professional accesses the property's data (listing, requests, leases, rents, incidents, exchanges) within the limits of their mandate.",
+            "Our technical subcontractors: hosting ({{TODO}}) and email delivery ({{TODO}}), bound by confidentiality.",
+            "The authorities, only upon a legally grounded request."
           ],
-          "Landlords' email addresses and phone numbers are not displayed publicly: contact goes through messaging."
+          "Landlords' email addresses and phone numbers are not displayed publicly: contact goes through the messaging. An agency may choose to display its business contact details on its public page.",
+          "Exchange rates are retrieved by our servers from public sources (open.er-api.com, with the European Central Bank as a fallback): no personal data is sent to them. The website's fonts are loaded from Google Fonts: your browser then shares your IP address with Google."
         ]
       },
       {
@@ -312,12 +337,13 @@
         "id": "cookies",
         "title": "9. Cookies and local storage",
         "blocks": [
-          "hwe uses no advertising trackers or third-party analytics. Only strictly necessary items are stored in your browser (local storage):",
+          "hwe uses no advertising trackers and no third-party audience measurement tools. Only strictly necessary items are stored in your browser (preference cookie and local storage):",
           [
             "the session token, to keep you signed in to your space;",
-            "your language, display currency, country and theme (light or dark) preferences."
+            "your language and display-currency preferences, shared through a cookie between the showcase website, the tenant space and the landlord / professional space;",
+            "your country and theme (light or dark)."
           ],
-          "These items do not require consent; you can clear them at any time from your browser settings."
+          "These items do not require consent; you can delete them at any time from your browser settings."
         ]
       },
       {

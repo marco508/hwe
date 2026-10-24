@@ -51,8 +51,8 @@
         "id": "service",
         "title": "Nature du service",
         "blocks": [
-          "hwe est une plateforme de mise en relation entre propriétaires et candidats locataires ou acheteurs. Elle met à disposition des outils : publication d'annonces, messagerie, demandes de visite, modèles de bail, états des lieux, suivi des loyers et quittances.",
-          "hwe n'est ni une agence immobilière, ni un administrateur de biens, ni un conseil juridique. La plateforme ne perçoit, ne détient et ne transfère aucune somme : loyers, cautions et prix de vente sont réglés directement entre les parties."
+          "hwe est une plateforme de mise en relation entre propriétaires, professionnels de l'immobilier (agences, démarcheurs, commerciaux) et candidats locataires ou acheteurs. Elle met à disposition des outils : publication d'annonces, messagerie, demandes de visite, modèles de bail avec signature électronique simple, états des lieux, suivi des loyers et quittances, ainsi qu'un espace professionnel de gestion des biens sous mandat.",
+          "hwe n'est ni une agence immobilière, ni un administrateur de biens, ni un conseil juridique : les professionnels présents sur la plateforme agissent en leur nom et sous leur propre responsabilité. hwe ne perçoit, ne détient et ne transfère aucun loyer, caution, honoraire ou prix de vente : ces sommes sont réglées directement entre les parties. Seul l'abonnement souscrit par les professionnels est payé à hwe."
         ]
       },
       {
@@ -114,25 +114,27 @@
   },
   "terms": {
     "title": "Conditions générales d'utilisation",
-    "intro": "Les présentes conditions encadrent l'utilisation de la plateforme hwe (site vitrine, espace locataire et espace propriétaire). En créant un compte, vous les acceptez.",
+    "intro": "Les présentes conditions encadrent l'utilisation de la plateforme hwe (site vitrine, espace locataire, espace propriétaire et espace professionnel). En créant un compte, vous les acceptez.",
     "sections": [
       {
         "id": "objet",
         "title": "1. Objet",
         "blocks": [
-          "hwe met en relation des propriétaires qui proposent un bien à la location ou à la vente et des personnes qui recherchent un logement ou souhaitent acheter. La plateforme fournit des outils de publication, de messagerie et de gestion locative.",
-          "hwe n'intervient pas dans la négociation, ne représente aucune des parties et n'est pas partie aux contrats conclus entre utilisateurs."
+          "hwe met en relation des propriétaires qui proposent un bien à la location ou à la vente — eux-mêmes ou par l'intermédiaire d'un professionnel qu'ils mandatent — et des personnes qui recherchent un logement ou souhaitent acheter. La plateforme fournit des outils de publication, de messagerie, de gestion locative et de gestion sous mandat.",
+          "hwe n'intervient pas dans la négociation, ne représente aucune des parties et n'est partie à aucun contrat conclu entre utilisateurs (bail, vente, mandat)."
         ]
       },
       {
         "id": "comptes",
         "title": "2. Inscription et comptes",
         "blocks": [
-          "L'inscription est gratuite. Deux types de comptes existent :",
+          "L'inscription est gratuite. Trois types de comptes existent :",
           [
-            "compte propriétaire : publication d'annonces, réponse aux demandes, préparation et signature des baux, suivi des loyers ;",
-            "compte locataire / acheteur : recherche, favoris, demandes de location ou offres d'achat, visites, signature du bail, déclaration des paiements."
+            "compte propriétaire : publication d'annonces, réponse aux demandes, préparation et signature des baux, suivi des loyers, confier un bien à un professionnel et suivre son mandat ;",
+            "compte locataire / acheteur : recherche, favoris, demandes de location ou offres d'achat, visites, signature du bail, déclaration des paiements ;",
+            "compte professionnel (agence, démarcheur, commercial) : gestion des biens confiés par des propriétaires sous mandat, équipe d'agents, suivi des honoraires et relevés de gérance, dans les conditions de l'article 8."
           ],
+          "L'utilisation de hwe est gratuite pour les propriétaires et les locataires / acheteurs : seul l'espace professionnel est soumis à un abonnement, payé par le professionnel.",
           "Vous devez fournir des informations exactes, confirmer votre adresse e-mail et garder votre mot de passe confidentiel. Toute action réalisée depuis votre compte est réputée faite par vous."
         ]
       },
@@ -143,9 +145,10 @@
           "Chaque utilisateur s'engage à :",
           [
             "respecter la législation applicable, notamment en matière de logement décent, de non-discrimination et de protection des données ;",
-            "ne publier que des biens dont il a la disposition et des informations sincères ;",
-            "ne pas utiliser la plateforme pour du démarchage, de l'escroquerie ou des contenus illicites, injurieux ou trompeurs ;",
-            "ne pas collecter les données d'autres utilisateurs à d'autres fins que la transaction envisagée."
+            "ne publier que des biens dont il a la disposition, ou qu'un propriétaire lui a confiés par mandat, et des informations sincères ;",
+            "ne pas utiliser la plateforme pour de la prospection non sollicitée (spam), de l'escroquerie ou des contenus illicites, injurieux ou trompeurs ;",
+            "ne pas collecter les données d'autres utilisateurs à d'autres fins que la transaction envisagée ;",
+            "pour les professionnels : détenir les autorisations exigées par la loi du pays où ils exercent (carte professionnelle, immatriculation…) et n'agir sur un bien que dans les limites du mandat en cours."
           ]
         ]
       },
@@ -153,8 +156,8 @@
         "id": "annonces",
         "title": "4. Annonces",
         "blocks": [
-          "Le propriétaire est seul responsable du contenu de ses annonces (description, photos, prix, disponibilité, diagnostics). hwe peut retirer ou suspendre une annonce manifestement illicite, trompeuse ou signalée à juste titre.",
-          "Les montants affichés dans une autre devise que celle de l'annonce sont des conversions indicatives : seul le montant de l'annonce fait foi."
+          "Le propriétaire — ou le professionnel qui publie l'annonce pour son compte — est responsable du contenu de l'annonce (description, photos, prix, disponibilité, diagnostics). hwe peut retirer ou suspendre une annonce manifestement illicite, trompeuse ou signalée à juste titre.",
+          "Les montants affichés dans une autre devise que celle de l'annonce sont des conversions indicatives, calculées avec des taux de change mis à jour chaque jour à partir de sources publiques (le franc CFA, XOF et XAF, suit sa parité fixe avec l'euro) : seul le montant de l'annonce fait foi."
         ]
       },
       {
@@ -169,21 +172,35 @@
         "id": "documents",
         "title": "6. Documents et pièces justificatives",
         "blocks": [
-          "Les pièces d'identité et justificatifs déposés dans votre dossier restent privés. Ils ne sont communiqués à un propriétaire que si vous choisissez de partager votre dossier avec une demande.",
-          "Les modèles de bail, états des lieux et quittances générés par hwe sont fournis à titre indicatif. Ils ne remplacent pas un conseil juridique ; il appartient aux parties de vérifier leur conformité avec la loi du pays où se situe le bien."
+          "Les pièces d'identité et justificatifs déposés dans votre dossier restent privés. Ils ne sont communiqués au propriétaire — et, si le bien est confié à un professionnel, à ce professionnel — que si vous choisissez de partager votre dossier avec une demande.",
+          "La signature proposée par hwe est une signature électronique simple : acceptation depuis votre compte, horodatée et enregistrée sur le document. Ce n'est pas une signature électronique avancée ou qualifiée au sens du règlement européen eIDAS.",
+          "Les modèles de bail, états des lieux, quittances et relevés générés par hwe sont fournis à titre indicatif. Ils ne remplacent pas un conseil juridique ; il appartient aux parties de vérifier leur conformité avec la loi du pays où se situe le bien."
         ]
       },
       {
         "id": "paiements",
         "title": "7. Absence de paiement via la plateforme",
         "blocks": [
-          "hwe ne perçoit, ne détient et ne reverse aucune somme. Loyers, charges, cautions, frais et prix de vente sont réglés directement entre les parties, par les moyens qu'elles choisissent.",
-          "Les fonctions de « déclaration de paiement » et de quittance ne font que documenter un paiement intervenu en dehors de la plateforme ; hwe n'en garantit pas la réalité."
+          "hwe ne propose aucun paiement en ligne et ne perçoit, ne détient ni ne reverse aucune somme entre utilisateurs. Loyers, charges, cautions, honoraires des professionnels et prix de vente sont réglés directement entre les parties, par les moyens qu'elles choisissent.",
+          "Les fonctions de « déclaration de paiement », de quittance, de suivi des honoraires et de relevé de gérance ne font que documenter des paiements intervenus en dehors de la plateforme ; hwe n'en garantit pas la réalité."
+        ]
+      },
+      {
+        "id": "professionnels",
+        "title": "8. Espace professionnel, mandats et abonnement",
+        "blocks": [
+          "Mandats. Un professionnel n'agit sur un bien qu'en vertu d'un mandat (gestion locative, mise en location ou vente), proposé par le professionnel et accepté par le propriétaire, ou confié directement par le propriétaire. Le propriétaire suit les actions réalisées sur son bien et garde les décisions clés (choix du locataire, signature du bail et des avenants). Chaque partie peut mettre fin au mandat depuis son espace ; les engagements éventuellement convenus entre elles en dehors de hwe restent de leur seule responsabilité.",
+          "Tant que le propriétaire n'a pas activé l'espace créé pour lui par le professionnel, celui-ci peut prendre ces décisions pour son compte, en qualité de mandataire : chaque action est journalisée et reste visible du propriétaire.",
+          "Vente : hwe s'arrête à la mise en relation. La négociation, l'avant-contrat et l'acte de vente se concluent en dehors de la plateforme, avec les professionnels habilités (notaire ou équivalent).",
+          "Honoraires : les honoraires prévus au mandat sont calculés et suivis sur la plateforme à titre informatif, avec un relevé mensuel ; ils sont réglés directement au professionnel, en dehors de hwe.",
+          "Abonnement : l'espace professionnel est payé par l'agence, jamais par le propriétaire ni par le locataire. Il commence par un essai gratuit de 60 jours (2 mois), sans carte bancaire. À son terme, l'agence dispose de 7 jours de grâce ; sans paiement, elle passe automatiquement à l'offre gratuite limitée (1 agent, 2 mandats actifs) : l'accès n'est pas coupé, mais les biens au-delà de la limite restent consultables sans pouvoir être modifiés. Les offres payantes (à ce jour Solo, Agence et Réseau, à partir de 19 € par mois) et leurs prix, éventuellement fixés dans d'autres devises, sont affichés sur le site et dans l'espace professionnel ; hwe peut les faire évoluer, sans effet sur une période déjà payée.",
+          "Paiement de l'abonnement : uniquement hors ligne (virement, mobile money, espèces), selon les instructions affichées dans l'espace professionnel. L'agence déclare son paiement, hwe le vérifie, active la période payée et met la facture à disposition. Aucun paiement par carte en ligne n'est proposé.",
+          "En cas de manquement aux présentes conditions, hwe peut suspendre un compte professionnel : l'équipe conserve alors la consultation des biens, de l'historique et des relevés, et le propriétaire peut reprendre la gestion de son bien ou mettre fin au mandat."
         ]
       },
       {
         "id": "responsabilite",
-        "title": "8. Responsabilité",
+        "title": "9. Responsabilité",
         "blocks": [
           "hwe fournit un service de mise en relation et des outils, sans garantie de résultat. La plateforme ne saurait être tenue responsable des relations, litiges ou dommages entre utilisateurs, ni du contenu publié par eux.",
           "hwe met en œuvre des moyens raisonnables pour assurer la disponibilité et la sécurité du service, sans pouvoir garantir une absence totale d'interruption ou d'erreur."
@@ -191,7 +208,7 @@
       },
       {
         "id": "suspension",
-        "title": "9. Suspension et suppression de compte",
+        "title": "10. Suspension et suppression de compte",
         "blocks": [
           "En cas de manquement aux présentes conditions, hwe peut suspendre ou supprimer un compte ou une annonce, après information de l'utilisateur sauf urgence ou obligation légale.",
           "Vous pouvez demander la suppression de votre compte à tout moment depuis le contact indiqué dans les mentions légales."
@@ -199,21 +216,21 @@
       },
       {
         "id": "donnees",
-        "title": "10. Données personnelles",
+        "title": "11. Données personnelles",
         "blocks": [
           "Le traitement de vos données est décrit dans la politique de confidentialité."
         ]
       },
       {
         "id": "modification",
-        "title": "11. Modification des conditions",
+        "title": "12. Modification des conditions",
         "blocks": [
           "hwe peut faire évoluer les présentes conditions. Les utilisateurs sont informés des changements importants ; la poursuite de l'utilisation vaut acceptation de la nouvelle version."
         ]
       },
       {
         "id": "droit",
-        "title": "12. Droit applicable et litiges",
+        "title": "13. Droit applicable et litiges",
         "blocks": [
           "Les présentes conditions sont soumises au droit {{TODO}}. En cas de litige, les parties recherchent d'abord une solution amiable. Le consommateur peut recourir gratuitement à un médiateur de la consommation : {{TODO}}. À défaut, les tribunaux compétents sont ceux désignés par la loi."
         ]
@@ -237,14 +254,16 @@
         "title": "2. Données collectées",
         "blocks": [
           [
-            "Compte : nom, prénom, adresse e-mail, téléphone (facultatif), photo de profil (facultative), rôle, mot de passe (stocké sous forme chiffrée).",
+            "Compte : nom, prénom, adresse e-mail, téléphone (facultatif), photo de profil (facultative), rôle, langue choisie, mot de passe (stocké sous forme chiffrée).",
             "Annonces : description du bien, adresse, photos, prix, documents du bien.",
             "Échanges : messages, demandes de location ou d'achat, demandes de visite.",
             "Gestion locative : baux, signatures électroniques horodatées, états des lieux, échéances et déclarations de paiement, incidents.",
             "Pièces justificatives : pièces d'identité, justificatifs de revenus ou de garant, attestation d'assurance, que vous déposez volontairement.",
+            "Espace professionnel : agence (nom, coordonnées, immatriculation, logo, coordonnées d'encaissement le cas échéant), membres et invitations, mandats et leur historique, honoraires, relevés de gérance.",
+            "Abonnement des professionnels : offre choisie, devise de facturation, déclarations de paiement (moyen, référence), factures.",
             "Données techniques : journaux de connexion et de sécurité nécessaires au fonctionnement du service."
           ],
-          "hwe ne réalise aucune géolocalisation à partir de votre adresse IP. Vos préférences de langue, de devise et de pays sont enregistrées uniquement dans votre navigateur."
+          "hwe ne réalise aucune géolocalisation à partir de votre adresse IP : la langue et le pays sont suggérés d'après la langue de votre navigateur. La langue que vous choisissez est mémorisée dans votre compte, pour vous écrire et produire vos documents (e-mails, PDF, messages d'erreur) dans cette langue ; la devise d'affichage, le pays et le thème restent enregistrés dans votre navigateur."
         ]
       },
       {
@@ -253,6 +272,8 @@
         "blocks": [
           [
             "Fournir le service (compte, annonces, messagerie, baux, loyers) : exécution du contrat (CGU).",
+            "Permettre aux professionnels de gérer les biens qui leur sont confiés (mandats, équipe, honoraires, relevés) et au propriétaire de suivre leur action : exécution du contrat (CGU).",
+            "Gérer l'abonnement des professionnels, la validation de leurs paiements et la facturation : exécution du contrat et obligation légale (conservation des factures).",
             "Sécuriser la plateforme, prévenir la fraude et les abus : intérêt légitime.",
             "Envoyer les e-mails de service (confirmation d'adresse, réinitialisation du mot de passe, notifications liées à vos demandes) : exécution du contrat.",
             "Respecter nos obligations légales (conservation de certaines données, réponse aux autorités) : obligation légale."
@@ -268,6 +289,8 @@
             "Compte et annonces : pendant la durée d'utilisation du compte, puis suppression ou anonymisation après sa clôture.",
             "Comptes inactifs : {{TODO}}.",
             "Pièces justificatives : jusqu'à leur suppression par vous, et au plus tard à la clôture du compte.",
+            "Mandats, honoraires et relevés de gérance : {{TODO}}.",
+            "Factures et déclarations de paiement des abonnements : {{TODO}} (selon les obligations comptables applicables).",
             "Baux, quittances et documents liés à une location : {{TODO}} (selon les délais de prescription applicables).",
             "Journaux techniques : {{TODO}}."
           ]
@@ -278,11 +301,13 @@
         "title": "5. Destinataires",
         "blocks": [
           [
-            "L'autre partie à une demande : le propriétaire reçoit votre demande et, si vous le choisissez, votre dossier ; le candidat voit les informations publiques de l'annonce et le nom du propriétaire.",
+            "L'autre partie à une demande : le propriétaire — et, si le bien est confié à un professionnel, ce professionnel et les membres de son équipe chargés du bien — reçoit votre demande et, si vous le choisissez, votre dossier ; le candidat voit les informations publiques de l'annonce et le nom du propriétaire ou de l'agence qui la propose.",
+            "Le professionnel mandaté et le propriétaire : chacun voit le mandat, son historique, les honoraires et les relevés ; le professionnel accède aux données du bien (annonce, demandes, baux, loyers, incidents, échanges) dans la limite de son mandat.",
             "Nos sous-traitants techniques : hébergement ({{TODO}}) et envoi d'e-mails ({{TODO}}), tenus à la confidentialité.",
             "Les autorités, uniquement sur demande légalement fondée."
           ],
-          "L'adresse e-mail et le téléphone des propriétaires ne sont pas affichés publiquement : le contact passe par la messagerie."
+          "L'adresse e-mail et le téléphone des propriétaires ne sont pas affichés publiquement : le contact passe par la messagerie. Une agence peut choisir d'afficher ses coordonnées professionnelles sur sa page publique.",
+          "Les taux de change sont récupérés par nos serveurs auprès de sources publiques (open.er-api.com, puis la Banque centrale européenne en secours) : aucune donnée personnelle ne leur est transmise. Les polices de caractères du site sont chargées depuis Google Fonts : votre navigateur communique alors votre adresse IP à Google."
         ]
       },
       {
@@ -312,10 +337,11 @@
         "id": "cookies",
         "title": "9. Cookies et stockage local",
         "blocks": [
-          "hwe n'utilise aucun traceur publicitaire ni outil de mesure d'audience tiers. Seuls des éléments strictement nécessaires sont enregistrés dans votre navigateur (stockage local) :",
+          "hwe n'utilise aucun traceur publicitaire ni outil de mesure d'audience tiers. Seuls des éléments strictement nécessaires sont enregistrés dans votre navigateur (cookie de préférence et stockage local) :",
           [
             "le jeton de session, pour rester connecté à votre espace ;",
-            "vos préférences de langue, de devise d'affichage, de pays et de thème (clair ou sombre)."
+            "vos préférences de langue et de devise d'affichage, partagées par un cookie entre le site vitrine, l'espace locataire et l'espace propriétaire / professionnel ;",
+            "votre pays et votre thème (clair ou sombre)."
           ],
           "Ces éléments ne nécessitent pas de consentement ; vous pouvez les effacer à tout moment depuis les réglages de votre navigateur."
         ]

@@ -51,8 +51,8 @@
         "id": "service",
         "title": "Naturaleza del servicio",
         "blocks": [
-          "hwe es una plataforma que pone en contacto a propietarios con candidatos a inquilinos o compradores. Ofrece herramientas: publicación de anuncios, mensajería, solicitudes de visita, modelos de contrato de arrendamiento, actas de estado del inmueble, seguimiento de alquileres y recibos.",
-          "hwe no es una agencia inmobiliaria, ni un administrador de fincas, ni un asesor jurídico. La plataforma no cobra, no custodia ni transfiere ninguna cantidad: alquileres, fianzas y precios de venta se abonan directamente entre las partes."
+          "hwe es una plataforma que pone en contacto a propietarios, profesionales inmobiliarios (agencias, captadores, comerciales) y candidatos a inquilinos o compradores. Ofrece herramientas: publicación de anuncios, mensajería, solicitudes de visita, modelos de contrato con firma electrónica simple, actas de estado, seguimiento de alquileres y recibos, así como un espacio profesional para gestionar inmuebles por mandato.",
+          "hwe no es una agencia inmobiliaria, ni un administrador de fincas, ni un asesor jurídico: los profesionales presentes en la plataforma actúan en su propio nombre y bajo su propia responsabilidad. hwe no cobra, no custodia ni transfiere ningún alquiler, fianza, honorario o precio de venta: estas cantidades se abonan directamente entre las partes. Solo la suscripción contratada por los profesionales se paga a hwe."
         ]
       },
       {
@@ -114,26 +114,28 @@
   },
   "terms": {
     "title": "Condiciones generales de uso",
-    "intro": "Las presentes condiciones regulan el uso de la plataforma hwe (sitio de presentación, espacio del inquilino y espacio del propietario). Al crear una cuenta, usted las acepta.",
+    "intro": "Las presentes condiciones regulan el uso de la plataforma hwe (sitio de presentación, espacio de inquilino, espacio de propietario y espacio profesional). Al crear una cuenta, usted las acepta.",
     "sections": [
       {
         "id": "objet",
         "title": "1. Objeto",
         "blocks": [
-          "hwe pone en contacto a propietarios que ofrecen un inmueble en alquiler o en venta con personas que buscan vivienda o desean comprar. La plataforma proporciona herramientas de publicación, de mensajería y de gestión de alquileres.",
-          "hwe no interviene en la negociación, no representa a ninguna de las partes y no es parte de los contratos celebrados entre usuarios."
+          "hwe pone en contacto a propietarios que ofrecen un inmueble en alquiler o en venta —por sí mismos o a través de un profesional al que otorgan un mandato— con personas que buscan una vivienda o desean comprar. La plataforma ofrece herramientas de publicación, mensajería, gestión del alquiler y gestión por mandato.",
+          "hwe no interviene en la negociación, no representa a ninguna de las partes y no es parte de ningún contrato celebrado entre usuarios (arrendamiento, venta, mandato)."
         ]
       },
       {
         "id": "comptes",
         "title": "2. Registro y cuentas",
         "blocks": [
-          "El registro es gratuito. Existen dos tipos de cuentas:",
+          "El registro es gratuito. Existen tres tipos de cuenta:",
           [
-            "cuenta de propietario: publicación de anuncios, respuesta a solicitudes, preparación y firma de contratos de arrendamiento, seguimiento de alquileres;",
-            "cuenta de inquilino / comprador: búsqueda, favoritos, solicitudes de alquiler u ofertas de compra, visitas, firma del contrato, declaración de pagos."
+            "cuenta de propietario: publicación de anuncios, respuesta a solicitudes, preparación y firma de contratos, seguimiento de alquileres, confiar un inmueble a un profesional y seguir su mandato;",
+            "cuenta de inquilino / comprador: búsqueda, favoritos, solicitudes de alquiler u ofertas de compra, visitas, firma del contrato, declaración de pagos;",
+            "cuenta profesional (agencia, captador, comercial): gestión de los inmuebles confiados por propietarios mediante mandato, equipo de agentes, seguimiento de honorarios y liquidaciones de gestión, en las condiciones del artículo 8."
           ],
-          "Usted debe proporcionar información exacta, confirmar su dirección de correo electrónico y mantener su contraseña en secreto. Toda acción realizada desde su cuenta se considera hecha por usted."
+          "El uso de hwe es gratuito para propietarios e inquilinos / compradores: solo el espacio profesional está sujeto a una suscripción, que paga el profesional.",
+          "Debe facilitar información exacta, confirmar su dirección de correo electrónico y mantener su contraseña en secreto. Toda acción realizada desde su cuenta se considera realizada por usted."
         ]
       },
       {
@@ -143,9 +145,10 @@
           "Cada usuario se compromete a:",
           [
             "respetar la legislación aplicable, en particular en materia de vivienda digna, no discriminación y protección de datos;",
-            "publicar únicamente inmuebles de los que disponga e información veraz;",
-            "no utilizar la plataforma para captación comercial no solicitada, estafas o contenidos ilícitos, injuriosos o engañosos;",
-            "no recopilar datos de otros usuarios con fines distintos de la transacción prevista."
+            "publicar únicamente inmuebles de los que pueda disponer, o que un propietario le haya confiado mediante mandato, e información veraz;",
+            "no utilizar la plataforma para prospección no solicitada (spam), estafas o contenidos ilícitos, injuriosos o engañosos;",
+            "no recopilar datos de otros usuarios con fines distintos de la transacción prevista;",
+            "en el caso de los profesionales: disponer de las autorizaciones exigidas por la ley del país en el que ejercen (licencia profesional, registro…) y actuar sobre un inmueble solo dentro de los límites del mandato vigente."
           ]
         ]
       },
@@ -153,8 +156,8 @@
         "id": "annonces",
         "title": "4. Anuncios",
         "blocks": [
-          "El propietario es el único responsable del contenido de sus anuncios (descripción, fotos, precio, disponibilidad, certificados técnicos). hwe puede retirar o suspender un anuncio manifiestamente ilícito, engañoso o denunciado con fundamento.",
-          "Los importes mostrados en una moneda distinta de la del anuncio son conversiones orientativas: solo el importe del anuncio es vinculante."
+          "El propietario —o el profesional que publica el anuncio por su cuenta— es responsable del contenido del anuncio (descripción, fotos, precio, disponibilidad, certificados). hwe puede retirar o suspender un anuncio manifiestamente ilícito, engañoso o denunciado con razón.",
+          "Los importes mostrados en una moneda distinta de la del anuncio son conversiones orientativas, calculadas con tipos de cambio actualizados a diario a partir de fuentes públicas (el franco CFA, XOF y XAF, sigue su paridad fija con el euro): solo hace fe el importe del anuncio."
         ]
       },
       {
@@ -169,21 +172,35 @@
         "id": "documents",
         "title": "6. Documentos y justificantes",
         "blocks": [
-          "Los documentos de identidad y justificantes depositados en su expediente son privados. Solo se comunican a un propietario si usted decide compartir su expediente con una solicitud.",
-          "Los modelos de contrato de arrendamiento, actas de estado del inmueble y recibos generados por hwe se proporcionan a título orientativo. No sustituyen un asesoramiento jurídico; corresponde a las partes verificar su conformidad con la ley del país donde se encuentra el inmueble."
+          "Los documentos de identidad y justificantes depositados en su expediente siguen siendo privados. Solo se comunican al propietario —y, si el inmueble está confiado a un profesional, a dicho profesional— si usted decide compartir su expediente con una solicitud.",
+          "La firma que ofrece hwe es una firma electrónica simple: aceptación desde su cuenta, con sello de tiempo y registrada en el documento. No es una firma electrónica avanzada ni cualificada en el sentido del reglamento europeo eIDAS.",
+          "Los modelos de contrato, actas de estado, recibos y liquidaciones generados por hwe se facilitan a título orientativo. No sustituyen un asesoramiento jurídico; corresponde a las partes comprobar su conformidad con la ley del país donde se encuentra el inmueble."
         ]
       },
       {
         "id": "paiements",
         "title": "7. Ausencia de pagos a través de la plataforma",
         "blocks": [
-          "hwe no cobra, no custodia ni reembolsa ninguna cantidad. Alquileres, gastos, fianzas, comisiones y precios de venta se abonan directamente entre las partes, por los medios que estas elijan.",
-          "Las funciones de «declaración de pago» y de recibo solo documentan un pago realizado fuera de la plataforma; hwe no garantiza su realidad."
+          "hwe no ofrece ningún pago en línea y no cobra, no custodia ni abona ninguna cantidad entre usuarios. Alquileres, gastos, fianzas, honorarios de los profesionales y precios de venta se abonan directamente entre las partes, por los medios que elijan.",
+          "Las funciones de «declaración de pago», recibo, seguimiento de honorarios y liquidación de gestión solo documentan pagos realizados fuera de la plataforma; hwe no garantiza su realidad."
+        ]
+      },
+      {
+        "id": "professionnels",
+        "title": "8. Espacio profesional, mandatos y suscripción",
+        "blocks": [
+          "Mandatos. Un profesional solo actúa sobre un inmueble en virtud de un mandato (gestión integral del alquiler, puesta en alquiler o venta), propuesto por el profesional y aceptado por el propietario, o confiado directamente por el propietario. El propietario sigue las acciones realizadas sobre su inmueble y conserva las decisiones clave (elección del inquilino, firma del contrato y de las adendas). Cualquiera de las partes puede poner fin al mandato desde su espacio; los compromisos que hayan acordado fuera de hwe son de su exclusiva responsabilidad.",
+          "Mientras el propietario no haya activado el espacio que el profesional creó para él, este puede tomar dichas decisiones por su cuenta, en calidad de mandatario: cada acción queda registrada y es visible para el propietario.",
+          "Venta: hwe se limita a poner en contacto a las partes. La negociación, el contrato preliminar y la escritura de compraventa se formalizan fuera de la plataforma, con los profesionales habilitados (notario o equivalente).",
+          "Honorarios: los honorarios previstos en el mandato se calculan y siguen en la plataforma a título informativo, con una liquidación mensual; se abonan directamente al profesional, fuera de hwe.",
+          "Suscripción: el espacio profesional lo paga la agencia, nunca el propietario ni el inquilino. Empieza con una prueba gratuita de 60 días (2 meses), sin tarjeta bancaria. Al finalizar, la agencia dispone de 7 días de gracia; sin pago, pasa automáticamente a la oferta gratuita limitada (1 agente, 2 mandatos activos): el acceso no se corta, pero los inmuebles que superen el límite siguen siendo consultables sin poder modificarse. Las ofertas de pago (actualmente Solo, Agence y Réseau, desde 19 € al mes) y sus precios, eventualmente fijados en otras monedas, se muestran en el sitio y en el espacio profesional; hwe puede modificarlos, sin efecto sobre un periodo ya pagado.",
+          "Pago de la suscripción: únicamente fuera de línea (transferencia, mobile money, efectivo), según las instrucciones que figuran en el espacio profesional. La agencia declara su pago, hwe lo verifica, activa el periodo pagado y pone la factura a su disposición. No se ofrece ningún pago con tarjeta en línea.",
+          "En caso de incumplimiento de las presentes condiciones, hwe puede suspender una cuenta profesional: el equipo conserva entonces la consulta de los inmuebles, del historial y de las liquidaciones, y el propietario puede retomar la gestión de su inmueble o poner fin al mandato."
         ]
       },
       {
         "id": "responsabilite",
-        "title": "8. Responsabilidad",
+        "title": "9. Responsabilidad",
         "blocks": [
           "hwe ofrece un servicio de puesta en contacto y herramientas, sin garantía de resultado. La plataforma no puede ser considerada responsable de las relaciones, litigios o daños entre usuarios, ni del contenido publicado por ellos.",
           "hwe aplica medios razonables para garantizar la disponibilidad y la seguridad del servicio, sin poder garantizar la ausencia total de interrupciones o errores."
@@ -191,7 +208,7 @@
       },
       {
         "id": "suspension",
-        "title": "9. Suspensión y eliminación de la cuenta",
+        "title": "10. Suspensión y eliminación de la cuenta",
         "blocks": [
           "En caso de incumplimiento de las presentes condiciones, hwe puede suspender o eliminar una cuenta o un anuncio, previa información al usuario salvo urgencia u obligación legal.",
           "Puede solicitar la eliminación de su cuenta en cualquier momento a través del contacto indicado en el aviso legal."
@@ -199,21 +216,21 @@
       },
       {
         "id": "donnees",
-        "title": "10. Datos personales",
+        "title": "11. Datos personales",
         "blocks": [
           "El tratamiento de sus datos se describe en la política de privacidad."
         ]
       },
       {
         "id": "modification",
-        "title": "11. Modificación de las condiciones",
+        "title": "12. Modificación de las condiciones",
         "blocks": [
           "hwe puede modificar las presentes condiciones. Los usuarios son informados de los cambios importantes; el uso continuado implica la aceptación de la nueva versión."
         ]
       },
       {
         "id": "droit",
-        "title": "12. Derecho aplicable y litigios",
+        "title": "13. Derecho aplicable y litigios",
         "blocks": [
           "Las presentes condiciones se rigen por el derecho {{TODO}}. En caso de litigio, las partes buscarán en primer lugar una solución amistosa. El consumidor puede recurrir gratuitamente a un mediador de consumo: {{TODO}}. En su defecto, serán competentes los tribunales designados por la ley."
         ]
@@ -237,14 +254,16 @@
         "title": "2. Datos recopilados",
         "blocks": [
           [
-            "Cuenta: apellidos, nombre, correo electrónico, teléfono (opcional), foto de perfil (opcional), rol, contraseña (almacenada de forma cifrada).",
+            "Cuenta: apellidos, nombre, dirección de correo electrónico, teléfono (opcional), foto de perfil (opcional), rol, idioma elegido, contraseña (almacenada de forma cifrada).",
             "Anuncios: descripción del inmueble, dirección, fotos, precio, documentos del inmueble.",
             "Intercambios: mensajes, solicitudes de alquiler o de compra, solicitudes de visita.",
-            "Gestión de alquileres: contratos de arrendamiento, firmas electrónicas con sello de tiempo, actas de estado del inmueble, vencimientos y declaraciones de pago, incidencias.",
-            "Justificantes: documentos de identidad, justificantes de ingresos o de avalista, certificado de seguro, que usted deposita voluntariamente.",
+            "Gestión del alquiler: contratos, firmas electrónicas con sello de tiempo, actas de estado, vencimientos y declaraciones de pago, incidencias.",
+            "Justificantes: documentos de identidad, justificantes de ingresos o del avalista, certificado de seguro, que usted deposita voluntariamente.",
+            "Espacio profesional: agencia (nombre, datos de contacto, registro, logotipo, datos de cobro en su caso), miembros e invitaciones, mandatos y su historial, honorarios, liquidaciones de gestión.",
+            "Suscripción de los profesionales: oferta elegida, moneda de facturación, declaraciones de pago (medio, referencia), facturas.",
             "Datos técnicos: registros de conexión y de seguridad necesarios para el funcionamiento del servicio."
           ],
-          "hwe no realiza ninguna geolocalización a partir de su dirección IP. Sus preferencias de idioma, moneda y país se guardan únicamente en su navegador."
+          "hwe no realiza ninguna geolocalización a partir de su dirección IP: el idioma y el país se sugieren según el idioma de su navegador. El idioma que elija se guarda en su cuenta para escribirle y generar sus documentos (correos, PDF, mensajes de error) en ese idioma; la moneda de visualización, el país y el tema quedan guardados en su navegador."
         ]
       },
       {
@@ -253,6 +272,8 @@
         "blocks": [
           [
             "Prestar el servicio (cuenta, anuncios, mensajería, contratos, alquileres): ejecución del contrato (CGU).",
+            "Permitir a los profesionales gestionar los inmuebles que se les confían (mandatos, equipo, honorarios, liquidaciones) y al propietario seguir su actuación: ejecución del contrato (condiciones de uso).",
+            "Gestionar la suscripción de los profesionales, la validación de sus pagos y la facturación: ejecución del contrato y obligación legal (conservación de las facturas).",
             "Proteger la plataforma, prevenir el fraude y los abusos: interés legítimo.",
             "Enviar los correos del servicio (confirmación de dirección, restablecimiento de contraseña, notificaciones relacionadas con sus solicitudes): ejecución del contrato.",
             "Cumplir nuestras obligaciones legales (conservación de ciertos datos, respuesta a las autoridades): obligación legal."
@@ -268,6 +289,8 @@
             "Cuenta y anuncios: mientras se utilice la cuenta; después, eliminación o anonimización tras su cierre.",
             "Cuentas inactivas: {{TODO}}.",
             "Justificantes: hasta que usted los elimine y, como máximo, hasta el cierre de la cuenta.",
+            "Mandatos, honorarios y liquidaciones de gestión: {{TODO}}.",
+            "Facturas y declaraciones de pago de las suscripciones: {{TODO}} (según las obligaciones contables aplicables).",
             "Contratos, recibos y documentos relacionados con un alquiler: {{TODO}} (según los plazos de prescripción aplicables).",
             "Registros técnicos: {{TODO}}."
           ]
@@ -278,11 +301,13 @@
         "title": "5. Destinatarios",
         "blocks": [
           [
-            "La otra parte de una solicitud: el propietario recibe su solicitud y, si usted lo decide, su expediente; el candidato ve la información pública del anuncio y el nombre del propietario.",
-            "Nuestros encargados técnicos del tratamiento: alojamiento ({{TODO}}) y envío de correos ({{TODO}}), sujetos a confidencialidad.",
+            "La otra parte de una solicitud: el propietario —y, si el inmueble está confiado a un profesional, dicho profesional y los miembros de su equipo encargados del inmueble— recibe su solicitud y, si usted lo decide, su expediente; el candidato ve la información pública del anuncio y el nombre del propietario o de la agencia que lo ofrece.",
+            "El profesional mandatado y el propietario: cada uno ve el mandato, su historial, los honorarios y las liquidaciones; el profesional accede a los datos del inmueble (anuncio, solicitudes, contratos, alquileres, incidencias, intercambios) dentro de los límites de su mandato.",
+            "Nuestros encargados del tratamiento técnicos: alojamiento ({{TODO}}) y envío de correos electrónicos ({{TODO}}), sujetos a confidencialidad.",
             "Las autoridades, únicamente previa solicitud legalmente fundada."
           ],
-          "El correo electrónico y el teléfono de los propietarios no se muestran públicamente: el contacto se realiza a través de la mensajería."
+          "La dirección de correo electrónico y el teléfono de los propietarios no se muestran públicamente: el contacto se realiza a través de la mensajería. Una agencia puede optar por mostrar sus datos de contacto profesionales en su página pública.",
+          "Nuestros servidores obtienen los tipos de cambio de fuentes públicas (open.er-api.com y, como respaldo, el Banco Central Europeo): no se les transmite ningún dato personal. Las fuentes tipográficas del sitio se cargan desde Google Fonts: su navegador comunica entonces su dirección IP a Google."
         ]
       },
       {
@@ -312,10 +337,11 @@
         "id": "cookies",
         "title": "9. Cookies y almacenamiento local",
         "blocks": [
-          "hwe no utiliza ningún rastreador publicitario ni herramienta de medición de audiencia de terceros. Solo se guardan en su navegador elementos estrictamente necesarios (almacenamiento local):",
+          "hwe no utiliza ningún rastreador publicitario ni herramienta de medición de audiencia de terceros. Solo se guardan en su navegador elementos estrictamente necesarios (cookie de preferencias y almacenamiento local):",
           [
-            "el token de sesión, para mantener la sesión iniciada en su espacio;",
-            "sus preferencias de idioma, moneda de visualización, país y tema (claro u oscuro)."
+            "el token de sesión, para mantener abierta la sesión en su espacio;",
+            "sus preferencias de idioma y de moneda de visualización, compartidas mediante una cookie entre el sitio de presentación, el espacio de inquilino y el espacio de propietario / profesional;",
+            "su país y su tema (claro u oscuro)."
           ],
           "Estos elementos no requieren consentimiento; puede borrarlos en cualquier momento desde la configuración de su navegador."
         ]
