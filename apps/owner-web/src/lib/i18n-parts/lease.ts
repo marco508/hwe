@@ -54,7 +54,7 @@ export const fr: Record<string, string> = {
   // ── Page contrats : aperçu / signature ──
   "lease.backToContracts": "← Retour aux contrats",
   "lease.previewTitle": "Aperçu du contrat",
-  "lease.download": "⬇️ Télécharger (.txt)",
+  "lease.download": "Télécharger (.txt)",
   "lease.signBtn": "Signer électroniquement",
   "lease.confirmSign": "Confirmez-vous la signature électronique de ce contrat ?",
   "lease.signedOn": "Signé le {date}",
@@ -261,7 +261,7 @@ export const en: Record<string, string> = {
   // ── Lease page: preview / signature ──
   "lease.backToContracts": "← Back to contracts",
   "lease.previewTitle": "Contract preview",
-  "lease.download": "⬇️ Download (.txt)",
+  "lease.download": "Download (.txt)",
   "lease.signBtn": "Sign electronically",
   "lease.confirmSign": "Do you confirm the electronic signature of this contract?",
   "lease.signedOn": "Signed on {date}",

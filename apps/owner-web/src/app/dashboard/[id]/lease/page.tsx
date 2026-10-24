@@ -286,6 +286,7 @@ export default function LeasePage() {
           <h1 className="font-display text-2xl">{t("lease.previewTitle")}</h1>
           <div className="flex gap-2 flex-wrap">
             <Button onClick={downloadContract} variant="secondary">
+              <Icon name="download" size={16} className="mr-1.5" />
               {t("lease.download")}
             </Button>
             {!selectedLease.ownerSignedAt && !pro && (
