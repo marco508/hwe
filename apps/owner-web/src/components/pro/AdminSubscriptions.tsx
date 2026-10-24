@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { AdminSubscriptionAgency, PaymentMethod, Plan, PlatformSettings, SubscriptionRequest } from "@hwe/types";
-import { Badge, Button, Icon, Input, Label, Select, Textarea, fmtDate, fmtDateTime, fmtMoney, toast } from "@hwe/ui";
+import { Badge, Button, CurrencyPicker, Icon, Input, Label, Select, Textarea, fmtDate, fmtDateTime, fmtMoney, toast } from "@hwe/ui";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import { Modal } from "../Modal";
@@ -178,7 +178,12 @@ export function AdminSubscriptions({ q }: { q: string }) {
           <p className="text-xs text-ink-muted mb-3">{t("sub.admin.unlimitedHint")}</p>
           <div className="space-y-3">
             {plans.map((p) => (
-              <PlanRow key={p.id} plan={p} onSave={(body) => run(() => api.adminUpdatePlan(p.id, body), t("sub.admin.saved"))} />
+              <div key={p.id} className="space-y-2">
+                <PlanRow plan={p} onSave={(body) => run(() => api.adminUpdatePlan(p.id, body), t("sub.admin.saved"))} />
+                {!p.isFree && (
+                  <PlanPrices plan={p} busy={busy} onSave={(prices) => run(() => api.adminSetPlanPrices(p.id, prices), t("sub.admin.saved"))} />
+                )}
+              </div>
             ))}
           </div>
         </SectionCard>
@@ -289,6 +294,77 @@ function PlanRow({ plan, onSave }: { plan: Plan; onSave: (b: Partial<Plan>) => v
   );
 }
 
+/**
+ * Prix d'une offre par devise : l'agence paie dans sa devise de facturation
+ * si un prix y est défini, sinon en EUR (avec un « ≈ » indicatif).
+ */
+function PlanPrices({
+  plan,
+  busy,
+  onSave,
+}: {
+  plan: Plan;
+  busy: boolean;
+  onSave: (prices: { currency: string; monthlyPrice: number }[]) => void;
+}) {
+  const initial = (plan.prices?.length ? plan.prices : [{ currency: plan.currency, monthlyPrice: plan.monthlyPrice }]).map((p) => ({
+    currency: p.currency,
+    price: String(p.monthlyPrice),
+  }));
+  const [rows, setRows] = React.useState(initial);
+  const [adding, setAdding] = React.useState("XOF");
+  const used = new Set(rows.map((r) => r.currency));
+  const valid = rows.length > 0 && rows.every((r) => r.price.trim() !== "" && Number(r.price.replace(",", ".")) >= 0);
+  return (
+    <form
+      className="rounded-xl border border-dashed border-border p-3 space-y-2"
+      data-plan-prices={plan.code}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave(rows.map((r) => ({ currency: r.currency, monthlyPrice: Number(r.price.replace(",", ".")) })));
+      }}
+    >
+      <p className="text-sm font-medium text-ink">{t("sub.admin.prices", { name: plan.name })}</p>
+      <p className="text-xs text-ink-muted">{t("sub.admin.pricesHint")}</p>
+      <ul className="space-y-1.5">
+        {rows.map((r, i) => (
+          <li key={r.currency} className="flex items-center gap-2" data-price-row={r.currency}>
+            <span className="w-12 font-mono text-sm">{r.currency}</span>
+            <Input
+              aria-label={t("sub.admin.priceIn", { currency: r.currency })}
+              inputMode="decimal"
+              value={r.price}
+              onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, price: e.target.value } : x)))}
+              className="max-w-[10rem]"
+            />
+            <span className="text-xs text-ink-muted">{t("pro.perMonthShort")}</span>
+            {r.currency !== "EUR" && (
+              <Button size="sm" variant="ghost" type="button" aria-label={t("sub.admin.removePrice", { currency: r.currency })} onClick={() => setRows(rows.filter((_, j) => j !== i))}>
+                <Icon name="trash" size={14} />
+              </Button>
+            )}
+          </li>
+        ))}
+      </ul>
+      <div className="flex flex-wrap items-center gap-2">
+        <CurrencyPicker compact value={adding} onChange={setAdding} label={t("sub.admin.addCurrency")} />
+        <Button
+          size="sm"
+          variant="secondary"
+          type="button"
+          disabled={used.has(adding)}
+          onClick={() => setRows([...rows, { currency: adding, price: "" }])}
+        >
+          <Icon name="plus" size={14} /> {t("sub.admin.addPrice", { currency: adding })}
+        </Button>
+        <Button size="sm" type="submit" disabled={busy || !valid} className="ms-auto">
+          {t("sub.admin.savePrices")}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function SettingsForm({ settings, onSave }: { settings: PlatformSettings; onSave: (b: Partial<PlatformSettings>) => void }) {
   const [f, setF] = React.useState({
     trialDays: String(settings.trialDays),
@@ -371,6 +447,10 @@ function PaymentDialog({
   const [method, setMethod] = React.useState<PaymentMethod>("TRANSFER");
   const [reference, setReference] = React.useState("");
   const plan = plans.find((p) => p.code === planCode);
+  // Même règle que l'API : prix dans la devise de facturation de l'agence s'il existe, sinon EUR.
+  const billing = agency.billingCurrency ?? "EUR";
+  const prices = plan ? (plan.prices?.length ? plan.prices : [{ currency: plan.currency, monthlyPrice: plan.monthlyPrice }]) : [];
+  const offer = prices.find((x) => x.currency === billing) ?? prices.find((x) => x.currency === "EUR") ?? prices[0];
   return (
     <Modal title={t("sub.admin.recordTitle", { name: agency.name })} onClose={onClose}>
       <div className="space-y-4">
@@ -400,8 +480,11 @@ function PaymentDialog({
             <Input id="pay-ref" value={reference} onChange={(e) => setReference(e.target.value)} />
           </div>
         </div>
-        {plan && Number(months) > 0 && (
-          <p className="text-sm">{t("sub.total")} : <strong>{fmtMoney(Math.round(plan.monthlyPrice * Number(months) * 100) / 100, plan.currency)}</strong></p>
+        {plan && offer && Number(months) > 0 && (
+          <p className="text-sm">
+            {t("sub.total")} : <strong>{fmtMoney(Math.round(offer.monthlyPrice * Number(months) * 100) / 100, offer.currency)}</strong>
+            <span className="text-xs text-ink-muted"> · {t("sub.billingCurrency")} : {billing}</span>
+          </p>
         )}
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>{t("pro.cancel")}</Button>

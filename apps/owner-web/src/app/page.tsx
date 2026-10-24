@@ -10,6 +10,7 @@ import {
   countryLabel,
   useAsync,
   useCurrency,
+  announceCountryChoice,
 } from "@hwe/ui";
 import { api } from "../lib/api";
 import type { Property } from "@hwe/types";
@@ -108,7 +109,11 @@ export default function HomePage() {
                 key={code}
                 type="button"
                 aria-pressed={country === code}
-                onClick={() => setCountry(country === code ? "" : code)}
+                onClick={() => {
+                  setCountry(country === code ? "" : code);
+                  // Choisir un pays règle la devise d'affichage sur celle du pays.
+                  if (country !== code) announceCountryChoice(code);
+                }}
                 className={`h-8 px-3 rounded-full text-xs font-medium transition-all border ${
                   country === code
                     ? "bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink border-transparent"

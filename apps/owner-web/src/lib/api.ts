@@ -597,6 +597,12 @@ export const api = {
   adminPlans: () => request<Plan[]>("/admin/plans", {}, true),
   adminUpdatePlan: (id: string, body: Partial<Pick<Plan, "name" | "monthlyPrice" | "currency" | "maxAgents" | "maxActiveMandates" | "active" | "position">>) =>
     request<Plan>(`/admin/plans/${id}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+  /** Remplace les prix par devise d'une offre (l'EUR reste le prix de base). */
+  adminSetPlanPrices: (id: string, prices: { currency: string; monthlyPrice: number }[]) =>
+    request<Plan>(`/admin/plans/${id}/prices`, { method: "PUT", body: JSON.stringify({ prices }) }, true),
+  /** Devise de facturation de l'agence (null = celle de son pays). */
+  setBillingCurrency: (billingCurrency: string | null) =>
+    request<unknown>("/agencies/me", { method: "PATCH", body: JSON.stringify({ billingCurrency }) }, true),
   adminSettings: () => request<PlatformSettings>("/admin/settings", {}, true),
   adminUpdateSettings: (body: Partial<Pick<PlatformSettings, "trialDays" | "graceDays" | "freePlanEnabled" | "paymentInstructions">>) =>
     request<PlatformSettings>("/admin/settings", { method: "PATCH", body: JSON.stringify(body) }, true),

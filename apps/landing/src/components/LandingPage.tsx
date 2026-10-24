@@ -12,6 +12,7 @@ import {
   SUPPORTED_COUNTRIES,
   ALL_COUNTRIES_CODE,
   useCurrency,
+  Approx,
   IlloSearchHome,
   Photo,
   CityCard,
@@ -988,6 +989,26 @@ function IconCity() {
  * gratuite (si activée) puis offres payantes actives. Rien n'est affiché si
  * l'API ne répond pas (la section reste lisible sans tarifs).
  */
+/**
+ * Prix d'une offre dans la devise du visiteur si l'offre y a un prix ; sinon
+ * le prix EUR (facturé en EUR) avec un « ≈ » indicatif en devise du visiteur.
+ */
+function PlanPriceLine({ plan }: { plan: PublicPlans["plans"][number] }) {
+  const { userCurrency } = useCurrency();
+  const prices = plan.prices?.length ? plan.prices : [{ currency: plan.currency, monthlyPrice: plan.monthlyPrice }];
+  const exact = prices.find((x) => x.currency === userCurrency);
+  const shown = exact ?? prices.find((x) => x.currency === "EUR") ?? prices[0]!;
+  return (
+    <span className="flex flex-col">
+      <span className="font-display text-3xl text-ink tabular-nums" data-plan-price={shown.currency}>
+        {fmtMoney(shown.monthlyPrice, shown.currency)}
+        <span className="text-sm text-ink-muted font-sans"> {t("pro.pricing.perMonth")}</span>
+      </span>
+      {!exact && !plan.isFree && <Approx amount={shown.monthlyPrice} currency={shown.currency} className="ms-0 mt-0.5" />}
+    </span>
+  );
+}
+
 function ProPricing() {
   const [plans, setPlans] = React.useState<PublicPlans | null>(null);
   React.useEffect(() => {
@@ -1003,10 +1024,7 @@ function ProPricing() {
         {cards.map((p) => (
           <li key={p.code} className="rounded-2xl border border-border/70 bg-surface p-5 flex flex-col gap-2 min-w-0" data-plan={p.code}>
             <span className="font-display text-lg text-ink [overflow-wrap:anywhere]">{p.isFree ? t("pro.pricing.free") : p.name}</span>
-            <span className="font-display text-3xl text-ink tabular-nums">
-              {fmtMoney(p.monthlyPrice, p.currency)}
-              <span className="text-sm text-ink-muted font-sans"> {t("pro.pricing.perMonth")}</span>
-            </span>
+            <PlanPriceLine plan={p} />
             <span className="text-sm text-ink-muted flex items-center gap-1.5">
               <Icon name="users" size={14} />
               {p.maxAgents === null ? t("pro.pricing.agentsUnl") : t("pro.pricing.agents", { n: p.maxAgents })}

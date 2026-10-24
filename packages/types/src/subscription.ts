@@ -133,6 +133,8 @@ export interface AdminSubscriptionAgency {
   code: string;
   email: string | null;
   createdAt: string;
+  /** Devise de facturation effective (choisie par l'agence, sinon celle de son pays). */
+  billingCurrency?: string;
   managers: { id: string; email: string; firstName: string; lastName: string }[];
   pendingRequestId: string | null;
   subscription: SubscriptionSummary;

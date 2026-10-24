@@ -21,6 +21,7 @@ import {
   Icon,
   IconBadge,
   type IconName,
+  Approx,
 } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -157,6 +158,7 @@ function PeriodCard({
           <div className="min-w-0 sm:min-w-52">
             <p className="text-sm font-semibold text-ink capitalize leading-tight">
               {period.periodLabel} — <span className="display-serif">{fmtPeriod(period)}</span>
+              <Approx amount={periodAmount(period)} currency={periodCurrency(period)} />
             </p>
             <p className="text-xs text-ink-muted mt-0.5 [overflow-wrap:anywhere]">
               {period.lease.property.title}, {period.lease.property.city}

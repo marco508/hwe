@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import type { FeeListItem, FeeStatus } from "@hwe/types";
-import { Badge, Button, EmptyState, ErrorState, Input, Label, Select, fmtDate, fmtMoney, toast, useAsync } from "@hwe/ui";
+import { Badge, Button, EmptyState, ErrorState, Input, Label, Select, fmtDate, fmtMoney, toast, useAsync, Approx } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -91,7 +91,10 @@ export default function ProFeesPage() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-display text-lg tabular-nums">{fmtMoney(f.amount, f.currency)}</span>
+                <span className="font-display text-lg tabular-nums">
+                  {fmtMoney(f.amount, f.currency)}
+                  <Approx amount={f.amount} currency={f.currency} />
+                </span>
                 <Badge tone={f.status === "SETTLED" ? "success" : f.status === "DUE" ? "accent" : "neutral"}>{t(`pro.feeStatus.${f.status}`)}</Badge>
                 {manager && f.status !== "CANCELLED" && (
                   <Button size="sm" variant={f.status === "SETTLED" ? "ghost" : "secondary"} onClick={() => toggle(f)}>

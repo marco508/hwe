@@ -29,6 +29,7 @@ import {
   useLoginRedirect,
   IconBadge,
   type IconName,
+  Approx
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
@@ -380,7 +381,10 @@ function PeriodRow({
           <p className="text-sm font-semibold text-ink capitalize leading-tight">{period.periodLabel}</p>
           <p className="text-xs text-ink-muted">{t("rent.row.dueOn", { date: fmtDate(period.dueDate) })}</p>
         </div>
-        <p className="display-serif text-base text-ink tabular-nums">{fmtMoney(periodAmount(period), currency)}</p>
+        <p className="display-serif text-base text-ink tabular-nums">
+          {fmtMoney(periodAmount(period), currency)}
+          <Approx amount={periodAmount(period)} currency={currency} />
+        </p>
         <Badge tone={STATUS_TONE[period.status]}>{t("rent.status." + period.status)}</Badge>
 
         <div className="ms-auto flex gap-2">

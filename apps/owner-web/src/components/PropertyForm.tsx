@@ -11,8 +11,10 @@ import {
   CardBody,
   CardHeader,
   countryLabel,
+  CurrencyPicker,
   Icon,
   IconBadge,
+  intlLocale,
   type IconName,
 } from "@hwe/ui";
 import type {
@@ -24,7 +26,7 @@ import type {
   PropertyType,
   PropertyStatus,
 } from "@hwe/types";
-import { ENERGY_CLASS_COLORS } from "@hwe/types";
+import { COUNTRY_CODES, COUNTRY_CURRENCY, COUNTRY_NAMES_FR, ENERGY_CLASS_COLORS, SELECTABLE_CURRENCIES } from "@hwe/types";
 import { t } from "../lib/i18n";
 import { ImageUploader } from "./ImageUploader";
 import type { CreatePropertyBody } from "../lib/api";
@@ -108,202 +110,19 @@ export function toPropertyBody(
 }
 
 // ── Pays + devises ──────────────────────────────────────────────────────────
-const COUNTRIES: { code: string; name: string; currency: string }[] = [
-  { code: "AF", name: "Afghanistan", currency: "AFN" },
-  { code: "ZA", name: "Afrique du Sud", currency: "ZAR" },
-  { code: "AL", name: "Albanie", currency: "ALL" },
-  { code: "DZ", name: "Algérie", currency: "DZD" },
-  { code: "DE", name: "Allemagne", currency: "EUR" },
-  { code: "AD", name: "Andorre", currency: "EUR" },
-  { code: "AO", name: "Angola", currency: "AOA" },
-  { code: "AG", name: "Antigua-et-Barbuda", currency: "XCD" },
-  { code: "SA", name: "Arabie saoudite", currency: "SAR" },
-  { code: "AR", name: "Argentine", currency: "ARS" },
-  { code: "AM", name: "Arménie", currency: "AMD" },
-  { code: "AU", name: "Australie", currency: "AUD" },
-  { code: "AT", name: "Autriche", currency: "EUR" },
-  { code: "AZ", name: "Azerbaïdjan", currency: "AZN" },
-  { code: "BS", name: "Bahamas", currency: "BSD" },
-  { code: "BH", name: "Bahreïn", currency: "BHD" },
-  { code: "BD", name: "Bangladesh", currency: "BDT" },
-  { code: "BB", name: "Barbade", currency: "BBD" },
-  { code: "BE", name: "Belgique", currency: "EUR" },
-  { code: "BZ", name: "Belize", currency: "BZD" },
-  { code: "BJ", name: "Bénin", currency: "XOF" },
-  { code: "BT", name: "Bhoutan", currency: "BTN" },
-  { code: "BY", name: "Biélorussie", currency: "BYN" },
-  { code: "BO", name: "Bolivie", currency: "BOB" },
-  { code: "BA", name: "Bosnie-Herzégovine", currency: "BAM" },
-  { code: "BW", name: "Botswana", currency: "BWP" },
-  { code: "BR", name: "Brésil", currency: "BRL" },
-  { code: "BN", name: "Brunéi", currency: "BND" },
-  { code: "BG", name: "Bulgarie", currency: "BGN" },
-  { code: "BF", name: "Burkina Faso", currency: "XOF" },
-  { code: "BI", name: "Burundi", currency: "BIF" },
-  { code: "CV", name: "Cabo Verde", currency: "CVE" },
-  { code: "KH", name: "Cambodge", currency: "KHR" },
-  { code: "CM", name: "Cameroun", currency: "XAF" },
-  { code: "CA", name: "Canada", currency: "CAD" },
-  { code: "CF", name: "Centrafrique", currency: "XAF" },
-  { code: "CL", name: "Chili", currency: "CLP" },
-  { code: "CN", name: "Chine", currency: "CNY" },
-  { code: "CY", name: "Chypre", currency: "EUR" },
-  { code: "CO", name: "Colombie", currency: "COP" },
-  { code: "KM", name: "Comores", currency: "KMF" },
-  { code: "CG", name: "Congo", currency: "XAF" },
-  { code: "CD", name: "Congo (RDC)", currency: "CDF" },
-  { code: "KR", name: "Corée du Sud", currency: "KRW" },
-  { code: "CR", name: "Costa Rica", currency: "CRC" },
-  { code: "CI", name: "Côte d'Ivoire", currency: "XOF" },
-  { code: "HR", name: "Croatie", currency: "EUR" },
-  { code: "CU", name: "Cuba", currency: "CUP" },
-  { code: "DK", name: "Danemark", currency: "DKK" },
-  { code: "DJ", name: "Djibouti", currency: "DJF" },
-  { code: "DM", name: "Dominique", currency: "XCD" },
-  { code: "EG", name: "Égypte", currency: "EGP" },
-  { code: "AE", name: "Émirats arabes unis", currency: "AED" },
-  { code: "EC", name: "Équateur", currency: "USD" },
-  { code: "ER", name: "Érythrée", currency: "ERN" },
-  { code: "ES", name: "Espagne", currency: "EUR" },
-  { code: "EE", name: "Estonie", currency: "EUR" },
-  { code: "SZ", name: "Eswatini", currency: "SZL" },
-  { code: "ET", name: "Éthiopie", currency: "ETB" },
-  { code: "FJ", name: "Fidji", currency: "FJD" },
-  { code: "FI", name: "Finlande", currency: "EUR" },
-  { code: "FR", name: "France", currency: "EUR" },
-  { code: "GA", name: "Gabon", currency: "XAF" },
-  { code: "GM", name: "Gambie", currency: "GMD" },
-  { code: "GE", name: "Géorgie", currency: "GEL" },
-  { code: "GH", name: "Ghana", currency: "GHS" },
-  { code: "GR", name: "Grèce", currency: "EUR" },
-  { code: "GD", name: "Grenade", currency: "XCD" },
-  { code: "GT", name: "Guatemala", currency: "GTQ" },
-  { code: "GN", name: "Guinée", currency: "GNF" },
-  { code: "GW", name: "Guinée-Bissau", currency: "XOF" },
-  { code: "GQ", name: "Guinée équatoriale", currency: "XAF" },
-  { code: "GY", name: "Guyana", currency: "GYD" },
-  { code: "HT", name: "Haïti", currency: "HTG" },
-  { code: "HN", name: "Honduras", currency: "HNL" },
-  { code: "HU", name: "Hongrie", currency: "HUF" },
-  { code: "IN", name: "Inde", currency: "INR" },
-  { code: "ID", name: "Indonésie", currency: "IDR" },
-  { code: "IQ", name: "Irak", currency: "IQD" },
-  { code: "IR", name: "Iran", currency: "IRR" },
-  { code: "IE", name: "Irlande", currency: "EUR" },
-  { code: "IS", name: "Islande", currency: "ISK" },
-  { code: "IL", name: "Israël", currency: "ILS" },
-  { code: "IT", name: "Italie", currency: "EUR" },
-  { code: "JM", name: "Jamaïque", currency: "JMD" },
-  { code: "JP", name: "Japon", currency: "JPY" },
-  { code: "JO", name: "Jordanie", currency: "JOD" },
-  { code: "KZ", name: "Kazakhstan", currency: "KZT" },
-  { code: "KE", name: "Kenya", currency: "KES" },
-  { code: "KG", name: "Kirghizistan", currency: "KGS" },
-  { code: "KI", name: "Kiribati", currency: "AUD" },
-  { code: "KW", name: "Koweït", currency: "KWD" },
-  { code: "LA", name: "Laos", currency: "LAK" },
-  { code: "LS", name: "Lesotho", currency: "LSL" },
-  { code: "LV", name: "Lettonie", currency: "EUR" },
-  { code: "LB", name: "Liban", currency: "LBP" },
-  { code: "LR", name: "Libéria", currency: "LRD" },
-  { code: "LY", name: "Libye", currency: "LYD" },
-  { code: "LI", name: "Liechtenstein", currency: "CHF" },
-  { code: "LT", name: "Lituanie", currency: "EUR" },
-  { code: "LU", name: "Luxembourg", currency: "EUR" },
-  { code: "MK", name: "Macédoine du Nord", currency: "MKD" },
-  { code: "MG", name: "Madagascar", currency: "MGA" },
-  { code: "MY", name: "Malaisie", currency: "MYR" },
-  { code: "MW", name: "Malawi", currency: "MWK" },
-  { code: "MV", name: "Maldives", currency: "MVR" },
-  { code: "ML", name: "Mali", currency: "XOF" },
-  { code: "MT", name: "Malte", currency: "EUR" },
-  { code: "MA", name: "Maroc", currency: "MAD" },
-  { code: "MH", name: "Marshall", currency: "USD" },
-  { code: "MU", name: "Maurice", currency: "MUR" },
-  { code: "MR", name: "Mauritanie", currency: "MRU" },
-  { code: "MX", name: "Mexique", currency: "MXN" },
-  { code: "FM", name: "Micronésie", currency: "USD" },
-  { code: "MD", name: "Moldavie", currency: "MDL" },
-  { code: "MC", name: "Monaco", currency: "EUR" },
-  { code: "MN", name: "Mongolie", currency: "MNT" },
-  { code: "ME", name: "Monténégro", currency: "EUR" },
-  { code: "MZ", name: "Mozambique", currency: "MZN" },
-  { code: "MM", name: "Myanmar", currency: "MMK" },
-  { code: "NA", name: "Namibie", currency: "NAD" },
-  { code: "NR", name: "Nauru", currency: "AUD" },
-  { code: "NP", name: "Népal", currency: "NPR" },
-  { code: "NI", name: "Nicaragua", currency: "NIO" },
-  { code: "NE", name: "Niger", currency: "XOF" },
-  { code: "NG", name: "Nigéria", currency: "NGN" },
-  { code: "NO", name: "Norvège", currency: "NOK" },
-  { code: "NZ", name: "Nouvelle-Zélande", currency: "NZD" },
-  { code: "OM", name: "Oman", currency: "OMR" },
-  { code: "UG", name: "Ouganda", currency: "UGX" },
-  { code: "UZ", name: "Ouzbékistan", currency: "UZS" },
-  { code: "PK", name: "Pakistan", currency: "PKR" },
-  { code: "PW", name: "Palaos", currency: "USD" },
-  { code: "PA", name: "Panama", currency: "PAB" },
-  { code: "PG", name: "Papouasie-Nouvelle-Guinée", currency: "PGK" },
-  { code: "PY", name: "Paraguay", currency: "PYG" },
-  { code: "NL", name: "Pays-Bas", currency: "EUR" },
-  { code: "PE", name: "Pérou", currency: "PEN" },
-  { code: "PH", name: "Philippines", currency: "PHP" },
-  { code: "PL", name: "Pologne", currency: "PLN" },
-  { code: "PT", name: "Portugal", currency: "EUR" },
-  { code: "QA", name: "Qatar", currency: "QAR" },
-  { code: "DO", name: "République dominicaine", currency: "DOP" },
-  { code: "CZ", name: "République tchèque", currency: "CZK" },
-  { code: "RO", name: "Roumanie", currency: "RON" },
-  { code: "GB", name: "Royaume-Uni", currency: "GBP" },
-  { code: "RU", name: "Russie", currency: "RUB" },
-  { code: "RW", name: "Rwanda", currency: "RWF" },
-  { code: "KN", name: "Saint-Kitts-et-Nevis", currency: "XCD" },
-  { code: "LC", name: "Sainte-Lucie", currency: "XCD" },
-  { code: "VC", name: "Saint-Vincent-et-les-Grenadines", currency: "XCD" },
-  { code: "SB", name: "Salomon", currency: "SBD" },
-  { code: "WS", name: "Samoa", currency: "WST" },
-  { code: "SM", name: "Saint-Marin", currency: "EUR" },
-  { code: "ST", name: "Sao Tomé-et-Principe", currency: "STN" },
-  { code: "SN", name: "Sénégal", currency: "XOF" },
-  { code: "RS", name: "Serbie", currency: "RSD" },
-  { code: "SC", name: "Seychelles", currency: "SCR" },
-  { code: "SL", name: "Sierra Leone", currency: "SLL" },
-  { code: "SG", name: "Singapour", currency: "SGD" },
-  { code: "SK", name: "Slovaquie", currency: "EUR" },
-  { code: "SI", name: "Slovénie", currency: "EUR" },
-  { code: "SO", name: "Somalie", currency: "SOS" },
-  { code: "SD", name: "Soudan", currency: "SDG" },
-  { code: "SS", name: "Soudan du Sud", currency: "SSP" },
-  { code: "LK", name: "Sri Lanka", currency: "LKR" },
-  { code: "SE", name: "Suède", currency: "SEK" },
-  { code: "CH", name: "Suisse", currency: "CHF" },
-  { code: "SR", name: "Suriname", currency: "SRD" },
-  { code: "SY", name: "Syrie", currency: "SYP" },
-  { code: "TJ", name: "Tadjikistan", currency: "TJS" },
-  { code: "TZ", name: "Tanzanie", currency: "TZS" },
-  { code: "TD", name: "Tchad", currency: "XAF" },
-  { code: "TH", name: "Thaïlande", currency: "THB" },
-  { code: "TL", name: "Timor oriental", currency: "USD" },
-  { code: "TG", name: "Togo", currency: "XOF" },
-  { code: "TO", name: "Tonga", currency: "TOP" },
-  { code: "TT", name: "Trinité-et-Tobago", currency: "TTD" },
-  { code: "TN", name: "Tunisie", currency: "TND" },
-  { code: "TM", name: "Turkménistan", currency: "TMT" },
-  { code: "TR", name: "Turquie", currency: "TRY" },
-  { code: "TV", name: "Tuvalu", currency: "AUD" },
-  { code: "UA", name: "Ukraine", currency: "UAH" },
-  { code: "UY", name: "Uruguay", currency: "UYU" },
-  { code: "VU", name: "Vanuatu", currency: "VUV" },
-  { code: "VE", name: "Venezuela", currency: "VES" },
-  { code: "VN", name: "Viêt Nam", currency: "VND" },
-  { code: "YE", name: "Yémen", currency: "YER" },
-  { code: "ZM", name: "Zambie", currency: "ZMW" },
-  { code: "ZW", name: "Zimbabwe", currency: "ZWL" },
-  { code: "US", name: "États-Unis", currency: "USD" },
-];
+// Table complète partagée (@hwe/types) : pays ISO → devise ; noms affichés
+// dans la langue courante (libellés français historiques en français).
+const COUNTRIES: { code: string; name: string; currency: string }[] = COUNTRY_CODES.map((code) => ({
+  code,
+  name: COUNTRY_NAMES_FR[code] ?? code,
+  currency: COUNTRY_CURRENCY[code] ?? "EUR",
+}));
 
-const COUNTRY_TO_CURRENCY: Record<string, string> = Object.fromEntries(
-  COUNTRIES.map((c) => [c.code, c.currency]),
+const COUNTRY_TO_CURRENCY: Record<string, string> = COUNTRY_CURRENCY;
+
+/** Devises possibles pour un bien : celles des sélecteurs + celles de tous les pays. */
+const PROPERTY_CURRENCIES: string[] = [...new Set([...SELECTABLE_CURRENCIES, ...Object.values(COUNTRY_CURRENCY)])].sort((a, b) =>
+  a.localeCompare(b),
 );
 
 function CountrySelect({
@@ -320,14 +139,18 @@ function CountrySelect({
   const ref = React.useRef<HTMLDivElement>(null);
 
   const selected = COUNTRIES.find((c) => c.code === value);
+  const sorted = React.useMemo(() => {
+    const loc = intlLocale();
+    return [...COUNTRIES].sort((a, b) => countryLabel(a.code, a.name).localeCompare(countryLabel(b.code, b.name), loc));
+  }, []);
   const filtered = query.trim()
-    ? COUNTRIES.filter(
+    ? sorted.filter(
         (c) =>
           c.name.toLowerCase().includes(query.toLowerCase()) ||
           countryLabel(c.code, c.name).toLowerCase().includes(query.toLowerCase()) ||
           c.code.toLowerCase().includes(query.toLowerCase()),
       )
-    : COUNTRIES;
+    : sorted;
 
   React.useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -359,7 +182,7 @@ function CountrySelect({
         className="flex h-10 w-full items-center justify-between rounded-lg border border-border bg-surface px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand-500"
       >
         <span className="truncate">{selected ? countryLabel(selected.code, selected.name) : t("pf.country.select")}</span>
-        <span className="text-ink-muted ml-2">▾</span>
+        <span className="text-ink-muted ms-2">▾</span>
       </button>
       {open && (
         <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-surface shadow-lg">
@@ -388,14 +211,14 @@ function CountrySelect({
                       setOpen(false);
                       setQuery("");
                     }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-900/30 dark:hover:text-brand-200 focus:outline-none focus-visible:bg-brand-50 dark:focus-visible:bg-brand-900/30 ${
+                    className={`w-full text-start px-3 py-2 text-sm hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-900/30 dark:hover:text-brand-200 focus:outline-none focus-visible:bg-brand-50 dark:focus-visible:bg-brand-900/30 ${
                       c.code === value
                         ? "bg-brand-50 dark:bg-brand-900/30 font-medium text-brand-700 dark:text-brand-200"
                         : "text-ink"
                     }`}
                   >
                     {countryLabel(c.code, c.name)}
-                    <span className="ml-1 text-xs text-ink-muted">{c.currency}</span>
+                    <span className="ms-1 text-xs text-ink-muted">{c.currency}</span>
                   </button>
                 </li>
               ))
@@ -681,10 +504,16 @@ export function PropertyForm({
             />
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-medium text-ink">{t("pf.currency")}</p>
-            <div className="flex h-10 items-center rounded-lg border border-border bg-surface/60 px-3 text-sm text-ink-muted select-none">
-              {v.currency || "—"}
-            </div>
+            <span id="pf-currency-label" className="text-sm font-medium text-ink">{t("pf.currency")}</span>
+            {/* Devise du pays par défaut, modifiable. */}
+            <CurrencyPicker
+              id="pf-currency"
+              value={v.currency || "EUR"}
+              onChange={(c) => set("currency", c)}
+              codes={PROPERTY_CURRENCIES}
+              label={t("pf.currency")}
+            />
+            <p className="text-xs text-ink-muted">{t("pf.currencyHint")}</p>
           </div>
           <div className="space-y-1">
             <Label htmlFor="pf-f11">{t("pf.latitude")}</Label>

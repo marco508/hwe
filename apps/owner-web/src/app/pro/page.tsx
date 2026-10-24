@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ErrorState, Icon, fmtMoney, useAsync, EmptyState } from "@hwe/ui";
+import { ErrorState, Icon, fmtMoney, useAsync, EmptyState, useCurrency } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
@@ -11,6 +11,7 @@ import { LINK_PRIMARY, LINK_SECONDARY, ProHero, SectionCard, StatTile } from "..
 
 export default function ProDashboardPage() {
   const { user } = useAuth();
+  const { approx } = useCurrency();
   const manager = isManager(user);
   const { data, error, loading, reload } = useAsync(() => api.agencyOverview(), [user?.id]);
 
@@ -63,7 +64,12 @@ export default function ProDashboardPage() {
               tone="success"
               label={t("pro.stat.fees")}
               value={fmtMoney(o.feesDueThisMonth, cur)}
-              hint={t("pro.stat.feesHint", { settled: fmtMoney(o.feesSettledThisMonth, cur) }) + (more.length ? ` · ${more.map((m) => fmtMoney(m.due, m.currency)).join(" · ")}` : "")}
+              hint={
+                t("pro.stat.feesHint", { settled: fmtMoney(o.feesSettledThisMonth, cur) }) +
+                (more.length ? ` · ${more.map((m) => fmtMoney(m.due, m.currency)).join(" · ")}` : "") +
+                // « ≈ » discret dans la devise d'affichage (montant contractuel inchangé).
+                (approx(o.feesDueThisMonth, cur) ? ` · ${approx(o.feesDueThisMonth, cur)}` : "")
+              }
               href="/pro/honoraires"
             />
           </div>

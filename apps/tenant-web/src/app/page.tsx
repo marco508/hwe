@@ -22,6 +22,7 @@ import {
   CityCard,
   FEATURED_CITIES,
   type IconName,
+  announceCountryChoice,
 } from "@hwe/ui";
 import { api } from "../lib/api";
 import { useCurrency } from "../lib/currency-context";
@@ -250,7 +251,11 @@ export default function HomePage() {
               <Select
                 id="s-country"
                 value={draft.country ?? ""}
-                onChange={(e) => setDraft({ ...draft, country: e.target.value || undefined })}
+                onChange={(e) => {
+                  setDraft({ ...draft, country: e.target.value || undefined });
+                  // Choisir un pays règle la devise d'affichage sur celle du pays.
+                  if (e.target.value) announceCountryChoice(e.target.value);
+                }}
               >
                 <option value="">{t("acc.search.all")}</option>
                 {countries.map((c) => (

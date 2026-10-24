@@ -1457,5 +1457,20 @@
   "sub.admin.saved": "Saved",
   "sub.admin.confirm": "Confirm",
   "sub.admin.pending": "pending",
-  "common.quote": "“{text}”"
+  "common.quote": "“{text}”",
+  "pf.currencyHint": "Defaults to the currency of the property's country; you can change it.",
+  "sub.admin.prices": "Prices of “{name}” by currency",
+  "sub.admin.pricesHint": "An agency pays in its billing currency when a price is set for it; otherwise in EUR, with an indicative equivalent.",
+  "sub.admin.priceIn": "Monthly price in {currency}",
+  "sub.admin.removePrice": "Remove the {currency} price",
+  "sub.admin.addCurrency": "Currency to add",
+  "sub.admin.addPrice": "Add {currency}",
+  "sub.admin.savePrices": "Save prices",
+  "sub.billingCurrency": "Billing currency",
+  "pro.perMonthShort": "/ month",
+  "sub.billedIn": "billed in {currency}",
+  "sub.billingChosen": "chosen by the agency",
+  "sub.billingFromCountry": "based on the agency's country",
+  "sub.billingReset": "Use the country's currency",
+  "sub.billingSaved": "Billing currency saved"
 }

@@ -9,7 +9,7 @@ import type {
   Property,
   User,
 } from "@hwe/types";
-import { fmtMoney, getUiLang, intlLocale, isApiError, useAsync } from "@hwe/ui";
+import { fmtMoney, intlLocale, isApiError, useAsync } from "@hwe/ui";
 import { api } from "./api";
 import { useAuth } from "./auth-context";
 import { t } from "./i18n";
@@ -181,13 +181,11 @@ export function useActorLabel() {
 }
 
 /**
- * Libellé d'un honoraire : celui de l'API (rédigé en français) en FR ;
- * en anglais, un libellé reconstruit (type + mois d'échéance).
+ * Libellé d'un honoraire : celui de l'API, déjà dans la langue de l'interface.
  */
 export function feeLabel(f: { label: string; kind: "MANAGEMENT" | "LETTING" | "SALE"; dueDate: string }): string {
-  if (getUiLang() === "fr") return f.label;
-  const month = new Intl.DateTimeFormat(intlLocale(), { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(f.dueDate));
-  return t(`pro.feeLabel.${f.kind}`, { month });
+  // L'API rédige le libellé dans la langue de la requête (Accept-Language).
+  return f.label || t(`pro.feeLabel.${f.kind}`, { month: monthLabel(f.dueDate.slice(0, 7)) });
 }
 
 /** « octobre 2026 » / « October 2026 » à partir de AAAA-MM. */

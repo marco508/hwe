@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Mandate } from "@hwe/types";
-import { Icon, SafeImage, fmtMoney } from "@hwe/ui";
+import { Icon, SafeImage, fmtMoney, Approx } from "@hwe/ui";
 import { t } from "../../lib/i18n";
 import { MandateStatusBadge, MandateTypeBadge } from "./ProUi";
 
@@ -33,6 +33,7 @@ export function MandateRow({ m, href, who }: { m: Mandate; href: string; who: "o
         <div className="hidden sm:block text-end shrink-0">
           <p className="text-xs text-ink-muted">{t("pro.fees.due")}</p>
           <p className="font-display text-lg tabular-nums">{fmtMoney(m.feesSummary.due, m.feesSummary.currency)}</p>
+          <Approx amount={m.feesSummary.due} currency={m.feesSummary.currency} className="ms-0 block" />
         </div>
         <Icon name="chevronRight" size={18} className="text-ink-subtle shrink-0 rtl:rotate-180" />
       </Link>

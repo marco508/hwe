@@ -5,6 +5,7 @@ import type { MySubscription, PaymentMethod, Plan } from "@hwe/types";
 import {
   Badge,
   Button,
+  CurrencyPicker,
   ErrorState,
   Icon,
   Input,
@@ -56,12 +57,17 @@ function PlanCard({
   selected,
   onChoose,
   free,
+  approx,
+  inexact,
 }: {
   plan: Pick<Plan, "code" | "name" | "monthlyPrice" | "currency" | "maxAgents" | "maxActiveMandates">;
   current: boolean;
   selected?: boolean;
   onChoose?: () => void;
   free?: boolean;
+  /** « ≈ » en devise de facturation quand l'offre n'y a pas de prix (facturée en EUR). */
+  approx?: { currency: string; monthlyPrice: number } | null;
+  inexact?: boolean;
 }) {
   return (
     <div
@@ -77,9 +83,17 @@ function PlanCard({
         </div>
         {current && <Badge tone="success">{t("sub.current")}</Badge>}
       </div>
-      <p className="font-display text-2xl tabular-nums">
-        {fmtMoney(plan.monthlyPrice, plan.currency)} <span className="text-sm text-ink-muted font-sans">{t("sub.perMonth")}</span>
-      </p>
+      <div>
+        <p className="font-display text-2xl tabular-nums" data-plan-price={plan.currency}>
+          {fmtMoney(plan.monthlyPrice, plan.currency)} <span className="text-sm text-ink-muted font-sans">{t("sub.perMonth")}</span>
+        </p>
+        {approx && (
+          <p className="text-xs text-ink-muted" data-plan-approx>
+            ≈ {fmtMoney(Math.round(approx.monthlyPrice), approx.currency)} · {t("sub.billedIn", { currency: plan.currency })}
+          </p>
+        )}
+        {!approx && inexact && <p className="text-xs text-ink-muted">{t("sub.billedIn", { currency: plan.currency })}</p>}
+      </div>
       <ul className="text-sm text-ink-muted space-y-1">
         <li className="flex items-center gap-1.5">
           <Icon name="users" size={14} />
@@ -125,6 +139,21 @@ export default function SubscriptionPage() {
   if (loading && !data) return <div className="h-64 rounded-2xl skeleton" />;
   const s = data!;
   const chosen = s.plans.find((p) => p.code === planCode) ?? null;
+  // Prix proposé : dans la devise de facturation de l'agence s'il existe, sinon en EUR.
+  const priceOf = (p: (typeof s.plans)[number]) => p.offer ?? { currency: p.currency, monthlyPrice: p.monthlyPrice, exact: true, requested: p.currency };
+  const billing = s.billing ?? { currency: "EUR", source: "COUNTRY" as const, chosen: null };
+  const changeBilling = async (code: string | null) => {
+    setBusy(true);
+    try {
+      await api.setBillingCurrency(code);
+      toast.success(t("sub.billingSaved"));
+      refresh();
+    } catch (e) {
+      toast.error(e);
+    } finally {
+      setBusy(false);
+    }
+  };
   const pending = s.pendingRequest;
   const lastResolved = s.requests.find((r) => r.status !== "PENDING");
   const end = s.status === "TRIAL" ? s.trialEndsAt : s.paidUntil;
@@ -197,18 +226,36 @@ export default function SubscriptionPage() {
         </SectionCard>
 
         <SectionCard title={t("sub.plans")} icon="tag" className="lg:col-span-2">
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-sm" data-billing-currency={billing.currency}>
+            <span className="text-ink-muted">{t("sub.billingCurrency")} :</span>
+            {s.isManager ? (
+              <CurrencyPicker compact value={billing.currency} onChange={(c) => void changeBilling(c)} label={t("sub.billingCurrency")} />
+            ) : (
+              <strong>{billing.currency}</strong>
+            )}
+            <span className="text-xs text-ink-muted">
+              {billing.source === "AGENCY" ? t("sub.billingChosen") : t("sub.billingFromCountry")}
+            </span>
+            {s.isManager && billing.source === "AGENCY" && (
+              <Button size="sm" variant="ghost" disabled={busy} onClick={() => void changeBilling(null)}>
+                {t("sub.billingReset")}
+              </Button>
+            )}
+          </div>
           <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
             {s.freePlan.enabled && (
               <PlanCard
                 free
-                plan={{ code: "FREE", name: t("sub.freeOffer"), monthlyPrice: 0, currency: s.plans[0]?.currency ?? "EUR", maxAgents: s.freePlan.maxAgents, maxActiveMandates: s.freePlan.maxActiveMandates }}
+                plan={{ code: "FREE", name: t("sub.freeOffer"), monthlyPrice: 0, currency: billing.currency, maxAgents: s.freePlan.maxAgents, maxActiveMandates: s.freePlan.maxActiveMandates }}
                 current={s.status === "FREE"}
               />
             )}
             {s.plans.map((p) => (
               <PlanCard
                 key={p.id}
-                plan={p}
+                plan={{ ...p, monthlyPrice: priceOf(p).monthlyPrice, currency: priceOf(p).currency }}
+                approx={p.approx}
+                inexact={!priceOf(p).exact}
                 current={s.plan?.code === p.code && (s.status === "ACTIVE" || s.status === "GRACE")}
                 selected={planCode === p.code}
                 onChoose={s.isManager && !pending ? () => setPlanCode(p.code) : undefined}
@@ -301,7 +348,7 @@ export default function SubscriptionPage() {
                 {chosen && (
                   <KV label={t("sub.total")}>
                     <span className="font-display text-xl tabular-nums" data-total>
-                      {fmtMoney(Math.round(chosen.monthlyPrice * months * 100) / 100, chosen.currency)}
+                      {fmtMoney(Math.round(priceOf(chosen).monthlyPrice * months * 100) / 100, priceOf(chosen).currency)}
                     </span>
                   </KV>
                 )}

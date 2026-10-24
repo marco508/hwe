@@ -1457,5 +1457,20 @@
   "sub.admin.saved": "Enregistré",
   "sub.admin.confirm": "Confirmer",
   "sub.admin.pending": "en attente",
-  "common.quote": "« {text} »"
+  "common.quote": "« {text} »",
+  "pf.currencyHint": "Par défaut celle du pays du bien ; vous pouvez la changer.",
+  "sub.admin.prices": "Prix de « {name} » par devise",
+  "sub.admin.pricesHint": "Une agence paie dans sa devise de facturation si un prix y est défini ; sinon en EUR, avec un équivalent indicatif.",
+  "sub.admin.priceIn": "Prix mensuel en {currency}",
+  "sub.admin.removePrice": "Retirer le prix en {currency}",
+  "sub.admin.addCurrency": "Devise à ajouter",
+  "sub.admin.addPrice": "Ajouter {currency}",
+  "sub.admin.savePrices": "Enregistrer les prix",
+  "sub.billingCurrency": "Devise de facturation",
+  "pro.perMonthShort": "/ mois",
+  "sub.billedIn": "facturé en {currency}",
+  "sub.billingChosen": "choisie par l'agence",
+  "sub.billingFromCountry": "selon le pays de l'agence",
+  "sub.billingReset": "Revenir à la devise du pays",
+  "sub.billingSaved": "Devise de facturation enregistrée"
 }
