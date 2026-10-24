@@ -20,6 +20,7 @@ const USER_SELECT = {
   avatarKey: true,
   role: true,
   emailVerifiedAt: true,
+  locale: true,
   createdAt: true,
   updatedAt: true,
 };
@@ -46,6 +47,7 @@ export class UsersService {
       lastName?: string;
       phone?: string;
       avatarUrl?: string | null;
+      locale?: string;
     },
   ) {
     const data: {
@@ -54,7 +56,9 @@ export class UsersService {
       phone?: string | null;
       avatarUrl?: string | null;
       avatarKey?: string | null;
+      locale?: string;
     } = {};
+    if (dto.locale !== undefined) data.locale = dto.locale;
     if (dto.firstName !== undefined) data.firstName = dto.firstName;
     if (dto.lastName !== undefined) data.lastName = dto.lastName;
     if (dto.phone !== undefined) data.phone = dto.phone || null;

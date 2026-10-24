@@ -87,6 +87,9 @@ model User {
   /// Essai pro consommé (création d'une agence) : une seule période d'essai
   /// par personne, même si elle crée plus tard une autre agence.
   proTrialUsedAt    DateTime?
+  /// Langue préférée (fr, en, es, pt, ar) : e-mails, PDF, libellés générés.
+  /// null = jamais choisie → fr.
+  locale            String?  @db.VarChar(5)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -833,6 +836,8 @@ model Agency {
   manualSuspension   Boolean  @default(false)
   /// Dernier rappel envoyé (idempotence des rappels J-15/J-7/J-1, grâce, fin).
   lastReminderKey    String?
+  /// Devise de facturation choisie par l'agence (ISO 4217) ; null = celle de son pays.
+  billingCurrency    String?  @db.VarChar(3)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -1055,6 +1060,36 @@ model Plan {
   agencies Agency[]
   requests SubscriptionRequest[]
   payments AgencyPayment[]
+  prices   PlanPrice[]
+}
+
+/// Prix d'une offre dans une devise (autant de devises que l'admin le souhaite).
+model PlanPrice {
+  id           String   @id @default(cuid())
+  planId       String
+  plan         Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  /// ISO 4217
+  currency     String   @db.VarChar(3)
+  monthlyPrice Decimal  @db.Decimal(14, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([planId, currency])
+}
+
+/// Taux de change quotidiens (base EUR) récupérés côté serveur.
+model FxRate {
+  id        String   @id @default(cuid())
+  base      String   @default("EUR") @db.VarChar(3)
+  /// Jour des taux selon la source (minuit UTC).
+  date      DateTime @db.Date
+  /// « open.er-api.com », « ecb », « static »
+  source    String
+  /// { "USD": 1.17, … } : unités pour 1 `base`
+  rates     Json
+  fetchedAt DateTime @default(now())
+
+  @@index([fetchedAt])
 }
 
 /// Paramètres plateforme (une seule ligne, id = 1).

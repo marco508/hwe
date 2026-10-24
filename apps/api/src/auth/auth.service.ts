@@ -16,6 +16,7 @@ import { LoginDto } from "./dto/login.dto";
 import { jwtSecret } from "../common/jwt-secret.util";
 import { normalizeEmail } from "../common/email.util";
 import { agencyLogoUrl } from "../common/media.util";
+import { requestLang } from "../i18n/i18n";
 import { createAgencyFor, joinAgencyWithInvite, ownerWebBase } from "../agencies/agency.util";
 
 /** Champs du compte renvoyés au front (login, register, /auth/me). */
@@ -29,6 +30,7 @@ export const AUTH_USER_SELECT = {
   avatarKey: true,
   emailVerifiedAt: true,
   activatedAt: true,
+  locale: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -182,6 +184,8 @@ export class AuthService {
             phone: dto.phone || null,
             role,
             activatedAt: new Date(),
+            // Langue de l'interface à l'inscription (e-mails, PDF dans sa langue).
+            locale: dto.locale ?? requestLang(),
           },
         });
         if (dto.agencyInviteToken) {
@@ -382,6 +386,7 @@ export class AuthService {
     avatarKey: string | null;
     emailVerifiedAt: Date | null;
     activatedAt?: Date | null;
+    locale?: string | null;
     tokenVersion: number;
     createdAt: Date;
     updatedAt: Date;
@@ -409,6 +414,7 @@ export class AuthService {
         avatarKey: user.avatarKey,
         emailVerifiedAt: user.emailVerifiedAt,
         activatedAt: user.activatedAt ?? null,
+        locale: user.locale ?? null,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         agency: shapeAuthAgency(membership),

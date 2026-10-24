@@ -1,4 +1,5 @@
 import "./globals.css";
+import { LANG_BOOT_SCRIPT } from "@hwe/types";
 import type { Metadata } from "next";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_LANDING_URL || "https://hwe.dkpsolution.tech").replace(/\/+$/, "");
@@ -41,6 +42,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
+        <script dangerouslySetInnerHTML={{ __html: LANG_BOOT_SCRIPT }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||(t===null&&d))document.documentElement.classList.add('dark');}catch(e){}})();`,

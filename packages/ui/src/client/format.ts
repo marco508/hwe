@@ -1,12 +1,14 @@
+import { intlLocaleOf } from "@hwe/types";
 import { getUiLang, tUi } from "../components/I18nKit";
 
 /**
  * Formatteurs partagés (remplacent les ~10 copies de fmtDate/fmtMoney/fmtEUR).
- * La locale suit la langue choisie (fr → fr-FR, en → en-GB).
+ * La locale suit la langue choisie (fr → fr-FR, en → en-GB, es → es-ES,
+ * pt → pt-PT, ar → ar-u-nu-latn : chiffres latins).
  */
 
 export function intlLocale(lang = getUiLang()): string {
-  return lang === "en" ? "en-GB" : "fr-FR";
+  return intlLocaleOf(lang);
 }
 
 /**
@@ -115,7 +117,7 @@ export function priceUnitSuffix(unit: string | null | undefined): string {
 /** Taille de fichier lisible. */
 export function fmtBytes(bytes: number | null | undefined): string {
   if (!bytes || bytes <= 0) return "";
-  if (bytes < 1024) return `${bytes} o`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} Ko`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+  if (bytes < 1024) return tUi("ui.bytes.b", { n: bytes });
+  if (bytes < 1024 * 1024) return tUi("ui.bytes.kb", { n: Math.round(bytes / 1024) });
+  return tUi("ui.bytes.mb", { n: new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(bytes / (1024 * 1024)) });
 }

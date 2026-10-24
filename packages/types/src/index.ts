@@ -27,6 +27,8 @@ export interface User {
   activatedAt?: string | null;
   /** Agence du compte pro (rôle AGENT), sinon null. */
   agency?: AuthAgency | null;
+  /** Langue préférée (e-mails, PDF) ; null = jamais choisie (fr par défaut). */
+  locale?: "fr" | "en" | "es" | "pt" | "ar" | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -645,3 +647,6 @@ export interface ApiErrorBody {
 export * from "./lease-contract";
 export * from "./agencies";
 export * from "./subscription";
+export * from "./i18n";
+export * from "./geo";
+export * from "./currencies";

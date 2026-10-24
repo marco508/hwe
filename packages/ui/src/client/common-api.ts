@@ -29,6 +29,8 @@ export const commonApi = {
     role: "OWNER" | "TENANT" | "AGENT";
     agencyName?: string;
     agencyInviteToken?: string;
+    /** Langue de l'interface à l'inscription (e-mails, PDF). */
+    locale?: string;
   }) => request<AuthResponse>("/auth/register", { method: "POST", body: json(body) }),
   login: (body: { email: string; password: string }) =>
     request<AuthResponse>("/auth/login", { method: "POST", body: json(body) }),
@@ -51,6 +53,8 @@ export const commonApi = {
     lastName?: string;
     phone?: string;
     avatarUrl?: string | null;
+    /** Langue préférée (fr, en, es, pt, ar). */
+    locale?: string;
   }) => request<User>("/users/me", { method: "PATCH", body: json(body), auth: true }),
 
   // ── Pièces d'identité ──

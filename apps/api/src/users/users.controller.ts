@@ -10,6 +10,7 @@ import {
 } from "@nestjs/common";
 import {
   IsEnum,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -30,6 +31,8 @@ export class UpdateMeDto {
   @IsOptional() @Trim() @IsString() @MaxLength(30) phone?: string;
   /** data-URL d'image (≤ 2 Mo), URL actuelle (inchangé) ou null (suppression). */
   @IsOptional() @ValidateIf((o) => o.avatarUrl !== null) @IsString() @MaxLength(3_000_000) avatarUrl?: string | null;
+  /** Langue préférée : e-mails, PDF et libellés générés dans cette langue. */
+  @IsOptional() @IsIn(["fr", "en", "es", "pt", "ar"]) locale?: "fr" | "en" | "es" | "pt" | "ar";
 }
 
 export class CreateUserDocumentDto {

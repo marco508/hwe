@@ -9,6 +9,7 @@ import {
 import { Prisma } from "@prisma/client";
 import type { Response } from "express";
 import { SUBSCRIPTION_CODES } from "./subscription";
+import { requestLang, translateError } from "../i18n/i18n";
 
 /**
  * Format d'erreur unique : `{ statusCode, message, code? }`.
@@ -93,6 +94,15 @@ export function toErrorBody(exception: unknown): ErrorBody {
   };
 }
 
+/** Message(s) traduit(s) dans la langue de la requête (catalogue i18n/errors). */
+export function localizeErrorBody(body: ErrorBody, lang = requestLang()): ErrorBody {
+  if (lang === "fr") return body;
+  const message = Array.isArray(body.message)
+    ? body.message.map((m) => translateError(String(m), lang))
+    : translateError(String(body.message ?? ""), lang);
+  return { ...body, message };
+}
+
 /** Erreurs PostgreSQL dues à la donnée envoyée (encodage, format, bornes). */
 function looksLikeBadInput(message: string): boolean {
   return /invalid byte sequence|22021|22P02|22003|22007|22008|0x00|invalid input syntax|out of range|value too long/i.test(
@@ -106,7 +116,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost) {
     const res = host.switchToHttp().getResponse<Response>();
-    const body = toErrorBody(exception);
+    const body = localizeErrorBody(toErrorBody(exception));
     if (body.statusCode >= 500) {
       this.logger.error(
         exception instanceof Error ? exception.stack || exception.message : String(exception),

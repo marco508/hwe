@@ -1,0 +1,332 @@
+{
+  "legal": {
+    "title": "Legal notice",
+    "intro": "Information about the publisher and the host of the hwe website, in accordance with article 6 of French law no. 2004-575 of 21 June 2004 on confidence in the digital economy (LCEN).",
+    "sections": [
+      {
+        "id": "editeur",
+        "title": "Publisher",
+        "blocks": [
+          [
+            "Company name: {{TODO}}",
+            "Legal form and share capital: {{TODO}}",
+            "Registered office: {{TODO}}",
+            "Registration (RCS / SIREN): {{TODO}}",
+            "EU VAT number: {{TODO}}"
+          ]
+        ]
+      },
+      {
+        "id": "publication",
+        "title": "Publication director",
+        "blocks": [
+          "Publication director: {{TODO}}"
+        ]
+      },
+      {
+        "id": "hebergeur",
+        "title": "Hosting",
+        "blocks": [
+          [
+            "Host: {{TODO}}",
+            "Host address: {{TODO}}",
+            "Host contact: {{TODO}}"
+          ]
+        ]
+      },
+      {
+        "id": "contact",
+        "title": "Contact",
+        "blocks": [
+          "For any question about the website, published content or your personal data, you can write to us:",
+          [
+            "Email: {{TODO}}",
+            "Phone: {{TODO}}",
+            "Postal address: {{TODO}}"
+          ],
+          "To report an unlawful listing or message, include the link to the page concerned and the reason for your report."
+        ]
+      },
+      {
+        "id": "service",
+        "title": "Nature of the service",
+        "blocks": [
+          "hwe is a platform that connects landlords with prospective tenants or buyers. It provides tools: listings, messaging, visit requests, lease templates, inventories, rent tracking and receipts.",
+          "hwe is not a real-estate agency, a property manager or a legal adviser. The platform does not collect, hold or transfer any money: rents, deposits and sale prices are paid directly between the parties."
+        ]
+      },
+      {
+        "id": "propriete",
+        "title": "Intellectual property",
+        "blocks": [
+          "The structure of the website, its design, texts, logos and software are protected by intellectual property law. Any reproduction or reuse without written permission is prohibited.",
+          "Listings, photos and messages remain the property of their authors, who grant hwe the right to display them on the platform for the purposes of the service."
+        ]
+      },
+      {
+        "id": "credits-photos",
+        "title": "Photo credits",
+        "blocks": [
+          "Illustrative photos from Unsplash (Unsplash License, unsplash.com/license) and Pexels (Pexels License, pexels.com/license), both of which allow commercial use. Illustrative photos do not show the listed properties. Full list: /images/CREDITS.md.",
+          [
+            "Smiling Black family on a sofa — Monstera Production (Pexels)",
+            "Smiling woman showing a key — Kindel Media (Pexels)",
+            "Bright living room, blue sofa — Curtis Adams (Pexels)",
+            "Eiffel Tower seen from rue de Monttessuy — Teodor Kuduschiev (Unsplash)",
+            "Saône riverbanks and Fourvière basilica — Godefroy Boutet (Unsplash)",
+            "Old Port and Notre-Dame de la Garde — Lien Van Win (Unsplash)",
+            "Place de la Bourse and the Three Graces fountain — F DALLAY (Unsplash)",
+            "Mosque of the Divinity, western corniche (Ouakam) — Eyelit Studio (Unsplash)",
+            "Plateau towers by the lagoon — Jean Marc Bonnel (Pexels)",
+            "Busy street scene in Bessengue — Edouard TAMBA (Unsplash)",
+            "Nlongkak junction and hills — Ariel Nathan ADA MBITA (Unsplash)",
+            "Neighbourhood street with a mosque — Vurzie Kim (Pexels)",
+            "Seaside road lined with coconut palms — Kab Visuals (Pexels)",
+            "Hassan II Mosque — Hamza Bouchikhi (Unsplash)",
+            "Tree-lined residential street — Sami TÜRK (Pexels)",
+            "Apartment building facade with balconies — Andrew Patrick Photo (Pexels)",
+            "White contemporary house and driveway — Julia Kuzenkov (Pexels)",
+            "Furnished studio (bed, dining corner) — Max Vakhtbovych (Pexels)",
+            "Red-soil plot at the start of construction — Divaris Shirichena (Unsplash)",
+            "Empty, bright commercial space — Andrea De Santis (Pexels)",
+            "Neutral living room — Curtis Adams (Pexels)",
+            "Woman searching on her phone — David Kwewum (Pexels)",
+            "House viewing — Kindel Media (Pexels)",
+            "Handshake over a contract — Ron Lach (Pexels)",
+            "Smiling couple with boxes — RDNE Stock project (Pexels)",
+            "Parents and child on a sofa — Mizuno K (Pexels)",
+            "Man in front of a white house — Aj Collins Artistry (Pexels)",
+            "Young couple moving in with boxes — Gustavo Fring (Pexels)",
+            "Man working on a laptop — RDNE Stock project (Pexels)",
+            "Mother and children playing in the living room — Monstera Production (Pexels)"
+          ]
+        ]
+      },
+      {
+        "id": "responsabilite",
+        "title": "Liability",
+        "blocks": [
+          "Listings are published under the sole responsibility of the users who write them. hwe does not guarantee the accuracy of published information or the outcome of a rental or sale.",
+          "hwe strives to keep the website available at all times but cannot be held liable for interruptions, technical errors or damage resulting from the use of the website."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Terms of use",
+    "intro": "These terms govern the use of the hwe platform (public website, tenant space and landlord space). By creating an account, you accept them.",
+    "sections": [
+      {
+        "id": "objet",
+        "title": "1. Purpose",
+        "blocks": [
+          "hwe connects landlords offering a property for rent or sale with people looking for a home or wishing to buy. The platform provides listing, messaging and rental management tools.",
+          "hwe does not take part in negotiations, does not represent either party and is not a party to the contracts concluded between users."
+        ]
+      },
+      {
+        "id": "comptes",
+        "title": "2. Registration and accounts",
+        "blocks": [
+          "Registration is free. There are two types of accounts:",
+          [
+            "landlord account: publishing listings, answering requests, preparing and signing leases, tracking rents;",
+            "tenant / buyer account: searching, favorites, rental requests or purchase offers, visits, signing the lease, declaring payments."
+          ],
+          "You must provide accurate information, confirm your email address and keep your password confidential. Any action taken from your account is deemed to have been taken by you."
+        ]
+      },
+      {
+        "id": "obligations",
+        "title": "3. User obligations",
+        "blocks": [
+          "Every user undertakes to:",
+          [
+            "comply with applicable law, in particular regarding decent housing, non-discrimination and data protection;",
+            "only list properties they are entitled to offer, with truthful information;",
+            "not use the platform for unsolicited canvassing, fraud or unlawful, abusive or misleading content;",
+            "not collect other users' data for any purpose other than the intended transaction."
+          ]
+        ]
+      },
+      {
+        "id": "annonces",
+        "title": "4. Listings",
+        "blocks": [
+          "The landlord is solely responsible for the content of their listings (description, photos, price, availability, diagnostics). hwe may remove or suspend a listing that is clearly unlawful, misleading or rightly reported.",
+          "Amounts shown in a currency other than the listing's are indicative conversions: only the listing amount is binding."
+        ]
+      },
+      {
+        "id": "messagerie",
+        "title": "5. Messaging and requests",
+        "blocks": [
+          "Messaging is only for exchanges about a property. Messages must not contain sensitive bank details or identity documents: use the dedicated « file » area instead.",
+          "Never send money before visiting the property and signing a contract. Be wary of any urgent payment request or untraceable payment method."
+        ]
+      },
+      {
+        "id": "documents",
+        "title": "6. Documents and supporting files",
+        "blocks": [
+          "Identity documents and supporting files stored in your file remain private. They are only shared with a landlord if you choose to share your file with a request.",
+          "Lease templates, inventories and receipts generated by hwe are provided for information only. They do not replace legal advice; the parties must check that they comply with the law of the country where the property is located."
+        ]
+      },
+      {
+        "id": "paiements",
+        "title": "7. No payments through the platform",
+        "blocks": [
+          "hwe does not collect, hold or pay out any money. Rents, charges, deposits, fees and sale prices are paid directly between the parties, by the means they choose.",
+          "The « payment declaration » and receipt features only document a payment made outside the platform; hwe does not guarantee that it actually took place."
+        ]
+      },
+      {
+        "id": "responsabilite",
+        "title": "8. Liability",
+        "blocks": [
+          "hwe provides a matchmaking service and tools, with no guarantee of results. The platform cannot be held liable for relationships, disputes or damage between users, nor for the content they publish.",
+          "hwe uses reasonable means to ensure the availability and security of the service, without being able to guarantee that it will be free of interruptions or errors."
+        ]
+      },
+      {
+        "id": "suspension",
+        "title": "9. Account suspension and deletion",
+        "blocks": [
+          "In the event of a breach of these terms, hwe may suspend or delete an account or a listing, after informing the user unless there is an emergency or legal obligation.",
+          "You can ask for your account to be deleted at any time using the contact details given in the legal notice."
+        ]
+      },
+      {
+        "id": "donnees",
+        "title": "10. Personal data",
+        "blocks": [
+          "How your data is processed is described in the privacy policy."
+        ]
+      },
+      {
+        "id": "modification",
+        "title": "11. Changes to the terms",
+        "blocks": [
+          "hwe may update these terms. Users are informed of significant changes; continued use means acceptance of the new version."
+        ]
+      },
+      {
+        "id": "droit",
+        "title": "12. Governing law and disputes",
+        "blocks": [
+          "These terms are governed by the law of {{TODO}}. In the event of a dispute, the parties first seek an amicable solution. Consumers may use a consumer mediator free of charge: {{TODO}}. Failing that, the competent courts are those designated by law."
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "intro": "This policy explains which personal data hwe processes, why, for how long and what your rights are, in accordance with the General Data Protection Regulation (GDPR).",
+    "sections": [
+      {
+        "id": "responsable",
+        "title": "1. Data controller",
+        "blocks": [
+          "The data controller is the website publisher: {{TODO}} (see the legal notice).",
+          "Data protection officer or « personal data » contact: {{TODO}}"
+        ]
+      },
+      {
+        "id": "donnees",
+        "title": "2. Data collected",
+        "blocks": [
+          [
+            "Account: last name, first name, email address, phone (optional), profile photo (optional), role, password (stored encrypted).",
+            "Listings: property description, address, photos, price, property documents.",
+            "Exchanges: messages, rental or purchase requests, visit requests.",
+            "Rental management: leases, time-stamped electronic signatures, inventories, rent instalments and payment declarations, incidents.",
+            "Supporting documents: identity documents, proof of income or guarantor documents, insurance certificate, which you upload voluntarily.",
+            "Technical data: connection and security logs needed to run the service."
+          ],
+          "hwe does not geolocate you from your IP address. Your language, currency and country preferences are stored only in your browser."
+        ]
+      },
+      {
+        "id": "finalites",
+        "title": "3. Purposes and legal bases",
+        "blocks": [
+          [
+            "Providing the service (account, listings, messaging, leases, rents): performance of the contract (terms of use).",
+            "Securing the platform, preventing fraud and abuse: legitimate interest.",
+            "Sending service emails (address confirmation, password reset, notifications about your requests): performance of the contract.",
+            "Complying with our legal obligations (retention of certain data, answering authorities): legal obligation."
+          ],
+          "No data is sold or used for advertising."
+        ]
+      },
+      {
+        "id": "conservation",
+        "title": "4. Retention periods",
+        "blocks": [
+          [
+            "Account and listings: for as long as the account is used, then deleted or anonymised after it is closed.",
+            "Inactive accounts: {{TODO}}.",
+            "Supporting documents: until you delete them, and at the latest when the account is closed.",
+            "Leases, receipts and rental documents: {{TODO}} (according to applicable limitation periods).",
+            "Technical logs: {{TODO}}."
+          ]
+        ]
+      },
+      {
+        "id": "destinataires",
+        "title": "5. Recipients",
+        "blocks": [
+          [
+            "The other party to a request: the landlord receives your request and, if you choose, your file; the applicant sees the public listing information and the landlord's name.",
+            "Our technical processors: hosting ({{TODO}}) and email delivery ({{TODO}}), bound by confidentiality.",
+            "Authorities, only upon a legally founded request."
+          ],
+          "Landlords' email addresses and phone numbers are not displayed publicly: contact goes through messaging."
+        ]
+      },
+      {
+        "id": "transferts",
+        "title": "6. Transfers outside the European Union",
+        "blocks": [
+          "Server location and any transfers outside the EU: {{TODO}}. Any transfer is subject to appropriate safeguards (European Commission standard contractual clauses or adequacy decision)."
+        ]
+      },
+      {
+        "id": "securite",
+        "title": "7. Security",
+        "blocks": [
+          "Passwords are encrypted, exchanges use a secure connection (HTTPS) and access to supporting documents is restricted to their owner and the people they share them with. No system is infallible: please report any suspicious incident to us."
+        ]
+      },
+      {
+        "id": "droits",
+        "title": "8. Your rights",
+        "blocks": [
+          "You have the right to access, rectify, erase, restrict, object to and port your data, as well as the right to set guidelines for what happens to it after your death.",
+          "To exercise them, write to: {{TODO}}. You will receive an answer within one month.",
+          "If you believe your rights are not respected, you may lodge a complaint with the CNIL (www.cnil.fr) or with the data protection authority of your country."
+        ]
+      },
+      {
+        "id": "cookies",
+        "title": "9. Cookies and local storage",
+        "blocks": [
+          "hwe uses no advertising trackers or third-party analytics. Only strictly necessary items are stored in your browser (local storage):",
+          [
+            "the session token, to keep you signed in to your space;",
+            "your language, display currency, country and theme (light or dark) preferences."
+          ],
+          "These items do not require consent; you can clear them at any time from your browser settings."
+        ]
+      },
+      {
+        "id": "modification",
+        "title": "10. Changes to this policy",
+        "blocks": [
+          "This policy may change. The date of the last update is shown at the top of the page."
+        ]
+      }
+    ]
+  }
+}

@@ -59,6 +59,11 @@ export class RegisterDto {
   @IsString()
   @MaxLength(200)
   agencyInviteToken?: string;
+
+  /** Langue de l'interface (fr, en, es, pt, ar) : e-mails et PDF dans cette langue. */
+  @IsOptional()
+  @IsIn(["fr", "en", "es", "pt", "ar"])
+  locale?: "fr" | "en" | "es" | "pt" | "ar";
 }
 
 export class ActivateOwnerDto {

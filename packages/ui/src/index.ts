@@ -77,7 +77,27 @@ export {
   RATES_DATE,
   convertAmount,
 } from "./components/CurrencyKit";
-export { createI18n, tUi, setUiLang, getUiLang, UI_DICT, countryLabel, type Lang } from "./components/I18nKit";
+export {
+  createI18n,
+  tUi,
+  setUiLang,
+  getUiLang,
+  uiDir,
+  UI_DICT,
+  countryLabel,
+  LangMenu,
+  LANGS,
+  LANG_INFO,
+  LANG_EVENTS,
+  LANG_COOKIE,
+  requestLang,
+  readPref,
+  writePref,
+  readCookie,
+  prefCookieDomain,
+  useDismiss,
+  type Lang,
+} from "./components/I18nKit";
 export { Toaster, toast, type ToastTone } from "./components/Toast";
 export { SafeImage, type SafeImageProps } from "./components/SafeImage";
 export {

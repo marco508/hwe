@@ -5,6 +5,8 @@ import type { Role, User } from "@hwe/types";
 import { commonApi } from "./common-api";
 import { ApiError, isApiError } from "./errors";
 import { AUTH_EVENTS, tokenStore } from "./http";
+import { getUiLang, LANG_EVENTS, requestLang } from "../components/I18nKit";
+import { isLang } from "@hwe/types";
 
 /**
  * Contexte d'authentification partagé (Q1, A1, F4, F5, F6).
@@ -17,6 +19,9 @@ import { AUTH_EVENTS, tokenStore } from "./http";
  *   `emailVerifiedAt` et `avatarUrl` (F5, F6).
  * - Un 403 EMAIL_NOT_VERIFIED reçu n'importe où marque l'e-mail comme non
  *   vérifié → l'encart de vérification s'affiche.
+ * - Langue : à la connexion, User.locale l'emporte (sinon la langue courante
+ *   y est enregistrée) ; un changement de langue d'un utilisateur connecté
+ *   est enregistré dans User.locale (e-mails et PDF dans sa langue).
  */
 
 export type AuthCtx = {
@@ -144,6 +149,35 @@ export function createAuth(options: {
       };
     }, [refresh]);
 
+    // Changement de langue par l'utilisateur connecté → User.locale.
+    const userRef = React.useRef<User | null>(null);
+    userRef.current = user;
+    React.useEffect(() => {
+      const onLang = (e: Event) => {
+        const l = (e as CustomEvent<{ lang?: string }>).detail?.lang;
+        const u = userRef.current;
+        if (!u || !isLang(l) || u.locale === l || !tokenStore.get()) return;
+        commonApi
+          .updateMe({ locale: l })
+          .then(() => setUser((cur) => (cur ? { ...cur, locale: l } : cur)))
+          .catch(() => {
+            /* best effort : le choix reste mémorisé sur l'appareil */
+          });
+      };
+      window.addEventListener(LANG_EVENTS.changed, onLang);
+      return () => window.removeEventListener(LANG_EVENTS.changed, onLang);
+    }, []);
+
+    /** À la connexion : User.locale l'emporte ; à défaut, on y enregistre la langue courante. */
+    const syncLocaleOnLogin = React.useCallback((u: User) => {
+      const saved = u.locale;
+      if (isLang(saved)) {
+        if (saved !== getUiLang()) requestLang(saved);
+        return;
+      }
+      commonApi.updateMe({ locale: getUiLang() }).catch(() => {});
+    }, []);
+
     const establish = React.useCallback(
       async (accessToken: string, u: User): Promise<User> => {
         if (!roleOk(u)) throw new ApiError(403, [], WRONG_ROLE);
@@ -166,9 +200,11 @@ export function createAuth(options: {
     const login = React.useCallback<AuthCtx["login"]>(
       async (email, password) => {
         const r = await commonApi.login({ email: email.trim(), password });
-        return establish(r.accessToken, r.user);
+        const u = await establish(r.accessToken, r.user);
+        syncLocaleOnLogin(u);
+        return u;
       },
-      [establish],
+      [establish, syncLocaleOnLogin],
     );
 
     const register = React.useCallback<AuthCtx["register"]>(
@@ -177,6 +213,7 @@ export function createAuth(options: {
         const r = await commonApi.register({
           ...rest,
           email: input.email.trim(),
+          locale: getUiLang(),
           // Seule une app qui autorise le rôle AGENT peut créer un compte pro.
           role: role && options.allowedRoles.includes(role) ? role : options.registerRole,
         });

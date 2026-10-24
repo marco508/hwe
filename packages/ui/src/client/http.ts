@@ -1,5 +1,6 @@
 import { API_URL } from "./config";
 import { ApiError, isSubscriptionError, parseErrorBody } from "./errors";
+import { getUiLang } from "../components/I18nKit";
 
 /**
  * Cœur HTTP partagé par owner-web et tenant-web (Q1).
@@ -96,6 +97,9 @@ export async function rawRequest(path: string, opts: RequestOptions = {}): Promi
   }
   const token = auth || optionalAuth ? tokenStore.get() : null;
   if (token) headers.set("Authorization", `Bearer ${token}`);
+  // Langue de l'interface : l'API rédige ses messages et libellés dans cette
+  // langue (en-tête « simple » au sens CORS : aucune requête préalable).
+  if (!headers.has("Accept-Language")) headers.set("Accept-Language", getUiLang());
 
   // Délai maximal : un serveur injoignable dont la connexion « pend » (DNS,
   // réseau mobile) doit aboutir à une erreur réessayable, jamais à un écran

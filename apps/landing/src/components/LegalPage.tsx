@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { t, useLang } from "../lib/i18n";
-import { LEGAL_DOCS, TODO_TOKEN, type LegalDocId, type LegalBlock } from "../lib/legal";
+import { legalDoc, TODO_TOKEN, type LegalDocId, type LegalBlock } from "../lib/legal";
 import { SiteProviders, SiteHeader, SiteFooter } from "./SiteShell";
 
 /**
@@ -37,7 +37,7 @@ function withTodos(text: string): React.ReactNode {
 function Block({ block }: { block: LegalBlock }) {
   if (Array.isArray(block)) {
     return (
-      <ul className="list-disc pl-5 space-y-1.5 text-ink-muted leading-relaxed">
+      <ul className="list-disc ps-5 space-y-1.5 text-ink-muted leading-relaxed">
         {block.map((li, i) => (
           <li key={i}>{withTodos(li)}</li>
         ))}
@@ -49,7 +49,7 @@ function Block({ block }: { block: LegalBlock }) {
 
 function LegalInner({ doc }: { doc: LegalDocId }) {
   const { lang } = useLang();
-  const content = LEGAL_DOCS[lang === "en" ? "en" : "fr"][doc];
+  const { content, translated } = legalDoc(lang, doc);
 
   React.useEffect(() => {
     document.title = `${content.title} — hwe`;
@@ -61,12 +61,21 @@ function LegalInner({ doc }: { doc: LegalDocId }) {
       <main className="flex-1 py-12 sm:py-16">
         <article className="container-tight max-w-3xl">
           <a href="/" className="text-sm text-ink-muted hover:text-ink">
-            ← {t("legal.back")}
+            <span className="inline-block rtl:rotate-180">←</span> {t("legal.back")}
           </a>
           <h1 className="display-serif text-4xl sm:text-5xl text-ink mt-6 leading-tight">{content.title}</h1>
           <p className="text-sm text-ink-subtle mt-3">
             {t("legal.updated")} {withTodos(TODO_TOKEN)}
           </p>
+          {translated && (
+            <p
+              role="note"
+              data-legal-translation-note=""
+              className="mt-4 rounded-xl border border-border bg-cream-100/60 dark:bg-white/5 px-4 py-3 text-sm text-ink-muted"
+            >
+              {t("legal.translationNote")}
+            </p>
+          )}
           <p className="text-ink-muted mt-6 leading-relaxed">{content.intro}</p>
 
           <nav aria-label={t("legal.toc")} className="mt-8 rounded-2xl border border-border bg-surface p-5">

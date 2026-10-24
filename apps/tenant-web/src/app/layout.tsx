@@ -1,4 +1,5 @@
 import "./globals.css";
+import { LANG_BOOT_SCRIPT } from "@hwe/types";
 import type { Metadata } from "next";
 import { AppNavbar } from "../components/AppNavbar";
 import { FooterText } from "../components/FooterText";
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
         {/* Anti-flash: apply saved theme before first paint */}
+        <script dangerouslySetInnerHTML={{ __html: LANG_BOOT_SCRIPT }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||(t===null&&d))document.documentElement.classList.add('dark');}catch(e){}})();`,

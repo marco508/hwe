@@ -7,6 +7,7 @@ import { AppModule } from "./app.module";
 import { buildValidationPipe } from "./common/validation";
 import { bodyParserMiddleware, rejectControlCharsInUrl } from "./common/body-limits";
 import { authRateLimitMiddleware } from "./common/rate-limit";
+import { langMiddleware } from "./i18n/i18n";
 
 async function bootstrap() {
   // Body-parser par défaut désactivé : réinstallé plus bas avec des limites
@@ -47,6 +48,10 @@ async function bootstrap() {
   const defaultLimit = process.env.API_BODY_LIMIT ?? "1mb";
   const uploadLimit = process.env.API_UPLOAD_BODY_LIMIT ?? "25mb";
   app.use(bodyParserMiddleware({ defaultLimit, uploadLimit }));
+
+  // Langue de la requête (Accept-Language) : messages d'erreur et libellés.
+  // Après le body-parser : le contexte asynchrone couvre ainsi toute la suite.
+  app.use(langMiddleware);
 
   // 5. Anti-brute-force : login (IP + e-mail), register, forgot/reset,
   //    verify-email, send-verification. Jamais /auth/me.
