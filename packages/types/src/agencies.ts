@@ -58,6 +58,8 @@ export interface AgencyPublic {
 export interface Agency extends AgencyPublic {
   paymentIban: string | null;
   paymentHolder: string | null;
+  /** Devise de facturation de l'abonnement (null = celle du pays). Vue membre seulement. */
+  billingCurrency?: string | null;
   createdAt: string;
   updatedAt: string;
 }

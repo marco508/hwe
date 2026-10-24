@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Res, UseGuards } from "@nestjs/common";
 import { Role, SubscriptionRequestStatus } from "@prisma/client";
 import type { Response } from "express";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -11,6 +11,7 @@ import {
   AdminPaymentDto,
   CreateSubscriptionRequestDto,
   PlanDto,
+  PlanPricesDto,
   PlatformSettingsDto,
   RejectSubscriptionRequestDto,
   UpdatePlanDto,
@@ -148,6 +149,11 @@ export class AdminSubscriptionsController {
   @Patch("plans/:id")
   updatePlan(@Param("id") id: string, @Body() dto: UpdatePlanDto) {
     return this.subs.updatePlan(id, dto);
+  }
+
+  @Put("plans/:id/prices")
+  setPlanPrices(@Param("id") id: string, @Body() dto: PlanPricesDto) {
+    return this.subs.setPlanPrices(id, dto.prices);
   }
 
   @Get("settings")

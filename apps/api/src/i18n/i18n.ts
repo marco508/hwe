@@ -195,7 +195,8 @@ function lookup(dicts: Dicts, lang: Lang, key: string): string | null {
 /**
  * Message d'erreur (rédigé en français dans le code) traduit dans `lang`.
  * Inconnu du catalogue → renvoyé tel quel. Les parties variables capturées
- * sont elles-mêmes traduites si le catalogue les connaît (« fichier » → « file »).
+ * sont elles-mêmes traduites si le catalogue les connaît, ou via la clé
+ * `term.<valeur>` des dictionnaires (« fichier » → `term.fichier` → « file »).
  */
 export function translateError(message: string, lang: Lang): string {
   if (lang === "fr" || !message) return message;
@@ -209,7 +210,7 @@ export function translateError(message: string, lang: Lang): string {
     const params: Params = {};
     p.names.forEach((n, i) => {
       const v = m[i + 1] ?? "";
-      params[n] = lookup(API_ERRORS, lang, v) ?? v;
+      params[n] = lookup(API_ERRORS, lang, v) ?? lookup(API_DICTS, lang, `term.${v}`) ?? v;
     });
     return interpolate(tpl, params);
   }

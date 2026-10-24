@@ -19,6 +19,30 @@ export interface Plan {
   active: boolean;
   position: number;
   isFree: boolean;
+  /** Prix par devise (au moins le prix de base, EUR pour les offres de départ). */
+  prices: PlanPrice[];
+}
+
+export interface PlanPrice {
+  currency: string;
+  monthlyPrice: number;
+}
+
+/** Prix proposé à une agence (ou un visiteur) pour une devise demandée. */
+export interface PlanOffer {
+  /** Devise réellement facturée. */
+  currency: string;
+  monthlyPrice: number;
+  /** Vrai si l'offre a un prix dans la devise demandée ; sinon prix EUR. */
+  exact: boolean;
+  requested: string;
+}
+
+/** Offre telle que vue par une agence (GET /agencies/me/subscription). */
+export interface OfferedPlan extends Plan {
+  offer: PlanOffer;
+  /** « ≈ » indicatif en devise demandée quand on facture dans une autre devise. */
+  approx: { currency: string; monthlyPrice: number } | null;
 }
 
 export interface PublicPlans {
@@ -91,7 +115,9 @@ export interface SubscriptionSummary {
 /** GET /agencies/me/subscription */
 export interface MySubscription extends SubscriptionSummary {
   isManager: boolean;
-  plans: Plan[];
+  /** Devise de facturation : choisie par l'agence, sinon celle de son pays. */
+  billing: { currency: string; source: "AGENCY" | "COUNTRY"; chosen: string | null };
+  plans: OfferedPlan[];
   durations: number[];
   /** Responsable seulement (sinon null / vide). */
   paymentInstructions: string | null;

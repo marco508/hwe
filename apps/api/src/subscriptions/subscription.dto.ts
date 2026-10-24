@@ -1,5 +1,9 @@
 import { Type } from "class-transformer";
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  ValidateNested,
   IsBoolean,
   IsIn,
   IsInt,
@@ -49,6 +53,16 @@ export class AdminAgencySubscriptionDto {
   @IsOptional() @IsBoolean() manualSuspension?: boolean;
 }
 
+/** Prix d'une offre dans une devise. */
+export class PlanPriceDto {
+  @Trim() @IsString() @Matches(/^[A-Z]{3}$/) currency!: string;
+  @Type(() => Number) @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1_000_000_000) monthlyPrice!: number;
+}
+
+export class PlanPricesDto {
+  @IsArray() @ArrayMinSize(1) @ArrayMaxSize(200) @ValidateNested({ each: true }) @Type(() => PlanPriceDto) prices!: PlanPriceDto[];
+}
+
 export class PlanDto {
   @Trim() @IsString() @Matches(/^[A-Z0-9_]{2,30}$/, { message: "code : 2 à 30 caractères A-Z, 0-9, _" }) code!: string;
   @Trim() @IsString() @MinLength(2) @MaxLength(60) name!: string;
@@ -58,6 +72,8 @@ export class PlanDto {
   @IsOptional() @ValidateIf((o) => o.maxActiveMandates !== null) @Type(() => Number) @IsInt() @Min(0) @Max(1000000) maxActiveMandates?: number | null;
   @IsOptional() @IsBoolean() active?: boolean;
   @IsOptional() @Type(() => Number) @IsInt() @Min(0) @Max(1000) position?: number;
+  /** Prix supplémentaires par devise. */
+  @IsOptional() @IsArray() @ArrayMaxSize(200) @ValidateNested({ each: true }) @Type(() => PlanPriceDto) prices?: PlanPriceDto[];
 }
 
 export class UpdatePlanDto {

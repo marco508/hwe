@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength, ValidateIf } from "class-validator";
+import { IsEmail, IsIn, IsOptional, IsString, Matches, MaxLength, MinLength, ValidateIf } from "class-validator";
 import { AgencyRole } from "@prisma/client";
 import { NormalizeEmail, Trim } from "../../common/email.util";
 
@@ -23,6 +23,8 @@ export class UpdateAgencyDto {
   @IsOptional() @ValidateIf((o) => o.description !== null) @IsString() @MaxLength(2000) description?: string | null;
   @IsOptional() @ValidateIf((o) => o.paymentIban !== null) @Trim() @IsString() @MaxLength(80) paymentIban?: string | null;
   @IsOptional() @ValidateIf((o) => o.paymentHolder !== null) @Trim() @IsString() @MaxLength(120) paymentHolder?: string | null;
+  /** Devise de facturation de l'abonnement (ISO 4217) ; null = celle du pays de l'agence. */
+  @IsOptional() @ValidateIf((o) => o.billingCurrency !== null && o.billingCurrency !== "") @IsString() @Matches(/^[A-Z]{3}$/) billingCurrency?: string | null;
 }
 
 export class InviteAgentDto {

@@ -45,6 +45,7 @@ const AGENCY_SELECT = {
   description: true,
   paymentIban: true,
   paymentHolder: true,
+  billingCurrency: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -58,6 +59,7 @@ export function shapeAgency<T extends AgencyRow>(a: T, opts: { publicView?: bool
   if (opts.publicView) {
     delete out.paymentIban;
     delete out.paymentHolder;
+    delete out.billingCurrency;
   }
   return out;
 }
@@ -157,7 +159,7 @@ export class AgenciesService {
     const data: Record<string, unknown> = {};
     for (const k of [
       "name", "email", "phone", "address", "city", "country", "registrationNumber",
-      "description", "paymentIban", "paymentHolder",
+      "description", "paymentIban", "paymentHolder", "billingCurrency",
     ] as const) {
       if (dto[k] !== undefined) data[k] = dto[k] === "" ? null : dto[k];
     }

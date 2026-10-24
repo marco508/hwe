@@ -28,6 +28,8 @@ import {
   reminderFor,
 } from "../common/subscription";
 import { buildInvoicePdf } from "./invoice-pdf";
+import { FxService } from "../fx/fx.service";
+import { basePrice, billingCurrencyOf, normalizePrices, planOffer, type PriceRow } from "./pricing";
 import {
   AdminAgencySubscriptionDto,
   AdminPaymentDto,
@@ -58,14 +60,21 @@ const PLAN_SELECT = {
   maxActiveMandates: true,
   active: true,
   position: true,
+  prices: { select: { currency: true, monthlyPrice: true } },
 } as const;
 
 type PlanRow = Prisma.PlanGetPayload<{ select: typeof PLAN_SELECT }>;
 
-/** Offre → JSON (prix en nombre à 2 décimales). */
+/** Offre → JSON (prix en nombre à 2 décimales ; `prices` : prix par devise). */
 export function shapePlan(p: PlanRow) {
-  return { ...p, monthlyPrice: num(p.monthlyPrice) ?? 0, isFree: p.code === FREE_PLAN_CODE };
+  const monthlyPrice = num(p.monthlyPrice) ?? 0;
+  const prices = normalizePrices(
+    p.prices.length ? p.prices.map((x) => ({ currency: x.currency, monthlyPrice: num(x.monthlyPrice) ?? 0 })) : [{ currency: p.currency, monthlyPrice }],
+  );
+  return { ...p, monthlyPrice, prices, isFree: p.code === FREE_PLAN_CODE };
 }
+
+type ShapedPlan = ReturnType<typeof shapePlan>;
 
 const REQUEST_INCLUDE = {
   plan: { select: PLAN_SELECT },
@@ -98,7 +107,27 @@ export class SubscriptionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailer: MailerService,
+    private readonly fx: FxService,
   ) {}
+
+  // ─────────────────────────── Devises ───────────────────────────
+
+  /** Devise de facturation de l'agence (choisie, sinon celle de son pays). */
+  private async billingOf(agencyId: string) {
+    const a = await this.prisma.agency.findUniqueOrThrow({ where: { id: agencyId }, select: { billingCurrency: true, country: true } });
+    return { ...billingCurrencyOf(a), chosen: a.billingCurrency ?? null };
+  }
+
+  /** Offre dans la devise demandée + « ≈ » indicatif quand on facture dans une autre devise. */
+  private async withOffer(plan: ShapedPlan, requested: string) {
+    const offer = planOffer(plan, requested);
+    let approx: { currency: string; monthlyPrice: number } | null = null;
+    if (offer.currency !== offer.requested) {
+      const v = await this.fx.convert(offer.monthlyPrice, offer.currency, offer.requested);
+      if (v !== null) approx = { currency: offer.requested, monthlyPrice: Math.round(v * 100) / 100 };
+    }
+    return { ...plan, offer, approx };
+  }
 
   // ─────────────────────────── Outils ───────────────────────────
 
@@ -221,7 +250,9 @@ export class SubscriptionsService {
       this.publicPlans(),
       this.prisma.platformSettings.findUnique({ where: { id: 1 } }),
     ]);
-    const base = { ...summary, isManager, plans: plans.plans, durations: [1, 3, 6, 12] };
+    const billing = await this.billingOf(m.agencyId);
+    const offered = await Promise.all(plans.plans.map((p) => this.withOffer(p, billing.currency)));
+    const base = { ...summary, isManager, billing, plans: offered, durations: [1, 3, 6, 12] };
     if (!isManager) return { ...base, paymentInstructions: null, pendingRequest: null, requests: [], payments: [] };
     const [requests, payments] = await Promise.all([
       this.prisma.subscriptionRequest.findMany({
@@ -250,10 +281,13 @@ export class SubscriptionsService {
   /** « J'ai payé » : une seule demande en attente par agence. */
   async createRequest(userId: string, dto: CreateSubscriptionRequestDto) {
     const m = await this.managerOf(userId);
-    const plan = await this.prisma.plan.findUnique({ where: { code: dto.planCode.toUpperCase() } });
-    if (!plan || !plan.active || plan.code === FREE_PLAN_CODE) {
+    const row = await this.prisma.plan.findUnique({ where: { code: dto.planCode.toUpperCase() }, select: PLAN_SELECT });
+    if (!row || !row.active || row.code === FREE_PLAN_CODE) {
       throw new BadRequestException({ statusCode: 400, code: "PLAN_NOT_FOUND", message: "Offre inconnue ou indisponible." });
     }
+    const plan = shapePlan(row);
+    // Prix dans la devise de facturation de l'agence s'il existe, sinon en EUR.
+    const offer = planOffer(plan, (await this.billingOf(m.agencyId)).currency);
     const already = () =>
       new ConflictException({
         statusCode: 409,
@@ -269,8 +303,8 @@ export class SubscriptionsService {
           agencyId: m.agencyId,
           planId: plan.id,
           months: dto.months,
-          amount: plan.monthlyPrice.mul(dto.months),
-          currency: plan.currency,
+          amount: new Prisma.Decimal(offer.monthlyPrice).mul(dto.months),
+          currency: offer.currency,
           method: dto.method,
           reference: dto.reference,
           note: dto.note?.trim() || null,
@@ -614,10 +648,13 @@ export class SubscriptionsService {
 
   async adminRecordPayment(adminId: string, agencyId: string, dto: AdminPaymentDto) {
     await this.adminAgency(agencyId);
-    const plan = await this.prisma.plan.findUnique({ where: { code: dto.planCode.toUpperCase() } });
-    if (!plan || plan.code === FREE_PLAN_CODE) {
+    const row = await this.prisma.plan.findUnique({ where: { code: dto.planCode.toUpperCase() }, select: PLAN_SELECT });
+    if (!row || row.code === FREE_PLAN_CODE) {
       throw new BadRequestException({ statusCode: 400, code: "PLAN_NOT_FOUND", message: "Offre inconnue." });
     }
+    // Même règle que la déclaration de l'agence : sa devise de facturation si l'offre y a un prix, sinon EUR.
+    const offer = planOffer(shapePlan(row), (await this.billingOf(agencyId)).currency);
+    const plan = { id: row.id, monthlyPrice: new Prisma.Decimal(offer.monthlyPrice), currency: offer.currency };
     const p = await this.prisma.$transaction((tx) =>
       this.recordPayment(tx, agencyId, plan, dto.months, dto.method, dto.reference?.trim() || null, adminId, null),
     );
@@ -659,6 +696,12 @@ export class SubscriptionsService {
         maxActiveMandates: dto.maxActiveMandates ?? null,
         active: dto.active ?? true,
         position: dto.position ?? 0,
+        prices: {
+          create: normalizePrices([{ currency: dto.currency ?? "EUR", monthlyPrice: dto.monthlyPrice }, ...(dto.prices ?? [])]).map((x) => ({
+            currency: x.currency,
+            monthlyPrice: new Prisma.Decimal(x.monthlyPrice),
+          })),
+        },
       },
       select: PLAN_SELECT,
     });
@@ -677,9 +720,40 @@ export class SubscriptionsService {
     if (dto.maxActiveMandates !== undefined) data.maxActiveMandates = dto.maxActiveMandates;
     if (dto.active !== undefined) data.active = dto.active;
     if (dto.position !== undefined) data.position = dto.position;
-    const p = await this.prisma.plan.update({ where: { id }, data, select: PLAN_SELECT });
+    await this.prisma.plan.update({ where: { id }, data });
+    // Le prix de base (colonnes historiques) reste aussi un prix par devise.
+    if (dto.monthlyPrice !== undefined || dto.currency !== undefined) {
+      const fresh = await this.prisma.plan.findUniqueOrThrow({ where: { id } });
+      await this.prisma.planPrice.upsert({
+        where: { planId_currency: { planId: id, currency: fresh.currency.toUpperCase() } },
+        create: { planId: id, currency: fresh.currency.toUpperCase(), monthlyPrice: fresh.monthlyPrice },
+        update: { monthlyPrice: fresh.monthlyPrice },
+      });
+    }
     invalidateSubscriptionCache();
-    return shapePlan(p);
+    return shapePlan(await this.prisma.plan.findUniqueOrThrow({ where: { id }, select: PLAN_SELECT }));
+  }
+
+  /** PUT /admin/plans/:id/prices — remplace les prix par devise d'une offre. */
+  async setPlanPrices(id: string, rows: PriceRow[]) {
+    const plan = await this.prisma.plan.findUnique({ where: { id } });
+    if (!plan) throw new NotFoundException({ statusCode: 404, code: "PLAN_NOT_FOUND", message: "Offre introuvable." });
+    const prices = normalizePrices(rows);
+    const base = basePrice(prices);
+    if (!base) throw new BadRequestException({ statusCode: 400, code: "PRICES_REQUIRED", message: "Indiquez au moins un prix." });
+    await this.prisma.$transaction([
+      this.prisma.planPrice.deleteMany({ where: { planId: id, currency: { notIn: prices.map((p) => p.currency) } } }),
+      ...prices.map((p) =>
+        this.prisma.planPrice.upsert({
+          where: { planId_currency: { planId: id, currency: p.currency } },
+          create: { planId: id, currency: p.currency, monthlyPrice: new Prisma.Decimal(p.monthlyPrice) },
+          update: { monthlyPrice: new Prisma.Decimal(p.monthlyPrice) },
+        }),
+      ),
+      this.prisma.plan.update({ where: { id }, data: { monthlyPrice: new Prisma.Decimal(base.monthlyPrice), currency: base.currency } }),
+    ]);
+    invalidateSubscriptionCache();
+    return shapePlan(await this.prisma.plan.findUniqueOrThrow({ where: { id }, select: PLAN_SELECT }));
   }
 
   // Paramètres
