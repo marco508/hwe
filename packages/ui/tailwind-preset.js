@@ -79,13 +79,15 @@ module.exports = {
       fontFamily: {
         sans: [
           "Inter",
+          // Glyphes arabes (Inter et Fraunces n'en ont pas) : repli glyphe par glyphe.
+          "\"Noto Sans Arabic\"",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
           "Segoe UI",
           "sans-serif",
         ],
-        display: ["\"Fraunces\"", "\"Cormorant Garamond\"", "Georgia", "serif"],
+        display: ["\"Fraunces\"", "\"Noto Naskh Arabic\"", "\"Cormorant Garamond\"", "Georgia", "serif"],
       },
       letterSpacing: {
         tightest: "-0.03em",
