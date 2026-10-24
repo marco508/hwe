@@ -1,5 +1,5 @@
 import { APP_TIME_ZONE } from "../common/dates";
-import { longDay, money, monthYear, planText, shortDate, shortTime, t, type Lang } from "../i18n/i18n";
+import { longDay, money, monthYear, planText, platformPhrases, shortDate, shortTime, t, type Lang } from "../i18n/i18n";
 
 /**
  * Gabarits des e-mails (fonctions pures, testées) : sujet + texte dans la
@@ -289,6 +289,18 @@ export function notice(lang: Lang, d: { name: string; base: string; params: Noti
   if (typeof d.params.planCode === "string" && typeof d.params.plan === "string") {
     p.plan = planText(lang, { code: d.params.planCode, name: d.params.plan });
   }
+  // Réglages de l'abonnement (lus en base par l'appelant) mis en mots dans la langue.
+  const num = (x: unknown) => (typeof x === "number" ? x : x === null ? null : undefined);
+  Object.assign(
+    p,
+    platformPhrases(lang, {
+      graceDays: typeof d.params.graceDays === "number" ? d.params.graceDays : undefined,
+      freeAgents: num(d.params.freeAgents),
+      freeMandates: num(d.params.freeMandates),
+    }),
+  );
+  // Suite sans paiement : offre gratuite ou lecture seule (selon PlatformSettings), avec ou sans grâce.
+  if (typeof d.params.afterKind === "string") p.after = t(lang, `mail.sub.after.${d.params.afterKind}`, p);
   // Pluriel (Intl.PluralRules) : `count` = nombre de jours (`n`) ou de mois (`months`).
   if (p.count === undefined) {
     const c = typeof d.params.n === "number" ? d.params.n : typeof d.params.months === "number" ? d.params.months : undefined;

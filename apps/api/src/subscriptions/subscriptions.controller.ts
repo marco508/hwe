@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Header, Param, Patch, Post, Put, Query, Res, UseGuards } from "@nestjs/common";
 import { Role, SubscriptionRequestStatus } from "@prisma/client";
 import type { Response } from "express";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -31,7 +31,9 @@ const clip = (q?: string) => (typeof q === "string" && q.trim() ? q.trim().slice
 export class PlansController {
   constructor(private readonly subs: SubscriptionsService) {}
 
+  // Cache court : une modification de l'admin est visible partout en moins d'une minute.
   @Get()
+  @Header("Cache-Control", "public, max-age=30")
   list() {
     return this.subs.publicPlans();
   }

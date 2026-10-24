@@ -45,8 +45,19 @@ export interface OfferedPlan extends Plan {
   approx: { currency: string; monthlyPrice: number } | null;
 }
 
+/**
+ * GET /plans (public) : réglages de l'abonnement repris dans les textes des
+ * fronts (landing, inscription, CGU, espace pro) et offres actives.
+ */
 export interface PublicPlans {
   trialDays: number;
+  graceDays: number;
+  /** Offre gratuite activée (sinon : lecture seule après l'essai et la grâce, sans paiement). */
+  freePlanEnabled: boolean;
+  /** Limites de l'offre gratuite (null = illimité), même si elle est désactivée. */
+  freeLimits: { maxAgents: number | null; maxActiveMandates: number | null };
+  /** Prix mensuel de base de l'offre payante la moins chère (EUR s'il existe), null sans offre payante. */
+  minPrice: PlanPrice | null;
   /** Offre gratuite si elle est activée, sinon null. */
   freePlan: Plan | null;
   plans: Plan[];

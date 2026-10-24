@@ -134,11 +134,18 @@ test("e-mails en français : texte identique à l'historique", () => {
   const o = mail.ownerInvite("fr", { name: "Awa", agencyName: "Immo Plus", propertyTitles: ["Villa", "T2"], url: "https://x/activer/t" });
   assert.equal(o.subject, "hwe — Immo Plus gère votre bien : activez votre espace");
   assert.match(o.text, /^Bonjour Awa,\n\nImmo Plus gère « Villa », « T2 » sur hwe et a créé votre espace propriétaire\.\n/);
-  const n = mail.notice("fr", { name: "Moussa", base: "sub.reminderDays", params: { agency: "Immo Plus", n: 1, end: new Date("2026-11-05T10:00:00Z") }, url: "https://x/pro/abonnement" });
+  const n = mail.notice("fr", {
+    name: "Moussa",
+    base: "sub.reminderDays",
+    params: { agency: "Immo Plus", n: 1, end: new Date("2026-11-05T10:00:00Z"), graceDays: 7, freeAgents: 1, freeMandates: 2, afterKind: "FREE" },
+    url: "https://x/pro/abonnement",
+  });
   assert.equal(n.subject, "hwe — abonnement de Immo Plus : fin dans 1 jour");
   assert.equal(
     n.text,
-    "Bonjour Moussa,\n\nLa période en cours (essai ou abonnement) de « Immo Plus » se termine le 05/11/2026. Réglez votre abonnement pour continuer sans limite.\n\nhttps://x/pro/abonnement\n\nhwe",
+    "Bonjour Moussa,\n\nLa période en cours (essai ou abonnement) de « Immo Plus » se termine le 05/11/2026. " +
+      "Sans paiement, vous disposerez ensuite de 7 jours de grâce, puis l'agence passera à l'offre gratuite, limitée à 1 agent et 2 mandats actifs. " +
+      "Réglez votre abonnement pour continuer sans limite.\n\nhttps://x/pro/abonnement\n\nhwe",
   );
   const m = mail.mandateProposed("fr", { name: "Awa", agencyName: "Immo Plus", propertyTitles: null, url: "u" });
   assert.match(m.text, /Immo Plus vous propose de gérer un ou plusieurs de vos biens\./);

@@ -18,6 +18,7 @@ import { agencyLogoUrl } from "../common/media.util";
 import { ownerWebBase } from "../agencies/agency.util";
 import {
   AgencySubscription,
+  FREE_FALLBACK,
   FREE_PLAN_CODE,
   ReminderKind,
   daysLeft,
@@ -210,8 +211,8 @@ export class SubscriptionsService {
       usage,
       freePlan: {
         enabled: sub.settings.freePlanEnabled,
-        maxAgents: freePlan?.maxAgents ?? 1,
-        maxActiveMandates: freePlan?.maxActiveMandates ?? 2,
+        maxAgents: freePlan ? freePlan.maxAgents : FREE_FALLBACK.maxAgents,
+        maxActiveMandates: freePlan ? freePlan.maxActiveMandates : FREE_FALLBACK.maxActiveMandates,
       },
       graceDays: sub.settings.graceDays,
       trialDays: sub.settings.trialDays,
@@ -221,17 +222,33 @@ export class SubscriptionsService {
 
   // ─────────────────────────── Public ───────────────────────────
 
-  /** GET /plans : offres actives (landing, page abonnement). */
+  /**
+   * GET /plans (public, léger) : réglages de l'abonnement repris dans tous les
+   * textes des fronts (essai, grâce, offre gratuite, prix « à partir de ») et
+   * offres actives. Source unique : la base (PlatformSettings, Plan, PlanPrice).
+   */
   async publicPlans() {
-    const [{ settings }, plans] = await Promise.all([
+    const [{ settings, free: freeLimits }, plans] = await Promise.all([
       loadSettings(this.prisma),
       this.prisma.plan.findMany({ where: { active: true }, select: PLAN_SELECT, orderBy: [{ position: "asc" }, { monthlyPrice: "asc" }] }),
     ]);
     const free = plans.find((p) => p.code === FREE_PLAN_CODE);
+    const paid = plans.filter((p) => p.code !== FREE_PLAN_CODE).map(shapePlan);
+    // Prix « à partir de » : la moins chère des offres payantes, prix de base (EUR s'il existe).
+    const bases = paid.map((p) => planOffer(p, "EUR")).filter((o) => o.monthlyPrice > 0);
+    const minPrice = bases.length
+      ? bases.reduce((a, b) => (b.monthlyPrice < a.monthlyPrice ? b : a))
+      : null;
+    // Limites de l'offre gratuite : ligne FREE (même inactive), sinon valeurs de repli.
+    const limits = freeLimits ?? FREE_FALLBACK;
     return {
       trialDays: settings.trialDays,
+      graceDays: settings.graceDays,
+      freePlanEnabled: settings.freePlanEnabled,
+      freeLimits: { maxAgents: limits.maxAgents, maxActiveMandates: limits.maxActiveMandates },
+      minPrice: minPrice ? { currency: minPrice.currency, monthlyPrice: minPrice.monthlyPrice } : null,
       freePlan: settings.freePlanEnabled && free ? shapePlan(free) : null,
-      plans: plans.filter((p) => p.code !== FREE_PLAN_CODE).map(shapePlan),
+      plans: paid,
     };
   }
 
@@ -414,18 +431,29 @@ export class SubscriptionsService {
 
   // ─────────────────────────── Rappels ───────────────────────────
 
-  /** Rappel → clé d'e-mail `mail.sub.<kind>` et paramètres (dates formatées par destinataire). */
-  private reminderNotice(kind: ReminderKind, agencyName: string, end: Date | null, s: { graceDays: number }) {
+  /**
+   * Rappel → clé d'e-mail `mail.sub.<kind>` et paramètres (dates formatées par
+   * destinataire). Durée de grâce, offre gratuite (activée ou non) et ses
+   * limites : toujours lues en base, jamais de constantes.
+   */
+  private async reminderNotice(kind: ReminderKind, agencyName: string, end: Date | null, s: { graceDays: number; freePlanEnabled: boolean }) {
     const graceEnd = end ? new Date(end.getTime() + s.graceDays * 24 * 3600 * 1000) : null;
+    const { free } = await loadSettings(this.prisma);
+    const limits = free ?? FREE_FALLBACK;
+    const rules = { graceDays: s.graceDays, freeAgents: limits.maxAgents, freeMandates: limits.maxActiveMandates };
+    const next = s.freePlanEnabled ? "FREE" : "SUSPENDED";
     switch (kind) {
       case "D15":
       case "D7":
       case "D1":
-        return { kind: "reminderDays", params: { agency: agencyName, n: kind === "D15" ? 15 : kind === "D7" ? 7 : 1, end } };
+        return {
+          kind: "reminderDays",
+          params: { agency: agencyName, n: kind === "D15" ? 15 : kind === "D7" ? 7 : 1, end, ...rules, afterKind: s.graceDays > 0 ? next : `${next}_NOGRACE` },
+        };
       case "GRACE":
-        return { kind: "grace", params: { agency: agencyName, end, graceEnd } };
+        return { kind: "grace", params: { agency: agencyName, end, graceEnd, ...rules, afterKind: `${next}_AFTERGRACE` } };
       case "FREE":
-        return { kind: "free", params: { agency: agencyName } };
+        return { kind: "free", params: { agency: agencyName, ...rules } };
       default:
         return { kind: "suspended", params: { agency: agencyName } };
     }
@@ -447,7 +475,7 @@ export class SubscriptionsService {
       where: { agencyMember: { agencyId, role: "MANAGER" } },
       select: { email: true, firstName: true },
     });
-    const { kind, params } = this.reminderNotice(r.kind, agency.name, r.end, sub.settings);
+    const { kind, params } = await this.reminderNotice(r.kind, agency.name, r.end, sub.settings);
     for (const u of managers) {
       this.mailer.subscriptionNotice(u.email, u.firstName, kind, params, `${ownerWebBase()}/pro/abonnement`).catch(() => {});
     }

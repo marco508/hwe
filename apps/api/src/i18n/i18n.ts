@@ -102,6 +102,26 @@ export function planText(lang: Lang, plan: { code: string; name: string }): stri
   return isDefaultPlanName(plan.code, plan.name) ? t(lang, `plan.name.${plan.code}`) : plan.name;
 }
 
+/**
+ * Réglages de l'abonnement mis en mots dans la langue (e-mails) : « 7 jours »,
+ * « 1 agent », « 2 mandats actifs » (pluriels Intl ; null = illimité). Les
+ * valeurs viennent toujours de la base (PlatformSettings, offre FREE).
+ */
+export function platformPhrases(
+  lang: Lang,
+  v: { graceDays?: number | null; freeAgents?: number | null; freeMandates?: number | null },
+): Params {
+  const out: Params = {};
+  if (typeof v.graceDays === "number") out.graceDays = t(lang, "plat.days", { count: v.graceDays });
+  if (v.freeAgents !== undefined) {
+    out.freeAgents = v.freeAgents === null ? t(lang, "plat.agentsUnl") : t(lang, "plat.agents", { count: v.freeAgents });
+  }
+  if (v.freeMandates !== undefined) {
+    out.freeMandates = v.freeMandates === null ? t(lang, "plat.mandatesUnl") : t(lang, "plat.mandates", { count: v.freeMandates });
+  }
+  return out;
+}
+
 // ───────────────────────── Formats ─────────────────────────
 
 export function intlLocale(lang: Lang): string {
