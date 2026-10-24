@@ -87,23 +87,65 @@ export function interpolate(text: string, params?: Record<string, string | numbe
   return out;
 }
 
-/** Texte d'une clé avec repli langue → en → fr ; la clé seulement si fr l'ignore aussi. */
-export function translate(
-  dicts: Dicts,
-  lang: Lang,
-  key: string,
-  params?: Record<string, string | number | null | undefined>,
-): string {
+// ───────────── Pluriels (Intl.PluralRules) ─────────────
+//
+// Convention : une clé plurielle est une FAMILLE `base.<catégorie>` avec les
+// catégories CLDR de la langue — fr/en/es/pt : `one`, `other` ; ar : `zero`,
+// `one`, `two`, `few`, `many`, `other`. Passer `{ count: n }` à t() choisit la
+// forme de la langue (`base.<catégorie>`, sinon `base.other`, sinon `base`
+// tout court) ; `{count}` est remplacé dans le texte comme tout paramètre.
+// Rétrocompatible : sans `count`, ou sans famille, la clé simple est utilisée.
+
+export const PLURAL_CATEGORIES = ["zero", "one", "two", "few", "many", "other"] as const;
+export type PluralCategory = (typeof PLURAL_CATEGORIES)[number];
+
+const pluralRulesCache = new Map<string, Intl.PluralRules>();
+
+/** Catégorie plurielle CLDR de `count` dans la langue (« other » si Intl indisponible). */
+export function pluralCategory(lang: Lang, count: number): PluralCategory {
+  try {
+    const loc = intlLocaleOf(lang);
+    let pr = pluralRulesCache.get(loc);
+    if (!pr) {
+      pr = new Intl.PluralRules(loc);
+      pluralRulesCache.set(loc, pr);
+    }
+    return pr.select(count) as PluralCategory;
+  } catch {
+    return count === 1 ? "one" : "other";
+  }
+}
+
+type Params = Record<string, string | number | null | undefined>;
+
+function pick(dict: Dict | undefined, lang: Lang, key: string, params?: Params): string | null {
+  if (!dict) return null;
+  const count = params?.count;
+  if (typeof count === "number" && Number.isFinite(count)) {
+    for (const k of [`${key}.${pluralCategory(lang, count)}`, `${key}.other`]) {
+      const v = dict[k];
+      if (typeof v === "string" && v !== "") return v;
+    }
+  }
+  const v = dict[key];
+  return typeof v === "string" && v !== "" ? v : null;
+}
+
+/**
+ * Texte d'une clé avec repli langue → en → fr ; la clé seulement si fr l'ignore
+ * aussi. Avec `params.count` (nombre), forme plurielle de la langue (voir plus haut).
+ */
+export function translate(dicts: Dicts, lang: Lang, key: string, params?: Params): string {
   for (const l of fallbackChain(lang)) {
-    const v = dicts[l]?.[key];
-    if (typeof v === "string" && v !== "") return interpolate(v, params);
+    const v = pick(dicts[l], l, key, params);
+    if (v !== null) return interpolate(v, params);
   }
   return interpolate(key, params);
 }
 
-/** Vrai si une traduction existe (dans la langue ou ses replis). */
+/** Vrai si une traduction existe (dans la langue ou ses replis), clé simple ou famille plurielle. */
 export function hasKey(dicts: Dicts, lang: Lang, key: string): boolean {
-  return fallbackChain(lang).some((l) => typeof dicts[l]?.[key] === "string" && dicts[l]![key] !== "");
+  return fallbackChain(lang).some((l) => pick(dicts[l], l, key, { count: 2 }) !== null);
 }
 
 /** Cookie du domaine parent qui porte la langue (partagé entre les 3 apps). */

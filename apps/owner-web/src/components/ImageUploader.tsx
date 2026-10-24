@@ -26,7 +26,7 @@ export function ImageUploader({ value, onChange, maxImages = 20 }: ImageUploader
   const addFiles = async (files: FileList | File[]) => {
     const all = Array.from(files);
     const arr = all.filter((f) => (IMAGE_MIME_TYPES as readonly string[]).includes(f.type));
-    if (arr.length < all.length) toast.error(t("pf.up.rejected", { n: all.length - arr.length }));
+    if (arr.length < all.length) toast.error(t("pf.up.rejected", { count: all.length - arr.length }));
     const remaining = maxImages - value.length;
     const toProcess = arr.slice(0, Math.max(0, remaining));
     if (arr.length > toProcess.length) toast.info(t("pf.up.limit", { max: maxImages }));
@@ -118,8 +118,8 @@ export function ImageUploader({ value, onChange, maxImages = 20 }: ImageUploader
           <p className="text-xs text-ink-muted">
             {t("pf.up.formats", { max: maxImages })}{" "}
             {value.length > 0 &&
-              t(value.length > 1 ? "pf.up.addedPlural" : "pf.up.added", {
-                n: value.length,
+              t("pf.up.added", {
+                count: value.length,
                 max: maxImages,
               })}
           </p>

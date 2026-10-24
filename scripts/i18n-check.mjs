@@ -8,6 +8,15 @@
 //   - placeholders {x} incohérents : inconnus de fr (erreur) ou omis par la
 //     traduction (signalé ; parfois voulu : accord du pluriel français…).
 //
+// Pluriels (Intl.PluralRules) : une famille `base.one` + `base.other` en fr
+// (+ `zero`/`two`/`few`/`many` selon la langue) se compare selon les règles
+// de CHAQUE langue. Formes attendues = catégories atteintes par les entiers
+// 0 à 1000 (fr/en/es/pt : one, other ; ar : zero, one, two, few, many,
+// other). Toute catégorie CLDR de la langue est admise (jamais « en trop ») ;
+// une forme de fr que la langue n'a pas n'est pas « manquante ». Placeholders
+// d'une forme comparés à `base.other` de fr ; `{count}` peut être omis
+// (« عقار واحد »).
+//
 // Options :
 //   --verbose          liste les clés concernées
 //   --lang=es          une seule langue
@@ -73,6 +82,34 @@ function flatten(obj, prefix = "", out = {}) {
   }
   return out;
 }
+
+// ───────────── Pluriels ─────────────
+
+const INTL = { fr: "fr-FR", en: "en-GB", es: "es-ES", pt: "pt-PT", ar: "ar-u-nu-latn" };
+const CATS = ["zero", "one", "two", "few", "many", "other"];
+const pluralInfo = Object.fromEntries(
+  Object.entries(INTL).map(([l, loc]) => {
+    const pr = new Intl.PluralRules(loc);
+    const all = new Set(pr.resolvedOptions().pluralCategories);
+    const required = new Set(["other"]);
+    for (let i = 0; i <= 1000; i++) required.add(pr.select(i));
+    return [l, { all, required: CATS.filter((c) => required.has(c)) }];
+  }),
+);
+
+/** Bases des familles plurielles de fr (`base.one` et `base.other` présents). */
+function pluralBases(fr) {
+  const bases = new Set();
+  for (const k of Object.keys(fr)) {
+    const m = /^(.+)\.other$/.exec(k);
+    if (m && `${m[1]}.one` in fr) bases.add(m[1]);
+  }
+  return bases;
+}
+const pluralSplit = (k) => {
+  const m = /^(.+)\.(zero|one|two|few|many|other)$/.exec(k);
+  return m ? { base: m[1], cat: m[2] } : null;
+};
 
 const placeholders = (s) => [...new Set([...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]))].sort();
 
@@ -250,7 +287,11 @@ for (const [name, rel] of GROUPS) {
     continue;
   }
   const fr = flatten(readJson(path.join(dir, "fr.json")) || {});
-  const refKeys = Object.keys(fr);
+  const bases = pluralBases(fr);
+  const inFamily = (k) => {
+    const p = pluralSplit(k);
+    return p && bases.has(p.base) ? p : null;
+  };
   for (const lang of LANGS) {
     if (onlyLang && lang !== onlyLang) continue;
     const raw = readJson(path.join(dir, `${lang}.json`));
@@ -260,13 +301,32 @@ for (const [name, rel] of GROUPS) {
       continue;
     }
     const dict = flatten(raw);
+    const info = pluralInfo[lang];
+    // Clés attendues dans cette langue : clés simples de fr + formes requises de chaque famille.
+    const refKeys = [
+      ...Object.keys(fr).filter((k) => !inFamily(k)),
+      ...[...bases].flatMap((b) => info.required.map((c) => `${b}.${c}`)),
+    ];
+    // Texte de référence fr d'une clé (forme plurielle → même catégorie en fr, sinon `other`).
+    const refText = (k) => {
+      const p = inFamily(k);
+      return p ? fr[k] ?? fr[`${p.base}.other`] : fr[k];
+    };
     const missing = refKeys.filter((k) => typeof dict[k] !== "string" || dict[k].trim() === "");
-    const extra = Object.keys(dict).filter((k) => !(k in fr));
+    const extra = Object.keys(dict).filter((k) => {
+      if (k in fr && !inFamily(k)) return false;
+      const p = inFamily(k);
+      return !(p && info.all.has(p.cat));
+    });
+    const phOf = (k, text) => {
+      const ph = placeholders(text);
+      return inFamily(k) ? ph.filter((x) => x !== "count") : ph;
+    };
     const badPh = refKeys
       .filter((k) => typeof dict[k] === "string" && dict[k].trim() !== "")
-      .filter((k) => placeholders(fr[k]).join() !== placeholders(dict[k]).join())
+      .filter((k) => phOf(k, refText(k)).join() !== phOf(k, dict[k]).join())
       .map((k) => {
-        const a = placeholders(fr[k]);
+        const a = placeholders(refText(k));
         const b = placeholders(dict[k]);
         return { key: k, fr: a, [lang]: b, unknown: b.filter((x) => !a.includes(x)) };
       });
@@ -274,7 +334,7 @@ for (const [name, rel] of GROUPS) {
     const unknownPh = badPh.filter((p) => p.unknown.length > 0);
     if (extra.length || unknownPh.length || (lang === "en" && missing.length)) failing = true;
     if (has("--strict") && missing.length) failing = true;
-    report.push({ group: name, lang, total: refKeys.length, missing, extra, placeholders: badPh });
+    report.push({ group: name, lang, total: refKeys.length, plurals: bases.size, missing, extra, placeholders: badPh });
   }
 }
 
@@ -282,7 +342,7 @@ if (has("--json")) {
   console.log(JSON.stringify({ report, totals, failing }, null, 2));
 } else {
   const pad = (s, w) => String(s).padEnd(w);
-  console.log(`${pad("dictionnaire", 15)}${pad("langue", 8)}${pad("clés fr", 9)}${pad("manquantes", 12)}${pad("en trop", 9)}placeholders (inconnus/omis)`);
+  console.log(`${pad("dictionnaire", 15)}${pad("langue", 8)}${pad("clés", 9)}${pad("manquantes", 12)}${pad("en trop", 9)}placeholders (inconnus/omis)`);
   for (const r of report) {
     if (r.error) {
       console.log(`${pad(r.group, 15)}${pad(r.lang ?? "", 8)}${r.error}`);
@@ -300,6 +360,9 @@ if (has("--json")) {
         );
     }
   }
+  console.log(
+    `\nPluriels (Intl.PluralRules) : ${LANGS.filter((l) => !onlyLang || l === onlyLang).map((l) => `${l} ${pluralInfo[l].required.join("/")}`).join(" · ")} — ${report.reduce((n, r) => n + (r.lang === (onlyLang ?? "en") ? r.plurals ?? 0 : 0), 0)} familles`,
+  );
   console.log(`\nClés à traduire par langue : ${LANGS.filter((l) => !onlyLang || l === onlyLang).map((l) => `${l} ${totals[l]}`).join(" · ")}`);
 }
 process.exit(failing ? 1 : 0);

@@ -81,7 +81,7 @@ export function buildInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
     row(
       L("line", {
         plan: data.planName,
-        months: data.months,
+        count: data.months,
         monthly: M(data.monthlyPrice),
         start: jour(data.periodStart),
         end: jour(data.periodEnd),

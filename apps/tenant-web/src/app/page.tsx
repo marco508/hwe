@@ -424,7 +424,7 @@ export default function HomePage() {
       {/* Pagination réelle (F15) : total connu, chargement par lots. */}
       {!loading && !error && items.length > 0 && (
         <div className="mt-10 flex flex-col items-center gap-3 text-sm text-ink-muted">
-          <span>{t("fix.home.shown", { n: items.length, total })}</span>
+          <span>{t("fix.home.shown", { count: items.length, total })}</span>
           {items.length < total && (
             <Button variant="secondary" onClick={loadMore} disabled={loadingMore}>
               {loadingMore ? t("com.loading") : t("fix.home.more")}

@@ -83,7 +83,7 @@ export function rentReminder(lang: Lang, d: { tenantName: string; period: Period
 
 export function leaseExpiry(lang: Lang, d: { name: string; propertyTitle: string; daysLeft: number; isOwner: boolean }): MailContent {
   const when =
-    d.daysLeft <= 0 ? t(lang, "mail.when.today") : d.daysLeft === 1 ? t(lang, "mail.when.tomorrow") : t(lang, "mail.when.inDays", { n: d.daysLeft });
+    d.daysLeft <= 0 ? t(lang, "mail.when.today") : d.daysLeft === 1 ? t(lang, "mail.when.tomorrow") : t(lang, "mail.when.inDays", { count: d.daysLeft });
   const p = { title: d.propertyTitle, when };
   const who = d.isOwner ? "owner" : "tenant";
   return {
@@ -279,16 +279,19 @@ export type NoticeParams = Record<string, string | number | Date | null | undefi
 
 /**
  * Avis « sujet + phrase + lien » (mandats, abonnement) : clés
- * `mail.<base>.subject` (ou `.subjectMany` si `n` > 1) et `mail.<base>.body`.
+ * `mail.<base>.subject` et `mail.<base>.body` (familles plurielles choisies par `count`, sinon `n` ou `months`).
  * Les dates des paramètres sont formatées dans la langue (jj/mm/aaaa, fuseau de la plateforme).
  */
 export function notice(lang: Lang, d: { name: string; base: string; params: NoticeParams; url: string }): MailContent {
   const p: P = {};
   for (const [k, v] of Object.entries(d.params)) p[k] = v instanceof Date ? shortDate(lang, v, APP_TIME_ZONE) : v;
-  const many = typeof d.params.n === "number" && d.params.n > 1;
-  const subjectKey = many ? `mail.${d.base}.subjectMany` : `mail.${d.base}.subject`;
+  // Pluriel (Intl.PluralRules) : `count` = nombre de jours (`n`) ou de mois (`months`).
+  if (p.count === undefined) {
+    const c = typeof d.params.n === "number" ? d.params.n : typeof d.params.months === "number" ? d.params.months : undefined;
+    if (c !== undefined) p.count = c;
+  }
   return {
-    subject: subject(lang, subjectKey, p),
+    subject: subject(lang, `mail.${d.base}.subject`, p),
     text: compose(lang, d.name, `${t(lang, `mail.${d.base}.body`, p)}\n\n${d.url}`),
   };
 }

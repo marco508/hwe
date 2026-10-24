@@ -93,7 +93,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({
     <div ref={rootRef} className={cn("relative", className)}>
       <button
         type="button"
-        aria-label={`${label}${unreadCount > 0 ? ` (${tUi("ui.unreadCount", { n: unreadCount })})` : ""}`}
+        aria-label={`${label}${unreadCount > 0 ? ` (${tUi("ui.unreadCount", { count: unreadCount })})` : ""}`}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}

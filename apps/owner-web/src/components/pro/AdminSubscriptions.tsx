@@ -83,7 +83,7 @@ export function AdminSubscriptions({ q }: { q: string }) {
                     {r.agency.name} <span className="font-mono text-xs text-ink-muted">{r.agency.code}</span>
                   </p>
                   <p className="text-ink-muted [overflow-wrap:anywhere]">
-                    {r.plan.name} · {t("sub.months", { n: r.months })} · <strong className="text-ink">{fmtMoney(r.amount, r.currency)}</strong> ·{" "}
+                    {r.plan.name} · {t("sub.months", { count: r.months })} · <strong className="text-ink">{fmtMoney(r.amount, r.currency)}</strong> ·{" "}
                     {t(`sub.method.${r.method}`)} · {t("sub.reference")} : <span className="font-mono">{r.reference}</span>
                   </p>
                   <p className="text-xs text-ink-muted">

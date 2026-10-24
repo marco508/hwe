@@ -286,7 +286,7 @@ function TeamSection({ mine, canManage, onChanged }: { mine: AgencyMine; canMana
                 {m.userId === mine.me.userId && <span className="ms-2 text-xs text-ink-muted">({t("pro.you")})</span>}
               </p>
               <p className="text-xs text-ink-muted [overflow-wrap:anywhere]">
-                {m.user.email} · {t("pro.team.mandates", { n: m.assignedMandates })}
+                {m.user.email} · {t("pro.team.mandates", { count: m.assignedMandates })}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -382,7 +382,7 @@ function TeamSection({ mine, canManage, onChanged }: { mine: AgencyMine; canMana
           onClose={() => setRemoving(null)}
           onConfirm={() => remove(target.userId)}
         >
-          <p>{t("pro.team.removeText", { name: `${target.user.firstName} ${target.user.lastName}`, n: target.assignedMandates })}</p>
+          <p>{t("pro.team.removeText", { name: `${target.user.firstName} ${target.user.lastName}`, count: target.assignedMandates })}</p>
         </ConfirmDialog>
       )}
     </SectionCard>

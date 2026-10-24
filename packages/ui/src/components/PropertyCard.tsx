@@ -214,9 +214,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           <span className="text-ink-subtle px-1">·</span>
           <span className="shrink-0">
             {surface} m² ·{" "}
-            {rooms > 1
-              ? tUi("ui.rooms", { n: rooms })
-              : tUi("ui.room", { n: rooms })}
+            {tUi("ui.rooms", { count: rooms })}
           </span>
         </div>
         <div className="flex items-baseline gap-1.5 flex-wrap">

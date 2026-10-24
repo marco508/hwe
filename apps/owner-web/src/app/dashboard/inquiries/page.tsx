@@ -483,10 +483,7 @@ function InquiryDetailModal({
                     <div className="flex justify-between">
                       <span className="text-ink-muted">{t("com.durationWanted")}</span>
                       <span className="font-medium">
-                        {inquiry.leaseDuration}{" "}
-                        {inquiry.leaseDurationUnit
-                          ? t("com.duration." + inquiry.leaseDurationUnit)
-                          : t("com.duration.MONTHS")}
+                        {t("com.durationN." + (inquiry.leaseDurationUnit ?? "MONTHS"), { count: inquiry.leaseDuration })}
                       </span>
                     </div>
                     {endDate && (
@@ -657,10 +654,7 @@ function InquiryCard({
               <div>
                 <span className="text-ink-muted">{t("com.durationLabel")} </span>
                 <span className="font-medium">
-                  {i.leaseDuration}{" "}
-                  {i.leaseDurationUnit
-                    ? t("com.duration." + i.leaseDurationUnit)
-                    : t("com.duration.MONTHS")}
+                  {t("com.durationN." + (i.leaseDurationUnit ?? "MONTHS"), { count: i.leaseDuration })}
                 </span>
               </div>
             )}

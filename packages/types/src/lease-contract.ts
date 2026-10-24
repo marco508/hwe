@@ -268,7 +268,7 @@ export function generateLeaseContract(input: LeaseContractInput): string {
         L("art3.shortTitle"),
         lines(
           L("art3.stay", { start: D(lease.startDate), end: D(lease.endDate) }) +
-            (nights ? L(nights > 1 ? "art3.nightsN" : "art3.nights1", { n: nights }) : "."),
+            (nights ? L("art3.nights", { count: nights }) : "."),
           "",
           L("art3.shortEnd"),
         ),
@@ -283,7 +283,7 @@ export function generateLeaseContract(input: LeaseContractInput): string {
           L("art3.start", { date: D(lease.startDate) }),
           lease.endDate ? L("art3.end", { date: D(lease.endDate) }) : null,
           "",
-          L("art3.notice", { n: lease.noticePeriod }),
+          L("art3.notice", { count: lease.noticePeriod }),
         ),
       ),
     );
@@ -326,7 +326,7 @@ export function generateLeaseContract(input: LeaseContractInput): string {
           "",
           L("art4.deposit", { amount: M(lease.deposit, currency) }),
           depositMonths !== null
-            ? L("art4.depositMonths", { months: new Intl.NumberFormat(loc, { maximumFractionDigits: 1 }).format(depositMonths) })
+            ? L("art4.depositMonths", { months: new Intl.NumberFormat(loc, { maximumFractionDigits: 1 }).format(depositMonths), count: depositMonths })
             : null,
           isFrance ? L("art4.depositFr") : L("art4.depositOther"),
         ),
@@ -373,7 +373,7 @@ export function generateLeaseContract(input: LeaseContractInput): string {
       section(
         L("article.n", { n: n++, title: L("termination.title") }),
         lines(
-          L("termination.tenant", { n: lease.noticePeriod }),
+          L("termination.tenant", { count: lease.noticePeriod }),
           "",
           isFrance ? L("termination.ownerFr", { months: lease.furnished ? 3 : 6 }) : L("termination.ownerOther"),
         ),

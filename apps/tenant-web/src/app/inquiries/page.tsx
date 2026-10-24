@@ -231,7 +231,7 @@ function InquiryDetailModal({
                 <span className="text-ink-muted">{t("com.inq.duration")}</span>
                 <span className="font-medium">
                   {inquiry.leaseDuration
-                    ? `${inquiry.leaseDuration} ${t("com.unit." + (inquiry.leaseDurationUnit ?? "MONTHS"))}`
+                    ? t("com.unitN." + (inquiry.leaseDurationUnit ?? "MONTHS"), { count: inquiry.leaseDuration })
                     : t("com.inq.openEnded")}
                 </span>
               </div>
@@ -340,7 +340,7 @@ function InquiryCard({
               <span className="text-ink-muted">{t("com.inq.durationC")}</span>
               <span className="font-medium">
                 {i.leaseDuration
-                  ? `${i.leaseDuration} ${t("com.unit." + (i.leaseDurationUnit ?? "MONTHS"))}`
+                  ? t("com.unitN." + (i.leaseDurationUnit ?? "MONTHS"), { count: i.leaseDuration })
                   : t("com.inq.openEnded")}
               </span>
             </div>

@@ -126,9 +126,8 @@ function LandingInner() {
   const isAll = countryCode === ALL_COUNTRIES_CODE;
   const cName = countryName(country.code, country.name);
   const place = placeOf(lang, country.code, country.name, city);
-  /** Singulier / pluriel par clés du dictionnaire (`<clé>.one` / `<clé>.other`). */
-  const plural = (key: string, n: number, params: Record<string, string | number> = {}) =>
-    t(`${key}.${n === 1 ? "one" : "other"}`, { n, ...params });
+  /** Pluriel selon la langue (Intl.PluralRules) : famille `<clé>.one` / `.other` / `.few`… */
+  const plural = (key: string, n: number, params: Record<string, string | number> = {}) => t(key, { count: n, ...params });
   const CATEGORIES = buildCategories();
   const STEPS = buildSteps();
   const BENEFITS = buildBenefits();
@@ -1019,7 +1018,7 @@ function ProPricing() {
   return (
     <div className="mt-12" data-pro-pricing>
       <h3 className="display-serif text-2xl text-ink">{t("pro.pricing.title")}</h3>
-      <p className="text-sm text-ink-muted mt-1">{t("pro.pricing.sub", { days: plans.trialDays })}</p>
+      <p className="text-sm text-ink-muted mt-1">{t("pro.pricing.sub", { count: plans.trialDays })}</p>
       <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((p) => (
           <li key={p.code} className="rounded-2xl border border-border/70 bg-surface p-5 flex flex-col gap-2 min-w-0" data-plan={p.code}>
@@ -1027,11 +1026,11 @@ function ProPricing() {
             <PlanPriceLine plan={p} />
             <span className="text-sm text-ink-muted flex items-center gap-1.5">
               <Icon name="users" size={14} />
-              {p.maxAgents === null ? t("pro.pricing.agentsUnl") : t("pro.pricing.agents", { n: p.maxAgents })}
+              {p.maxAgents === null ? t("pro.pricing.agentsUnl") : t("pro.pricing.agents", { count: p.maxAgents })}
             </span>
             <span className="text-sm text-ink-muted flex items-center gap-1.5">
               <Icon name="handshake" size={14} />
-              {p.maxActiveMandates === null ? t("pro.pricing.mandatesUnl") : t("pro.pricing.mandates", { n: p.maxActiveMandates })}
+              {p.maxActiveMandates === null ? t("pro.pricing.mandatesUnl") : t("pro.pricing.mandates", { count: p.maxActiveMandates })}
             </span>
           </li>
         ))}

@@ -50,7 +50,8 @@ const CONSTRAINT_KEYS: Record<string, string> = {
 export function translateConstraint(prop: string, key: string, original: string, lang: Lang = requestLang()): string {
   const field = label(prop, lang);
   const n = firstNumber(original);
-  return t(lang, `validation.${CONSTRAINT_KEYS[key] ?? "default"}`, { field, n });
+  // `count` : forme plurielle (« 1 caractère » / « 8 caractères ») selon la langue.
+  return t(lang, `validation.${CONSTRAINT_KEYS[key] ?? "default"}`, { field, n, ...(n !== "" ? { count: Number(n) } : {}) });
 }
 
 export function flattenValidationErrors(errors: ValidationError[], parent = ""): string[] {

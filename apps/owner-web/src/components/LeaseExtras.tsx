@@ -739,7 +739,7 @@ function OwnerNoticeBlock({
     <div className="space-y-3 max-w-lg text-sm">
       <p className="text-ink-muted">
         {t("lease.notice.legalNotice", {
-          n: minMonths,
+          count: minMonths,
           type: lease.furnished ? t("lease.furnishedWord") : t("lease.unfurnishedWord"),
         })}
       </p>

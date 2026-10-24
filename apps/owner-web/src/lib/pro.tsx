@@ -94,7 +94,7 @@ export function feeTermsLines(
     if (m.type === "MANAGEMENT" && m.managementFeeRate != null)
       out.push(t("pro.fee.mgmtRate", { rate: fmtRate(m.managementFeeRate) }));
     if (m.lettingFeeAmount != null) out.push(t("pro.fee.lettingAmount", { amount: fmtMoney(m.lettingFeeAmount, m.currency) }));
-    else if (m.lettingFeeMonths != null) out.push(t("pro.fee.lettingMonths", { n: fmtRate(m.lettingFeeMonths) }));
+    else if (m.lettingFeeMonths != null) out.push(t("pro.fee.lettingMonths", { n: fmtRate(m.lettingFeeMonths), count: m.lettingFeeMonths }));
   }
   if (out.length === 0) out.push(t("pro.fee.none"));
   return out;

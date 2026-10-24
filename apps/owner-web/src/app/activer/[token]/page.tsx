@@ -64,7 +64,7 @@ export default function ActivateOwnerPage() {
         <p className="text-ink-muted mt-2" data-activation-intro>
           {inv.properties.length === 1
             ? t("pro.act.manages1", { agency: agencyName, title: inv.properties[0]!.title })
-            : t("pro.act.managesN", { agency: agencyName, n: inv.properties.length })}
+            : t("pro.act.managesN", { agency: agencyName, count: inv.properties.length })}
         </p>
       </div>
 

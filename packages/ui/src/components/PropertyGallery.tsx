@@ -126,7 +126,7 @@ export function PropertyGallery({
           className="absolute bottom-3 end-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-black/60 px-3 py-1.5 text-xs font-medium text-ink dark:text-white backdrop-blur-sm hover:bg-white dark:hover:bg-black/75 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           <Icon name="maximize" size={14} />
-          <span className="hidden min-[400px]:inline">{total > 1 ? tUi("ui.gallery.all", { n: total }) : tUi("ui.gallery.openFull")}</span>
+          <span className="hidden min-[400px]:inline">{total > 1 ? tUi("ui.gallery.all", { count: total }) : tUi("ui.gallery.openFull")}</span>
         </button>
       </div>
 

@@ -190,7 +190,7 @@ function InspectionView({
             {inspection.meterElectricity && <span className="inline-flex items-center gap-1"><Icon name="zap" size={14} />{inspection.meterElectricity}</span>}
             {inspection.meterWater && <span className="inline-flex items-center gap-1"><Icon name="droplet" size={14} />{inspection.meterWater}</span>}
             {inspection.meterGas && <span className="inline-flex items-center gap-1"><Icon name="flame" size={14} />{inspection.meterGas}</span>}
-            {inspection.keysCount != null && <span>{t(inspection.keysCount > 1 ? "rental.inspection.keys.other" : "rental.inspection.keys.one", { n: inspection.keysCount })}</span>}
+            {inspection.keysCount != null && <span>{t("rental.inspection.keys", { count: inspection.keysCount })}</span>}
           </div>
           {inspection.generalNote && (
             <p className="whitespace-pre-line [overflow-wrap:anywhere]">{inspection.generalNote}</p>
@@ -353,7 +353,7 @@ function NoticeBlock({ lease, onUpdate }: { lease: LeaseContract; onUpdate: (l: 
   return (
     <div className="space-y-3 max-w-lg text-sm">
       <p className="text-ink-muted">
-        {t("rental.notice.info1", { n: lease.noticePeriod })}{" "}
+        {t("rental.notice.info1", { count: lease.noticePeriod })}{" "}
         <strong>{fmtDateShared(minDate, "long", { utc: false })}</strong>. {t("rental.notice.info2")}
       </p>
       <div className="grid sm:grid-cols-2 gap-3">

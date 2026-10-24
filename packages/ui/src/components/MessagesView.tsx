@@ -210,7 +210,7 @@ export function MessagesView({
               {subtitle}
               {totalUnread > 0 && (
                 <strong className="ms-1 text-ink">
-                  {tUi(totalUnread > 1 ? "ui.msg.unreadN" : "ui.msg.unread1", { n: totalUnread })}
+                  {tUi("ui.msg.unread", { count: totalUnread })}
                 </strong>
               )}
             </p>

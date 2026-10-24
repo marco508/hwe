@@ -22,7 +22,7 @@ export const UnreadBadge: React.FC<UnreadBadgeProps> = ({
           "inline-block h-2 w-2 rounded-full bg-red-500 shadow-[0_0_0_2px_rgba(255,255,255,0.9)]",
           className,
         )}
-        aria-label={tUi("ui.unreadOne", { n: count })}
+        aria-label={tUi("ui.unreadCount", { count })}
       />
     );
   }

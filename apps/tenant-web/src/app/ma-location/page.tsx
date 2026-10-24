@@ -150,13 +150,8 @@ function LeaseProgress({ startDate, endDate }: { startDate: string; endDate: str
         />
       </div>
       <p className="text-xs text-ink-muted text-center">
-        {/* U4 : « écoulé » s'accorde avec le nombre de jours écoulés. */}
-        {t("rental.progress.days", {
-          elapsed: elapsedDays,
-          sElapsed: elapsedDays > 1 ? "s" : "",
-          total: totalDays,
-          sTotal: totalDays > 1 ? "s" : "",
-        })}
+        {/* U4 : « écoulé » s'accorde avec le nombre de jours écoulés (pluriel de la langue). */}
+        {t("rental.progress.days", { count: elapsedDays, total: totalDays })}
       </p>
     </div>
   );
@@ -410,10 +405,7 @@ function LeaseCard({
             {!shortStay && (
               <Detail
                 label={t("rental.finance.notice")}
-                value={t(
-                  lease.noticePeriod === 1 ? "rental.months.one" : "rental.months.other",
-                  { n: lease.noticePeriod },
-                )}
+                value={t("rental.months", { count: lease.noticePeriod })}
               />
             )}
             <Detail

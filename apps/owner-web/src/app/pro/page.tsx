@@ -52,7 +52,7 @@ export default function ProDashboardPage() {
       ) : o ? (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8 stagger">
-            <StatTile icon="building" label={t("pro.stat.properties")} value={o.properties} hint={t("pro.stat.activeMandates", { n: o.activeMandates })} href="/pro/biens" />
+            <StatTile icon="building" label={t("pro.stat.properties")} value={o.properties} hint={t("pro.stat.activeMandates", { count: o.activeMandates })} href="/pro/biens" />
             <StatTile icon="hourglass" tone="accent" label={t("pro.stat.pendingMandates")} value={o.pendingMandates} hint={t("pro.stat.pendingHint")} href="/pro/mandats?status=PENDING_OWNER" highlight={o.pendingMandates > 0} />
             <StatTile icon="wallet" tone="accent" label={t("pro.stat.rentsToVerify")} value={o.rentsToVerify} hint={t("pro.stat.rentsHint")} href="/dashboard/loyers" highlight={o.rentsToVerify > 0} />
             <StatTile icon="alarm" tone="danger" label={t("pro.stat.lateRents")} value={o.lateRents} hint={t("pro.stat.lateHint")} href="/dashboard/loyers" highlight={o.lateRents > 0} />

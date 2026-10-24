@@ -48,7 +48,7 @@ export function ActionCenter() {
           next.push({
             key: "proposals",
             href: "/dashboard/inquiries?tab=proposed",
-            text: tr(props.length > 1 ? "pro.alert.proposalsN" : "pro.alert.proposals1", { n: props.length, agency: names.join(", ") }),
+            text: tr("pro.alert.proposals", { count: props.length, agency: names.join(", ") }),
             agency: ag ? { name: ag.name, logoUrl: ag.logoUrl } : null,
           });
         }
@@ -60,7 +60,7 @@ export function ActionCenter() {
         next.push({
           key: "mandates",
           href: "/dashboard/mandats",
-          text: tr(pendingM > 1 ? "pro.alert.mandatesN" : "pro.alert.mandates1", { n: pendingM, agency: first?.name ?? "" }),
+          text: tr(pendingM > 1 ? "pro.alert.mandatesN" : "pro.alert.mandates1", { count: pendingM, agency: first?.name ?? "" }),
           agency: first ? { name: first.name, logoUrl: first.logoUrl } : null,
         });
       }

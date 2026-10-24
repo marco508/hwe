@@ -139,7 +139,7 @@ export default function ProPortfolioPage() {
       ) : (
         <>
           <p className="text-sm text-ink-muted mb-3" aria-live="polite">
-            {t("pro.biens.count", { n: visible.length })}
+            {t("pro.biens.count", { count: visible.length })}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger">
             {visible.map((p) => {

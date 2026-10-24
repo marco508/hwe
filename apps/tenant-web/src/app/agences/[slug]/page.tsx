@@ -104,7 +104,7 @@ export default function AgencyPage() {
               )}
               <span className="inline-flex items-center gap-1">
                 <Icon name="home" size={14} />
-                {t(props.length > 1 ? "pro.agency.listingsCountN" : "pro.agency.listingsCount1", { n: props.length })}
+                {t("pro.agency.listingsCount", { count: props.length })}
               </span>
             </div>
           </div>

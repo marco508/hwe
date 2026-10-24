@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import "reflect-metadata";
-import { API_DICTS, pdfLang, resetErrorPatterns, t, translateError, withLang } from "../src/i18n/i18n";
+import { API_DICTS, API_ERRORS, pdfLang, resetErrorPatterns, t, translateError, withLang } from "../src/i18n/i18n";
 import { feeLabel, localizeMention, localizePeriod, localizeResponse } from "../src/i18n/labels";
 import { translateConstraint } from "../src/common/validation";
 import { localizeErrorBody } from "../src/common/all-exceptions.filter";
@@ -16,17 +16,70 @@ test("repli des clés : langue → en → fr, jamais vide", () => {
   assert.equal(translate(dicts, "es", "a"), "A en"); // es absent → en
   assert.equal(translate(dicts, "es", "b"), "B fr"); // es vide, en absent → fr
   assert.equal(translate(dicts, "ar", "zzz"), "zzz"); // inconnue partout : la clé
-  // Dictionnaires de l'API : es/pt/ar vides → anglais
-  assert.equal(t("es", "mail.greeting", { name: "Ana" }), "Hello Ana,");
+  // Dictionnaires de l'API : l'espagnol est traduit…
+  assert.equal(t("es", "mail.greeting", { name: "Ana" }), "Hola, Ana:");
+  assert.equal(t("pt", "mail.greeting", { name: "Ana" }), "Olá, Ana,");
+  assert.equal(t("es", "pdf.receipt.title"), "Recibo de alquiler");
   assert.equal(t("fr", "mail.greeting", { name: "Ana" }), "Bonjour Ana,");
   assert.ok(Object.keys(API_DICTS.fr).length > 200);
+  // … et une clé réellement absente en es retombe sur en, puis sur fr.
+  const es = API_DICTS.es!;
+  const en = API_DICTS.en!;
+  const saved = { es: es["mail.greeting"], en: en["mail.greeting"] };
+  try {
+    delete es["mail.greeting"];
+    assert.equal(t("es", "mail.greeting", { name: "Ana" }), "Hello Ana,");
+    delete en["mail.greeting"];
+    assert.equal(t("es", "mail.greeting", { name: "Ana" }), "Bonjour Ana,");
+  } finally {
+    es["mail.greeting"] = saved.es!;
+    en["mail.greeting"] = saved.en!;
+  }
+  assert.equal(t("es", "cle.inexistante"), "cle.inexistante");
+});
+
+test("pluriels (Intl.PluralRules) : forme choisie par { count }, 6 formes en arabe", () => {
+  const dicts = {
+    fr: { "x.one": "{count} bien", "x.other": "{count} biens", plain: "{count} fois" },
+    en: { "x.one": "{count} property", "x.other": "{count} properties" },
+    ar: { "x.zero": "لا عقارات", "x.one": "عقار واحد", "x.two": "عقاران", "x.few": "{count} عقارات", "x.many": "{count} عقارًا", "x.other": "{count} عقار" },
+    es: { "x.other": "{count} inmuebles" },
+  };
+  assert.equal(translate(dicts, "fr", "x", { count: 0 }), "0 bien"); // fr : 0 → one
+  assert.equal(translate(dicts, "fr", "x", { count: 1 }), "1 bien");
+  assert.equal(translate(dicts, "fr", "x", { count: 2 }), "2 biens");
+  assert.equal(translate(dicts, "en", "x", { count: 0 }), "0 properties"); // en : 0 → other
+  assert.equal(translate(dicts, "es", "x", { count: 1 }), "1 inmuebles"); // es.one absent → es.other
+  assert.equal(translate(dicts, "pt", "x", { count: 1 }), "1 property"); // pt absent → en
+  const ar = [0, 1, 2, 3, 10, 11, 99, 100, 102, 1000].map((count) => translate(dicts, "ar", "x", { count }));
+  assert.deepEqual(ar, ["لا عقارات", "عقار واحد", "عقاران", "3 عقارات", "10 عقارات", "11 عقارًا", "99 عقارًا", "100 عقار", "102 عقار", "1000 عقار"]);
+  assert.equal(translate(dicts, "fr", "plain", { count: 3 }), "3 fois"); // pas de famille : clé simple
+  assert.equal(translate(dicts, "fr", "x"), "x"); // famille sans count : la clé
+  // Dictionnaires réels de l'API : arabe, espagnol, validation
+  assert.equal(t("ar", "mail.when.inDays", { count: 2 }), "خلال يومين");
+  assert.equal(t("ar", "mail.when.inDays", { count: 5 }), "خلال 5 أيام");
+  assert.equal(t("ar", "mail.when.inDays", { count: 15 }), "خلال 15 يومًا");
+  assert.equal(t("es", "mail.when.inDays", { count: 1 }), "dentro de 1 día");
+  assert.equal(translateConstraint("password", "minLength", "password must be longer than or equal to 8 characters", "ar"), "«كلمة المرور»: 8 أحرف كحد أدنى.");
+  assert.equal(translateConstraint("password", "minLength", "password must be longer than or equal to 1 characters", "fr"), "« mot de passe » : 1 caractère minimum.");
 });
 
 test("messages d'erreur : exact, gabarit à trous, mots capturés (term.*), fr inchangé", () => {
   resetErrorPatterns();
   assert.equal(translateError("Bail introuvable", "en"), "Lease not found");
   assert.equal(translateError("Bail introuvable", "fr"), "Bail introuvable");
-  assert.equal(translateError("Bail introuvable", "pt"), "Lease not found"); // pt → en
+  assert.equal(translateError("Bail introuvable", "es"), "Contrato no encontrado");
+  assert.equal(translateError("Bail introuvable", "pt"), "Contrato de arrendamento não encontrado");
+  assert.equal(translateError("Bail introuvable", "ar"), "عقد الإيجار غير موجود");
+  // Message réellement absent en pt → anglais
+  const ptErr = API_ERRORS.pt!;
+  const savedPt = ptErr["Bail introuvable"];
+  try {
+    delete ptErr["Bail introuvable"];
+    assert.equal(translateError("Bail introuvable", "pt"), "Lease not found");
+  } finally {
+    ptErr["Bail introuvable"] = savedPt!;
+  }
   assert.equal(translateError("Ce bien est déjà sous mandat (MAN-2026-00012).", "en"), "This property is already under mandate (MAN-2026-00012).");
   assert.equal(
     translateError("Le justificatif est requis : téléversez une image (JPEG, PNG ou WebP).", "en"),

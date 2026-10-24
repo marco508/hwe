@@ -97,11 +97,11 @@ function PlanCard({
       <ul className="text-sm text-ink-muted space-y-1">
         <li className="flex items-center gap-1.5">
           <Icon name="users" size={14} />
-          {plan.maxAgents === null ? t("sub.agentsUnl") : t("sub.agentsN", { n: plan.maxAgents })}
+          {plan.maxAgents === null ? t("sub.agentsUnl") : t("sub.agentsN", { count: plan.maxAgents })}
         </li>
         <li className="flex items-center gap-1.5">
           <Icon name="handshake" size={14} />
-          {plan.maxActiveMandates === null ? t("sub.mandatesUnl") : t("sub.mandatesN", { n: plan.maxActiveMandates })}
+          {plan.maxActiveMandates === null ? t("sub.mandatesUnl") : t("sub.mandatesN", { count: plan.maxActiveMandates })}
         </li>
       </ul>
       {onChoose && (
@@ -196,7 +196,7 @@ export default function SubscriptionPage() {
           tone={statusTone(s.status) === "brand" ? "brand" : statusTone(s.status) === "success" ? "success" : statusTone(s.status) === "ocean" ? "ocean" : "danger"}
           label={t("sub.statusCard")}
           value={t(`sub.status.${s.status}`)}
-          hint={s.daysLeft !== null && s.daysLeft > 0 && (s.status === "TRIAL" || s.status === "ACTIVE") ? t("sub.daysLeft", { n: s.daysLeft }) : undefined}
+          hint={s.daysLeft !== null && s.daysLeft > 0 && (s.status === "TRIAL" || s.status === "ACTIVE") ? t("sub.daysLeft", { count: s.daysLeft }) : undefined}
         />
         <StatTile icon="calendar" label={s.status === "TRIAL" ? t("sub.trialEnds") : t("sub.paidUntil")} value={end ? fmtDate(end) : "—"} />
         <StatTile icon="layers" tone="ocean" label={t("sub.plan")} value={s.plan?.name ?? (s.status === "FREE" ? t("sub.freeOffer") : t("sub.noPlan"))} />
@@ -212,14 +212,14 @@ export default function SubscriptionPage() {
               label={t("sub.usageAgents")}
               n={s.usage.agents + s.usage.pendingInvites}
               max={s.limits.maxAgents}
-              hint={s.usage.pendingInvites ? t("sub.pendingInvites", { n: s.usage.pendingInvites }) : undefined}
+              hint={s.usage.pendingInvites ? t("sub.pendingInvites", { count: s.usage.pendingInvites }) : undefined}
             />
             <Gauge label={t("sub.usageMandates")} n={s.usage.activeMandates + s.usage.pendingMandates} max={s.limits.maxActiveMandates} />
             {s.limits.source === "TRIAL" && <p className="text-xs text-ink-muted">{t("sub.limitsTrial")}</p>}
             {s.usage.readOnlyMandates > 0 && s.status !== "SUSPENDED" && (
               <p className="text-sm text-danger flex items-start gap-1.5">
                 <Icon name="lock" size={14} className="mt-0.5 shrink-0" />
-                {t("sub.readOnlyN", { n: s.usage.readOnlyMandates })}
+                {t("sub.readOnlyN", { count: s.usage.readOnlyMandates })}
               </p>
             )}
           </div>
@@ -301,7 +301,7 @@ export default function SubscriptionPage() {
                 <p className="text-sm [overflow-wrap:anywhere]">
                   {t("sub.pendingText", {
                     plan: pending.plan.name,
-                    months: pending.months,
+                    count: pending.months,
                     amount: fmtMoney(pending.amount, pending.currency),
                     reference: pending.reference,
                     date: fmtDate(pending.createdAt),
@@ -320,7 +320,7 @@ export default function SubscriptionPage() {
                     <Select id="sub-months" value={String(months)} onChange={(e) => setMonths(Number(e.target.value))}>
                       {s.durations.map((m) => (
                         <option key={m} value={m}>
-                          {t("sub.months", { n: m })}
+                          {t("sub.months", { count: m })}
                         </option>
                       ))}
                     </Select>
@@ -381,7 +381,7 @@ export default function SubscriptionPage() {
                   {s.payments.map((p) => (
                     <tr key={p.id} className="border-t border-border">
                       <td className="py-2 pe-3 font-mono text-xs">{p.number}</td>
-                      <td className="py-2 pe-3">{p.plan.name} · {t("sub.months", { n: p.months })}</td>
+                      <td className="py-2 pe-3">{p.plan.name} · {t("sub.months", { count: p.months })}</td>
                       <td className="py-2 pe-3 text-ink-muted">{t("sub.period", { from: fmtDate(p.periodStart), to: fmtDate(p.periodEnd) })}</td>
                       <td className="py-2 pe-3 text-end tabular-nums">{fmtMoney(p.amount, p.currency)}</td>
                       <td className="py-2 text-end">

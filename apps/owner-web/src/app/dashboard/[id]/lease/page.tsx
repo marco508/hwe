@@ -24,7 +24,7 @@ import { useAuth } from "../../../../lib/auth-context";
 import { api } from "../../../../lib/api";
 import { LeaseExtras } from "../../../../components/LeaseExtras";
 import { t } from "../../../../lib/i18n";
-import { generateLeaseContract, leaseCurrency } from "@hwe/types";
+import { generateLeaseContract, intlLocaleOf, leaseCurrency } from "@hwe/types";
 import { getUiLang } from "@hwe/ui";
 import { usePortfolioItem } from "../../../../lib/pro";
 import { ConfirmDialog, LockedNote, WarningNote } from "../../../../components/pro/ProUi";
@@ -703,7 +703,7 @@ export default function LeasePage() {
                       {!lease.shortStay && lease.monthlyRent > 0 && lease.deposit > 0 && (
                         <span className="text-ink-muted">
                           {" "}
-                          ({t("lease.depositMonths", { n: Math.round((lease.deposit / lease.monthlyRent) * 10) / 10 })})
+                          ({t("lease.depositMonths", { n: depositMonthsOf(lease).toLocaleString(intlLocaleOf(getUiLang())), count: depositMonthsOf(lease) })})
                         </span>
                       )}
                     </span>
@@ -765,4 +765,9 @@ export default function LeasePage() {
       </div>
     </section>
   );
+}
+
+/** Dépôt de garantie exprimé en mois de loyer (1 décimale). */
+function depositMonthsOf(lease: { deposit: number; monthlyRent: number }): number {
+  return Math.round((lease.deposit / lease.monthlyRent) * 10) / 10;
 }

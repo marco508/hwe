@@ -191,9 +191,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                     <span className="flex-1 text-start">{tUi("ui.allCountries")}</span>
                     {totalCount > 0 && (
                       <span className="text-[11px] text-ink-subtle whitespace-nowrap">
-                        {totalCount > 1
-                          ? tUi("ui.countProperties", { n: totalCount })
-                          : tUi("ui.countProperty", { n: totalCount })}
+                        {tUi("ui.countProperties", { count: totalCount })}
                       </span>
                     )}
                   </button>
@@ -245,9 +243,7 @@ export const CountryPicker: React.FC<CountryPickerProps> = ({
                               </span>
                               {count > 0 && (
                                 <span className="text-[11px] text-ink-subtle whitespace-nowrap">
-                                  {count > 1
-                                    ? tUi("ui.countProperties", { n: count })
-                                    : tUi("ui.countProperty", { n: count })}
+                                  {tUi("ui.countProperties", { count })}
                                 </span>
                               )}
                               {active && (

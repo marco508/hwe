@@ -97,7 +97,7 @@ export function SubscriptionBanner({ hideCta = false }: { hideCta?: boolean }) {
           : t("sub.banner.trialEndingRo", { date: date(sub.trialEndsAt) });
         action = cta(payLabel);
       } else {
-        body = n <= 1 ? t("sub.banner.trial1") : t("sub.banner.trial", { n });
+        body = n <= 1 ? t("sub.banner.trial1") : t("sub.banner.trial", { count: n });
       }
       break;
     }
@@ -120,7 +120,7 @@ export function SubscriptionBanner({ hideCta = false }: { hideCta?: boolean }) {
       body = (
         <span>
           {t("sub.banner.free", { agents: sub.limits.maxAgents ?? "∞", mandates: sub.limits.maxActiveMandates ?? "∞" })}
-          {sub.usage.readOnlyMandates > 0 && <> {t("sub.banner.freeOver", { n: sub.usage.readOnlyMandates })}</>}
+          {sub.usage.readOnlyMandates > 0 && <> {t("sub.banner.freeOver", { count: sub.usage.readOnlyMandates })}</>}
         </span>
       );
       action = cta(t("sub.banner.ctaUpgrade"));
