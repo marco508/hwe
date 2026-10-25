@@ -299,6 +299,92 @@ export async function loadAccessContext(db: Db, propertyId: string, userId: stri
 }
 
 /**
+ * Contextes d'accès de PLUSIEURS biens pour un même utilisateur, en un
+ * nombre constant de requêtes (même résultat que `loadAccessContext` appelé
+ * bien par bien). Le portefeuille d'un pro (`/properties/mine/list`) faisait
+ * 5 à 7 requêtes PAR bien — premier goulot des tests de charge côté pros.
+ * Les biens inexistants sont absents de la Map.
+ */
+export async function loadAccessContexts(db: Db, propertyIds: string[], userId: string): Promise<Map<string, AccessContext>> {
+  const out = new Map<string, AccessContext>();
+  const ids = [...new Set(propertyIds)];
+  if (ids.length === 0) return out;
+  const today = todayDay();
+  const props = await db.property.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, ownerId: true, owner: { select: { activatedAt: true } } },
+  });
+  const bases = new Map<string, AccessContext>();
+  for (const property of props) {
+    bases.set(property.id, {
+      userId,
+      property: { id: property.id, ownerId: property.ownerId },
+      ownerActivated: !!property.owner.activatedAt,
+      membership: null,
+      mandate: null,
+      today,
+    });
+  }
+  const others = props.filter((p) => p.ownerId !== userId).map((p) => p.id);
+  for (const p of props) if (p.ownerId === userId) out.set(p.id, bases.get(p.id)!);
+  if (others.length === 0) return out;
+
+  const membership = await db.agencyMember.findUnique({
+    where: { userId },
+    select: { agencyId: true, role: true },
+  });
+  if (!membership) {
+    for (const id of others) out.set(id, bases.get(id)!);
+    return out;
+  }
+  const all = await db.mandate.findMany({
+    where: { propertyId: { in: others }, agencyId: membership.agencyId },
+    orderBy: { createdAt: "desc" },
+    select: MANDATE_ACCESS_SELECT,
+  });
+  const chosen = new Map<string, (typeof all)[number]>();
+  for (const id of others) {
+    // Mêmes règles que loadAccessContext : les 10 plus récents, ACTIVE > PENDING_OWNER > le plus récent.
+    const mandates = all.filter((m) => m.propertyId === id).slice(0, 10);
+    const m = mandates.find((x) => x.status === "ACTIVE") ?? mandates.find((x) => x.status === "PENDING_OWNER") ?? mandates[0];
+    if (m) chosen.set(id, m);
+  }
+  const letting = [...chosen.values()].filter((m) => m.type === "LETTING");
+  const completion = await lettingCompletion(
+    db,
+    letting.map((m) => m.propertyId),
+    new Map(letting.map((m) => [m.propertyId, m.acceptedAt ?? m.createdAt])),
+  );
+  const anyActive = [...chosen.values()].some((m) => m.status === "ACTIVE");
+  const sub = anyActive ? await loadAgencySubscription(db, membership.agencyId) : null;
+  const writable = sub && sub.writable ? await loadWritableMandates(db, sub) : null;
+  for (const id of others) {
+    const base = bases.get(id)!;
+    const m = chosen.get(id);
+    if (!m) {
+      out.set(id, { ...base, membership });
+      continue;
+    }
+    out.set(id, {
+      ...base,
+      writeGate: m.status === "ACTIVE" && sub ? mandateWriteGate(sub, writable, m.id) : null,
+      membership,
+      mandate: {
+        id: m.id,
+        reference: m.reference,
+        type: m.type,
+        status: m.status,
+        agencyId: m.agencyId,
+        assignedAgentId: m.assignedAgentId,
+        endDate: m.endDate,
+        lettingCompletedAt: m.type === "LETTING" ? completion.get(id) ?? null : null,
+      },
+    });
+  }
+  return out;
+}
+
+/**
  * Biens sur lesquels l'utilisateur (pro) peut effectuer `action` via un
  * mandat actif de son agence. Le propriétaire, lui, est couvert par
  * `ownerId` dans les requêtes.
@@ -364,6 +450,11 @@ export class PropertyAccessService {
 
   context(propertyId: string, userId: string): Promise<AccessContext> {
     return loadAccessContext(this.prisma, propertyId, userId);
+  }
+
+  /** Contextes de plusieurs biens en requêtes groupées (cf. loadAccessContexts). */
+  contexts(propertyIds: string[], userId: string): Promise<Map<string, AccessContext>> {
+    return loadAccessContexts(this.prisma, propertyIds, userId);
   }
 
   /** Vérifie `action` sur le bien ; 404 si le bien n'existe pas, 403 normalisée sinon. */

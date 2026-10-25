@@ -947,26 +947,61 @@ export class MandatesService {
    * la plateforme), honoraires dus dans le mois (hors annulés), net.
    */
   private async statementFor(propertyId: string, mandateId: string | null, month: string) {
+    const { rentsByProperty, feesByMandate } = await this.statementData([propertyId], mandateId ? [mandateId] : [], month);
+    return this.statementShape(month, rentsByProperty.get(propertyId) ?? [], mandateId ? feesByMandate.get(mandateId) ?? [] : []);
+  }
+
+  /**
+   * Données des relevés de PLUSIEURS biens et mandats en deux requêtes (au
+   * lieu de deux par bien : le relevé propriétaire d'un portefeuille de 40
+   * biens faisait 80+ allers-retours séquentiels — tests de charge).
+   */
+  private async statementData(propertyIds: string[], mandateIds: string[], month: string) {
     const b = this.monthBounds(month);
-    const periods = await this.prisma.rentPeriod.findMany({
-      where: {
-        status: "PAID",
-        lease: { propertyId },
-        paidAt: { gte: addDays(b.from, -1), lt: addDays(b.to, 2) },
-      },
-      include: { lease: { select: { tenantFirstName: true, tenantLastName: true, currency: true } } },
-      orderBy: { paidAt: "asc" },
-    });
-    const inMonth = periods.filter((p) => {
-      const d = dayOf(p.paidAt!);
-      return d.getTime() >= b.from.getTime() && d.getTime() <= b.to.getTime();
-    });
-    const fees = mandateId
-      ? await this.prisma.feeEntry.findMany({
-          where: { mandateId, status: { not: "CANCELLED" }, dueDate: { gte: b.from, lte: b.to } },
-          orderBy: { dueDate: "asc" },
+    const periods = propertyIds.length
+      ? await this.prisma.rentPeriod.findMany({
+          where: {
+            status: "PAID",
+            lease: { propertyId: { in: propertyIds } },
+            paidAt: { gte: addDays(b.from, -1), lt: addDays(b.to, 2) },
+          },
+          include: { lease: { select: { tenantFirstName: true, tenantLastName: true, currency: true, propertyId: true } } },
+          orderBy: [{ paidAt: "asc" }, { id: "asc" }],
         })
       : [];
+    const fees = mandateIds.length
+      ? await this.prisma.feeEntry.findMany({
+          where: { mandateId: { in: mandateIds }, status: { not: "CANCELLED" }, dueDate: { gte: b.from, lte: b.to } },
+          orderBy: [{ dueDate: "asc" }, { id: "asc" }],
+        })
+      : [];
+    const rentsByProperty = new Map<string, typeof periods>();
+    for (const p of periods) {
+      const d = dayOf(p.paidAt!);
+      if (d.getTime() < b.from.getTime() || d.getTime() > b.to.getTime()) continue;
+      const list = rentsByProperty.get(p.lease.propertyId) ?? [];
+      list.push(p);
+      rentsByProperty.set(p.lease.propertyId, list);
+    }
+    const feesByMandate = new Map<string, typeof fees>();
+    for (const f of fees) {
+      const list = feesByMandate.get(f.mandateId) ?? [];
+      list.push(f);
+      feesByMandate.set(f.mandateId, list);
+    }
+    return { rentsByProperty, feesByMandate };
+  }
+
+  private statementShape(
+    month: string,
+    inMonth: Array<{
+      id: string; periodMonth: number; periodYear: number; paidAt: Date | null; receiptNo: string | null;
+      rentAmount: number; chargesAmount: number; amount: number;
+      lease: { tenantFirstName: string; tenantLastName: string; currency: string };
+    }>,
+    fees: Array<{ id: string; kind: string; label: string; amount: number; status: string; dueDate: Date; currency: string }>,
+  ) {
+    const b = this.monthBounds(month);
     const rents = inMonth.map((p) => ({
       periodId: p.id,
       periodLabel: `${MOIS[p.periodMonth - 1]} ${p.periodYear}`,
@@ -1051,11 +1086,12 @@ export class MandatesService {
       orderBy: { createdAt: "desc" },
     });
     const items = [];
+    const data = await this.statementData(props.map((p) => p.id), mandates.map((m) => m.id), month);
     for (const p of props) {
       const ms = mandates.filter((m) => m.propertyId === p.id);
       // Honoraires de tous les mandats du bien (un mandat a pu finir dans le mois).
-      const parts = await Promise.all(
-        (ms.length ? ms.map((m) => m.id) : [null]).map((mid) => this.statementFor(p.id, mid, month)),
+      const parts = (ms.length ? ms.map((m) => m.id) : [null]).map((mid) =>
+        this.statementShape(month, data.rentsByProperty.get(p.id) ?? [], mid ? data.feesByMandate.get(mid) ?? [] : []),
       );
       const rents = parts[0]!.rents;
       const fees = parts.flatMap((x) => x.fees);

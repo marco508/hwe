@@ -1,3 +1,4 @@
+import { createSecretKey } from "node:crypto";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
@@ -17,7 +18,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: jwtSecret(),
+      // Clé déjà sous forme de KeyObject : jsonwebtoken (v9) essayait sinon, à
+      // CHAQUE requête, de la lire comme clé publique (exception levée puis
+      // rattrapée) avant d'en faire une clé secrète — ~4 % du CPU de l'API
+      // sous charge. Même clé (octets UTF-8 du secret), même résultat.
+      secretOrKey: createSecretKey(Buffer.from(jwtSecret(), "utf8")),
     });
   }
 
