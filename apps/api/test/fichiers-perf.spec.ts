@@ -24,7 +24,7 @@ import {
   BINARY_COLUMNS,
 } from "../src/common/file-store";
 import { sanitizeResponse, inlineFileRefs, type FileRefSlot } from "../src/common/response-sanitizer.interceptor";
-import { MediaController } from "../src/media/media.controller";
+import { MediaController, mediaFastPath } from "../src/media/media.controller";
 import { mediaRefCache, mediaCache } from "../src/common/media-cache";
 import { gcFiles, referencedHashes, type RawDb } from "../src/media/media-files";
 import { pdfCacheKey, renderPdf, pdfStats, pdfCache } from "../src/common/pdf-render";
@@ -166,14 +166,15 @@ async function serve(ctrl: MediaController) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const express = require(require.resolve("express", { paths: [require.resolve("@nestjs/platform-express")] }));
   const app = express();
+  app.use(mediaFastPath);
   const wrap = (fn: (k: string, req: any, res: any) => Promise<unknown>) => (req: any, res: any) =>
     fn(req.params.k, req, res).catch((e: any) => res.status(e?.status ?? 500).end());
-  app.get("/media/avatar/:k", wrap((k, q, r) => ctrl.avatar(k, q, r)));
-  app.get("/media/agency/:k", wrap((k, q, r) => ctrl.agencyLogo(k, q, r)));
-  app.get("/media/:k", wrap((k, q, r) => ctrl.media(k, q, r)));
+  app.get("/api/media/avatar/:k", wrap((k, q, r) => ctrl.avatar(k, q, r)));
+  app.get("/api/media/agency/:k", wrap((k, q, r) => ctrl.agencyLogo(k, q, r)));
+  app.get("/api/media/:k", wrap((k, q, r) => ctrl.media(k, q, r)));
   const srv = app.listen(0);
   await new Promise((r) => srv.once("listening", r));
-  const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}`;
+  const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/api`;
   return { base, close: () => new Promise((r) => srv.close(r)) };
 }
 
@@ -207,6 +208,15 @@ test("photo publique : lue sur le volume en priorité, repli base si le fichier 
     r = await fetch(`${base}/media/mediaFile0001`, { headers: { "If-None-Match": etag } });
     assert.equal(r.status, 304);
     assert.deepEqual(calls, ["fileKey"]); // référence en cache mémoire
+
+    // Voie rapide (hors chaîne Nest) : mêmes octets et en-têtes, aucune requête SQL.
+    r = await fetch(`${base}/media/mediaFile0001`);
+    assert.equal(r.status, 200);
+    assert.equal(r.headers.get("x-frame-options"), "DENY");
+    assert.equal(r.headers.get("x-content-type-options"), "nosniff");
+    assert.equal(r.headers.get("etag"), etag);
+    assert.deepEqual(Buffer.from(await r.arrayBuffer()), other);
+    assert.deepEqual(calls, ["fileKey"]);
 
     // Fichier disparu du volume → contenu de la base, sans erreur.
     rmSync(filePath(ref.sha256)!);

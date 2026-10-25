@@ -1,5 +1,5 @@
 import { Controller, Get, NotFoundException, Param, Req, Res } from "@nestjs/common";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { createHash } from "crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { IMAGE_MIME, parseDataUrl } from "../common/upload.util";
@@ -20,6 +20,47 @@ import { filePath, parseFileRef, type FileRef } from "../common/file-store";
  */
 const IMAGE_SET = new Set<string>(IMAGE_MIME);
 const ID_RE = /^[A-Za-z0-9_-]{8,64}$/;
+
+/**
+ * Voie rapide (montée dans main.ts AVANT la chaîne Nest : CORS, analyse du
+ * corps, langue, limiteur, intercepteurs…) : une photo dont la référence est
+ * déjà en cache mémoire est envoyée directement depuis le volume. Mêmes
+ * en-têtes que la route Nest ; tout autre cas (premier accès, avatar, logo,
+ * requête avec Origin, fichier absent) continue vers le contrôleur.
+ */
+const FAST_RE = /^\/api\/media\/([A-Za-z0-9_-]{8,64})$/;
+export function mediaFastPath(req: Request, res: Response, next: NextFunction) {
+  if (req.method !== "GET" && req.method !== "HEAD") return next();
+  if (req.headers.origin) return next();
+  const m = FAST_RE.exec(req.path);
+  if (!m) return next();
+  const ref = parseFileRef(mediaRefCache.get(m[1]!));
+  if (!ref || !IMAGE_SET.has(ref.mime)) return next();
+  const p = filePath(ref.sha256);
+  if (!p) return next();
+  const etag = `"${ref.sha256.slice(0, 32)}"`;
+  const headers: Record<string, string> = {
+    "Content-Type": ref.mime,
+    ETag: etag,
+    "Cache-Control": "public, max-age=31536000, immutable",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Cross-Origin-Resource-Policy": "cross-origin",
+  };
+  if (req.headers["if-none-match"] === etag) {
+    for (const [k, v] of Object.entries(headers)) if (k !== "Content-Type") res.setHeader(k, v);
+    res.status(304).end();
+    return;
+  }
+  res.sendFile(p, { etag: false, lastModified: false, cacheControl: false, acceptRanges: false, dotfiles: "deny", headers }, (err) => {
+    if (!err) return;
+    if (!res.headersSent) {
+      mediaRefCache.delete(m[1]!);
+      return next();
+    }
+  });
+}
 
 @Controller("media")
 export class MediaController {

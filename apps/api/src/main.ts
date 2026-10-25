@@ -8,6 +8,7 @@ import { buildValidationPipe } from "./common/validation";
 import { bodyParserMiddleware, rejectControlCharsInUrl } from "./common/body-limits";
 import { authRateLimitMiddleware } from "./common/rate-limit";
 import { langMiddleware } from "./i18n/i18n";
+import { mediaFastPath } from "./media/media.controller";
 
 async function bootstrap() {
   // Body-parser par défaut désactivé : réinstallé plus bas avec des limites
@@ -21,6 +22,10 @@ async function bootstrap() {
   // (un X-Forwarded-For forgé par le client n'est plus pris tel quel).
   app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS ?? 1));
   app.disable("x-powered-by");
+
+  // 0. Photos d'annonces déjà résolues : envoyées depuis le volume sans
+  //    traverser toute la chaîne Nest (la moitié du coût CPU d'une image).
+  app.use(mediaFastPath);
 
   // 1. CORS en premier : toutes les réponses, y compris 413/429, portent les
   //    en-têtes CORS (sinon le navigateur n'y voit qu'une erreur réseau).
