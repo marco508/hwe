@@ -58,6 +58,35 @@ async function storeVerified(dataUrl: string): Promise<FileRef | null> {
   return ref;
 }
 
+/**
+ * Lot suivant (pagination par id) : les identifiants d'abord, par l'index de
+ * clé primaire SANS lire la colonne lourde (un filtre LIKE sur la data-URL
+ * obligeait PostgreSQL à décompresser toutes les lignes à chaque lot), puis
+ * les valeurs de ces seules lignes.
+ */
+async function batchRows<T extends { id: string }>(
+  db: RawDb,
+  c: BinaryColumn,
+  where: string,
+  cols: string,
+  after: string,
+  batch: number,
+): Promise<T[]> {
+  const ids = await db.$queryRawUnsafe<Array<{ id: string }>>(
+    `SELECT "id" FROM ${q(c.table)} WHERE "id" > $1 AND ${where} ORDER BY "id" LIMIT ${batch}`,
+    after,
+  );
+  if (ids.length === 0) return [];
+  const rows = await db.$queryRawUnsafe<T[]>(
+    `SELECT "id", ${cols} FROM ${q(c.table)} WHERE "id" = ANY($1::text[]) ORDER BY "id"`,
+    ids.map((r) => r.id),
+  );
+  // Ligne supprimée entre-temps : on avance quand même le curseur.
+  const last = ids[ids.length - 1]!.id;
+  if (!rows.length || rows[rows.length - 1]!.id !== last) rows.push({ id: last } as T);
+  return rows;
+}
+
 export interface CopyStats {
   copied: number;
   skipped: number;
@@ -79,15 +108,18 @@ export async function copyPublicToFiles(db: RawDb, opts: { batch?: number; pause
     let after = "";
     for (;;) {
       const guard = c.guardColumn ? `, ${q(c.guardColumn)} AS guard` : "";
-      const rows = await db.$queryRawUnsafe<Array<{ id: string; v: string; guard?: string | null }>>(
-        `SELECT "id", ${q(c.column)} AS v${guard} FROM ${q(c.table)}
-          WHERE ${q(c.keyColumn!)} IS NULL AND ${q(c.column)} LIKE 'data:%' AND "id" > $1
-          ORDER BY "id" LIMIT ${batch}`,
+      const rows = await batchRows<{ id: string; v: string | null; guard?: string | null }>(
+        db,
+        c,
+        `${q(c.keyColumn!)} IS NULL AND ${q(c.column)} IS NOT NULL`,
+        `${q(c.column)} AS v${guard}`,
         after,
+        batch,
       );
       if (rows.length === 0) break;
       for (const r of rows) {
         after = r.id;
+        if (typeof r.v !== "string" || !r.v.startsWith("data:")) continue;
         try {
           const ref = await storeVerified(r.v);
           if (!ref) {
@@ -139,14 +171,11 @@ export async function purgeDbBytes(db: RawDb, opts: { apply: boolean; batch?: nu
     out[`${c.table}.${c.column}`] = st;
     let after = "";
     for (;;) {
-      const rows = await db.$queryRawUnsafe<Array<{ id: string; v: string }>>(
-        `SELECT "id", ${q(c.column)} AS v FROM ${q(c.table)}
-          WHERE ${q(c.column)} LIKE 'data:%' AND "id" > $1 ORDER BY "id" LIMIT ${batch}`,
-        after,
-      );
+      const rows = await batchRows<{ id: string; v: string | null }>(db, c, `${q(c.column)} IS NOT NULL`, `${q(c.column)} AS v`, after, batch);
       if (rows.length === 0) break;
       for (const r of rows) {
         after = r.id;
+        if (typeof r.v !== "string" || !r.v.startsWith("data:")) continue;
         st.rows++;
         st.bytes += r.v.length;
         try {
