@@ -24,6 +24,7 @@ import { requestLang, shortDate } from "../i18n/i18n";
 import { RentsService } from "../rents/rents.service";
 import { resolveLeaseParty, leasePartyFlags } from "../common/lease-party.util";
 import { assertDataUrl } from "../common/upload.util";
+import { persistPrivateFile } from "../common/file-store";
 import { assertEmailVerified, emailNotVerified } from "../common/email-verified.util";
 import { normalizeEmail } from "../common/email.util";
 import { lockKey } from "../common/advisory-lock";
@@ -41,7 +42,7 @@ import {
   statusAfterSignatures,
   tenantNoticeEffectiveDate,
 } from "./lease-rules";
-import { LEASE_FULL_INCLUDE, assertNoLeaseOverlap } from "./lease-db.util";
+import { LEASE_FULL_INCLUDE, assertNoLeaseOverlap, candidateTenantLeaseIds } from "./lease-db.util";
 import { AccessAction, PropertyAccessService } from "../common/property-access";
 import { FeesService } from "../mandates/fees.service";
 import { agencyLogoUrl } from "../common/media.util";
@@ -195,11 +196,7 @@ export class LeasesService {
     const leases = await this.prisma.leaseContract.findMany({
       where: {
         status: { in: ["DRAFT", "ACTIVE", "SIGNED"] },
-        OR: [
-          { tenantEmail: { equals: user.email, mode: "insensitive" } },
-          { inquiry: { senderId: user.id } },
-          { coTenants: { some: { email: { equals: user.email, mode: "insensitive" } } } },
-        ],
+        id: { in: await candidateTenantLeaseIds(this.prisma, user) },
       },
       include: { ...LEASE_FULL_INCLUDE, inquiry: { select: { senderId: true } } },
       orderBy: { startDate: "desc" },
@@ -756,8 +753,9 @@ export class LeasesService {
     if (!validUntil || validUntil.getTime() < todayDay().getTime()) {
       throw new BadRequestException("L'attestation doit encore être valide.");
     }
+    const fileUrl = (await persistPrivateFile(dto.fileUrl))!;
     return this.prisma.insuranceCertificate.create({
-      data: { leaseId, fileUrl: dto.fileUrl, validUntil },
+      data: { leaseId, fileUrl, validUntil },
       select: { id: true, validUntil: true, uploadedAt: true },
     });
   }

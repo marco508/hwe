@@ -57,3 +57,31 @@ export async function assertNoLeaseOverlap(
     });
   }
 }
+
+/**
+ * Identifiants des baux dont l'utilisateur peut être locataire : e-mail du
+ * bail, auteur de la demande d'origine, ou colocataire. Trois recherches
+ * INDEXÉES (e-mails normalisés en base, index tenantEmail / email /
+ * senderId) au lieu d'un OR de sous-requêtes qui parcourait toute la table
+ * des baux. Le filtrage fin (e-mail vérifié, etc.) reste leasePartyFlags.
+ */
+export async function candidateTenantLeaseIds(
+  db: Prisma.TransactionClient,
+  user: { id: string; email: string },
+): Promise<string[]> {
+  const email = (user.email || "").trim().toLowerCase();
+  const [byEmail, byInquiry, byCoTenant] = await Promise.all([
+    email
+      ? db.leaseContract.findMany({ where: { tenantEmail: email }, select: { id: true } })
+      : Promise.resolve([] as Array<{ id: string }>),
+    db.inquiry.findMany({ where: { senderId: user.id, leaseId: { not: null } }, select: { leaseId: true } }),
+    email
+      ? db.leaseCoTenant.findMany({ where: { email }, select: { leaseId: true } })
+      : Promise.resolve([] as Array<{ leaseId: string }>),
+  ]);
+  const ids = new Set<string>();
+  for (const r of byEmail) ids.add(r.id);
+  for (const r of byInquiry) if (r.leaseId) ids.add(r.leaseId);
+  for (const r of byCoTenant) ids.add(r.leaseId);
+  return [...ids];
+}

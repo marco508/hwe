@@ -390,54 +390,73 @@ export async function loadAccessContexts(db: Db, propertyIds: string[], userId: 
  * `ownerId` dans les requêtes.
  */
 export async function managedPropertyIds(db: Db, userId: string, action: AccessAction): Promise<string[]> {
-  const membership = await db.agencyMember.findUnique({
-    where: { userId },
-    select: { agencyId: true, role: true },
-  });
-  if (!membership) return [];
+  return (await managedPropertyIdsByAction(db, userId, [action]))[action] ?? [];
+}
+
+/**
+ * Même calcul pour plusieurs actions à la fois (tableau de bord pro : une
+ * seule lecture des mandats, de l'abonnement et des locations au lieu d'une
+ * par action). `membership` : adhésion déjà lue par l'appelant (facultatif).
+ */
+export async function managedPropertyIdsByAction<A extends AccessAction>(
+  db: Db,
+  userId: string,
+  actions: readonly A[],
+  known?: { agencyId: string; role: AgencyRole | string } | null,
+): Promise<Record<A, string[]>> {
+  const out = Object.fromEntries(actions.map((a) => [a, [] as string[]])) as Record<A, string[]>;
+  const membership =
+    known !== undefined
+      ? known && { agencyId: known.agencyId, role: known.role as AgencyRole }
+      : await db.agencyMember.findUnique({
+          where: { userId },
+          select: { agencyId: true, role: true },
+        });
+  if (!membership) return out;
   const today = todayDay();
-  const mandates = await db.mandate.findMany({
-    where: {
-      agencyId: membership.agencyId,
-      status: "ACTIVE",
-      OR: [{ endDate: null }, { endDate: { gte: today } }],
-      ...(membership.role === "MANAGER" ? {} : { assignedAgentId: userId }),
-    },
-    select: { ...MANDATE_ACCESS_SELECT, property: { select: { owner: { select: { activatedAt: true } } } } },
-  });
-  const sub = await loadAgencySubscription(db, membership.agencyId);
-  const writable = sub.writable ? await loadWritableMandates(db, sub) : null;
+  const [mandates, sub] = await Promise.all([
+    db.mandate.findMany({
+      where: {
+        agencyId: membership.agencyId,
+        status: "ACTIVE",
+        OR: [{ endDate: null }, { endDate: { gte: today } }],
+        ...(membership.role === "MANAGER" ? {} : { assignedAgentId: userId }),
+      },
+      select: { ...MANDATE_ACCESS_SELECT, property: { select: { owner: { select: { activatedAt: true } } } } },
+    }),
+    loadAgencySubscription(db, membership.agencyId),
+  ]);
   const letting = mandates.filter((m) => m.type === "LETTING");
-  const completion = await lettingCompletion(
-    db,
-    letting.map((m) => m.propertyId),
-    new Map(letting.map((m) => [m.propertyId, m.acceptedAt ?? m.createdAt])),
-  );
-  return mandates
-    .filter((m) =>
-      decideAccess(
-        {
-          userId,
-          property: { id: m.propertyId, ownerId: m.ownerId },
-          ownerActivated: !!m.property.owner.activatedAt,
-          membership,
-          mandate: {
-            id: m.id,
-            reference: m.reference,
-            type: m.type,
-            status: m.status,
-            agencyId: m.agencyId,
-            assignedAgentId: m.assignedAgentId,
-            endDate: m.endDate,
-            lettingCompletedAt: completion.get(m.propertyId) ?? null,
-          },
-          today,
-          writeGate: mandateWriteGate(sub, writable, m.id),
-        },
-        action,
-      ).allowed,
-    )
-    .map((m) => m.propertyId);
+  const [writable, completion] = await Promise.all([
+    sub.writable ? loadWritableMandates(db, sub) : Promise.resolve(null),
+    lettingCompletion(
+      db,
+      letting.map((m) => m.propertyId),
+      new Map(letting.map((m) => [m.propertyId, m.acceptedAt ?? m.createdAt])),
+    ),
+  ]);
+  for (const m of mandates) {
+    const ctx: AccessContext = {
+      userId,
+      property: { id: m.propertyId, ownerId: m.ownerId },
+      ownerActivated: !!m.property.owner.activatedAt,
+      membership,
+      mandate: {
+        id: m.id,
+        reference: m.reference,
+        type: m.type,
+        status: m.status,
+        agencyId: m.agencyId,
+        assignedAgentId: m.assignedAgentId,
+        endDate: m.endDate,
+        lettingCompletedAt: completion.get(m.propertyId) ?? null,
+      },
+      today,
+      writeGate: mandateWriteGate(sub, writable, m.id),
+    };
+    for (const a of actions) if (decideAccess(ctx, a).allowed) out[a].push(m.propertyId);
+  }
+  return out;
 }
 
 /**
@@ -473,6 +492,14 @@ export class PropertyAccessService {
 
   managedPropertyIds(userId: string, action: AccessAction): Promise<string[]> {
     return managedPropertyIds(this.prisma, userId, action);
+  }
+
+  managedPropertyIdsByAction<A extends AccessAction>(
+    userId: string,
+    actions: readonly A[],
+    membership?: { agencyId: string; role: string } | null,
+  ): Promise<Record<A, string[]>> {
+    return managedPropertyIdsByAction(this.prisma, userId, actions, membership);
   }
 
   /** Filtre Prisma « biens accessibles » : les miens + ceux que je gère. */

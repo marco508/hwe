@@ -6,7 +6,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { AgencyRole } from "@prisma/client";
+import { AgencyRole, RentStatus } from "@prisma/client";
 import { randomBytes } from "crypto";
 import { asLang } from "../i18n/i18n";
 import { PrismaService } from "../prisma/prisma.service";
@@ -15,6 +15,7 @@ import { lockKey } from "../common/advisory-lock";
 import { normalizeEmail } from "../common/email.util";
 import { assertDataUrl, IMAGE_MIME, MAX_AVATAR_BYTES } from "../common/upload.util";
 import { MEDIA_SELECT, agencyLogoUrl, withMediaUrl } from "../common/media.util";
+import { persistPublicFile } from "../common/file-store";
 import { monthEnd, monthStart, today as todayDay } from "../common/dates";
 import { sumMoney } from "../common/money";
 import { PropertyAccessService } from "../common/property-access";
@@ -169,11 +170,14 @@ export class AgenciesService {
     if (dto.logoUrl === null || dto.logoUrl === "") {
       data.logoDataUrl = null;
       data.logoKey = null;
+      data.logoFileKey = null;
     } else if (dto.logoUrl !== undefined) {
       if (dto.logoUrl.startsWith("data:")) {
         // Mêmes règles que l'avatar : image JPEG/PNG/WebP ≤ 2 Mo.
         assertDataUrl(dto.logoUrl, "logo", { allowed: IMAGE_MIME, maxBytes: MAX_AVATAR_BYTES });
-        data.logoDataUrl = dto.logoUrl;
+        const st = await persistPublicFile(dto.logoUrl);
+        data.logoDataUrl = st.value;
+        data.logoFileKey = st.fileKey;
         data.logoKey = randomBytes(16).toString("hex");
       } else {
         const current = await this.prisma.agency.findUnique({ where: { id: m.agencyId }, select: { logoKey: true } });
@@ -395,38 +399,82 @@ export class AgenciesService {
   async overview(userId: string) {
     const m = await this.membership(userId);
     const isManager = m.role === "MANAGER";
-    const propertyIds = await this.access.managedPropertyIds(userId, "LEASE_READ");
-    const readIds = await this.access.managedPropertyIds(userId, "READ");
     const now = new Date();
     const today = todayDay(now);
     const from = monthStart(today.getUTCFullYear(), today.getUTCMonth() + 1);
     const to = monthEnd(today.getUTCFullYear(), today.getUTCMonth() + 1);
     const mandateScope = { agencyId: m.agencyId, ...(isManager ? {} : { assignedAgentId: userId }) };
+    const OPEN = ["ACTIVE", "PENDING_OWNER"] as const;
 
-    const [activeMandates, pendingMandates, pendingRequests, rents, openTickets, upcomingVisits, pendingProposals, fees] =
-      await Promise.all([
-        this.prisma.mandate.count({ where: { ...mandateScope, status: "ACTIVE" } }),
-        this.prisma.mandate.count({ where: { ...mandateScope, status: "PENDING_OWNER" } }),
-        isManager
-          ? this.prisma.mandateRequest.count({ where: { agencyId: m.agencyId, status: "PENDING" } })
-          : this.prisma.mandateRequest.count({ where: { agencyId: m.agencyId, status: "PENDING", createdById: userId } }),
-        this.prisma.rentPeriod.groupBy({
-          by: ["status"],
-          where: { lease: { propertyId: { in: readIds } }, status: { in: ["DECLARED", "LATE"] } },
-          _count: { _all: true },
-        }),
-        this.prisma.ticket.count({ where: { lease: { propertyId: { in: readIds } }, status: { not: "RESOLVED" } } }),
-        this.prisma.visit.count({
-          where: { propertyId: { in: readIds }, status: { in: ["REQUESTED", "CONFIRMED"] }, proposedAt: { gte: now } },
-        }),
-        this.prisma.inquiry.count({
-          where: { propertyId: { in: readIds }, status: "PENDING", proposedAt: { not: null }, ownerDecision: null },
-        }),
-        this.prisma.feeEntry.findMany({
-          where: { mandate: mandateScope, dueDate: { gte: from, lte: to }, status: { in: ["DUE", "SETTLED"] } },
-          select: { amount: true, status: true, currency: true },
-        }),
-      ]);
+    // 1. Tout ce qui ne dépend pas des biens gérés, en parallèle. Les biens
+    //    accessibles (LEASE_READ et READ) sont calculés en une seule passe.
+    //    Responsable : la liste des mandats ouverts de l'agence sert à la fois
+    //    aux compteurs et à la répartition par agent (mêmes chiffres).
+    const [ids, mandateList, mandateCounts, pendingRequests, fees, members] = await Promise.all([
+      this.access.managedPropertyIdsByAction(userId, ["LEASE_READ", "READ"] as const, m),
+      isManager
+        ? this.prisma.mandate.findMany({
+            where: { agencyId: m.agencyId, status: { in: [...OPEN] } },
+            select: { assignedAgentId: true, status: true, propertyId: true },
+          })
+        : Promise.resolve(null),
+      isManager
+        ? Promise.resolve(null)
+        : this.prisma.mandate.groupBy({
+            by: ["status"],
+            where: { ...mandateScope, status: { in: [...OPEN] } },
+            _count: { _all: true },
+          }),
+      isManager
+        ? this.prisma.mandateRequest.count({ where: { agencyId: m.agencyId, status: "PENDING" } })
+        : this.prisma.mandateRequest.count({ where: { agencyId: m.agencyId, status: "PENDING", createdById: userId } }),
+      this.prisma.feeEntry.findMany({
+        where: { mandate: mandateScope, dueDate: { gte: from, lte: to }, status: { in: ["DUE", "SETTLED"] } },
+        select: { amount: true, status: true, currency: true },
+      }),
+      isManager
+        ? this.prisma.agencyMember.findMany({
+            where: { agencyId: m.agencyId },
+            select: { userId: true, role: true, user: { select: { firstName: true, lastName: true } } },
+            orderBy: { createdAt: "asc" },
+          })
+        : Promise.resolve(null),
+    ]);
+    const propertyIds = ids.LEASE_READ;
+    const readIds = ids.READ;
+    const countOf = (status: string) =>
+      mandateList
+        ? mandateList.filter((x) => x.status === status).length
+        : mandateCounts?.find((r) => r.status === status)?._count._all ?? 0;
+    const activeMandates = countOf("ACTIVE");
+    const pendingMandates = countOf("PENDING_OWNER");
+
+    // 2. Ce qui dépend des biens accessibles. Responsable : les lignes
+    //    (avec le bien) servent aux compteurs ET à la répartition par agent.
+    const rentWhere = { lease: { propertyId: { in: readIds } }, status: { in: ["DECLARED", "LATE"] as RentStatus[] } };
+    const ticketWhere = { lease: { propertyId: { in: readIds } }, status: { not: "RESOLVED" as const } };
+    const [rentRows, rentGroups, ticketRows, ticketCount, upcomingVisits, pendingProposals] = await Promise.all([
+      isManager
+        ? this.prisma.rentPeriod.findMany({ where: rentWhere, select: { status: true, lease: { select: { propertyId: true } } } })
+        : Promise.resolve(null),
+      isManager
+        ? Promise.resolve(null)
+        : this.prisma.rentPeriod.groupBy({ by: ["status"], where: rentWhere, _count: { _all: true } }),
+      isManager
+        ? this.prisma.ticket.findMany({ where: ticketWhere, select: { lease: { select: { propertyId: true } } } })
+        : Promise.resolve(null),
+      isManager ? Promise.resolve(0) : this.prisma.ticket.count({ where: ticketWhere }),
+      this.prisma.visit.count({
+        where: { propertyId: { in: readIds }, status: { in: ["REQUESTED", "CONFIRMED"] }, proposedAt: { gte: now } },
+      }),
+      this.prisma.inquiry.count({
+        where: { propertyId: { in: readIds }, status: "PENDING", proposedAt: { not: null }, ownerDecision: null },
+      }),
+    ]);
+    const rentCount = (status: string) =>
+      rentRows ? rentRows.filter((r) => r.status === status).length : rentGroups?.find((r) => r.status === status)?._count._all ?? 0;
+    const openTickets = ticketRows ? ticketRows.length : ticketCount;
+
     const byCurrency = new Map<string, { currency: string; due: number[]; settled: number[] }>();
     for (const f of fees) {
       const e = byCurrency.get(f.currency) ?? { currency: f.currency, due: [], settled: [] };
@@ -440,26 +488,10 @@ export class AgenciesService {
     }));
 
     let byAgent: unknown[] = [];
-    if (isManager) {
-      const members = await this.prisma.agencyMember.findMany({
-        where: { agencyId: m.agencyId },
-        select: { userId: true, role: true, user: { select: { firstName: true, lastName: true } } },
-        orderBy: { createdAt: "asc" },
-      });
-      const mandates = await this.prisma.mandate.findMany({
-        where: { agencyId: m.agencyId, status: { in: ["ACTIVE", "PENDING_OWNER"] } },
-        select: { assignedAgentId: true, status: true, propertyId: true },
-      });
-      const [declared, tickets] = await Promise.all([
-        this.prisma.rentPeriod.findMany({
-          where: { lease: { propertyId: { in: readIds } }, status: "DECLARED" },
-          select: { lease: { select: { propertyId: true } } },
-        }),
-        this.prisma.ticket.findMany({
-          where: { lease: { propertyId: { in: readIds } }, status: { not: "RESOLVED" } },
-          select: { lease: { select: { propertyId: true } } },
-        }),
-      ]);
+    if (isManager && members && mandateList && rentRows && ticketRows) {
+      const mandates = mandateList;
+      const declared = rentRows.filter((r) => r.status === "DECLARED");
+      const tickets = ticketRows;
       const rows = [
         ...members.map((x) => ({ userId: x.userId as string | null, firstName: x.user.firstName, lastName: x.user.lastName, role: x.role as string | null })),
         { userId: null, firstName: null as unknown as string, lastName: null as unknown as string, role: null },
@@ -489,8 +521,8 @@ export class AgenciesService {
       properties: propertyIds.length,
       activeMandates,
       pendingMandates: pendingMandates + pendingRequests,
-      rentsToVerify: rents.find((r) => r.status === "DECLARED")?._count._all ?? 0,
-      lateRents: rents.find((r) => r.status === "LATE")?._count._all ?? 0,
+      rentsToVerify: rentCount("DECLARED"),
+      lateRents: rentCount("LATE"),
       openTickets,
       upcomingVisits,
       pendingProposals,
