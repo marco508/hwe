@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { MandateStatus, MandateType, Prisma, Role } from "@prisma/client";
-import * as bcrypt from "bcryptjs";
+import { hashPassword } from "../common/password";
 import { randomBytes } from "crypto";
 import { asLang, monthYear, pdfLang, requestLang, t } from "../i18n/i18n";
 import { feeLabel, localizePeriod } from "../i18n/labels";
@@ -38,7 +38,7 @@ import {
   formatMandateReference,
   parseMonth,
 } from "./fees";
-import { buildStatementPdf } from "./statement-pdf";
+import { renderPdf } from "../common/pdf-render";
 import {
   AcceptRequestDto,
   ByOwnerDto,
@@ -512,11 +512,12 @@ export class MandatesService {
       }
     }
 
+    // Compte invité : mot de passe aléatoire inutilisable (haché hors transaction).
+    const unusable = createdOwner ? await hashPassword(randomBytes(32).toString("hex")) : "";
     const { mandateId, ownerUserId } = await this.prisma.$transaction(async (tx) => {
       let oid = ownerId;
       if (createdOwner) {
-        // Compte invité : mot de passe aléatoire inutilisable, non activé, e-mail non vérifié.
-        const unusable = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
+        // Compte invité : non activé, e-mail non vérifié.
         const o = await tx.user.create({
           data: {
             email: normalizeEmail(dto.owner!.email),
@@ -1046,7 +1047,7 @@ export class MandatesService {
     const me = await this.prisma.user.findUnique({ where: { id: user.sub }, select: { locale: true } });
     const lang = pdfLang(asLang(me?.locale, requestLang()));
     const b = this.monthBounds(month);
-    const buffer = await buildStatementPdf({
+    const buffer = await renderPdf("statement", {
       lang,
       title: t(lang, "pdf.statement.title", { month: monthYear(lang, b.year, b.month) }),
       reference: s.mandate.reference,

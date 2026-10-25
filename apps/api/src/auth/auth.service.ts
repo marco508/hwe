@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Prisma } from "@prisma/client";
-import * as bcrypt from "bcryptjs";
+import { DUMMY_HASH, hashPassword, verifyPassword } from "../common/password";
 import { PrismaService } from "../prisma/prisma.service";
 import { MailerService } from "../mail/mailer.service";
 import { RegisterDto } from "./dto/register.dto";
@@ -61,9 +61,8 @@ export const ACCOUNT_NOT_ACTIVATED_MESSAGE =
 export const INVITED_ACCOUNT_MESSAGE =
   "Un professionnel a déjà créé votre espace : utilisez le lien d'invitation reçu ou « mot de passe oublié » pour l'activer.";
 
-// Hash factice : un login sur un compte inexistant coûte autant qu'un vrai
-// (pas d'énumération des comptes par le temps de réponse).
-const DUMMY_HASH = bcrypt.hashSync("dummy-password-for-timing", 10);
+// Hash factice (DUMMY_HASH, common/password) : un login sur un compte
+// inexistant coûte autant qu'un vrai (pas d'énumération par le temps de réponse).
 
 @Injectable()
 export class AuthService {
@@ -139,7 +138,7 @@ export class AuthService {
     } catch {
       throw new BadRequestException("Ce lien a expiré ou a déjà été utilisé. Redemandez une réinitialisation.");
     }
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await hashPassword(password);
     // Compte invité : « mot de passe oublié » l'ACTIVE (le lien reçu prouve l'adresse).
     const now = new Date();
     await this.prisma.user.update({
@@ -163,7 +162,7 @@ export class AuthService {
     }
     if (existing) throw new ConflictException("Un compte existe déjà avec cette adresse e-mail.");
 
-    const password = await bcrypt.hash(dto.password, 10);
+    const password = await hashPassword(dto.password);
     // Défense en profondeur : le rôle est re-restreint ici même si le DTO
     // était contourné — l'inscription publique ne crée JAMAIS d'ADMIN.
     // Une invitation d'agence fait toujours un compte professionnel.
@@ -277,7 +276,7 @@ export class AuthService {
   /** Activation : mot de passe choisi, compte activé et e-mail vérifié (le lien le prouve). */
   async activateOwner(token: string, password: string) {
     const user = await this.userFromOwnerInvite(token);
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await hashPassword(password);
     const now = new Date();
     const { count } = await this.prisma.user.updateMany({
       where: { id: user.id, activatedAt: null, password: user.password },
@@ -355,7 +354,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.findByEmail(dto.email);
     // bcrypt exécuté dans tous les cas (temps de réponse identique).
-    const ok = await bcrypt.compare(dto.password, user?.password ?? DUMMY_HASH);
+    const ok = await verifyPassword(dto.password, user?.password ?? DUMMY_HASH);
     // Compte invité non activé : 403 explicite (son mot de passe aléatoire
     // n'est connu de personne — il doit passer par son lien).
     if (user && !user.activatedAt) {

@@ -11,7 +11,7 @@
  *   ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_FIRST_NAME, ADMIN_LAST_NAME
  */
 import { PrismaClient, Role } from "@prisma/client";
-import * as bcrypt from "bcryptjs";
+import * as bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 
 const prisma = new PrismaClient();
