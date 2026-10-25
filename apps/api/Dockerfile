@@ -37,7 +37,15 @@ WORKDIR /repo/apps/api
 
 ENV NODE_ENV=production
 ENV API_PORT=4000
+# Pool de threads libuv : hachages bcrypt natifs (au plus 2 à la fois, cf.
+# PASSWORD_HASH_CONCURRENCY) + lectures des fichiers téléversés.
+ENV UV_THREADPOOL_SIZE=8
 EXPOSE 4000
+
+# Point de montage du volume des fichiers téléversés (MEDIA_DIR=/data/media) :
+# créé ici au nom de l'utilisateur node pour qu'un volume nommé neuf hérite de
+# ces droits. Sans MEDIA_DIR, rien n'y est écrit (tout reste en base).
+RUN mkdir -p /data/media && chown node:node /data/media
 
 COPY apps/api/docker-entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

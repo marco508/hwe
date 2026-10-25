@@ -77,6 +77,8 @@ model User {
   /// Clé publique (non devinable) de l'avatar, servi par GET /api/media/avatar/<clé>.
   /// Change à chaque nouvel avatar (cache HTTP immuable), null sans avatar.
   avatarKey String? @unique
+  /// Référence du fichier de l'avatar sur le volume (MEDIA_DIR), lue en priorité.
+  avatarFileKey String?
   /// Compte activé (mot de passe choisi par son titulaire). Null pour un
   /// propriétaire créé par un professionnel tant qu'il n'a pas utilisé son
   /// lien d'invitation (ou « mot de passe oublié ») : connexion refusée.
@@ -234,6 +236,9 @@ model PropertyMedia {
   propertyId String
   property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   url        String   @db.Text
+  /// Référence du fichier sur le volume (MEDIA_DIR) : `hwef:<mime>:<sha256>:<taille>`.
+  /// Lue en priorité ; `url` (data-URL) reste le repli tant que la purge n'est pas faite.
+  fileKey    String?
   alt        String?
   position   Int      @default(0)
   createdAt  DateTime @default(now())
@@ -500,6 +505,8 @@ model LeaseContract {
 
   @@index([propertyId])
   @@index([status])
+  // Baux d'un locataire : e-mail normalisé (minuscules), recherche indexée.
+  @@index([tenantEmail])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -816,6 +823,8 @@ model Agency {
   /// Logo en data-URL (jamais renvoyé) et clé publique /api/media/agency/<clé>.
   logoDataUrl        String?  @db.Text
   logoKey            String?  @unique
+  /// Référence du fichier du logo sur le volume (MEDIA_DIR), lue en priorité.
+  logoFileKey        String?
   email              String?
   phone              String?
   address            String?

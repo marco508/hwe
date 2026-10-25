@@ -10,6 +10,7 @@ import { MailerService } from "../mail/mailer.service";
 import { resolveLeaseParty } from "../common/lease-party.util";
 import { assertEmailVerified } from "../common/email-verified.util";
 import { assertValidDataUrl } from "../common/upload.util";
+import { persistPrivateFile } from "../common/file-store";
 import { CreateTicketDto, ReviewTicketDto } from "./dto/ticket.dto";
 import { PropertyAccessService } from "../common/property-access";
 
@@ -34,6 +35,7 @@ export class TicketsService {
       throw new ConflictException("Les incidents se signalent sur un bail signé et en cours.");
     }
     assertValidDataUrl(dto.photoDataUrl, "photo");
+    const photoDataUrl = await persistPrivateFile(dto.photoDataUrl);
 
     const ticket = await this.prisma.ticket.create({
       data: {
@@ -41,7 +43,7 @@ export class TicketsService {
         authorId: user.sub,
         title: dto.title,
         description: dto.description,
-        photoDataUrl: dto.photoDataUrl || null,
+        photoDataUrl,
       },
     });
 

@@ -66,8 +66,64 @@ export class MediaCache {
   }
 }
 
-/** Instance de l'API : MEDIA_CACHE_MB (défaut 64 Mo, 0 = désactivé), TTL 10 min. */
+/**
+ * Petit cache LRU borné en NOMBRE d'entrées, avec TTL : id de photo → référence
+ * du fichier sur le volume (quelques dizaines d'octets par entrée). Évite une
+ * requête SQL par image servie ; invalidé comme le cache d'octets (photo
+ * retirée ou bien supprimé) et purgé par le TTL.
+ */
+export class RefCache {
+  private readonly map = new Map<string, { v: string; at: number }>();
+  constructor(readonly maxEntries: number, readonly ttlMs: number) {}
+
+  get(key: string, now = Date.now()): string | null {
+    const e = this.map.get(key);
+    if (!e) return null;
+    if (now - e.at > this.ttlMs) {
+      this.map.delete(key);
+      return null;
+    }
+    this.map.delete(key);
+    this.map.set(key, e);
+    return e.v;
+  }
+
+  set(key: string, v: string, now = Date.now()): void {
+    if (this.maxEntries <= 0) return;
+    this.map.delete(key);
+    this.map.set(key, { v, at: now });
+    while (this.map.size > this.maxEntries) {
+      const first = this.map.keys().next().value as string;
+      this.map.delete(first);
+    }
+  }
+
+  delete(key: string): void {
+    this.map.delete(key);
+  }
+
+  get size(): number {
+    return this.map.size;
+  }
+}
+
+/**
+ * Cache d'octets : ne sert plus qu'au REPLI base (photos pas encore copiées
+ * sur le volume, ou MEDIA_DIR absent). Avec les fichiers, le cache de pages du
+ * noyau joue ce rôle : défaut 64 Mo sans MEDIA_DIR, 16 Mo avec
+ * (MEDIA_CACHE_MB, 0 = désactivé), TTL 10 min.
+ */
+const defaultCacheMb = (process.env.MEDIA_DIR || "").trim() ? 16 : 64;
 export const mediaCache = new MediaCache(
-  Math.max(0, Number(process.env.MEDIA_CACHE_MB ?? 64)) * 1024 * 1024,
+  Math.max(0, Number(process.env.MEDIA_CACHE_MB ?? defaultCacheMb)) * 1024 * 1024,
   10 * 60_000,
 );
+
+/** id de photo → référence de fichier (50 000 entrées ≈ 8 Mo au plus). */
+export const mediaRefCache = new RefCache(50_000, 10 * 60_000);
+
+/** Retrait d'une photo : plus servie depuis les caches mémoire. */
+export function forgetMedia(id: string): void {
+  mediaCache.delete(`m-${id}`);
+  mediaRefCache.delete(id);
+}

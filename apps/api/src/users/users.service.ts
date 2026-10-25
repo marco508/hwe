@@ -8,6 +8,7 @@ import {
   MAX_AVATAR_BYTES,
 } from "../common/upload.util";
 import { avatarUrlFromKey } from "../common/media.util";
+import { persistPrivateFile, persistPublicFile } from "../common/file-store";
 
 // avatarKey → avatarUrl (URL publique) par l'intercepteur de réponse : la
 // data-URL de l'avatar ne part plus jamais dans le JSON.
@@ -56,6 +57,7 @@ export class UsersService {
       phone?: string | null;
       avatarUrl?: string | null;
       avatarKey?: string | null;
+      avatarFileKey?: string | null;
       locale?: string;
     } = {};
     if (dto.locale !== undefined) data.locale = dto.locale;
@@ -66,10 +68,13 @@ export class UsersService {
     if (dto.avatarUrl === null || dto.avatarUrl === "") {
       data.avatarUrl = null;
       data.avatarKey = null;
+      data.avatarFileKey = null;
     } else if (dto.avatarUrl !== undefined) {
       if (dto.avatarUrl.startsWith("data:")) {
         assertDataUrl(dto.avatarUrl, "avatar", { allowed: IMAGE_MIME, maxBytes: MAX_AVATAR_BYTES });
-        data.avatarUrl = dto.avatarUrl;
+        const st = await persistPublicFile(dto.avatarUrl);
+        data.avatarUrl = st.value;
+        data.avatarFileKey = st.fileKey;
         // Nouvelle clé à chaque image : le cache HTTP immuable reste juste.
         data.avatarKey = randomBytes(16).toString("hex");
       } else {
@@ -110,12 +115,13 @@ export class UsersService {
     if (count >= MAX_USER_DOCUMENTS) {
       throw new BadRequestException(`Nombre maximum de documents atteint (${MAX_USER_DOCUMENTS}) : supprimez-en un d'abord.`);
     }
+    const fileUrl = (await persistPrivateFile(data.fileUrl))!;
     return this.prisma.userDocument.create({
       data: {
         userId,
         name: data.name,
         documentType: data.documentType,
-        fileUrl: data.fileUrl,
+        fileUrl,
         fileSize: file.size,
         mimeType: file.mime,
         notes: data.notes ?? null,

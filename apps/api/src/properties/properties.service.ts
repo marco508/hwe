@@ -15,7 +15,8 @@ import { MEDIA_SELECT, USER_PUBLIC_SELECT, mediaIdFromUrl, withMediaUrl, agencyL
 import { AccessAction, PropertyAccessService, decideAccess } from "../common/property-access";
 import { FeesService } from "../mandates/fees.service";
 import { today as todayDay } from "../common/dates";
-import { mediaCache } from "../common/media-cache";
+import { forgetMedia } from "../common/media-cache";
+import { persistPublicFile } from "../common/file-store";
 
 // Propriétaire tel que montré publiquement : jamais e-mail ni téléphone
 // (aspiration, RGPD). Le contact passe par la messagerie ou la candidature.
@@ -337,6 +338,9 @@ export class PropertiesService {
       throw new BadRequestException("Indiquez le prix de vente.");
     }
     const data = cleanData(dto as unknown as Record<string, unknown>);
+    // Fichiers écrits sur le volume AVANT la base (un échec SQL ne laisse
+    // qu'un fichier orphelin, purgé par le ménage).
+    const stored = await Promise.all(media.map((m) => persistPublicFile(m.url)));
     const created = await (opts.tx ?? this.prisma).property.create({
       data: {
         ...(data as Omit<Prisma.PropertyUncheckedCreateInput, "ownerId">),
@@ -345,7 +349,8 @@ export class PropertiesService {
         media: media.length
           ? {
               create: media.map((m, i) => ({
-                url: m.url,
+                url: stored[i]!.value,
+                fileKey: stored[i]!.fileKey,
                 alt: m.alt ?? null,
                 position: m.position ?? i,
               })),
@@ -393,7 +398,7 @@ export class PropertiesService {
     // de CE bien, conservée (son id, donc son cache, ne change pas).
     const media = dto.media;
     const keep = new Map<string, { position: number; alt: string | null }>();
-    const fresh: Array<{ url: string; alt: string | null; position: number }> = [];
+    const fresh: Array<{ url: string; fileKey?: string | null; alt: string | null; position: number }> = [];
     if (media) {
       const own = new Set(existing.media.map((m) => m.id));
       media.forEach((m, i) => {
@@ -413,6 +418,11 @@ export class PropertiesService {
       });
     }
 
+    for (const f of fresh) {
+      const st = await persistPublicFile(f.url);
+      f.url = st.value;
+      f.fileKey = st.fileKey;
+    }
     const data = cleanData(dto as unknown as Record<string, unknown>);
     delete data.salePrice;
     if (becomesSold) {
@@ -464,7 +474,7 @@ export class PropertiesService {
       if (m) await this.access.logEvent(m.id, userId, "PROPERTY_SOLD", { salePrice: salePrice ?? null });
     }
     // Photos retirées : plus servies depuis le cache mémoire.
-    if (media) for (const m of existing.media) if (!keep.has(m.id)) mediaCache.delete(`m-${m.id}`);
+    if (media) for (const m of existing.media) if (!keep.has(m.id)) forgetMedia(m.id);
     const [withManaged] = await this.withManagedBy([shape(updated)]);
     return withManaged;
   }
@@ -507,7 +517,7 @@ export class PropertiesService {
       this.prisma.mandate.deleteMany({ where: { propertyId: id } }),
       this.prisma.property.delete({ where: { id } }),
     ]);
-    for (const m of existing.media) mediaCache.delete(`m-${m.id}`);
+    for (const m of existing.media) forgetMedia(m.id);
     return { ok: true };
   }
 }

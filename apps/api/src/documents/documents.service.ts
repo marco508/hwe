@@ -3,6 +3,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { AccessAction, PropertyAccessService } from "../common/property-access";
 import { CreateDocumentDto, UpdateDocumentDto } from "./dto/create-document.dto";
 import { assertDataUrl } from "../common/upload.util";
+import { persistPrivateFile } from "../common/file-store";
 
 @Injectable()
 export class DocumentsService {
@@ -27,12 +28,13 @@ export class DocumentsService {
   async create(propertyId: string, ownerId: string, dto: CreateDocumentDto) {
     await this.assertOwner(propertyId, ownerId);
     const file = assertDataUrl(dto.fileUrl, "document");
+    const fileUrl = (await persistPrivateFile(dto.fileUrl))!;
     return this.prisma.propertyDocument.create({
       data: {
         propertyId,
         name: dto.name,
         documentType: dto.documentType,
-        fileUrl: dto.fileUrl,
+        fileUrl,
         fileSize: file.size,
         mimeType: file.mime,
         notes: dto.notes ?? null,
@@ -53,13 +55,14 @@ export class DocumentsService {
     if (!doc || doc.propertyId !== propertyId) throw new NotFoundException("Document introuvable");
     // Champs explicites : impossible de déplacer le document vers un autre bien.
     const file = dto.fileUrl !== undefined ? assertDataUrl(dto.fileUrl, "document") : null;
+    const fileUrl = file ? await persistPrivateFile(dto.fileUrl) : null;
     return this.prisma.propertyDocument.update({
       where: { id: docId },
       data: {
         ...(dto.name !== undefined ? { name: dto.name } : {}),
         ...(dto.documentType !== undefined ? { documentType: dto.documentType } : {}),
         ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
-        ...(file ? { fileUrl: dto.fileUrl, fileSize: file.size, mimeType: file.mime } : {}),
+        ...(file && fileUrl ? { fileUrl, fileSize: file.size, mimeType: file.mime } : {}),
       },
     });
   }
