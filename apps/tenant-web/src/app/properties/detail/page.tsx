@@ -91,14 +91,19 @@ export default function PropertyDetailPage() {
   }, [params?.id]);
 
   // Séjour courte durée réservable en ligne (espace Voyage) ?
-  const [stay, setStay] = React.useState<StayPublicInfo | null>(null);
+  // undefined = en cours de chargement ; null = pas de séjour réservable.
+  const [stay, setStay] = React.useState<StayPublicInfo | null | undefined>(undefined);
+  const stayTarget = p && p.listingType === "RENT" ? p.id : null;
   React.useEffect(() => {
-    if (!params?.id) return;
+    if (!stayTarget) {
+      if (p) setStay(null);
+      return;
+    }
     api
-      .stayInfo(params.id)
+      .stayInfo(stayTarget)
       .then(setStay)
       .catch(() => setStay(null));
-  }, [params?.id]);
+  }, [stayTarget, p]);
 
   React.useEffect(() => {
     if (!user || !params?.id) return;
@@ -164,7 +169,7 @@ export default function PropertyDetailPage() {
         onToggleFav={toggleFav}
         currentUser={user}
         fmtPrice={fmtPrice}
-        stay={stay?.enabled ? stay : null}
+        stay={stay === undefined ? undefined : stay?.enabled ? stay : null}
       />
     </article>
   );
@@ -192,8 +197,8 @@ function PropertyDetailInner({
   onToggleFav: () => void;
   currentUser: User | null;
   fmtPrice: (n: number, currency?: string) => string;
-  /** Réglages séjour publics si le logement se réserve en ligne, sinon null. */
-  stay: StayPublicInfo | null;
+  /** Réglages séjour publics si le logement se réserve en ligne, null sinon, undefined pendant le chargement. */
+  stay: StayPublicInfo | null | undefined;
 }) {
   // ── Steps du wizard ──────────────────────────────────────────────────────
   const { lang } = useLang();
@@ -231,7 +236,7 @@ function PropertyDetailInner({
     typeof window !== "undefined" && new URLSearchParams(window.location.search).has("arrivee") ? "book" : "overview",
   );
   React.useEffect(() => {
-    if (activeStep === "book" && !stay) setActiveStep("overview");
+    if (activeStep === "book" && stay === null) setActiveStep("overview");
   }, [stay, activeStep]);
 
   // Active step index for nav buttons
