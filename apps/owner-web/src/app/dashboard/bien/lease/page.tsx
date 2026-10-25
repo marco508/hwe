@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useShellParams } from "../../../../lib/route-params";
 import {
   Button,
   Input,
@@ -69,7 +69,7 @@ const EMPTY_FORM = {
 export default function LeasePage() {
   // Session et rôle garantis par dashboard/layout.tsx.
   const { user } = useAuth();
-  const params = useParams<{ id: string }>();
+  const params = useShellParams<{ id: string }>("/dashboard/:id/lease");
 
   const [property, setProperty] = React.useState<Property | null>(null);
   const [leases, setLeases] = React.useState<LeaseContract[]>([]);

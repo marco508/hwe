@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useShellParams } from "../../../lib/route-params";
 import {
   Badge,
   Card,
@@ -42,7 +42,7 @@ const FEATURE_ICONS: Record<string, IconName> = {
 };
 
 export default function PropertyDetailPage() {
-  const params = useParams<{ id: string }>();
+  const params = useShellParams<{ id: string }>("/properties/:id");
   // U6 : prix converti dans la devise d'affichage (comme le reste de l'app).
   const { format: fmtPrice } = useCurrency();
   const { user } = useAuth();

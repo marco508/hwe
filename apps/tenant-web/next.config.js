@@ -11,10 +11,23 @@ const securityHeaders = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
 
+// Pages à identifiant servies par une COQUILLE STATIQUE pré-rendue au build
+// (src/lib/route-params.ts) : plus de rendu serveur à chaque visite, et rien
+// n'est mis en cache par URL (une URL inventée ne remplit aucun cache).
+// Réécritures « afterFiles » : les routes statiques voisines (/dashboard/loyers…)
+// restent prioritaires.
+const shellRewrites = [
+  { source: "/properties/:id", destination: "/properties/detail" },
+  { source: "/agences/:slug", destination: "/agences/detail" },
+];
+
 const config = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ["@hwe/ui", "@hwe/types"],
+  async rewrites() {
+    return shellRewrites;
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

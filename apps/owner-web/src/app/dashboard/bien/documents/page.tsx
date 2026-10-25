@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useShellParams } from "../../../../lib/route-params";
 import {
   Button,
   Input,
@@ -51,7 +51,7 @@ type PendingFile = { dataUrl: string; size: number; mimeType: string; originalNa
  */
 export default function DocumentsPage() {
   const { user } = useAuth();
-  const params = useParams<{ id: string }>();
+  const params = useShellParams<{ id: string }>("/dashboard/:id/documents");
 
   const [property, setProperty] = React.useState<Property | null>(null);
   const [docs, setDocs] = React.useState<PropertyDocument[]>([]);

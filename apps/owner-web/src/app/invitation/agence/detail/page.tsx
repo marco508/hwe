@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useShellParams } from "../../../../lib/route-params";
 import {
   AgencyLogo,
   Button,
@@ -22,7 +23,7 @@ import { api } from "../../../../lib/api";
 import { t } from "../../../../lib/i18n";
 
 export default function AgencyInvitationPage() {
-  const params = useParams<{ token: string }>();
+  const params = useShellParams<{ token: string }>("/invitation/agence/:token");
   const token = decodeURIComponent(params?.token ?? "");
   const router = useRouter();
   const { user, loading: authLoading, register, refresh, logout } = useAuth();

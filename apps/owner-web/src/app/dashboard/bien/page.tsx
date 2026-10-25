@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useShellParams } from "../../../lib/route-params";
 import type { Mandate } from "@hwe/types";
 import {
   Badge,
@@ -33,7 +33,7 @@ import { Modal } from "../../../components/Modal";
 
 /** Fiche de gestion d'un bien — commune au propriétaire et au pro mandataire. */
 export default function PropertyHubPage() {
-  const params = useParams<{ id: string }>();
+  const params = useShellParams<{ id: string }>("/dashboard/:id");
   const id = params?.id;
   const { user } = useAuth();
   const pro = isPro(user);

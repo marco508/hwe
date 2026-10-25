@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { notFound, useParams, useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
+import { useShellParams } from "../../../lib/route-params";
 import {
   Badge,
   Button,
@@ -67,7 +68,7 @@ function countryName(code: string) {
 }
 
 export default function PropertyDetailPage() {
-  const params = useParams<{ id: string }>();
+  const params = useShellParams<{ id: string }>("/properties/:id");
   const { user } = useAuth();
   const { format: fmtPrice } = useCurrency();
   // Jeton optionnel : le propriétaire voit aussi son brouillon (contrat §8).

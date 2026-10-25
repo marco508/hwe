@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useShellParams } from "../../../lib/route-params";
 import { AgencyLogo, Button, Card, CardBody, EmptyState, Icon, Input, Label, errorText, toast, useAsync } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -10,7 +11,7 @@ import { t } from "../../../lib/i18n";
 
 /** Activation d'un compte propriétaire créé par un professionnel. */
 export default function ActivateOwnerPage() {
-  const params = useParams<{ token: string }>();
+  const params = useShellParams<{ token: string }>("/activer/:token");
   const token = decodeURIComponent(params?.token ?? "");
   const router = useRouter();
   const { adopt } = useAuth();

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useShellParams } from "../../../lib/route-params";
 import {
   AgencyLogo,
   AnimatedBackground,
@@ -33,7 +33,7 @@ function regionName(code: string | null | undefined, lang: string): string {
 
 /** Page publique d'une agence : profil, coordonnées et biens publiés. */
 export default function AgencyPage() {
-  const params = useParams<{ slug: string }>();
+  const params = useShellParams<{ slug: string }>("/agences/:slug");
   const slug = params?.slug ?? "";
   const { lang } = useLang();
   const { format: fmtPrice } = useCurrency();

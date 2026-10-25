@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useShellParams } from "../../../../lib/route-params";
 import Link from "next/link";
 import { api } from "../../../../lib/api";
 import { useAuth } from "../../../../lib/auth-context";
@@ -16,7 +17,7 @@ const secondaryLink =
 
 export default function EditPropertyPage() {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
+  const params = useShellParams<{ id: string }>("/dashboard/:id/edit");
   const { user } = useAuth();
   const [property, setProperty] = React.useState<Property | null>(null);
   const [rates, setRates] = React.useState<PricingRate[]>([]);
