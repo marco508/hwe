@@ -225,6 +225,8 @@ model Property {
   @@index([country])
   @@index([status])
   @@index([price])
+  // Catalogue public : WHERE status = 'PUBLISHED' ORDER BY createdAt DESC LIMIT n (parcours d'index, sans tri).
+  @@index([status, createdAt(sort: Desc)])
 }
 
 model PropertyMedia {

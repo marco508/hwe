@@ -15,6 +15,7 @@ import { MEDIA_SELECT, USER_PUBLIC_SELECT, mediaIdFromUrl, withMediaUrl, agencyL
 import { AccessAction, PropertyAccessService, decideAccess } from "../common/property-access";
 import { FeesService } from "../mandates/fees.service";
 import { today as todayDay } from "../common/dates";
+import { mediaCache } from "../common/media-cache";
 
 // Propriétaire tel que montré publiquement : jamais e-mail ni téléphone
 // (aspiration, RGPD). Le contact passe par la messagerie ou la candidature.
@@ -74,6 +75,16 @@ export interface ManagedBy {
   name: string;
   slug: string;
   logoUrl: string | null;
+}
+
+/** Durée de cache des compteurs publics de la landing. */
+export const STATS_TTL_MS = 60_000;
+
+export interface PublicStats {
+  total: number;
+  byCountry: Record<string, number>;
+  cities: number;
+  countries: number;
 }
 
 @Injectable()
@@ -167,8 +178,27 @@ export class PropertiesService {
     return { items: await this.withManagedBy(publicItems), total, page, pageSize };
   }
 
-  /** Compteurs publics de la landing (annonces publiées). */
-  async stats() {
+  /**
+   * Compteurs publics de la landing (annonces publiées), mis en cache
+   * STATS_TTL_MS : ils sont demandés à chaque affichage de l'accueil et
+   * coûtaient deux parcours complets de la table (tests de charge). Une
+   * seule requête en vol à la fois (les appels simultanés la partagent).
+   */
+  private statsCache: { at: number; value: Promise<PublicStats> } | null = null;
+
+  stats(now = Date.now()): Promise<PublicStats> {
+    const c = this.statsCache;
+    if (c && now - c.at < STATS_TTL_MS) return c.value;
+    const value = this.computeStats();
+    this.statsCache = { at: now, value };
+    // Échec : pas de mise en cache de l'erreur.
+    value.catch(() => {
+      if (this.statsCache?.value === value) this.statsCache = null;
+    });
+    return value;
+  }
+
+  private async computeStats(): Promise<PublicStats> {
     const [byCountryRows, total, cityRows] = await Promise.all([
       this.prisma.property.groupBy({
         by: ["country"],
@@ -257,9 +287,12 @@ export class PropertiesService {
       orderBy: { createdAt: "desc" },
     });
     const withManaged = await this.withManagedBy(items.map(shape));
+    // Contextes d'accès de tout le portefeuille en requêtes groupées (au lieu de 5 à 7 par bien).
+    const contexts = await this.access.contexts(withManaged.map((p) => p.id), userId);
     const out = [];
     for (const p of withManaged) {
-      const ctx = await this.access.context(p.id, userId);
+      const ctx = contexts.get(p.id);
+      if (!ctx) continue;
       const actions = (["READ", "EDIT_LISTING", "ACCEPT_TENANT", "SIGN_LEASE", "RENTS", "OWNER_NOTICE"] as AccessAction[]);
       const can: Record<string, boolean> = {};
       for (const a of actions) can[a] = decideAccess(ctx, a).allowed;
@@ -430,6 +463,8 @@ export class PropertiesService {
       const m = await this.access.activeMandate(id);
       if (m) await this.access.logEvent(m.id, userId, "PROPERTY_SOLD", { salePrice: salePrice ?? null });
     }
+    // Photos retirées : plus servies depuis le cache mémoire.
+    if (media) for (const m of existing.media) if (!keep.has(m.id)) mediaCache.delete(`m-${m.id}`);
     const [withManaged] = await this.withManagedBy([shape(updated)]);
     return withManaged;
   }
@@ -440,7 +475,7 @@ export class PropertiesService {
    * quittances du locataire doit rester.
    */
   async remove(userId: string, id: string) {
-    const existing = await this.prisma.property.findUnique({ where: { id } });
+    const existing = await this.prisma.property.findUnique({ where: { id }, include: { media: { select: { id: true } } } });
     if (!existing) throw new NotFoundException("Annonce introuvable.");
     await this.access.assert(id, userId, "DELETE_PROPERTY");
     // Un mandat ouvert ou porteur d'honoraires : on archive, on ne supprime pas.
@@ -472,6 +507,7 @@ export class PropertiesService {
       this.prisma.mandate.deleteMany({ where: { propertyId: id } }),
       this.prisma.property.delete({ where: { id } }),
     ]);
+    for (const m of existing.media) mediaCache.delete(`m-${m.id}`);
     return { ok: true };
   }
 }
