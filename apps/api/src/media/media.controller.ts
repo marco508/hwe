@@ -92,6 +92,17 @@ export class MediaController {
     return this.serve(agency.logoFileKey, fromDb, `g-${key}`, req, res);
   }
 
+  /** Image d'un guide Voyage (destination, lieu, circuit). */
+  @Get("voyage/:key")
+  async voyageImage(@Param("key") key: string, @Req() req: Request, @Res() res: Response) {
+    if (!ID_RE.test(key)) throw new NotFoundException("Image introuvable.");
+    const img = await this.prisma.voyageImage.findUnique({ where: { key }, select: { fileKey: true } });
+    if (!img) throw new NotFoundException("Image introuvable.");
+    const fromDb = async () =>
+      (await this.prisma.voyageImage.findUnique({ where: { key }, select: { dataUrl: true } }))?.dataUrl ?? null;
+    return this.serve(img.fileKey, fromDb, `v-${key}`, req, res);
+  }
+
   @Get(":id")
   async media(@Param("id") id: string, @Req() req: Request, @Res() res: Response) {
     if (!ID_RE.test(id)) throw new NotFoundException("Image introuvable.");

@@ -234,6 +234,7 @@ export const BINARY_COLUMNS: readonly BinaryColumn[] = [
   { table: "PropertyMedia", column: "url", keyColumn: "fileKey", public: true },
   { table: "User", column: "avatarUrl", keyColumn: "avatarFileKey", guardColumn: "avatarKey", public: true },
   { table: "Agency", column: "logoDataUrl", keyColumn: "logoFileKey", guardColumn: "logoKey", public: true },
+  { table: "VoyageImage", column: "dataUrl", keyColumn: "fileKey", public: true },
   { table: "UserDocument", column: "fileUrl", public: false },
   { table: "PropertyDocument", column: "fileUrl", public: false },
   { table: "Ticket", column: "photoDataUrl", public: false },

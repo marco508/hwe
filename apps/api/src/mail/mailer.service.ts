@@ -205,6 +205,17 @@ export class MailerService implements OnModuleInit {
     return this.deliver(tenantEmail, (l) => tpl.chargeRegularization(l, { tenantName, propertyTitle, periodLabel, balance, currency }));
   }
 
+  // ─────────────────────── Séjours courte durée ───────────────────────
+
+  bookingEvent(
+    to: string,
+    name: string,
+    kind: string,
+    d: Omit<Parameters<typeof tpl.bookingEvent>[1], "name" | "kind">,
+  ) {
+    return this.deliver(to, (l) => tpl.bookingEvent(l, { ...d, name, kind }));
+  }
+
   // ─────────────────────── Professionnels (agences, mandats) ───────────────────────
 
   /** `fallback` : langue de l'invitant (l'adresse n'a souvent pas encore de compte). */

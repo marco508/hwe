@@ -70,7 +70,7 @@ const allowedSet = (c: AccessContext) => new Set(ALL_ACTIONS.filter((a) => decid
 /** Ce qu'un pro autorisé peut faire sous mandat de gestion, propriétaire activé. */
 const PRO_MANAGEMENT: AccessAction[] = [
   "READ", "LEASE_READ", "EDIT_LISTING", "MESSAGES", "PROPOSE_TENANT", "REJECT_INQUIRY",
-  "LEASE_DRAFT", "INSPECTION", "MANAGE", "RENTS", "OWNER_NOTICE",
+  "LEASE_DRAFT", "INSPECTION", "MANAGE", "RENTS", "OWNER_NOTICE", "STAYS",
 ];
 
 test("permissions : le propriétaire peut tout faire, même sous mandat actif", () => {

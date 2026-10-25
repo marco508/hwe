@@ -311,3 +311,66 @@ export function notice(lang: Lang, d: { name: string; base: string; params: Noti
     text: compose(lang, d.name, `${t(lang, `mail.${d.base}.body`, p)}\n\n${d.url}`),
   };
 }
+
+// ───────────────────────────── Séjours ─────────────────────────────
+
+export const BOOKING_MAIL_KINDS = [
+  "requested", "accepted", "confirmed", "declined", "expired", "expiredHost", "unpaidExpired", "unpaidExpiredHost",
+  "paymentDeclared", "paymentRejected", "cancelledByGuest", "cancelledByHost", "reviewed",
+] as const;
+
+export function bookingEvent(
+  lang: Lang,
+  d: {
+    name: string;
+    kind: string;
+    reference: string;
+    title: string;
+    checkIn: Date;
+    checkOut: Date;
+    nights: number;
+    guests: number;
+    total: number;
+    currency: string;
+    url: string;
+    guest?: string;
+    note?: string;
+    reason?: string;
+    method?: string;
+    payRef?: string;
+    rating?: number;
+  },
+): MailContent {
+  const kind = (BOOKING_MAIL_KINDS as readonly string[]).includes(d.kind) ? d.kind : "requested";
+  const p = {
+    ref: d.reference,
+    title: d.title,
+    from: shortDate(lang, d.checkIn, "UTC"),
+    to: shortDate(lang, d.checkOut, "UTC"),
+    nights: d.nights,
+    guests: d.guests,
+    total: money(lang, d.total, d.currency),
+    guest: d.guest ?? "",
+    note: d.note ?? "",
+    reason: d.reason ?? "",
+    method: d.method ?? "",
+    payRef: d.payRef ?? "",
+    rating: d.rating ?? "",
+  };
+  return {
+    subject: subject(lang, `mail.booking.${kind}.subject`, p),
+    text: compose(
+      lang,
+      d.name,
+      lines(
+        t(lang, `mail.booking.${kind}.l1`, p),
+        t(lang, "mail.booking.summary", p),
+        d.note ? t(lang, "mail.booking.note", p) : null,
+        d.reason ? t(lang, "mail.booking.reason", p) : null,
+        "",
+        t(lang, `mail.booking.${kind}.l2`, p),
+        d.url,
+      ),
+    ),
+  };
+}

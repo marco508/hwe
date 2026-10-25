@@ -384,7 +384,7 @@ test("ménage : supprime seulement les fichiers non référencés et anciens", a
     // Toutes les colonnes binaires sont couvertes (source unique).
     assert.deepEqual(
       BINARY_COLUMNS.map((c) => `${c.table}.${c.column}`).sort(),
-      ["Agency.logoDataUrl", "InsuranceCertificate.fileUrl", "PropertyDocument.fileUrl", "PropertyMedia.url", "RentPeriod.proofDataUrl", "Ticket.photoDataUrl", "User.avatarUrl", "UserDocument.fileUrl"],
+      ["Agency.logoDataUrl", "InsuranceCertificate.fileUrl", "PropertyDocument.fileUrl", "PropertyMedia.url", "RentPeriod.proofDataUrl", "Ticket.photoDataUrl", "User.avatarUrl", "UserDocument.fileUrl", "VoyageImage.dataUrl"],
     );
   } finally {
     rmSync(dir, { recursive: true, force: true });

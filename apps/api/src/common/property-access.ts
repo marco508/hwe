@@ -53,12 +53,14 @@ export type AccessAction =
   /** Congé bailleur */
   | "OWNER_NOTICE"
   /** Supprimer le bien */
-  | "DELETE_PROPERTY";
+  | "DELETE_PROPERTY"
+  /** Séjours courte durée : réglages, calendrier, réponses aux réservations (mandat de gestion) */
+  | "STAYS";
 
 export const ALL_ACTIONS: AccessAction[] = [
   "READ", "LEASE_READ", "EDIT_LISTING", "MESSAGES", "ACCEPT_TENANT", "PROPOSE_TENANT",
   "REJECT_INQUIRY", "LEASE_DRAFT", "SIGN_LEASE", "INSPECTION", "MANAGE", "SIGN_AMENDMENT",
-  "RENTS", "OWNER_NOTICE", "DELETE_PROPERTY",
+  "RENTS", "OWNER_NOTICE", "DELETE_PROPERTY", "STAYS",
 ];
 
 /** Décisions clés réservées au propriétaire (sauf propriétaire non activé). */
@@ -161,6 +163,9 @@ export function decideAccess(ctx: AccessContext, action: AccessAction): AccessDe
   }
   if (m.type === "SALE" && !SALE_ACTIONS.has(action)) {
     return deny("PRO", "MANDATE_SCOPE", "Cette action ne fait pas partie d'un mandat de vente.");
+  }
+  if (action === "STAYS" && m.type !== "MANAGEMENT") {
+    return deny("PRO", "MANDATE_SCOPE", "Les séjours courte durée se gèrent sous un mandat de gestion.");
   }
   if (action === "OWNER_NOTICE" && m.type !== "MANAGEMENT") {
     return deny("PRO", "MANDATE_SCOPE", "Le congé bailleur par le professionnel exige un mandat de gestion.");

@@ -34,7 +34,7 @@ export function agencyLogoUrl(key: string | null | undefined): string | null {
 export function mediaIdFromUrl(url: string): string | null {
   if (typeof url !== "string") return null;
   const m = /^https?:\/\/[^/\s]+(?:\/[^\s?#]*)?\/media\/([A-Za-z0-9_-]{8,64})(?:[?#].*)?$/.exec(url.trim());
-  if (!m || /\/media\/(avatar|agency)\//.test(url)) return null;
+  if (!m || /\/media\/(avatar|agency|voyage)\//.test(url)) return null;
   return m[1] ?? null;
 }
 
