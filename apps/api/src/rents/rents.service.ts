@@ -10,10 +10,12 @@ import { LeaseStatus, Prisma, RentStatus, Role } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { assertEmailVerified } from "../common/email-verified.util";
 import { assertValidDataUrl } from "../common/upload.util";
+import { persistPrivateFile } from "../common/file-store";
 import { leasePartyFlags } from "../common/lease-party.util";
+import { candidateTenantLeaseIds } from "../leases/lease-db.util";
 import { MailerService } from "../mail/mailer.service";
 import { today as todayDay, yearOf } from "../common/dates";
-import { buildReceiptPdf } from "./receipt";
+import { renderPdf } from "../common/pdf-render";
 import { asLang, pdfLang, requestLang, tr } from "../i18n/i18n";
 import { periodLabel as periodLabelIn } from "../i18n/labels";
 import { periodsUpTo } from "./rent-calc";
@@ -213,11 +215,7 @@ export class RentsService {
     const leases = await this.prisma.leaseContract.findMany({
       where: {
         status: { in: TENANT_VISIBLE_STATUSES },
-        OR: [
-          { tenantEmail: { equals: user.email, mode: "insensitive" } },
-          { inquiry: { senderId: user.id } },
-          { coTenants: { some: { email: { equals: user.email, mode: "insensitive" } } } },
-        ],
+        id: { in: await candidateTenantLeaseIds(this.prisma, user) },
       },
       include: {
         property: { select: { id: true, title: true, addressLine: true, city: true, ownerId: true } },
@@ -353,6 +351,7 @@ export class RentsService {
     const reference = dto.reference.trim();
     if (reference.length < 4)
       throw new BadRequestException("Indiquez l'identifiant de transaction reçu par SMS de votre opérateur.");
+    const proofDataUrl = await persistPrivateFile(dto.proofDataUrl);
 
     try {
       // Atomique : seule une échéance encore à payer passe en « déclarée ».
@@ -363,7 +362,7 @@ export class RentsService {
           declaredAt: new Date(),
           declaredMethod: dto.method.trim(),
           declaredRef: reference,
-          proofDataUrl: dto.proofDataUrl || null,
+          proofDataUrl,
           tenantNote: dto.note?.trim() || null,
           rejectReason: null,
         },
@@ -535,7 +534,7 @@ export class RentsService {
     const owner = period.lease.property.owner;
     // Langue du document : celle de l'utilisateur qui télécharge.
     const lang = pdfLang(asLang(user?.locale, requestLang()));
-    const buffer = await buildReceiptPdf({
+    const buffer = await renderPdf("receipt", {
       lang,
       receiptNo: period.receiptNo,
       paidAt: period.paidAt,

@@ -30,7 +30,7 @@ import {
   paymentPeriod,
   reminderFor,
 } from "../common/subscription";
-import { buildInvoicePdf } from "./invoice-pdf";
+import { renderPdf } from "../common/pdf-render";
 import { FxService } from "../fx/fx.service";
 import { basePrice, billingCurrencyOf, normalizePrices, planOffer, type PriceRow } from "./pricing";
 import {
@@ -48,6 +48,8 @@ type Tx = Prisma.TransactionClient;
 const methodLabel = (lang: Lang, m: PaymentMethod) => t(lang, `pdf.method.${m}`);
 
 const num = (d: Prisma.Decimal | number | null | undefined) => (d == null ? null : Number(d));
+
+const PLAN_ORDER = [{ position: "asc" as const }, { monthlyPrice: "asc" as const }];
 
 const PLAN_SELECT = {
   id: true,
@@ -173,28 +175,41 @@ export class SubscriptionsService {
 
   /** Usage de l'agence (agents, invitations, mandats) face aux limites. */
   private async usage(agencyId: string, sub: AgencySubscription) {
-    const [agents, pendingInvites, activeMandates, pendingMandates, writable] = await Promise.all([
+    const [agents, pendingInvites, mandateCounts, writable] = await Promise.all([
       this.prisma.agencyMember.count({ where: { agencyId } }),
       this.prisma.agencyInvite.count({ where: { agencyId, acceptedAt: null, expiresAt: { gt: new Date() } } }),
-      this.prisma.mandate.count({ where: { agencyId, status: "ACTIVE" } }),
-      this.prisma.mandate.count({ where: { agencyId, status: "PENDING_OWNER" } }),
+      this.prisma.mandate.groupBy({
+        by: ["status"],
+        where: { agencyId, status: { in: ["ACTIVE", "PENDING_OWNER"] } },
+        _count: { _all: true },
+      }),
       loadWritableMandates(this.prisma, sub),
     ]);
+    const activeMandates = mandateCounts.find((r) => r.status === "ACTIVE")?._count._all ?? 0;
+    const pendingMandates = mandateCounts.find((r) => r.status === "PENDING_OWNER")?._count._all ?? 0;
     const readOnlyMandates = !sub.writable ? activeMandates : writable ? Math.max(0, activeMandates - writable.size) : 0;
     return { agents, pendingInvites, activeMandates, pendingMandates, readOnlyMandates };
   }
 
   /** Résumé de statut (partagé agence / admin). */
-  private async summary(agencyId: string) {
-    const sub = await loadAgencySubscription(this.prisma, agencyId);
+  private async summary(
+    agencyId: string,
+    pre?: { sub: AgencySubscription; plans: Array<Prisma.PlanGetPayload<{ select: typeof PLAN_SELECT }>> },
+  ) {
+    const sub = pre?.sub ?? (await loadAgencySubscription(this.prisma, agencyId));
     const now = new Date();
-    const [usage, freePlan] = await Promise.all([
+    // Offre gratuite et offre actuelle : lues en une requête (ou fournies par l'appelant).
+    const [usage, rows] = await Promise.all([
       this.usage(agencyId, sub),
-      this.prisma.plan.findUnique({ where: { code: FREE_PLAN_CODE }, select: PLAN_SELECT }),
+      pre
+        ? Promise.resolve(pre.plans)
+        : this.prisma.plan.findMany({
+            where: { OR: [{ code: FREE_PLAN_CODE }, ...(sub.plan ? [{ id: sub.plan.id }] : [])] },
+            select: PLAN_SELECT,
+          }),
     ]);
-    const plan = sub.plan
-      ? await this.prisma.plan.findUnique({ where: { id: sub.plan.id }, select: PLAN_SELECT })
-      : null;
+    const freePlan = rows.find((p) => p.code === FREE_PLAN_CODE) ?? null;
+    const plan = sub.plan ? rows.find((p) => p.id === sub.plan!.id) ?? null : null;
     const reminder = reminderFor(sub, now, sub.settings);
     return {
       status: sub.status,
@@ -227,10 +242,12 @@ export class SubscriptionsService {
    * textes des fronts (essai, grâce, offre gratuite, prix « à partir de ») et
    * offres actives. Source unique : la base (PlatformSettings, Plan, PlanPrice).
    */
-  async publicPlans() {
+  async publicPlans(preloaded?: Array<Prisma.PlanGetPayload<{ select: typeof PLAN_SELECT }>>) {
     const [{ settings, free: freeLimits }, plans] = await Promise.all([
       loadSettings(this.prisma),
-      this.prisma.plan.findMany({ where: { active: true }, select: PLAN_SELECT, orderBy: [{ position: "asc" }, { monthlyPrice: "asc" }] }),
+      preloaded
+        ? Promise.resolve(preloaded.filter((p) => p.active))
+        : this.prisma.plan.findMany({ where: { active: true }, select: PLAN_SELECT, orderBy: PLAN_ORDER }),
     ]);
     const free = plans.find((p) => p.code === FREE_PLAN_CODE);
     const paid = plans.filter((p) => p.code !== FREE_PLAN_CODE).map(shapePlan);
@@ -257,14 +274,24 @@ export class SubscriptionsService {
   /** GET /agencies/me/subscription — tout membre ; détails de paiement : responsable. */
   async mine(userId: string) {
     const m = await this.membership(userId);
-    this.remind(m.agencyId).catch((e) => this.logger.warn(`Rappel abonnement : ${(e as Error).message}`));
     const isManager = m.role === "MANAGER";
-    const [summary, plans, settings] = await Promise.all([
-      this.summary(m.agencyId),
-      this.publicPlans(),
-      this.prisma.platformSettings.findUnique({ where: { id: 1 } }),
+    const sub = await loadAgencySubscription(this.prisma, m.agencyId);
+    this.remind(m.agencyId, new Date(), sub).catch((e) => this.logger.warn(`Rappel abonnement : ${(e as Error).message}`));
+    // Une seule lecture des offres (actives + gratuite + actuelle), en parallèle
+    // avec les instructions de paiement (responsable) et la devise de facturation.
+    const [planRows, settings, billing] = await Promise.all([
+      this.prisma.plan.findMany({
+        where: { OR: [{ active: true }, { code: FREE_PLAN_CODE }, ...(sub.plan ? [{ id: sub.plan.id }] : [])] },
+        select: PLAN_SELECT,
+        orderBy: PLAN_ORDER,
+      }),
+      isManager ? this.prisma.platformSettings.findUnique({ where: { id: 1 } }) : Promise.resolve(null),
+      this.billingOf(m.agencyId),
     ]);
-    const billing = await this.billingOf(m.agencyId);
+    const [summary, plans] = await Promise.all([
+      this.summary(m.agencyId, { sub, plans: planRows }),
+      this.publicPlans(planRows),
+    ]);
     const offered = await Promise.all(plans.plans.map((p) => this.withOffer(p, billing.currency)));
     const base = { ...summary, isManager, billing, plans: offered, durations: [1, 3, 6, 12] };
     if (!isManager) return { ...base, paymentInstructions: null, pendingRequest: null, requests: [], payments: [] };
@@ -369,7 +396,7 @@ export class SubscriptionsService {
     // Langue du document : celle de l'utilisateur qui télécharge.
     const me = await this.prisma.user.findUnique({ where: { id: user.sub }, select: { locale: true } });
     const lang = pdfLang(asLang(me?.locale, requestLang()));
-    const buffer = await buildInvoicePdf({
+    const buffer = await renderPdf("invoice", {
       lang,
       number: p.number,
       issuedAt: p.createdAt,
@@ -460,8 +487,8 @@ export class SubscriptionsService {
   }
 
   /** Envoie le rappel dû (au plus une fois par clé). Renvoie la clé envoyée. */
-  async remind(agencyId: string, now = new Date()): Promise<string | null> {
-    const sub = await loadAgencySubscription(this.prisma, agencyId, now);
+  async remind(agencyId: string, now = new Date(), loaded?: AgencySubscription): Promise<string | null> {
+    const sub = loaded ?? (await loadAgencySubscription(this.prisma, agencyId, now));
     const r = reminderFor(sub, now, sub.settings);
     if (!r) return null;
     // Idempotence : la clé n'est posée qu'une fois (course entre deux chargements comprise).
