@@ -124,6 +124,10 @@ const WHOLE_RUN = { features: [] as PDFKit.Mixins.OpenTypeFeatures[] };
 
 type Font = string;
 
+/** Largeurs de texte déjà mesurées (toutes polices embarquées ; borné). */
+const WIDTH_CACHE = new Map<string, number>();
+const WIDTH_CACHE_MAX = 20_000;
+
 function rtlText(doc: PDFKit.PDFDocument, regular: Font, bold: Font): PdfText {
   // Police courante (posée par `doc.font(P.bold)` dans les gabarits) : par
   // identité de l'objet police de PDFKit.
@@ -135,7 +139,15 @@ function rtlText(doc: PDFKit.PDFDocument, regular: Font, bold: Font): PdfText {
 
   const width = (s: string, font: Font) => {
     doc.font(font);
-    return doc.widthOfString(s, WHOLE_RUN);
+    // Mise en forme (fontkit) coûteuse et répétée par la coupure en lignes :
+    // largeurs mémorisées par police, corps et texte (résultat identique).
+    const key = `${font}\u0000${(doc as unknown as { _fontSize: number })._fontSize}\u0000${s}`;
+    const hit = WIDTH_CACHE.get(key);
+    if (hit !== undefined) return hit;
+    const w = doc.widthOfString(s, WHOLE_RUN);
+    if (WIDTH_CACHE.size >= WIDTH_CACHE_MAX) WIDTH_CACHE.delete(WIDTH_CACHE.keys().next().value as string);
+    WIDTH_CACHE.set(key, w);
+    return w;
   };
 
   /** Largeur (ordre logique) d'une portion de texte à polices mêlées. */
