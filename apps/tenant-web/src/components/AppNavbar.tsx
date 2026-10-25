@@ -81,7 +81,7 @@ export function AppNavbar() {
       <Navbar
         brand={<Link href="/">hwe</Link>}
         audienceLabel={t("fix.nav.audience")}
-        collapseBelow="lg"
+        collapseBelow={user ? "2xl" : "lg"}
         mobileExtra={
           <>
             <LangSwitch />
@@ -133,6 +133,8 @@ export function AppNavbar() {
         }
       >
         <Link href="/" className="hidden lg:inline">{t("nav.listings")}</Link>
+        <Link href="/voyage" className="hidden lg:inline">{t("nav.voyage")}</Link>
+        {user && <Link href="/voyage/reservations" className="2xl:hidden">{t("nav.stays")}</Link>}
         {user && <Link href="/ma-location" className="hidden lg:inline">{t("nav.myRental")}</Link>}
         {user && <Link href="/mes-loyers" className="hidden lg:inline">{t("nav.myRents")}</Link>}
         {user && <Link href="/mes-visites" className="hidden lg:inline">{t("nav.myVisits")}</Link>}

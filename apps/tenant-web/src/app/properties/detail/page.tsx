@@ -46,7 +46,8 @@ import type {
   LeaseDurationUnit,
   User,
 } from "@hwe/types";
-import { computeRentalTotal } from "@hwe/types";
+import { computeRentalTotal, type StayPublicInfo } from "@hwe/types";
+import { StayBooking, StayReviews } from "../../../components/voyage/StayBooking";
 
 type DurationUnit = "DAYS" | "WEEKS" | "MONTHS" | "YEARS";
 
@@ -87,6 +88,16 @@ export default function PropertyDetailPage() {
       .getPricingRates(params.id)
       .then((r) => setRates(r as unknown as PricingRate[]))
       .catch(() => setRates([]));
+  }, [params?.id]);
+
+  // Séjour courte durée réservable en ligne (espace Voyage) ?
+  const [stay, setStay] = React.useState<StayPublicInfo | null>(null);
+  React.useEffect(() => {
+    if (!params?.id) return;
+    api
+      .stayInfo(params.id)
+      .then(setStay)
+      .catch(() => setStay(null));
   }, [params?.id]);
 
   React.useEffect(() => {
@@ -153,6 +164,7 @@ export default function PropertyDetailPage() {
         onToggleFav={toggleFav}
         currentUser={user}
         fmtPrice={fmtPrice}
+        stay={stay?.enabled ? stay : null}
       />
     </article>
   );
@@ -169,6 +181,7 @@ function PropertyDetailInner({
   onToggleFav,
   currentUser,
   fmtPrice,
+  stay,
 }: {
   property: Property;
   rates: PricingRate[];
@@ -179,6 +192,8 @@ function PropertyDetailInner({
   onToggleFav: () => void;
   currentUser: User | null;
   fmtPrice: (n: number, currency?: string) => string;
+  /** Réglages séjour publics si le logement se réserve en ligne, sinon null. */
+  stay: StayPublicInfo | null;
 }) {
   // ── Steps du wizard ──────────────────────────────────────────────────────
   const { lang } = useLang();
@@ -199,17 +214,25 @@ function PropertyDetailInner({
       base.push({ id: "rent-info", title: t("prop.step.rentInfo"), icon: <Icon name="key" size={18} /> });
     }
     base.push({ id: "location", title: t("prop.step.location"), icon: <Icon name="mapPin" size={18} /> });
+    // Séjour réservable : « Réserver » (calendrier) remplace la candidature.
+    if (stay && isOpen) base.push({ id: "book", title: t("voy.book.step"), icon: <Icon name="calendar" size={18} /> });
     if (isOwner) base.push({ id: "your-bien", title: t("prop.step.yourBien"), icon: <Icon name="user" size={18} /> });
-    else if (isOpen)
+    else if (isOpen && !stay)
       base.push({
         id: "contact",
         title: isSale ? t("prop.step.offer") : t("prop.step.apply"),
         icon: <Icon name="mail" size={18} />,
       });
     return base;
-  }, [isSale, isOwner, isOpen, lang]);
+  }, [isSale, isOwner, isOpen, lang, stay]);
 
-  const [activeStep, setActiveStep] = React.useState<string>("overview");
+  // Arrivée depuis une recherche datée : directement sur le calendrier.
+  const [activeStep, setActiveStep] = React.useState<string>(() =>
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("arrivee") ? "book" : "overview",
+  );
+  React.useEffect(() => {
+    if (activeStep === "book" && !stay) setActiveStep("overview");
+  }, [stay, activeStep]);
 
   // Active step index for nav buttons
   const activeIndex = STEPS.findIndex((s) => s.id === activeStep);
@@ -392,8 +415,15 @@ function PropertyDetailInner({
             isSale={isSale}
             mainPrice={mainPrice}
             unitSuffix={unitSuffix}
-            onContact={isOpen && !isOwner ? () => setActiveStep("contact") : undefined}
+            onContact={isOpen && !isOwner ? () => setActiveStep(stay ? "book" : "contact") : undefined}
+            stay={stay}
           />
+        )}
+        {activeStep === "book" && stay && isOpen && (
+          <>
+            <StayBooking propertyId={p.id} info={stay} currentUser={currentUser} isOwner={isOwner} />
+            <StayReviews propertyId={p.id} count={stay.reviewCount ?? 0} />
+          </>
         )}
         {activeStep === "gallery" && <StepGallery property={p} />}
         {activeStep === "features" && <StepFeatures property={p} />}
@@ -488,6 +518,7 @@ function StepOverview({
   mainPrice,
   unitSuffix,
   onContact,
+  stay,
 }: {
   property: Property;
   fmtPrice: (n: number, currency?: string) => string;
@@ -495,6 +526,7 @@ function StepOverview({
   mainPrice: number;
   unitSuffix: string;
   onContact?: () => void;
+  stay?: StayPublicInfo | null;
 }) {
   return (
     <div className="grid lg:grid-cols-3 gap-6 min-w-0">
@@ -546,9 +578,15 @@ function StepOverview({
               <Mini label={t("prop.rooms")} value={p.rooms || "—"} />
               <Mini label={t("prop.bedrooms")} value={p.bedrooms || "—"} />
             </div>
+            {stay && (
+              <div className="text-xs text-ink-muted flex items-center gap-1.5 flex-wrap">
+                <Icon name="calendarCheck" size={14} /> {t("voy.book.badge")}
+                {stay.rating != null && <> · ★ {stay.rating} ({stay.reviewCount})</>}
+              </div>
+            )}
             {onContact && (
               <Button variant="gradient" className="w-full" onClick={onContact}>
-                {isSale ? t("prop.step.offer") : t("prop.step.apply")}
+                {stay ? t("voy.book.step") : isSale ? t("prop.step.offer") : t("prop.step.apply")}
               </Button>
             )}
           </CardBody>

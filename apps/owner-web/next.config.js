@@ -23,6 +23,7 @@ const shellRewrites = [
   { source: "/dashboard/:id/documents", destination: "/dashboard/bien/documents" },
   { source: "/dashboard/:id/edit", destination: "/dashboard/bien/edit" },
   { source: "/dashboard/:id/lease", destination: "/dashboard/bien/lease" },
+  { source: "/dashboard/:id/sejour", destination: "/dashboard/bien/sejour" },
   { source: "/invitation/agence/:token", destination: "/invitation/agence/detail" },
   { source: "/pro/mandats/:id", destination: "/pro/mandats/detail" },
   { source: "/properties/:id", destination: "/properties/detail" },

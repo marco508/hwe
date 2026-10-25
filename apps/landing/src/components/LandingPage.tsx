@@ -318,6 +318,7 @@ function LandingInner() {
     ...(destinations.length > 0 ? [{ label: t("nav.destinations"), href: "#destinations" }] : []),
     { label: t("nav.catalog"), href: "#catalogue" },
     { label: t("nav.how"), href: "#etapes" },
+    { label: t("nav.voyage"), href: "#voyage" },
   ];
 
   return (
@@ -666,6 +667,57 @@ function LandingInner() {
           </ol>
         </div>
       </section>
+      {/* ── Espace Voyage ─────────────────────────────────────────────────── */}
+      <section id="voyage" className="py-20 border-t border-border/40 bg-cream-100/40 dark:bg-surface/20">
+        <div className="container-app">
+          <RevealOnScroll>
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="min-w-0 order-2 lg:order-1">
+                <span className="eyebrow">{t("voyage.eyebrow")}</span>
+                <h2 className="display-serif text-4xl sm:text-5xl mt-3 leading-[1.05] text-ink [overflow-wrap:anywhere]">{t("voyage.title")}</h2>
+                <p className="text-ink-muted text-lg mt-4 leading-relaxed">{t("voyage.sub")}</p>
+                <ul className="mt-8 space-y-5">
+                  {(
+                    [
+                      { icon: "compass", k: "v1" },
+                      { icon: "calendar", k: "v2" },
+                      { icon: "bed", k: "v3" },
+                    ] as { icon: IconName; k: string }[]
+                  ).map((a) => (
+                    <li key={a.k} className="flex gap-4">
+                      <IconBadge name={a.icon} tone={a.k === "v3" ? "accent" : "brand"} />
+                      <div className="min-w-0">
+                        <div className="font-display text-lg text-ink">{t(`voyage.${a.k}.title`)}</div>
+                        <p className="text-sm text-ink-muted leading-relaxed">{t(`voyage.${a.k}.desc`)}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8 flex gap-3 flex-wrap">
+                  <a
+                    href={`${TENANT_URL}/voyage`}
+                    className="inline-flex items-center gap-2 h-12 px-7 rounded-full bg-brand-900 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90 transition-opacity"
+                  >
+                    {t("voyage.cta")}
+                    <ArrowRightIcon />
+                  </a>
+                  <a
+                    href={`${OWNER_URL}/dashboard/sejours`}
+                    className="inline-flex items-center h-12 px-6 rounded-full border border-border bg-surface text-sm font-medium text-ink hover:bg-cream-100 dark:hover:bg-white/5"
+                  >
+                    {t("voyage.hostCta")}
+                  </a>
+                </div>
+              </div>
+              <div className="relative rounded-3xl overflow-hidden aspect-[4/3] border border-border/60 shadow-card order-1 lg:order-2">
+                <Photo id="cities/cotonou" alt={t("voyage.photoAlt")} sizes="(min-width: 1024px) 45vw, 100vw" className="h-full w-full object-cover" />
+                <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-brand-950/50 via-transparent to-transparent" />
+              </div>
+            </div>
+          </RevealOnScroll>
+        </div>
+      </section>
+
       {/* ── Professionnels ───────────────────────────────────────────────── */}
       <section id="professionnels" className="py-20 border-t border-border/40" data-pro-section>
         <div className="container-app">

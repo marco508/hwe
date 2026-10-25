@@ -30,6 +30,7 @@ const PRO_LINKS: { href: string; label: string; icon: IconName; manager?: boolea
   { href: "/dashboard/inquiries", label: "nav.requests", icon: "inbox" },
   { href: "/dashboard/visites", label: "nav.visits", icon: "calendar" },
   { href: "/dashboard/loyers", label: "nav.rents", icon: "wallet" },
+  { href: "/dashboard/sejours", label: "nav.stays", icon: "bed" },
   { href: "/dashboard/tickets", label: "nav.incidents", icon: "wrench" },
   { href: "/dashboard/messages", label: "nav.messages", icon: "messages" },
   { href: "/pro/honoraires", label: "nav.pro.fees", icon: "coins" },
@@ -143,7 +144,7 @@ export function AppNavbar() {
     <Navbar
       brand={<Link href={pro ? "/pro" : "/"}>hwe</Link>}
       audienceLabel={pro ? t("nav.audiencePro") : t("nav.audience")}
-      collapseBelow="lg"
+      collapseBelow={user && !pro ? "2xl" : "lg"}
       mobileExtra={
         <>
           <LangSwitch />
@@ -208,6 +209,7 @@ export function AppNavbar() {
         </Link>
       )}
       {user && !pro && <Link href="/dashboard/visites" className="hidden lg:inline">{t("nav.visits")}</Link>}
+      {user && !pro && <Link href="/dashboard/sejours" className="hidden lg:inline">{t("nav.stays")}</Link>}
       {user && !pro && <Link href="/dashboard/messages" className="hidden lg:inline">{t("nav.messages")}</Link>}
       {user && !pro && <Link href="/dashboard/tickets" className="hidden lg:inline">{t("nav.incidents")}</Link>}
       {user?.role === "ADMIN" && <Link href="/dashboard/admin" className="hidden lg:inline">{t("nav.admin")}</Link>}

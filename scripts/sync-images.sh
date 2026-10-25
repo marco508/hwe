@@ -12,6 +12,6 @@ sync() { # app dossiers...
   for d in "$@"; do cp -r "$SRC/$d" "apps/$app/public/images/"; done
   cp "$SRC/CREDITS.md" "apps/$app/public/images/"
 }
-sync tenant-web types cities auth
+sync tenant-web types cities auth voyage
 sync owner-web types auth
 echo "images synchronisées"

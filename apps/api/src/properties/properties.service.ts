@@ -294,7 +294,7 @@ export class PropertiesService {
     for (const p of withManaged) {
       const ctx = contexts.get(p.id);
       if (!ctx) continue;
-      const actions = (["READ", "EDIT_LISTING", "ACCEPT_TENANT", "SIGN_LEASE", "RENTS", "OWNER_NOTICE"] as AccessAction[]);
+      const actions = (["READ", "EDIT_LISTING", "ACCEPT_TENANT", "SIGN_LEASE", "RENTS", "OWNER_NOTICE", "STAYS"] as AccessAction[]);
       const can: Record<string, boolean> = {};
       for (const a of actions) can[a] = decideAccess(ctx, a).allowed;
       const { mandates, owner, ...rest } = p;

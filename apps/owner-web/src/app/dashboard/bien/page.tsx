@@ -85,6 +85,7 @@ export default function PropertyHubPage() {
     { href: `/dashboard/inquiries`, icon: "inbox", label: t("nav.requests"), hint: t("pro.hub.requestsHint"), show: !lettingDone },
     { href: `/dashboard/visites`, icon: "calendar", label: t("nav.visits"), hint: t("pro.hub.visitsHint"), show: !lettingDone },
     { href: `/dashboard/loyers`, icon: "wallet", label: t("nav.rents"), hint: t("pro.hub.rentsHint"), show: isRent && !lettingDone && (!pro || !!can?.RENTS) },
+    { href: `/dashboard/${p.id}/sejour`, icon: "bed", label: t("stays.hubLink"), hint: t("stays.hubHint"), show: isRent && !lettingDone && (!pro || !!can?.STAYS) },
     { href: `/dashboard/tickets`, icon: "wrench", label: t("nav.incidents"), hint: t("pro.hub.ticketsHint"), show: isRent && !lettingDone },
     { href: `/dashboard/messages`, icon: "messages", label: t("nav.messages"), hint: t("pro.hub.messagesHint"), show: !lettingDone },
   ];

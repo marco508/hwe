@@ -14,6 +14,20 @@ import type {
   RentStatus,
   AgencyPublic,
   Property,
+  VoyageCountrySummary,
+  CountryVoyage,
+  DestinationDetail,
+  PlaceCard,
+  PlaceDetail,
+  CircuitDetail,
+  TripSummary,
+  TripDetail,
+  TripItem,
+  StayPublicInfo,
+  StayQuote,
+  StaySearchResult,
+  StayReview,
+  Booking,
 } from "@hwe/types";
 
 import { commonApi, request as coreRequest, tokenStore } from "@hwe/ui";
@@ -160,5 +174,60 @@ export const api = {
       body: JSON.stringify(body),
     }, true),
   // Quittances, messagerie, profil, pièces d'identité : voir commonApi.
+
+  // ── Voyage : guides ──
+  voyageCountries: () => request<VoyageCountrySummary[]>("/voyage/countries"),
+  voyageCountry: (cc: string) => request<CountryVoyage>(`/voyage/countries/${encodeURIComponent(cc)}`),
+  voyageDestination: (slug: string) => request<DestinationDetail>(`/voyage/destinations/${encodeURIComponent(slug)}`),
+  voyagePlaces: (q: { country?: string; destination?: string; category?: string; q?: string }) =>
+    request<PlaceCard[]>(`/voyage/places?${qs(q)}`),
+  voyagePlace: (slug: string) => request<PlaceDetail>(`/voyage/places/${encodeURIComponent(slug)}`),
+  voyageCircuit: (slug: string) => request<CircuitDetail>(`/voyage/circuits/${encodeURIComponent(slug)}`),
+
+  // ── Voyage : carnets ──
+  trips: () => request<TripSummary[]>("/trips", {}, true),
+  trip: (id: string) => request<TripDetail>(`/trips/${encodeURIComponent(id)}`, {}, true),
+  sharedTrip: (token: string) => request<TripDetail>(`/trips/shared/${encodeURIComponent(token)}`),
+  createTrip: (body: { title: string; country: string; startDate?: string | null; endDate?: string | null; dayCount?: number; travelers?: number }) =>
+    request<TripSummary>("/trips", { method: "POST", body: JSON.stringify(body) }, true),
+  updateTrip: (id: string, body: Partial<{ title: string; country: string; startDate: string | null; endDate: string | null; dayCount: number; travelers: number; notes: string | null }>) =>
+    request<TripSummary>(`/trips/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+  deleteTrip: (id: string) => request<{ ok: true }>(`/trips/${encodeURIComponent(id)}`, { method: "DELETE" }, true),
+  tripFromCircuit: (slug: string, body: { startDate?: string | null; travelers?: number }) =>
+    request<TripSummary>(`/trips/from-circuit/${encodeURIComponent(slug)}`, { method: "POST", body: JSON.stringify(body) }, true),
+  addTripItem: (id: string, body: { kind?: "PLACE" | "NOTE"; placeId?: string; day?: number; title?: string; note?: string; time?: string }) =>
+    request<TripItem>(`/trips/${encodeURIComponent(id)}/items`, { method: "POST", body: JSON.stringify(body) }, true),
+  updateTripItem: (id: string, itemId: string, body: Partial<{ day: number; position: number; title: string | null; note: string | null; time: string | null; done: boolean }>) =>
+    request<TripItem>(`/trips/${encodeURIComponent(id)}/items/${encodeURIComponent(itemId)}`, { method: "PATCH", body: JSON.stringify(body) }, true),
+  removeTripItem: (id: string, itemId: string) =>
+    request<{ ok: true }>(`/trips/${encodeURIComponent(id)}/items/${encodeURIComponent(itemId)}`, { method: "DELETE" }, true),
+  reorderTrip: (id: string, day: number, ids: string[]) =>
+    request<{ ok: true }>(`/trips/${encodeURIComponent(id)}/reorder`, { method: "POST", body: JSON.stringify({ day, ids }) }, true),
+  shareTrip: (id: string) => request<{ shareToken: string }>(`/trips/${encodeURIComponent(id)}/share`, { method: "POST" }, true),
+  unshareTrip: (id: string) => request<{ ok: true }>(`/trips/${encodeURIComponent(id)}/share`, { method: "DELETE" }, true),
+
+  // ── Voyage : séjours ──
+  staySearch: (q: { country?: string; city?: string; destination?: string; checkIn?: string; checkOut?: string; guests?: number; page?: number }) =>
+    request<StaySearchResult>(`/stays/search?${qs(q)}`),
+  stayInfo: (propertyId: string) => request<StayPublicInfo>(`/stays/property/${encodeURIComponent(propertyId)}`),
+  stayQuote: (propertyId: string, q: { checkIn: string; checkOut: string; guests: number }) =>
+    request<StayQuote>(`/stays/property/${encodeURIComponent(propertyId)}/quote?${qs(q)}`),
+  stayReviews: (propertyId: string) => request<StayReview[]>(`/stays/property/${encodeURIComponent(propertyId)}/reviews`),
+  requestBooking: (body: { propertyId: string; checkIn: string; checkOut: string; guests: number; message?: string }) =>
+    request<Booking>("/stays/bookings", { method: "POST", body: JSON.stringify(body) }, true),
+  myBookings: () => request<Booking[]>("/stays/bookings/my", {}, true),
+  cancelBooking: (id: string, reason?: string) =>
+    request<Booking>(`/stays/bookings/${encodeURIComponent(id)}/cancel`, { method: "PATCH", body: JSON.stringify({ reason }) }, true),
+  declareBookingPayment: (id: string, body: { method: string; reference: string }) =>
+    request<Booking>(`/stays/bookings/${encodeURIComponent(id)}/declare-payment`, { method: "PATCH", body: JSON.stringify(body) }, true),
+  reviewBooking: (id: string, body: { rating: number; comment: string }) =>
+    request<Booking>(`/stays/bookings/${encodeURIComponent(id)}/review`, { method: "POST", body: JSON.stringify(body) }, true),
 };
+
+/** Chaîne de requête sans les valeurs vides. */
+function qs(q: Record<string, string | number | undefined | null>): string {
+  const u = new URLSearchParams();
+  for (const [k, v] of Object.entries(q)) if (v !== undefined && v !== null && v !== "") u.set(k, String(v));
+  return u.toString();
+}
 

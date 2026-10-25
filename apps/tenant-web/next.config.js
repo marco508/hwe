@@ -19,6 +19,11 @@ const securityHeaders = [
 const shellRewrites = [
   { source: "/properties/:id", destination: "/properties/detail" },
   { source: "/agences/:slug", destination: "/agences/detail" },
+  { source: "/voyage/destinations/:slug", destination: "/voyage/destination" },
+  { source: "/voyage/lieux/:slug", destination: "/voyage/lieu" },
+  { source: "/voyage/circuits/:slug", destination: "/voyage/circuit" },
+  { source: "/voyage/mes-voyages/:id", destination: "/voyage/carnet" },
+  { source: "/voyage/partage/:token", destination: "/voyage/partage" },
 ];
 
 const config = {

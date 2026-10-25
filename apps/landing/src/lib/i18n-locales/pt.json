@@ -140,5 +140,18 @@
   "legal.back": "Voltar à página inicial",
   "legal.translationNote": "Tradução fornecida a título indicativo; faz fé a versão francesa.",
   "place.inCity": "em {city}",
-  "place.inCountry": "em {name}"
+  "place.inCountry": "em {name}",
+  "nav.voyage": "Viagem",
+  "voyage.eyebrow": "Novidade · Espaço Viagem",
+  "voyage.title": "Prepare a sua viagem ao Benim e à África Ocidental",
+  "voyage.sub": "Lugares a visitar, roteiros recomendados, informações práticas e alojamentos de curta duração para reservar diretamente com proprietários e agências.",
+  "voyage.v1.title": "Guias para descobrir",
+  "voyage.v1.desc": "Ouidah, Ganvié, Abomey, Pendjari… o essencial, com dicas e as melhores épocas.",
+  "voyage.v2.title": "Um caderno de viagem dia a dia",
+  "voyage.v2.desc": "Copie um roteiro ou crie o seu, acrescente notas e partilhe o programa.",
+  "voyage.v3.title": "Alojamentos para reservar",
+  "voyage.v3.desc": "Calendário de disponibilidade, preço por noite e pedido ao anfitrião num clique. Proprietários: abram os vossos alojamentos às reservas.",
+  "voyage.cta": "Descobrir o Espaço Viagem",
+  "voyage.hostCta": "Propor o meu alojamento",
+  "voyage.photoAlt": "Rua de Cotonou"
 }

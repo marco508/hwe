@@ -3,6 +3,19 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { withAdvisoryLock } from "../common/advisory-lock";
 import { BENIN_CIRCUITS, BENIN_DESTINATIONS, BENIN_GUIDE } from "./seed/benin";
+import { BENIN_I18N } from "./seed/benin-i18n";
+
+const OTHER_LANGS = ["es", "pt", "ar"] as const;
+
+/** Traductions d'un contenu : en (dans benin.ts) + es/pt/ar (benin-i18n.ts), champs vides retirés. */
+function withLangs(en: object, pick: (l: (typeof OTHER_LANGS)[number]) => object | undefined): Prisma.InputJsonValue {
+  const out: Record<string, object> = { en };
+  for (const l of OTHER_LANGS) {
+    const v = pick(l);
+    if (v) out[l] = v;
+  }
+  return out as Prisma.InputJsonValue;
+}
 
 /**
  * Contenu de départ du guide Bénin, inséré UNE fois au démarrage si le pays
@@ -39,7 +52,7 @@ export class VoyageSeedService implements OnApplicationBootstrap {
             country,
             intro: BENIN_GUIDE.intro,
             sections: BENIN_GUIDE.sections,
-            translations: { en: BENIN_GUIDE.en } as Prisma.InputJsonValue,
+            translations: withLangs(BENIN_GUIDE.en, (l) => BENIN_I18N[l]?.guide),
           },
         });
         const placeIds = new Map<string, string>();
@@ -57,7 +70,7 @@ export class VoyageSeedService implements OnApplicationBootstrap {
               longitude: d.lng,
               cover: d.cover ?? null,
               position: i,
-              translations: { en: d.en } as Prisma.InputJsonValue,
+              translations: withLangs(d.en, (l) => BENIN_I18N[l]?.destinations[d.slug]),
             },
           });
           destIds.set(d.slug, created.id);
@@ -76,7 +89,7 @@ export class VoyageSeedService implements OnApplicationBootstrap {
                 latitude: p.lat ?? null,
                 longitude: p.lng ?? null,
                 position: j,
-                translations: { en: p.en } as Prisma.InputJsonValue,
+                translations: withLangs(p.en, (l) => BENIN_I18N[l]?.places[p.slug]),
               },
             });
             placeIds.set(p.slug, place.id);
@@ -92,7 +105,7 @@ export class VoyageSeedService implements OnApplicationBootstrap {
               days: c.days,
               cover: c.cover ?? null,
               position: i,
-              translations: { en: c.en } as Prisma.InputJsonValue,
+              translations: withLangs(c.en, (l) => BENIN_I18N[l]?.circuits[c.slug]),
               steps: {
                 create: c.steps.map((s, k) => ({
                   day: s.day,
@@ -100,7 +113,12 @@ export class VoyageSeedService implements OnApplicationBootstrap {
                   placeId: s.place ? placeIds.get(s.place) ?? null : null,
                   destinationId: s.destination ? destIds.get(s.destination) ?? null : null,
                   note: s.note ?? null,
-                  translations: s.noteEn ? ({ en: { note: s.noteEn } } as Prisma.InputJsonValue) : Prisma.DbNull,
+                  translations: s.noteEn
+                    ? withLangs({ note: s.noteEn }, (l) => {
+                        const n = BENIN_I18N[l]?.stepNotes[`${c.slug}:${k}`];
+                        return n ? { note: n } : undefined;
+                      })
+                    : Prisma.DbNull,
                 })),
               },
             },

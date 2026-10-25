@@ -11,13 +11,15 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   /** Contrôles ajoutés en bas du tiroir mobile (langue, devise…) (M4). */
   mobileExtra?: React.ReactNode;
   /** Largeur sous laquelle les liens passent dans le tiroir (lg si beaucoup de liens). */
-  collapseBelow?: "md" | "lg";
+  collapseBelow?: "md" | "lg" | "2xl";
 }
 
 // Classes littérales (Tailwind ne génère que ce qu'il voit en clair).
 const BP = {
   md: { burger: "md:hidden", nav: "hidden md:flex", drawer: "md:hidden" },
   lg: { burger: "lg:hidden", nav: "hidden lg:flex", drawer: "lg:hidden" },
+  // Très nombreux liens (compte connecté) : tiroir jusqu'aux très grands écrans.
+  "2xl": { burger: "2xl:hidden", nav: "hidden 2xl:flex", drawer: "2xl:hidden" },
 } as const;
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -90,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span
               className={cn(
                 // Beaucoup de liens (repli en lg) : le badge ne s'affiche que sur très grand écran.
-                collapseBelow === "lg" ? "hidden 2xl:inline-block" : "hidden sm:inline-block",
+                collapseBelow !== "md" ? "hidden 2xl:inline-block" : "hidden sm:inline-block",
                 "rounded-full bg-brand-50 dark:bg-brand-900/50 px-2.5 py-0.5 text-[11px] font-medium text-brand-700 dark:text-brand-300 border border-brand-100 dark:border-brand-800 shrink-0",
               )}
             >

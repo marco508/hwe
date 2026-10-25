@@ -22,6 +22,11 @@ import type {
   ListingType,
   PropertyType,
   PropertyStatus,
+  Booking,
+  BookingStatus,
+  HostStayProperty,
+  StayBlock,
+  StaySettings,
 } from "@hwe/types";
 import type {
   AgencyMine,
@@ -623,4 +628,87 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ password }),
     }),
+
+  // ── Séjours courte durée (hôte : propriétaire ou pro sous mandat de gestion) ──
+  stayProperties: () => request<HostStayProperty[]>("/stays/host/properties", {}, true),
+  stayBookings: (q: { status?: BookingStatus; propertyId?: string } = {}) =>
+    request<Booking[]>(`/stays/host/bookings${qs(q)}`, {}, true),
+  staySettings: (propertyId: string) =>
+    request<{ property: { id: string; title: string; city: string; currency: string; status: string; listingType: string; rentalKind: string | null }; settings: StaySettings; gridNightly: number | null; rates: { nightly: number | null; weekly: number | null; monthly: number | null } }>(
+      `/stays/host/property/${encodeURIComponent(propertyId)}/settings`, {}, true),
+  saveStaySettings: (propertyId: string, body: Partial<Omit<StaySettings, "propertyId" | "icalToken" | "icalSyncedAt" | "icalError">>) =>
+    request<StaySettings>(`/stays/host/property/${encodeURIComponent(propertyId)}/settings`, { method: "PUT", body: JSON.stringify(body) }, true),
+  stayCalendar: (propertyId: string, from?: string, to?: string) =>
+    request<{ from: string; to: string; bookings: Array<Pick<Booking, "id" | "reference" | "status" | "checkIn" | "checkOut" | "guests"> & { guest: { firstName: string; lastName: string } }>; blocks: StayBlock[] }>(
+      `/stays/host/property/${encodeURIComponent(propertyId)}/calendar${qs({ from, to })}`, {}, true),
+  addStayBlock: (propertyId: string, body: { startDate: string; endDate: string; note?: string }) =>
+    request<StayBlock>(`/stays/host/property/${encodeURIComponent(propertyId)}/blocks`, { method: "POST", body: JSON.stringify(body) }, true),
+  removeStayBlock: (id: string) => request<{ ok: true }>(`/stays/host/blocks/${encodeURIComponent(id)}`, { method: "DELETE" }, true),
+  syncStayIcal: (propertyId: string) =>
+    request<{ ok: boolean; blocks: number; error?: string }>(`/stays/host/property/${encodeURIComponent(propertyId)}/ical-sync`, { method: "POST" }, true),
+  regenerateStayIcal: (propertyId: string) =>
+    request<{ icalToken: string }>(`/stays/host/property/${encodeURIComponent(propertyId)}/ical-token`, { method: "POST" }, true),
+  acceptBooking: (id: string, note?: string) =>
+    request<Booking>(`/stays/host/bookings/${encodeURIComponent(id)}/accept`, { method: "PATCH", body: JSON.stringify({ note }) }, true),
+  declineBooking: (id: string, note?: string) =>
+    request<Booking>(`/stays/host/bookings/${encodeURIComponent(id)}/decline`, { method: "PATCH", body: JSON.stringify({ note }) }, true),
+  confirmBookingPayment: (id: string) =>
+    request<Booking>(`/stays/host/bookings/${encodeURIComponent(id)}/confirm-payment`, { method: "PATCH" }, true),
+  rejectBookingPayment: (id: string, note?: string) =>
+    request<Booking>(`/stays/host/bookings/${encodeURIComponent(id)}/reject-payment`, { method: "PATCH", body: JSON.stringify({ note }) }, true),
+  hostCancelBooking: (id: string, reason: string) =>
+    request<Booking>(`/stays/host/bookings/${encodeURIComponent(id)}/cancel`, { method: "PATCH", body: JSON.stringify({ reason }) }, true),
+  replyStayReview: (id: string, reply: string) =>
+    request<unknown>(`/stays/host/reviews/${encodeURIComponent(id)}/reply`, { method: "PATCH", body: JSON.stringify({ reply }) }, true),
+
+  // ── Admin : Voyage ──
+  adminVoyageContent: (country?: string) => request<AdminVoyageContent>(`/voyage/admin/content${qs({ country })}`, {}, true),
+  adminVoyageImage: (dataUrl: string) =>
+    request<{ cover: string; url: string }>("/voyage/admin/images", { method: "POST", body: JSON.stringify({ dataUrl }) }, true),
+  adminSaveGuide: (country: string, body: Record<string, unknown>) =>
+    request<unknown>(`/voyage/admin/guides/${encodeURIComponent(country)}`, { method: "PUT", body: JSON.stringify(body) }, true),
+  adminSaveDestination: (id: string | null, body: Record<string, unknown>) =>
+    request<unknown>(id ? `/voyage/admin/destinations/${encodeURIComponent(id)}` : "/voyage/admin/destinations", { method: id ? "PATCH" : "POST", body: JSON.stringify(body) }, true),
+  adminDeleteDestination: (id: string) => request<unknown>(`/voyage/admin/destinations/${encodeURIComponent(id)}`, { method: "DELETE" }, true),
+  adminSavePlace: (id: string | null, body: Record<string, unknown>) =>
+    request<unknown>(id ? `/voyage/admin/places/${encodeURIComponent(id)}` : "/voyage/admin/places", { method: id ? "PATCH" : "POST", body: JSON.stringify(body) }, true),
+  adminDeletePlace: (id: string) => request<unknown>(`/voyage/admin/places/${encodeURIComponent(id)}`, { method: "DELETE" }, true),
+  adminSaveCircuit: (id: string | null, body: Record<string, unknown>) =>
+    request<unknown>(id ? `/voyage/admin/circuits/${encodeURIComponent(id)}` : "/voyage/admin/circuits", { method: id ? "PATCH" : "POST", body: JSON.stringify(body) }, true),
+  adminDeleteCircuit: (id: string) => request<unknown>(`/voyage/admin/circuits/${encodeURIComponent(id)}`, { method: "DELETE" }, true),
+  adminStaysOverview: () => request<AdminStaysOverview>("/stays/admin/overview", {}, true),
+  adminHideReview: (id: string, hidden: boolean) =>
+    request<unknown>(`/stays/admin/reviews/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ hidden }) }, true),
+  adminStayCommission: (commissionPct: number) =>
+    request<{ commissionPct: number }>("/stays/admin/commission", { method: "PUT", body: JSON.stringify({ commissionPct }) }, true),
 };
+
+type Tr = Record<string, Record<string, string>> | null;
+export interface AdminPlace {
+  id: string; slug: string; destinationId: string; category: string; name: string; summary: string; description: string;
+  tips: string | null; address: string | null; openingHours: string | null; priceInfo: string | null; bestPeriod: string | null;
+  website: string | null; latitude: number | null; longitude: number | null; visitMinutes: number | null;
+  cover: string | null; coverUrl: string | null; coverCredit: string | null; position: number; published: boolean; reviewed: boolean; translations: Tr;
+}
+export interface AdminDestination {
+  id: string; slug: string; country: string; name: string; region: string | null; summary: string; description: string;
+  latitude: number | null; longitude: number | null; cover: string | null; coverUrl: string | null; coverCredit: string | null;
+  position: number; published: boolean; reviewed: boolean; translations: Tr; places: AdminPlace[];
+}
+export interface AdminCircuit {
+  id: string; slug: string; country: string; title: string; summary: string; days: number; cover: string | null; coverUrl: string | null;
+  coverCredit: string | null; position: number; published: boolean; reviewed: boolean; translations: Tr;
+  steps: Array<{ id: string; day: number; position: number; placeId: string | null; destinationId: string | null; note: string | null; translations: Tr }>;
+}
+export interface AdminGuide {
+  country: string; intro: string; sections: Array<{ title: string; body: string }>; translations: Record<string, { intro?: string; sections?: Array<{ title: string; body: string }> }> | null;
+  published: boolean; reviewed: boolean; updatedAt: string;
+}
+export interface AdminVoyageContent { guides: AdminGuide[]; destinations: AdminDestination[]; circuits: AdminCircuit[] }
+export interface AdminStaysOverview {
+  enabledProperties: number;
+  byStatus: Array<{ status: BookingStatus; count: number; total: number }>;
+  upcoming: Array<Pick<Booking, "id" | "reference" | "status" | "checkIn" | "checkOut" | "total" | "currency"> & { property: { id: string; title: string; city: string; currency: string }; guest: { firstName: string; lastName: string; email: string } }>;
+  reviews: Array<{ id: string; rating: number; comment: string; hidden: boolean; createdAt: string; property: { id: string; title: string }; author: { firstName: string; lastName: string } }>;
+  commissionPct: number;
+}

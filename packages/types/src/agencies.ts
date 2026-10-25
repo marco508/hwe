@@ -351,6 +351,8 @@ export interface PropertyAccess {
     SIGN_LEASE: boolean;
     RENTS: boolean;
     OWNER_NOTICE: boolean;
+    /** Séjours courte durée (mandat de gestion). */
+    STAYS?: boolean;
   };
 }
 

@@ -650,3 +650,4 @@ export * from "./subscription";
 export * from "./i18n";
 export * from "./geo";
 export * from "./currencies";
+export * from "./voyage";

@@ -17,7 +17,8 @@ import { buildIcal, checkImportUrl, isPrivateAddress, parseIcal } from "../src/s
 import { checkCover, cleanTranslations, localize, localized, slugify } from "../src/voyage/voyage-content";
 import { tripDays } from "../src/voyage/trips.service";
 import * as mail from "../src/mail/templates";
-import { BENIN_CIRCUITS, BENIN_DESTINATIONS } from "../src/voyage/seed/benin";
+import { BENIN_CIRCUITS, BENIN_DESTINATIONS, BENIN_GUIDE } from "../src/voyage/seed/benin";
+import { BENIN_I18N } from "../src/voyage/seed/benin-i18n";
 
 const D = (s: string) => new Date(`${s}T00:00:00Z`);
 
@@ -160,6 +161,13 @@ test("guide Bénin : identifiants uniques, étapes de circuit toutes résolues, 
     }
   }
   for (const p of places) assert.ok(p.en.summary && p.en.description, p.slug);
+  // es, pt, ar : tout le guide traduit (mêmes identifiants, mêmes rubriques).
+  for (const [lang, tr] of Object.entries(BENIN_I18N)) {
+    assert.equal(tr.guide.sections.length, BENIN_GUIDE.sections.length, lang);
+    for (const d of BENIN_DESTINATIONS) assert.ok(tr.destinations[d.slug]?.summary, `${lang} ${d.slug}`);
+    for (const p of places) assert.ok(tr.places[p.slug]?.description, `${lang} ${p.slug}`);
+    for (const c of BENIN_CIRCUITS) assert.ok(tr.circuits[c.slug]?.title, `${lang} ${c.slug}`);
+  }
   assert.ok(slugs.length > 30);
 });
 

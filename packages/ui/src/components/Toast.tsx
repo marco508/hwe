@@ -47,7 +47,7 @@ function dismiss(id: number) {
 }
 
 export const toast = {
-  success: (text: string, opts?: { durationMs?: number }) => push("success", text, opts),
+  success: (text: string, opts?: { durationMs?: number; action?: ToastItem["action"] }) => push("success", text, opts),
   info: (text: string, opts?: { durationMs?: number; action?: ToastItem["action"] }) => push("info", text, opts),
   /** Erreur : texte ou objet d'erreur (ApiError, Error…). */
   error: (e: unknown, opts?: { durationMs?: number; action?: ToastItem["action"] }) => {
