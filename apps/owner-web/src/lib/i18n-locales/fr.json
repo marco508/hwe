@@ -1730,7 +1730,7 @@
   "voyAdmin.hide": "Masquer",
   "voyAdmin.show": "Rétablir",
   "voyAdmin.guides": "Guides de voyage",
-  "voyAdmin.guidesSub": "Infos pratiques, destinations, lieux et circuits affichés dans l'espace Voyage. Le contenu de départ du Bénin a été rédigé automatiquement : relisez-le, complétez horaires et tarifs, puis cochez « Relu et vérifié ».",
+  "voyAdmin.guidesSub": "Infos pratiques, destinations, lieux et circuits affichés dans l'espace Voyage. Le contenu de départ des pays a été rédigé automatiquement : relisez-le, complétez horaires et tarifs, puis cochez « Relu et vérifié ».",
   "voyAdmin.country": "Pays",
   "voyAdmin.retry": "Réessayer",
   "voyAdmin.toReview.one": "{count} contenu reste à relire.",

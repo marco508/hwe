@@ -1730,7 +1730,7 @@
   "voyAdmin.hide": "Hide",
   "voyAdmin.show": "Restore",
   "voyAdmin.guides": "Travel guides",
-  "voyAdmin.guidesSub": "Practical info, destinations, places and itineraries shown in the Travel space. The initial content for Benin was written automatically: review it, add opening hours and prices, then tick “Reviewed and checked”.",
+  "voyAdmin.guidesSub": "Practical info, destinations, places and itineraries shown in the Travel space. The initial content for each country was written automatically: review it, add opening hours and prices, then tick “Reviewed and checked”.",
   "voyAdmin.country": "Country",
   "voyAdmin.retry": "Retry",
   "voyAdmin.toReview.one": "{count} item still to review.",

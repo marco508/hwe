@@ -4,14 +4,7 @@
  * Clés = slugs de benin.ts. Contenu non relu : à vérifier comme le reste du seed.
  */
 
-export interface SeedI18n {
-  guide: { intro: string; sections: Array<{ title: string; body: string }> };
-  destinations: Record<string, { name?: string; region?: string; summary: string; description: string }>;
-  places: Record<string, { name?: string; summary: string; description: string; tips?: string; bestPeriod?: string }>;
-  circuits: Record<string, { title: string; summary: string }>;
-  /** Notes d'étapes de circuit, clé = `${slugDuCircuit}:${indexDeLEtapeDansLeTableauSteps}` (index 0-based). */
-  stepNotes: Record<string, string>;
-}
+import type { SeedI18n, SeedLang } from "./types";
 
 const ES: SeedI18n = {
   guide: {
@@ -45,6 +38,10 @@ const ES: SeedI18n = {
       {
         title: "Electricidad y teléfono",
         body: "Corriente de 220 V, enchufes de tipo C y E (enchufes europeos). Una tarjeta SIM local (se pide documento de identidad) da acceso a internet móvil y al mobile money.",
+      },
+      {
+        title: "Seguridad",
+        body: "El sur y el centro del país se visitan con una vigilancia normal: cuidado con los robos en los mercados y de noche en Cotonou, y prudencia en la carretera (evite circular de noche). El norte, en cambio, está expuesto al riesgo terrorista: las autoridades francesas y británicas desaconsejan formalmente los parques de la Pendjari y W, sus alrededores y las zonas fronterizas con Burkina Faso y Níger, y desaconsejan, salvo motivo imperativo, el resto de los departamentos de Atacora y Alibori, así como el este del país entre el eje Tchaourou–Malanville y la frontera con Nigeria. Consulte las recomendaciones de viaje de su país justo antes de salir y registre su viaje en su embajada.",
       },
     ],
   },
@@ -94,13 +91,13 @@ const ES: SeedI18n = {
       name: "Natitingou y el Atacora",
       summary: "Montañas del Atacora, cascadas y casas-fortaleza Tata Somba.",
       description:
-        "Capital del noroeste, Natitingou es la puerta del Atacora, región de relieves y valles donde viven, entre otros, los batammariba. Sus casas-fortaleza con torrecillas, las Tata Somba, se cuentan entre las arquitecturas de tierra más sorprendentes de África. Cascadas, mercados coloridos y senderismo completan el descubrimiento, antes de llegar al parque de la Pendjari.",
+        "Capital del noroeste, Natitingou es la puerta del Atacora, región de relieves y valles donde viven, entre otros, los batammariba. Sus casas-fortaleza con torrecillas, las Tata Somba, se cuentan entre las arquitecturas de tierra más sorprendentes de África, y cascadas, mercados y senderismo completan el descubrimiento. No obstante, el departamento de Atacora es hoy objeto de advertencias oficiales por el riesgo terrorista (véase Seguridad): infórmese antes de cualquier proyecto.",
     },
     pendjari: {
       name: "Parque Nacional de la Pendjari",
       summary: "Uno de los últimos grandes refugios de fauna de África Occidental: elefantes, leones, búfalos.",
       description:
-        "En el noroeste del país, el Parque Nacional de la Pendjari forma parte del complejo W-Arly-Pendjari, inscrito en el Patrimonio Mundial de la UNESCO. Sus sabanas, bosques de galería y charcas albergan elefantes, búfalos, hipopótamos, antílopes y, más discretos, leones y otros grandes felinos. Los safaris se hacen en vehículo con un guía autorizado, desde Tanguiéta.",
+        "En el noroeste del país, el Parque Nacional de la Pendjari forma parte del complejo W-Arly-Pendjari, inscrito en el Patrimonio Mundial de la UNESCO. Sus sabanas, bosques de galería y charcas albergan elefantes, búfalos, hipopótamos, antílopes y, más discretos, leones y otros grandes felinos. Varios gobiernos desaconsejan actualmente de forma rotunda el parque y sus alrededores por el riesgo terrorista: esta ficha presenta el lugar para el día en que las condiciones permitan volver a visitarlo.",
     },
   },
   places: {
@@ -281,7 +278,7 @@ const ES: SeedI18n = {
       summary: "Observación de la fauna en vehículo, alrededor de las charcas y a lo largo del río.",
       description:
         "Las pistas del parque llevan a las charcas donde los animales acuden a beber, sobre todo al final de la estación seca. Salga al amanecer o a última hora de la tarde, los momentos más favorables para la observación. La entrada y los recorridos se rigen por las normas fijadas por el gestor del parque: infórmese sobre las condiciones de visita y de seguridad antes de salir.",
-      tips: "Reserve guía y vehículo con antelación; consulte las recomendaciones de viaje de su país para el norte de Benín antes de ir.",
+      tips: "Visita actualmente desaconsejada de forma rotunda (riesgo terrorista): consulte las recomendaciones de viaje oficiales antes de cualquier proyecto.",
       bestPeriod: "De diciembre a mayo (estación seca)",
     },
     "cascades-de-tanougou": {
@@ -289,6 +286,7 @@ const ES: SeedI18n = {
       summary: "Saltos de agua y pozas al pie de la cadena del Atacora, cerca del parque.",
       description:
         "En la ruta hacia la Pendjari, las cascadas de Tanougou descienden por los acantilados del Atacora formando varias pozas donde refrescarse. Una parada agradable antes o después del safari.",
+      tips: "Visita actualmente desaconsejada de forma rotunda (riesgo terrorista): consulte las recomendaciones de viaje oficiales antes de cualquier proyecto.",
     },
   },
   circuits: {
@@ -296,11 +294,6 @@ const ES: SeedI18n = {
       title: "Lo esencial de Benín en 7 días",
       summary:
         "Una semana en el sur: Cotonou y sus mercados, el poblado lacustre de Ganvié, Porto-Novo, la memoria de Ouidah, las playas de Grand-Popo, el lago Ahémé y los palacios reales de Abomey.",
-    },
-    "nord-benin-6-jours": {
-      title: "El norte de Benín en 6 días",
-      summary:
-        "De las colinas de Dassa a las sabanas de la Pendjari, pasando por las Tata Somba del Atacora y las cascadas. Se recomienda viajar en coche con conductor-guía.",
     },
   },
   stepNotes: {
@@ -310,11 +303,6 @@ const ES: SeedI18n = {
     "benin-essentiel-7-jours:9": "Ruta hacia el oeste y descanso junto al mar.",
     "benin-essentiel-7-jours:11": "Salida en piragua al amanecer y después ruta hacia Abomey.",
     "benin-essentiel-7-jours:14": "Regreso a Cotonou, últimas compras en el centro de artesanía.",
-    "nord-benin-6-jours:0": "Salida temprano de Cotonou, parada en Dassa-Zoumè.",
-    "nord-benin-6-jours:2": "Largo trayecto hasta Natitingou.",
-    "nord-benin-6-jours:6": "Ruta hacia Tanguiéta, puerta del parque.",
-    "nord-benin-6-jours:7": "Jornada completa de safari.",
-    "nord-benin-6-jours:8": "Último safari al amanecer y regreso hacia el sur.",
   },
 };
 
@@ -350,6 +338,10 @@ const PT: SeedI18n = {
       {
         title: "Eletricidade e telefone",
         body: "Corrente de 220 V, tomadas do tipo C e E (tomadas europeias). Um cartão SIM local (é pedido documento de identificação) dá acesso à internet móvel e ao mobile money.",
+      },
+      {
+        title: "Segurança",
+        body: "O sul e o centro do país visitam-se com a vigilância habitual: atenção aos furtos nos mercados e à noite em Cotonou, e prudência na estrada (evite conduzir de noite). O norte, pelo contrário, está exposto ao risco terrorista: as autoridades francesas e britânicas desaconselham formalmente os parques da Pendjari e do W, as suas imediações e as zonas fronteiriças com o Burkina Faso e o Níger, e desaconselham, salvo motivo imperioso, o resto dos departamentos de Atacora e Alibori, bem como o leste do país entre o eixo Tchaourou–Malanville e a fronteira com a Nigéria. Consulte os conselhos aos viajantes do seu país pouco antes de partir e registe a sua viagem junto da sua embaixada.",
       },
     ],
   },
@@ -399,13 +391,13 @@ const PT: SeedI18n = {
       name: "Natitingou e o Atacora",
       summary: "Montanhas do Atacora, cascatas e casas-fortaleza Tata Somba.",
       description:
-        "Capital do noroeste, Natitingou é a porta do Atacora, região de relevos e vales onde vivem, entre outros, os Batammariba. As suas casas-fortaleza com torreões, as Tata Somba, contam-se entre as arquiteturas de terra mais surpreendentes de África. Cascatas, mercados coloridos e caminhadas completam a descoberta, antes de seguir para o parque da Pendjari.",
+        "Capital do noroeste, Natitingou é a porta do Atacora, região de relevos e vales onde vivem, entre outros, os Batammariba. As suas casas-fortaleza com torreões, as Tata Somba, contam-se entre as arquiteturas de terra mais surpreendentes de África, e cascatas, mercados e caminhadas completam a descoberta. O departamento de Atacora é, contudo, objeto de avisos oficiais devido ao risco terrorista (ver Segurança): informe-se antes de qualquer projeto.",
     },
     pendjari: {
       name: "Parque Nacional da Pendjari",
       summary: "Um dos últimos grandes refúgios de fauna da África Ocidental: elefantes, leões, búfalos.",
       description:
-        "No noroeste do país, o Parque Nacional da Pendjari faz parte do complexo W-Arly-Pendjari, inscrito no Património Mundial da UNESCO. As suas savanas, florestas-galeria e charcos abrigam elefantes, búfalos, hipopótamos, antílopes e, mais discretos, leões e outros grandes felinos. Os safaris fazem-se de veículo com um guia autorizado, a partir de Tanguiéta.",
+        "No noroeste do país, o Parque Nacional da Pendjari faz parte do complexo W-Arly-Pendjari, inscrito no Património Mundial da UNESCO. As suas savanas, florestas-galeria e charcos abrigam elefantes, búfalos, hipopótamos, antílopes e, mais discretos, leões e outros grandes felinos. Vários governos desaconselham atualmente de forma formal o parque e as suas imediações devido ao risco terrorista: esta ficha apresenta o local para o dia em que as condições permitam voltar a visitá-lo.",
     },
   },
   places: {
@@ -586,7 +578,7 @@ const PT: SeedI18n = {
       summary: "Observação da fauna de veículo, em redor dos charcos e ao longo do rio.",
       description:
         "As pistas do parque conduzem aos charcos onde os animais vêm beber, sobretudo no fim da estação seca. Parta ao amanhecer ou ao fim da tarde, os momentos mais favoráveis à observação. A entrada e os percursos seguem as regras fixadas pela entidade gestora do parque: informe-se sobre as condições de visita e de segurança antes de partir.",
-      tips: "Reserve guia e veículo com antecedência; consulte os conselhos aos viajantes do seu país para o norte do Benim antes de ir.",
+      tips: "Visita atualmente formalmente desaconselhada (risco terrorista): consulte os conselhos aos viajantes oficiais antes de qualquer projeto.",
       bestPeriod: "De dezembro a maio (estação seca)",
     },
     "cascades-de-tanougou": {
@@ -594,6 +586,7 @@ const PT: SeedI18n = {
       summary: "Quedas de água e piscinas naturais no sopé da cordilheira do Atacora, perto do parque.",
       description:
         "Na estrada para a Pendjari, as cascatas de Tanougou descem as falésias do Atacora em várias piscinas naturais onde se pode refrescar. Uma paragem agradável antes ou depois do safari.",
+      tips: "Visita atualmente formalmente desaconselhada (risco terrorista): consulte os conselhos aos viajantes oficiais antes de qualquer projeto.",
     },
   },
   circuits: {
@@ -601,11 +594,6 @@ const PT: SeedI18n = {
       title: "O essencial do Benim em 7 dias",
       summary:
         "Uma semana no sul: Cotonou e os seus mercados, a aldeia lacustre de Ganvié, Porto-Novo, a memória de Ouidah, as praias de Grand-Popo, o lago Ahémé e os palácios reais de Abomey.",
-    },
-    "nord-benin-6-jours": {
-      title: "O norte do Benim em 6 dias",
-      summary:
-        "Das colinas de Dassa às savanas da Pendjari, passando pelas Tata Somba do Atacora e pelas cascatas. Aconselha-se viajar de carro com motorista-guia.",
     },
   },
   stepNotes: {
@@ -615,11 +603,6 @@ const PT: SeedI18n = {
     "benin-essentiel-7-jours:9": "Estrada para oeste e descanso à beira-mar.",
     "benin-essentiel-7-jours:11": "Saída de piroga ao nascer do dia e depois estrada para Abomey.",
     "benin-essentiel-7-jours:14": "Regresso a Cotonou, últimas compras no centro de artesanato.",
-    "nord-benin-6-jours:0": "Partida cedo de Cotonou, paragem em Dassa-Zoumè.",
-    "nord-benin-6-jours:2": "Longa viagem até Natitingou.",
-    "nord-benin-6-jours:6": "Estrada para Tanguiéta, porta do parque.",
-    "nord-benin-6-jours:7": "Dia completo de safari.",
-    "nord-benin-6-jours:8": "Último safari ao amanhecer e regresso para sul.",
   },
 };
 
@@ -655,6 +638,10 @@ const AR: SeedI18n = {
       {
         title: "الكهرباء والهاتف",
         body: "التيار الكهربائي 220 فولت، والمقابس من النوعين C وE (مقابس أوروبية). تتيح شريحة اتصال محلية (يُطلب إثبات الهوية) الوصول إلى الإنترنت عبر الهاتف المحمول وإلى خدمة mobile money.",
+      },
+      {
+        title: "الأمن",
+        body: "يمكن زيارة جنوب البلاد ووسطها مع الحذر المعتاد: انتبهوا للسرقات في الأسواق وليلًا في كوتونو، واحذروا على الطرق (تجنبوا القيادة ليلًا). أما الشمال فمعرّض لخطر الإرهاب: إذ تنصح السلطات الفرنسية والبريطانية بعدم السفر إطلاقًا إلى متنزهَي بندجاري ودبليو ومحيطهما والمناطق الحدودية مع بوركينا فاسو والنيجر، وبعدم السفر إلا للضرورة القصوى إلى بقية مقاطعتي أتاكورا وأليبوري وإلى شرق البلاد بين محور تشاورو–مالانفيل والحدود النيجيرية. راجعوا نصائح السفر الصادرة عن حكومتكم قبيل المغادرة وسجّلوا رحلتكم لدى سفارتكم.",
       },
     ],
   },
@@ -720,14 +707,14 @@ const AR: SeedI18n = {
       region: "أتاكورا",
       summary: "جبال أتاكورا والشلالات والبيوت الحصينة «تاتا سومبا».",
       description:
-        "ناتيتينغو، عاصمة الشمال الغربي، هي بوابة أتاكورا، وهي منطقة مرتفعات ووديان يعيش فيها شعب الباتاماريبا بين شعوب أخرى. وتُعدّ بيوتهم الحصينة ذات الأبراج الصغيرة، «تاتا سومبا»، من أكثر العمارة الطينية إدهاشًا في أفريقيا. وتكمل الشلالات والأسواق الملوّنة ورحلات المشي هذا الاكتشاف، قبل التوجّه إلى متنزه بندجاري.",
+        "عاصمة الشمال الغربي، ناتيتينغو هي بوابة أتاكورا، منطقة الجبال والوديان التي يعيش فيها شعب الباتاماريبا وغيره. وتُعدّ بيوتهم الحصينة ذات الأبراج، المعروفة بـ«تاتا سومبا»، من أروع العمارة الطينية في أفريقيا، وتكمل الشلالات والأسواق والمسارات الجبلية الاكتشاف. غير أن مقاطعة أتاكورا تخضع حاليًا لتحذيرات رسمية بسبب خطر الإرهاب (انظر قسم الأمن): استعلموا قبل أي مشروع.",
     },
     pendjari: {
       name: "متنزه بندجاري الوطني",
       region: "أتاكورا",
       summary: "أحد آخر الملاذات الكبرى للحياة البرية في غرب أفريقيا: فيلة وأسود وجواميس.",
       description:
-        "في شمال غرب البلاد، يشكّل متنزه بندجاري الوطني جزءًا من مجمّع W-أرلي-بندجاري المُدرج في قائمة التراث العالمي لليونسكو. وتؤوي سافاناته وغاباته الشريطية وبركه الفيلة والجواميس وأفراس النهر والظباء، ومعها، بشكل أكثر تخفّيًا، الأسود وسنوريات كبيرة أخرى. وتتم رحلات السفاري بالسيارة برفقة مرشد معتمد، انطلاقًا من تانغييتا.",
+        "في شمال غرب البلاد، يشكّل متنزه بندجاري الوطني جزءًا من مجمّع دبليو-آرلي-بندجاري المدرج في قائمة التراث العالمي لليونسكو. تأوي سهوبه وغاباته الشريطية وبركه الفيلة والجواميس وأفراس النهر والظباء، وبشكل أكثر تخفّيًا الأسود وغيرها من السنوريات الكبيرة. وتنصح عدة حكومات حاليًا بعدم السفر إطلاقًا إلى المتنزه ومحيطه بسبب خطر الإرهاب: تعرض هذه الصفحة الموقع لليوم الذي تسمح فيه الظروف بزيارته من جديد.",
     },
   },
   places: {
@@ -910,7 +897,7 @@ const AR: SeedI18n = {
       summary: "مشاهدة الحياة البرية بالسيارة، حول البرك وعلى امتداد النهر.",
       description:
         "تقود مسالك المتنزه إلى البرك التي تأتي الحيوانات لتشرب منها، خاصةً في نهاية موسم الجفاف. انطلق عند الفجر أو في أواخر بعد الظهر، وهما أنسب وقتين للمشاهدة. ويخضع الدخول والمسارات للقواعد التي تحدّدها الجهة المسيّرة للمتنزه: استعلم عن شروط الزيارة والسلامة قبل الانطلاق.",
-      tips: "احجز المرشد والسيارة مسبقًا، واطّلع على توصيات السفر الصادرة عن بلدك بشأن شمال بنين قبل التوجّه إليه.",
+      tips: "الزيارة غير مستحسنة إطلاقًا حاليًا (خطر الإرهاب): راجعوا نصائح السفر الرسمية قبل أي مشروع.",
       bestPeriod: "من ديسمبر إلى مايو (موسم الجفاف)",
     },
     "cascades-de-tanougou": {
@@ -918,6 +905,7 @@ const AR: SeedI18n = {
       summary: "شلالات وأحواض عند سفح سلسلة أتاكورا، قرب المتنزه.",
       description:
         "على الطريق إلى بندجاري، تنحدر شلالات تانوغو من منحدرات أتاكورا في عدة أحواض يمكن الانتعاش فيها. محطة لطيفة قبل السفاري أو بعده.",
+      tips: "الزيارة غير مستحسنة إطلاقًا حاليًا (خطر الإرهاب): راجعوا نصائح السفر الرسمية قبل أي مشروع.",
     },
   },
   circuits: {
@@ -925,11 +913,6 @@ const AR: SeedI18n = {
       title: "أساسيات بنين في 7 أيام",
       summary:
         "أسبوع في الجنوب: كوتونو وأسواقها، وقرية غانفيي المائية، وبورتو نوفو، وذاكرة ويدا، وشواطئ غران بوبو، وبحيرة أهيميه، وقصور أبومي الملكية.",
-    },
-    "nord-benin-6-jours": {
-      title: "شمال بنين في 6 أيام",
-      summary:
-        "من تلال داسا إلى سافانا بندجاري، مرورًا ببيوت تاتا سومبا في أتاكورا وبالشلالات. يُنصح بالسفر بسيارة مع سائق مرشد.",
     },
   },
   stepNotes: {
@@ -939,12 +922,7 @@ const AR: SeedI18n = {
     "benin-essentiel-7-jours:9": "الطريق نحو الغرب واستراحة على شاطئ البحر.",
     "benin-essentiel-7-jours:11": "جولة بقارب البيروغ عند شروق الشمس، ثم الطريق نحو أبومي.",
     "benin-essentiel-7-jours:14": "العودة إلى كوتونو، وآخر المشتريات في مركز الحرف اليدوية.",
-    "nord-benin-6-jours:0": "انطلاق مبكر من كوتونو، وتوقف في داسا زومي.",
-    "nord-benin-6-jours:2": "طريق طويل نحو ناتيتينغو.",
-    "nord-benin-6-jours:6": "الطريق نحو تانغييتا، بوابة المتنزه.",
-    "nord-benin-6-jours:7": "يوم كامل من السفاري.",
-    "nord-benin-6-jours:8": "سفاري أخير عند الفجر ثم العودة نحو الجنوب.",
   },
 };
 
-export const BENIN_I18N: Record<"es" | "pt" | "ar", SeedI18n> = { es: ES, pt: PT, ar: AR };
+export const BENIN_I18N: Record<SeedLang, SeedI18n> = { es: ES, pt: PT, ar: AR };

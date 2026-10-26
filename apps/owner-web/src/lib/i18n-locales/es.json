@@ -1730,7 +1730,7 @@
   "voyAdmin.hide": "Ocultar",
   "voyAdmin.show": "Restablecer",
   "voyAdmin.guides": "Guías de viaje",
-  "voyAdmin.guidesSub": "Información práctica, destinos, lugares y circuitos mostrados en el espacio Viajes. El contenido inicial de Benín se redactó automáticamente: revíselo, complete horarios y tarifas y después marque «Revisado y verificado».",
+  "voyAdmin.guidesSub": "Información práctica, destinos, lugares y circuitos mostrados en el espacio Viajes. El contenido inicial de cada país se redactó automáticamente: revíselo, complete horarios y tarifas y después marque «Revisado y verificado».",
   "voyAdmin.country": "País",
   "voyAdmin.retry": "Reintentar",
   "voyAdmin.toReview.one": "Queda {count} contenido por revisar.",

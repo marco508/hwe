@@ -17,8 +17,8 @@ import { buildIcal, checkImportUrl, isPrivateAddress, parseIcal } from "../src/s
 import { checkCover, cleanTranslations, localize, localized, slugify } from "../src/voyage/voyage-content";
 import { tripDays } from "../src/voyage/trips.service";
 import * as mail from "../src/mail/templates";
-import { BENIN_CIRCUITS, BENIN_DESTINATIONS, BENIN_GUIDE } from "../src/voyage/seed/benin";
-import { BENIN_I18N } from "../src/voyage/seed/benin-i18n";
+import { SEED_COUNTRIES } from "../src/voyage/seed";
+import { VOYAGE_COUNTRIES } from "../../../packages/types/src/voyage";
 
 const D = (s: string) => new Date(`${s}T00:00:00Z`);
 
@@ -148,27 +148,59 @@ test("contenus Voyage : traduction langue → en → fr, nettoyage des saisies",
   assert.equal(tripDays(D("2026-12-20"), D("2026-12-26")), 7);
 });
 
-test("guide Bénin : identifiants uniques, étapes de circuit toutes résolues, anglais complet", () => {
-  const places = BENIN_DESTINATIONS.flatMap((d) => d.places);
-  const slugs = [...BENIN_DESTINATIONS.map((d) => d.slug), ...places.map((p) => p.slug)];
-  assert.equal(new Set(places.map((p) => p.slug)).size, places.length);
-  assert.equal(new Set(BENIN_DESTINATIONS.map((d) => d.slug)).size, BENIN_DESTINATIONS.length);
-  for (const c of BENIN_CIRCUITS) {
-    for (const s of c.steps) {
-      assert.ok(s.day >= 1 && s.day <= c.days, `${c.slug} jour ${s.day}`);
-      if (s.place) assert.ok(places.some((p) => p.slug === s.place), s.place);
-      if (s.destination) assert.ok(BENIN_DESTINATIONS.some((d) => d.slug === s.destination), s.destination);
+test("guides de départ : un par pays de VOYAGE_COUNTRIES, identifiants uniques, circuits résolus, 5 langues complètes", () => {
+  assert.deepEqual(
+    SEED_COUNTRIES.map((c) => c.guide.country),
+    [...VOYAGE_COUNTRIES],
+  );
+  // Les slugs sont uniques dans toute la base, tous pays confondus.
+  const allDest = SEED_COUNTRIES.flatMap((c) => c.destinations.map((d) => d.slug));
+  const allPlaces = SEED_COUNTRIES.flatMap((c) => c.destinations.flatMap((d) => d.places.map((p) => p.slug)));
+  const allCircuits = SEED_COUNTRIES.flatMap((c) => c.circuits.map((x) => x.slug));
+  for (const [what, list] of [["destinations", allDest], ["lieux", allPlaces], ["circuits", allCircuits]] as const) {
+    const dup = list.filter((x, i) => list.indexOf(x) !== i);
+    assert.deepEqual(dup, [], `${what} en double`);
+  }
+  const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+  for (const x of [...allDest, ...allPlaces, ...allCircuits]) assert.match(x, SLUG);
+
+  for (const { guide, destinations, circuits, i18n } of SEED_COUNTRIES) {
+    const cc = guide.country;
+    const places = destinations.flatMap((d) => d.places);
+    assert.ok(guide.intro && guide.sections.length >= 6, `${cc} guide`);
+    assert.equal(guide.en.sections.length, guide.sections.length, `${cc} en rubriques`);
+    assert.ok(destinations.length >= 4, `${cc} destinations`);
+    assert.ok(places.length >= 12, `${cc} lieux`);
+    for (const d of destinations) {
+      assert.ok(Math.abs(d.lat) <= 90 && Math.abs(d.lng) <= 180, `${cc} ${d.slug} coordonnées`);
+      assert.ok(d.places.length >= 1, `${cc} ${d.slug} sans lieu`);
+      if (d.cover) assert.equal(checkCover(d.cover), d.cover, `${cc} ${d.slug} image`);
+      assert.ok(d.en.summary && d.en.description, `${cc} ${d.slug} en`);
+    }
+    for (const c of circuits) {
+      for (const st of c.steps) {
+        assert.ok(st.day >= 1 && st.day <= c.days, `${c.slug} jour ${st.day}`);
+        if (st.place) assert.ok(places.some((p) => p.slug === st.place), `${c.slug} → ${st.place}`);
+        if (st.destination) assert.ok(destinations.some((d) => d.slug === st.destination), `${c.slug} → ${st.destination}`);
+        if (st.note) assert.ok(st.noteEn, `${c.slug} note sans anglais`);
+      }
+    }
+    for (const p of places) assert.ok(p.en.summary && p.en.description, `${cc} ${p.slug} en`);
+    // es, pt, ar : tout le guide traduit (mêmes identifiants, mêmes rubriques).
+    for (const lang of ["es", "pt", "ar"] as const) {
+      const tr = i18n[lang];
+      assert.ok(tr, `${cc} ${lang} absent`);
+      assert.equal(tr.guide.sections.length, guide.sections.length, `${cc} ${lang} rubriques`);
+      for (const d of destinations) assert.ok(tr.destinations[d.slug]?.summary, `${cc} ${lang} ${d.slug}`);
+      for (const p of places) assert.ok(tr.places[p.slug]?.description, `${cc} ${lang} ${p.slug}`);
+      for (const c of circuits) assert.ok(tr.circuits[c.slug]?.title, `${cc} ${lang} ${c.slug}`);
+      circuits.forEach((c) =>
+        c.steps.forEach((st, k) => {
+          if (st.note) assert.ok(tr.stepNotes[`${c.slug}:${k}`], `${cc} ${lang} note ${c.slug}:${k}`);
+        }),
+      );
     }
   }
-  for (const p of places) assert.ok(p.en.summary && p.en.description, p.slug);
-  // es, pt, ar : tout le guide traduit (mêmes identifiants, mêmes rubriques).
-  for (const [lang, tr] of Object.entries(BENIN_I18N)) {
-    assert.equal(tr.guide.sections.length, BENIN_GUIDE.sections.length, lang);
-    for (const d of BENIN_DESTINATIONS) assert.ok(tr.destinations[d.slug]?.summary, `${lang} ${d.slug}`);
-    for (const p of places) assert.ok(tr.places[p.slug]?.description, `${lang} ${p.slug}`);
-    for (const c of BENIN_CIRCUITS) assert.ok(tr.circuits[c.slug]?.title, `${lang} ${c.slug}`);
-  }
-  assert.ok(slugs.length > 30);
 });
 
 test("e-mails de réservation : chaque événement a sujet et texte dans les 5 langues", () => {

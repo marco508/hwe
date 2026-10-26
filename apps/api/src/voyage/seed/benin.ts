@@ -5,44 +5,9 @@
  * horaires ni tarifs (qui changent) : ces champs restent à compléter.
  */
 
-export interface SeedPlace {
-  slug: string;
-  category: "HISTORY" | "CULTURE" | "NATURE" | "BEACH" | "MUSEUM" | "MARKET" | "RELIGION" | "FESTIVAL" | "GASTRONOMY" | "LEISURE";
-  name: string;
-  summary: string;
-  description: string;
-  tips?: string;
-  bestPeriod?: string;
-  visitMinutes?: number;
-  lat?: number;
-  lng?: number;
-  en: { name?: string; summary: string; description: string; tips?: string; bestPeriod?: string };
-}
+import type { SeedCircuit, SeedDestination, SeedGuide } from "./types";
 
-export interface SeedDestination {
-  slug: string;
-  name: string;
-  region: string;
-  summary: string;
-  description: string;
-  lat: number;
-  lng: number;
-  cover?: string;
-  en: { name?: string; region?: string; summary: string; description: string };
-  places: SeedPlace[];
-}
-
-export interface SeedCircuit {
-  slug: string;
-  title: string;
-  summary: string;
-  days: number;
-  cover?: string;
-  en: { title: string; summary: string };
-  steps: Array<{ day: number; destination?: string; place?: string; note?: string; noteEn?: string }>;
-}
-
-export const BENIN_GUIDE = {
+export const BENIN_GUIDE: SeedGuide = {
   country: "BJ",
   intro:
     "Berceau du vodun, terre des royaumes d'Abomey et de Porto-Novo, le Bénin offre en quelques heures de route des plages de cocotiers, des cités lacustres, des palais royaux classés à l'UNESCO et, au nord, les savanes et les parcs nationaux parmi les mieux préservés d'Afrique de l'Ouest.",
@@ -74,6 +39,10 @@ export const BENIN_GUIDE = {
     {
       title: "Électricité et téléphone",
       body: "Courant 220 V, prises de type C et E (prises européennes). Une carte SIM locale (pièce d'identité demandée) donne accès à l'internet mobile et au mobile money.",
+    },
+    {
+      title: "Sécurité",
+      body: "Le sud et le centre du pays se visitent avec une vigilance ordinaire : attention aux vols dans les marchés et la nuit à Cotonou, prudence sur la route (évitez de rouler de nuit). Le nord est en revanche exposé au risque terroriste : les autorités françaises et britanniques déconseillent formellement les parcs de la Pendjari et du W, leurs abords et les zones frontalières du Burkina Faso et du Niger, et déconseillent, sauf raison impérative, le reste des départements de l'Atacora et de l'Alibori ainsi que l'est du pays entre l'axe Tchaourou–Malanville et la frontière du Nigeria. Consultez les conseils aux voyageurs de votre pays (France Diplomatie, FCDO…) juste avant de partir et signalez votre séjour à votre ambassade.",
     },
   ],
   en: {
@@ -107,6 +76,10 @@ export const BENIN_GUIDE = {
       {
         title: "Electricity and phone",
         body: "220 V, type C and E plugs (European sockets). A local SIM card (ID required) gives access to mobile internet and mobile money.",
+      },
+      {
+        title: "Safety and security",
+        body: "The south and centre of the country can be visited with ordinary caution: watch out for theft in markets and at night in Cotonou, and take care on the roads (avoid driving after dark). The north, however, is exposed to the threat of terrorism: the French and British authorities advise against all travel to the Pendjari and W national parks, their surroundings and the areas bordering Burkina Faso and Niger, and against all but essential travel to the rest of the Atacora and Alibori departments and to the east of the country between the Tchaourou–Malanville road and the Nigerian border. Check your own government's travel advice (FCDO, France Diplomatie…) just before leaving and register your trip with your embassy.",
       },
     ],
   },
@@ -689,7 +662,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
     region: "Atacora",
     summary: "Montagnes de l'Atacora, cascades et maisons-forteresses Tata Somba.",
     description:
-      "Capitale du nord-ouest, Natitingou est la porte de l'Atacora, région de reliefs et de vallées où vivent notamment les Batammariba. Leurs maisons-forteresses à tourelles, les Tata Somba, comptent parmi les architectures de terre les plus étonnantes d'Afrique. Cascades, marchés colorés et randonnées complètent la découverte, avant de rejoindre le parc de la Pendjari.",
+      "Capitale du nord-ouest, Natitingou est la porte de l'Atacora, région de reliefs et de vallées où vivent notamment les Batammariba. Leurs maisons-forteresses à tourelles, les Tata Somba, comptent parmi les architectures de terre les plus étonnantes d'Afrique, et cascades, marchés et randonnées complètent la découverte. Le département de l'Atacora fait toutefois aujourd'hui l'objet d'avertissements officiels liés au risque terroriste (voir la rubrique Sécurité) : renseignez-vous avant tout projet.",
     lat: 10.3042,
     lng: 1.3796,
     en: {
@@ -697,7 +670,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
       region: "Atacora",
       summary: "The Atacora mountains, waterfalls and Tata Somba fortress houses.",
       description:
-        "The capital of the north-west, Natitingou is the gateway to the Atacora, a region of hills and valleys home to the Batammariba among others. Their turreted fortress houses, the Tata Somba, are among the most astonishing earthen architecture in Africa. Waterfalls, colourful markets and hikes round off the trip before heading on to Pendjari park.",
+        "The capital of the north-west, Natitingou is the gateway to the Atacora, a region of hills and valleys home to the Batammariba among others. Their turreted fortress houses, the Tata Somba, are among the most astonishing earthen architecture in Africa, and waterfalls, markets and hikes round off the visit. The Atacora department is, however, currently subject to official warnings because of the terrorist threat (see Safety and security): check before planning anything.",
     },
     places: [
       {
@@ -760,7 +733,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
     region: "Atacora",
     summary: "L'un des derniers grands refuges de faune d'Afrique de l'Ouest : éléphants, lions, buffles.",
     description:
-      "Au nord-ouest du pays, le parc national de la Pendjari fait partie du complexe W-Arly-Pendjari, inscrit au patrimoine mondial de l'UNESCO. Savanes, forêts galeries et mares y abritent éléphants, buffles, hippopotames, antilopes et, plus discrets, lions et autres grands félins. Les safaris se font en véhicule avec un guide agréé, au départ de Tanguiéta.",
+      "Au nord-ouest du pays, le parc national de la Pendjari fait partie du complexe W-Arly-Pendjari, inscrit au patrimoine mondial de l'UNESCO. Savanes, forêts galeries et mares y abritent éléphants, buffles, hippopotames, antilopes et, plus discrets, lions et autres grands félins. Le parc et ses abords sont actuellement formellement déconseillés par plusieurs gouvernements en raison du risque terroriste : cette fiche présente le site pour le jour où les conditions permettront à nouveau de le visiter.",
     lat: 11.1,
     lng: 1.5,
     en: {
@@ -768,7 +741,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
       region: "Atacora",
       summary: "One of West Africa's last great wildlife refuges: elephants, lions, buffalo.",
       description:
-        "In the north-west of the country, Pendjari National Park is part of the W-Arly-Pendjari complex, a UNESCO World Heritage Site. Its savannahs, gallery forests and waterholes are home to elephants, buffalo, hippos, antelopes and, more elusive, lions and other big cats. Safaris are made by vehicle with an approved guide, starting from Tanguiéta.",
+        "In the north-west of the country, Pendjari National Park is part of the W-Arly-Pendjari complex, a UNESCO World Heritage Site. Its savannahs, gallery forests and waterholes are home to elephants, buffalo, hippos, antelopes and, more elusive, lions and other big cats. Several governments currently advise against all travel to the park and its surroundings because of the terrorist threat: this page presents the site for the day when conditions allow it to be visited again.",
     },
     places: [
       {
@@ -778,7 +751,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         summary: "Observation de la faune en véhicule, autour des mares et le long de la rivière.",
         description:
           "Les pistes du parc mènent aux mares où les animaux viennent boire, surtout en fin de saison sèche. Partez à l'aube ou en fin d'après-midi, moments les plus favorables à l'observation. L'entrée et les circuits se font selon les règles fixées par le gestionnaire du parc : renseignez-vous sur les conditions de visite et de sécurité avant de partir.",
-        tips: "Réservez guide et véhicule à l'avance ; consultez les conseils aux voyageurs de votre pays pour le nord du Bénin avant de vous y rendre.",
+        tips: "Visite actuellement formellement déconseillée (risque terroriste) : consultez les conseils aux voyageurs officiels avant tout projet.",
         bestPeriod: "Décembre à mai (saison sèche)",
         visitMinutes: 480,
         lat: 11.1,
@@ -788,7 +761,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
           summary: "Wildlife viewing by vehicle, around the waterholes and along the river.",
           description:
             "The park's tracks lead to waterholes where animals come to drink, especially at the end of the dry season. Set out at dawn or in late afternoon, the best times for viewing. Entry and routes follow the rules set by the park's managers: check visiting and safety conditions before you go.",
-          tips: "Book a guide and vehicle in advance; check your country's travel advice for northern Benin before going.",
+          tips: "Several governments currently advise against all travel here (terrorist threat): check official travel advice before planning anything.",
           bestPeriod: "December to May (dry season)",
         },
       },
@@ -799,6 +772,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         summary: "Chutes d'eau et bassins au pied de la chaîne de l'Atacora, près du parc.",
         description:
           "Sur la route de la Pendjari, les cascades de Tanougou dévalent les falaises de l'Atacora en plusieurs bassins où l'on peut se rafraîchir. Une halte agréable avant ou après le safari.",
+        tips: "Visite actuellement formellement déconseillée (risque terroriste) : consultez les conseils aux voyageurs officiels avant tout projet.",
         visitMinutes: 120,
         lat: 10.8,
         lng: 1.43,
@@ -807,6 +781,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
           summary: "Waterfalls and pools at the foot of the Atacora range, near the park.",
           description:
             "On the road to Pendjari, the Tanougou falls tumble down the Atacora cliffs into several pools where you can cool off. A pleasant stop before or after a safari.",
+          tips: "Several governments currently advise against all travel here (terrorist threat): check official travel advice before planning anything.",
         },
       },
     ],
@@ -843,30 +818,6 @@ export const BENIN_CIRCUITS: SeedCircuit[] = [
       { day: 6, place: "artisans-d-abomey" },
       { day: 7, destination: "cotonou", note: "Retour à Cotonou, derniers achats au centre artisanal.", noteEn: "Back to Cotonou, last shopping at the crafts centre." },
       { day: 7, place: "centre-artisanal-cotonou" },
-    ],
-  },
-  {
-    slug: "nord-benin-6-jours",
-    title: "Le nord du Bénin en 6 jours",
-    summary:
-      "Des collines de Dassa aux savanes de la Pendjari, en passant par les Tata Somba de l'Atacora et les cascades. Voyage en voiture avec chauffeur-guide conseillé.",
-    days: 6,
-    cover: "/images/voyage/dassa-zoume",
-    en: {
-      title: "Northern Benin in 6 days",
-      summary:
-        "From the hills of Dassa to the savannahs of Pendjari, via the Tata Somba of the Atacora and its waterfalls. Travelling by car with a driver-guide is recommended.",
-    },
-    steps: [
-      { day: 1, place: "collines-de-dassa", note: "Départ tôt de Cotonou, halte à Dassa-Zoumè.", noteEn: "Early departure from Cotonou, stop in Dassa-Zoumè." },
-      { day: 1, place: "grotte-notre-dame-d-arigbo" },
-      { day: 2, destination: "natitingou", note: "Longue route vers Natitingou.", noteEn: "Long drive to Natitingou." },
-      { day: 2, place: "musee-regional-natitingou" },
-      { day: 3, place: "tata-somba" },
-      { day: 3, place: "cascade-de-kota" },
-      { day: 4, place: "cascades-de-tanougou", note: "Route vers Tanguiéta, porte du parc.", noteEn: "Drive to Tanguiéta, gateway to the park." },
-      { day: 5, place: "safari-pendjari", note: "Journée complète de safari.", noteEn: "Full day of safari." },
-      { day: 6, destination: "natitingou", note: "Dernier safari à l'aube puis retour vers le sud.", noteEn: "Last dawn safari, then head back south." },
     ],
   },
 ];

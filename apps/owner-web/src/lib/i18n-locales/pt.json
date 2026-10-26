@@ -1730,7 +1730,7 @@
   "voyAdmin.hide": "Ocultar",
   "voyAdmin.show": "Repor",
   "voyAdmin.guides": "Guias de viagem",
-  "voyAdmin.guidesSub": "Informações práticas, destinos, locais e circuitos apresentados no espaço Viagem. O conteúdo inicial do Benim foi redigido automaticamente: reveja-o, complete horários e preços e depois assinale «Revisto e verificado».",
+  "voyAdmin.guidesSub": "Informações práticas, destinos, locais e circuitos apresentados no espaço Viagem. O conteúdo inicial de cada país foi redigido automaticamente: reveja-o, complete horários e preços e depois assinale «Revisto e verificado».",
   "voyAdmin.country": "País",
   "voyAdmin.retry": "Tentar novamente",
   "voyAdmin.toReview.one": "Falta rever {count} conteúdo.",

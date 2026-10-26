@@ -15,10 +15,24 @@ locataire (`/voyage`) et l'espace propriétaire (`/dashboard/sejours`).
   crédits dans `apps/landing/public/images/CREDITS.md`) ou image téléversée
   dans l'admin (`VoyageImage`, servie par `/api/media/voyage/<clé>`).
 - `reviewed = false` : contenu « à relire » dans l'admin (onglet Voyage).
-- Contenu de départ du Bénin : `apps/api/src/voyage/seed/` (fr, en, es, pt, ar),
-  inséré une seule fois au démarrage de l'API si le pays n'a ni guide ni
-  destination (`VOYAGE_SEED=0` pour désactiver). Ensuite tout se gère dans
-  l'admin.
+- Contenu de départ de 10 pays d'Afrique de l'Ouest (`VOYAGE_COUNTRIES` :
+  Bénin, Togo, Ghana, Nigeria, Côte d'Ivoire, Sénégal, Burkina Faso, Niger,
+  Mali, Guinée) : `apps/api/src/voyage/seed/<pays>.ts` (fr + en) et
+  `<pays>-i18n.ts` (es, pt, ar), liste dans `seed/index.ts`. Chaque pays est
+  inséré une seule fois au démarrage de l'API s'il n'a ni guide ni destination
+  (`VOYAGE_SEED=0` pour désactiver). Ensuite tout se gère dans l'admin.
+- Mise à jour du contenu de départ : tant qu'un élément n'a été ni modifié ni
+  marqué relu dans l'admin, il suit la version à jour du seed au démarrage
+  (textes, traductions, image). Les circuits retirés du seed
+  (`RETIRED_CIRCUITS`) sont supprimés aux mêmes conditions. Un élément modifié
+  dans l'admin n'est plus jamais touché.
+- Sécurité : chaque guide a une rubrique « Sécurité » fondée sur les conseils
+  aux voyageurs de France Diplomatie et du FCDO (octobre 2026). Aucun circuit
+  ne passe par une zone formellement déconseillée ; Burkina Faso, Niger et
+  Mali, déconseillés dans leur ensemble, sont des guides « patrimoine » sans
+  circuit. **À revoir à chaque évolution de ces avis.**
+- Vérifier un fichier pays : test unitaire `voyage.spec.ts` (slugs uniques
+  tous pays confondus, circuits résolus, 5 langues complètes).
 
 ## Carnets de voyage
 
