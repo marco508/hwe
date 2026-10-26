@@ -18,7 +18,7 @@ import {
   MinLength,
   ValidateNested,
 } from "class-validator";
-import { PlaceCategory } from "@prisma/client";
+import { PlaceCategory, VoyageEventKind } from "@prisma/client";
 
 const CC = /^[A-Za-z]{2}$/;
 
@@ -100,6 +100,31 @@ export class GuideInput {
   @IsOptional() @IsObject() translations?: Record<string, unknown> | null;
   @IsOptional() @IsBoolean() published?: boolean;
   @IsOptional() @IsBoolean() reviewed?: boolean;
+}
+
+export class EventInput {
+  @IsOptional() @IsString() @MaxLength(80) slug?: string;
+  @IsOptional() @Matches(CC) country?: string;
+  @IsOptional() @IsEnum(VoyageEventKind) kind?: VoyageEventKind;
+  @IsOptional() @IsBoolean() publicHoliday?: boolean;
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(160) name?: string;
+  @IsOptional() @IsString() @MaxLength(600) summary?: string;
+  @IsOptional() @IsString() @MaxLength(8000) description?: string;
+  @IsOptional() @IsString() @MaxLength(3000) tips?: string | null;
+  @IsOptional() @IsString() @MaxLength(200) where?: string | null;
+  @IsOptional() @IsString() @MaxLength(600) dateNote?: string | null;
+  /** Règle de date, validée par isValidEventRule (@hwe/types). */
+  @IsOptional() @IsObject() rule?: Record<string, unknown>;
+  @IsOptional() @IsString() @MaxLength(64) destinationId?: string | null;
+  @IsOptional() @IsString() @MaxLength(64) placeId?: string | null;
+  @IsOptional() @IsBoolean() caution?: boolean;
+  @IsOptional() @IsString() @MaxLength(200) cover?: string | null;
+  @IsOptional() @IsString() @MaxLength(300) coverCredit?: string | null;
+  @IsOptional() @IsArray() @ArrayMaxSize(20) @IsString({ each: true }) @MaxLength(500, { each: true }) sources?: string[] | null;
+  @IsOptional() @IsInt() @Min(0) @Max(10000) position?: number;
+  @IsOptional() @IsBoolean() published?: boolean;
+  @IsOptional() @IsBoolean() reviewed?: boolean;
+  @IsOptional() @IsObject() translations?: Record<string, Record<string, string>> | null;
 }
 
 export class ImageInput {

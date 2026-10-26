@@ -97,6 +97,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
       "Posée sur la presqu'île du Cap-Vert, la pointe la plus occidentale du continent, Dakar est une capitale énergique et créative. On y vient pour ses musées, ses marchés, sa corniche face à l'océan, ses galeries et la Biennale de l'art africain contemporain (Dak'Art), sa scène musicale et ses restaurants où goûter yassa, mafé et thiéboudienne. C'est aussi le point de départ pour Gorée, le lac Rose et la Petite Côte.",
     lat: 14.6928,
     lng: -17.4467,
+    cover: "/images/voyage/dakar",
     en: {
       region: "Dakar",
       summary: "Vibrant capital on Africa's western tip: museums, markets, the Corniche and a music scene.",
@@ -112,6 +113,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         description:
           "Imaginé dès l'époque de Léopold Sédar Senghor et du Festival mondial des arts nègres de 1966, le Musée des Civilisations noires a ouvert ses portes en décembre 2018 dans un vaste bâtiment circulaire du centre de Dakar. Ses salles présentent les civilisations africaines, des origines de l'humanité aux créations contemporaines, ainsi que les liens avec les diasporas des Amériques et des Caraïbes.",
         visitMinutes: 120,
+        lat: 14.6775,
+        lng: -17.4351,
+        cover: "/images/voyage/lieu-musee-des-civilisations-noires",
         en: {
           name: "Museum of Black Civilisations",
           summary: "Major museum opened in 2018, devoted to the cultures of Africa and its diasporas.",
@@ -129,6 +133,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 60,
         lat: 14.7222,
         lng: -17.495,
+        cover: "/images/voyage/lieu-monument-de-la-renaissance-africaine",
         en: {
           name: "African Renaissance Monument",
           summary: "Monumental bronze statue overlooking the city from one of the Mamelles hills.",
@@ -145,6 +150,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
           "Au cœur du Plateau, le quartier d'affaires, le marché Kermel occupe une élégante halle circulaire de l'époque coloniale, reconstruite à l'identique après un incendie dans les années 1990. On y trouve poissons, fruits, légumes et fleurs, et, aux alentours, des étals d'artisanat, de paniers et de tissus. Plus calme que les grands marchés populaires comme Sandaga, c'est une bonne première approche.",
         tips: "Marchandez avec le sourire et méfiez-vous des rabatteurs trop insistants aux abords du marché.",
         visitMinutes: 60,
+        lat: 14.6704,
+        lng: -17.4289,
+        cover: "/images/voyage/lieu-marche-kermel-dakar",
         en: {
           name: "Kermel Market",
           summary: "Colonial market hall in the Plateau: fish, fruit, flowers and crafts.",
@@ -162,12 +170,295 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
           "Bâtie au bord de l'Atlantique, au pied des falaises de Ouakam, la mosquée de la Divinité est l'une des images les plus photographiées de Dakar, avec ses deux minarets blancs se détachant sur l'océan. Le quartier de Ouakam, ancien village lébou de pêcheurs, garde une atmosphère de village au sein de la capitale.",
         tips: "Admirez-la de l'extérieur ou demandez l'autorisation d'entrer, en tenue couvrante et en dehors des heures de prière.",
         visitMinutes: 30,
+        lat: 14.7157,
+        lng: -17.4905,
+        cover: "/images/voyage/lieu-mosquee-de-la-divinite-ouakam",
         en: {
           name: "Mosque of the Divinity",
           summary: "White mosque with two minarets, facing the ocean on the Ouakam corniche.",
           description:
             "Built on the Atlantic shore at the foot of the Ouakam cliffs, the Mosque of the Divinity is one of Dakar's most photographed sights, its two white minarets standing out against the ocean. The Ouakam district, an old Lebou fishing village, keeps a village atmosphere within the capital.",
           tips: "Admire it from outside or ask permission to enter, wearing covering clothes and outside prayer times.",
+        },
+      },
+      {
+        slug: "musee-theodore-monod-dakar",
+        category: "MUSEUM",
+        name: "Musée Théodore-Monod d'art africain",
+        summary: "Le musée de l'IFAN, place Soweto : masques, statuaire et objets du quotidien d'Afrique de l'Ouest.",
+        description:
+          "Installé place Soweto, à côté de l'Assemblée nationale, dans un bâtiment de 1931 de style néo-soudanais, le musée de l'IFAN (Institut fondamental d'Afrique noire) est l'un des plus anciens musées d'Afrique de l'Ouest. Ses collections, riches de plusieurs milliers de pièces, présentent masques, statuettes, instruments de musique, textiles et objets de la vie quotidienne de toute la région. Rebaptisé en 2007 en hommage au naturaliste Théodore Monod, il accueille aussi des expositions de la Biennale de Dakar.",
+        tips: "Combinez la visite avec le Plateau voisin (place de l'Indépendance, cathédrale, marché Kermel).",
+        visitMinutes: 90,
+        lat: 14.6633,
+        lng: -17.4381,
+        cover: "/images/voyage/lieu-musee-theodore-monod-dakar",
+        en: {
+          name: "Théodore Monod Museum of African Art",
+          summary: "The IFAN museum on Place Soweto: masks, statues and everyday objects from West Africa.",
+          description:
+            "Set on Place Soweto, next to the National Assembly, in a 1931 neo-Sudanese-style building, the IFAN (Fundamental Institute of Black Africa) museum is one of the oldest museums in West Africa. Its collections, numbering several thousand pieces, display masks, statuettes, musical instruments, textiles and everyday objects from across the region. Renamed in 2007 in honour of the naturalist Théodore Monod, it also hosts exhibitions during the Dakar Biennale.",
+          tips: "Combine the visit with the nearby Plateau (Place de l'Indépendance, the cathedral, Kermel market).",
+        },
+      },
+      {
+        slug: "musee-leopold-sedar-senghor-dakar",
+        category: "MUSEUM",
+        name: "Musée Léopold-Sédar-Senghor",
+        summary: "L'ancienne résidence dakaroise du poète-président, ouverte au public comme maison-musée.",
+        description:
+          "Dans le quartier résidentiel de Fann, la maison où Léopold Sédar Senghor, premier président du Sénégal et poète de la négritude, a vécu à Dakar est devenue un musée. On y découvre son cadre de vie, son mobilier, sa bibliothèque, des souvenirs de sa carrière politique et littéraire et des œuvres d'art qu'il affectionnait. Une visite intime, complémentaire du Musée des Civilisations noires.",
+        visitMinutes: 60,
+        lat: 14.6963,
+        lng: -17.4713,
+        en: {
+          name: "Léopold Sédar Senghor Museum",
+          summary: "The poet-president's former Dakar residence, open to the public as a house museum.",
+          description:
+            "In the residential district of Fann, the house where Léopold Sédar Senghor, Senegal's first president and poet of Négritude, lived in Dakar has become a museum. Visitors discover his living space, furniture and library, mementoes of his political and literary career and works of art he loved. An intimate visit that complements the Museum of Black Civilisations.",
+        },
+      },
+      {
+        slug: "ile-de-ngor",
+        category: "BEACH",
+        name: "Île de Ngor",
+        summary: "Petite île à quelques minutes de pirogue de la pointe des Almadies : criques, baignade et surf.",
+        description:
+          "À environ 400 mètres du village lébou de Ngor, sur la pointe des Almadies, cette petite île volcanique se rejoint en quelques minutes de pirogue depuis la plage de Ngor. Sans voitures, elle offre des criques abritées pour la baignade, des sentiers entre maisons et rochers et, côté océan, des vagues réputées chez les surfeurs depuis le film The Endless Summer (1964). Une échappée très appréciée des Dakarois le week-end.",
+        tips: "Les pirogues partent de la plage de Ngor : convenez du prix aller-retour et de l'heure de retour avant d'embarquer. Le week-end, l'île est très fréquentée.",
+        bestPeriod: "Toute l'année ; mer plus calme côté plage",
+        visitMinutes: 240,
+        lat: 14.7561,
+        lng: -17.5144,
+        cover: "/images/voyage/lieu-ile-de-ngor",
+        en: {
+          name: "Ngor Island",
+          summary: "Small island a few minutes by pirogue from the Pointe des Almadies: coves, swimming and surfing.",
+          description:
+            "Some 400 metres from the Lebou village of Ngor, on the Pointe des Almadies, this small volcanic island is reached in a few minutes by pirogue from Ngor beach. Car-free, it offers sheltered coves for swimming, paths between houses and rocks and, on the ocean side, waves popular with surfers since the film The Endless Summer (1964). A favourite weekend escape for Dakar residents.",
+          tips: "Pirogues leave from Ngor beach: agree on the return fare and the time of the return trip before boarding. The island is very busy at weekends.",
+          bestPeriod: "All year round; calmer sea on the beach side",
+        },
+      },
+      {
+        slug: "parc-national-iles-de-la-madeleine",
+        category: "NATURE",
+        name: "Parc national des îles de la Madeleine",
+        summary: "Petit archipel volcanique au large de Dakar, refuge d'oiseaux marins, accessible en pirogue.",
+        description:
+          "À quelques kilomètres au large de la corniche, les îles de la Madeleine forment l'un des plus petits parcs nationaux du monde (environ 45 hectares), protégé depuis 1976. Ces îlots volcaniques inhabités, aux falaises abruptes et à la végétation de steppe, abritent des oiseaux marins comme le phaéton à bec rouge et des baobabs nains. La visite se fait avec les agents du parc, au départ de la côte dakaroise, quand la mer le permet.",
+        tips: "Les sorties dépendent de l'état de la mer : renseignez-vous auprès du service des parcs nationaux. Chaussures fermées, eau et chapeau indispensables.",
+        bestPeriod: "Saison sèche, par mer calme",
+        visitMinutes: 180,
+        cover: "/images/voyage/lieu-parc-national-iles-de-la-madeleine",
+        en: {
+          name: "Îles de la Madeleine National Park",
+          summary: "Small volcanic archipelago off Dakar, a seabird refuge reached by pirogue.",
+          description:
+            "A few kilometres off the Corniche, the Îles de la Madeleine form one of the world's smallest national parks (about 45 hectares), protected since 1976. These uninhabited volcanic islets, with steep cliffs and steppe vegetation, shelter seabirds such as the red-billed tropicbird, as well as dwarf baobabs. Visits are made with park staff, leaving from the Dakar coast, when the sea allows.",
+          tips: "Trips depend on sea conditions: check with the national parks service. Closed shoes, water and a hat are essential.",
+          bestPeriod: "Dry season, in calm seas",
+        },
+      },
+      {
+        slug: "pointe-des-almadies",
+        category: "LEISURE",
+        name: "Pointe et quartier des Almadies",
+        summary: "La pointe la plus occidentale du continent africain, et l'un des quartiers les plus animés de Dakar le soir.",
+        description:
+          "Au nord-ouest de la presqu'île du Cap-Vert, la pointe des Almadies est l'extrémité occidentale du continent africain : rochers noirs battus par l'océan, couchers de soleil et vue sur l'île de Ngor. Autour, les Almadies et Ngor concentrent restaurants de poissons et fruits de mer, bars de plage, cafés et salles de concert, ce qui en fait, avec le Plateau et le Point E, l'un des pôles de la vie nocturne dakaroise, surtout du jeudi au samedi.",
+        tips: "Déplacez-vous en taxi la nuit plutôt qu'à pied le long des routes côtières. La mer est dangereuse au pied des rochers : ne vous y baignez pas.",
+        visitMinutes: 120,
+        lat: 14.7411,
+        lng: -17.5298,
+        cover: "/images/voyage/lieu-pointe-des-almadies",
+        en: {
+          name: "Pointe and district of Les Almadies",
+          summary: "The westernmost point of mainland Africa, and one of Dakar's liveliest districts at night.",
+          description:
+            "In the north-west of the Cap-Vert peninsula, the Pointe des Almadies is the westernmost tip of mainland Africa: black rocks pounded by the ocean, sunsets and views of Ngor Island. Around it, Les Almadies and Ngor are packed with fish and seafood restaurants, beach bars, cafés and music venues, making the area, together with the Plateau and Point E, one of the hubs of Dakar nightlife, especially from Thursday to Saturday.",
+          tips: "Take a taxi at night rather than walking along the coastal roads. The sea is dangerous at the foot of the rocks: do not swim there.",
+        },
+      },
+      {
+        slug: "phare-des-mamelles",
+        category: "HISTORY",
+        name: "Phare des Mamelles",
+        summary: "Phare de 1864 au sommet d'une colline volcanique, avec un panorama sur toute la presqu'île.",
+        description:
+          "Achevé en 1864 sur la plus occidentale des deux collines volcaniques des Mamelles, ce phare blanc est le plus ancien de Dakar et l'un des plus puissants de la côte africaine. On y monte à pied par un chemin raide pour découvrir un panorama à 360° sur les Almadies, l'océan, le monument de la Renaissance africaine et la ville. Le site accueille parfois des événements en soirée.",
+        tips: "Montez en fin d'après-midi pour la lumière du couchant ; prévoyez de bonnes chaussures.",
+        visitMinutes: 60,
+        lat: 14.7238,
+        lng: -17.5018,
+        cover: "/images/voyage/lieu-phare-des-mamelles",
+        en: {
+          name: "Les Mamelles Lighthouse",
+          summary: "An 1864 lighthouse on top of a volcanic hill, with views over the whole peninsula.",
+          description:
+            "Completed in 1864 on the westernmost of the two volcanic hills known as Les Mamelles, this white lighthouse is the oldest in Dakar and one of the most powerful on the African coast. A steep path leads up on foot to a 360° panorama over Les Almadies, the ocean, the African Renaissance Monument and the city. The site sometimes hosts evening events.",
+          tips: "Go up in the late afternoon for the sunset light; wear good shoes.",
+        },
+      },
+      {
+        slug: "village-artisanal-soumbedioune",
+        category: "MARKET",
+        name: "Village artisanal et baie de Soumbédioune",
+        summary: "Ateliers d'artisans sur la corniche et retour des pirogues de pêche en fin d'après-midi.",
+        description:
+          "Sur la corniche ouest, le village artisanal de Soumbédioune rassemble des dizaines d'échoppes : sculpteurs sur bois, bijoutiers, maroquiniers, tisserands et peintres sous verre. Juste à côté, la petite baie de Soumbédioune s'anime en fin d'après-midi au retour des pirogues colorées, quand le poisson est vendu directement sur la plage. Une bonne adresse pour des souvenirs faits à la main et une scène de vie dakaroise.",
+        tips: "Faites le tour des boutiques avant d'acheter et négociez calmement. Demandez avant de photographier les pêcheurs.",
+        visitMinutes: 90,
+        lat: 14.6769,
+        lng: -17.4578,
+        cover: "/images/voyage/lieu-village-artisanal-soumbedioune",
+        en: {
+          name: "Soumbédioune craft village and bay",
+          summary: "Craft workshops on the Corniche and the return of the fishing pirogues in the late afternoon.",
+          description:
+            "On the western Corniche, the Soumbédioune craft village brings together dozens of stalls: woodcarvers, jewellers, leatherworkers, weavers and reverse-glass painters. Right next door, the small bay of Soumbédioune comes alive in the late afternoon when the colourful pirogues return and fish is sold straight on the beach. A good place for handmade souvenirs and a slice of Dakar life.",
+          tips: "Look around all the shops before buying and bargain calmly. Ask before photographing the fishermen.",
+        },
+      },
+      {
+        slug: "grande-mosquee-de-dakar",
+        category: "RELIGION",
+        name: "Grande Mosquée de Dakar",
+        summary: "Mosquée de style hispano-mauresque inaugurée en 1964, au minaret de 67 mètres.",
+        description:
+          "Construite par des architectes français et marocains et inaugurée en 1964 en présence du roi Hassan II et du président Senghor, la Grande Mosquée de Dakar se distingue par son minaret de 67 mètres et ses décors d'inspiration arabo-andalouse. Elle abrite aussi l'Institut islamique de Dakar. Le quartier de la Médina, tout autour, est l'un des plus vivants et populaires de la ville.",
+        tips: "L'intérieur n'est pas toujours ouvert aux non-musulmans : renseignez-vous sur place, en tenue couvrante et hors des heures de prière.",
+        visitMinutes: 30,
+        lat: 14.6782,
+        lng: -17.4422,
+        cover: "/images/voyage/lieu-grande-mosquee-de-dakar",
+        en: {
+          name: "Great Mosque of Dakar",
+          summary: "Hispano-Moorish-style mosque inaugurated in 1964, with a 67-metre minaret.",
+          description:
+            "Built by French and Moroccan architects and inaugurated in 1964 in the presence of King Hassan II and President Senghor, the Great Mosque of Dakar stands out for its 67-metre minaret and Arab-Andalusian decoration. It also houses the Islamic Institute of Dakar. The surrounding Médina district is one of the liveliest working-class neighbourhoods in the city.",
+          tips: "The interior is not always open to non-Muslims: ask on site, wearing covering clothes and outside prayer times.",
+        },
+      },
+      {
+        slug: "cathedrale-souvenir-africain-dakar",
+        category: "RELIGION",
+        name: "Cathédrale du Souvenir africain",
+        summary: "Cathédrale Notre-Dame-des-Victoires, consacrée en 1936 sur le boulevard de la République.",
+        description:
+          "Plus grande église de Dakar et siège de l'archevêché, la cathédrale Notre-Dame-des-Victoires, dite du Souvenir africain, a été consacrée en 1936 sur le boulevard de la République, au Plateau. Sa façade à colonnes et sa coupole mêlent influences néo-byzantines et soudanaises. Les obsèques du président Senghor y ont été célébrées en 2001. Les messes du dimanche, très chantées, valent le détour.",
+        tips: "Tenue correcte exigée ; restez discret pendant les offices.",
+        visitMinutes: 30,
+        lat: 14.6653,
+        lng: -17.4378,
+        cover: "/images/voyage/lieu-cathedrale-souvenir-africain-dakar",
+        en: {
+          name: "Cathedral of African Remembrance",
+          summary: "Our Lady of Victories Cathedral, consecrated in 1936 on the Boulevard de la République.",
+          description:
+            "Dakar's largest church and the seat of the archdiocese, Our Lady of Victories Cathedral, known as the Cathedral of African Remembrance, was consecrated in 1936 on the Boulevard de la République in the Plateau. Its columned façade and dome blend neo-Byzantine and Sudanese influences. President Senghor's funeral was held there in 2001. The Sunday masses, full of singing, are worth attending.",
+          tips: "Dress respectfully and stay discreet during services.",
+        },
+      },
+      {
+        slug: "mausolee-limamou-laye-yoff",
+        category: "RELIGION",
+        name: "Mosquée et mausolée de Seydina Limamou Laye (Yoff)",
+        summary: "Haut lieu de la confrérie layène, face à l'océan, dans l'ancien village lébou de Yoff.",
+        description:
+          "À Yoff, ancien village de pêcheurs lébous aujourd'hui intégré à Dakar, le mausolée de Seydina Limamou Laye, fondateur de la confrérie soufie des Layènes mort en 1909, est un lieu de pèlerinage très révéré, tourné vers l'océan. Les fidèles, souvent vêtus de blanc, y viennent prier, notamment lors de l'anniversaire de l'Appel. Le quartier de Yoff Layène, avec ses plages de pirogues, garde une forte identité communautaire.",
+        tips: "Tenue couvrante et attitude discrète ; demandez l'autorisation avant toute photo et ne pénétrez pas dans les espaces de prière sans y être invité.",
+        visitMinutes: 45,
+        lat: 14.7612,
+        lng: -17.469,
+        cover: "/images/voyage/lieu-mausolee-limamou-laye-yoff",
+        en: {
+          name: "Mosque and mausoleum of Seydina Limamou Laye (Yoff)",
+          summary: "A major site of the Layene brotherhood, facing the ocean in the old Lebou village of Yoff.",
+          description:
+            "In Yoff, a former Lebou fishing village now part of Dakar, the mausoleum of Seydina Limamou Laye, founder of the Layene Sufi brotherhood, who died in 1909, is a highly revered place of pilgrimage facing the ocean. The faithful, often dressed in white, come to pray here, particularly for the anniversary of the Call. The Yoff Layène district, with its pirogue beaches, retains a strong community identity.",
+          tips: "Wear covering clothes and be discreet; ask permission before taking any photos and do not enter prayer areas unless invited.",
+        },
+      },
+      {
+        slug: "arene-nationale-de-lutte-pikine",
+        category: "LEISURE",
+        name: "Arène nationale de lutte",
+        summary: "Le temple de la lutte sénégalaise avec frappe : combats, tambours et rituels des lutteurs.",
+        description:
+          "À Pikine, en banlieue de Dakar, l'Arène nationale, d'une capacité d'environ 20 000 places, accueille les grands combats de lutte avec frappe (laamb), le sport national. Bien avant le combat, l'ambiance monte : tambours, chants des griots, danses et rituels mystiques des lutteurs entourés de leurs marabouts. Les grandes affiches, annoncées des semaines à l'avance, déplacent les foules et sont retransmises à la télévision.",
+        tips: "Achetez vos billets à l'avance pour les grandes affiches, arrivez tôt et allez-y accompagné d'un connaisseur. Foule très dense : gardez vos affaires près de vous.",
+        bestPeriod: "Saison des combats, surtout en saison sèche",
+        visitMinutes: 240,
+        lat: 14.7612,
+        lng: -17.3989,
+        cover: "/images/voyage/lieu-arene-nationale-de-lutte-pikine",
+        en: {
+          name: "National Wrestling Arena",
+          summary: "The temple of Senegalese wrestling with punches: bouts, drums and wrestlers' rituals.",
+          description:
+            "In Pikine, in the Dakar suburbs, the National Arena, with room for about 20,000 spectators, hosts the big bouts of wrestling with punches (laamb), the national sport. Long before the fight the atmosphere builds: drums, griots' songs, dancing and the wrestlers' mystical rituals, surrounded by their marabouts. The big fights, announced weeks in advance, draw huge crowds and are broadcast on television.",
+          tips: "Buy tickets in advance for the big fights, arrive early and go with someone who knows the sport. Very dense crowds: keep your belongings close.",
+          bestPeriod: "Fight season, mostly in the dry season",
+        },
+      },
+      {
+        slug: "place-de-l-independance-dakar",
+        category: "HISTORY",
+        name: "Place de l'Indépendance et Plateau",
+        summary: "Le cœur administratif de Dakar : grande place, immeubles coloniaux, palais présidentiel et gare restaurée.",
+        description:
+          "Vaste esplanade du Plateau, la place de l'Indépendance est bordée d'immeubles des XIXe et XXe siècles, dont la Chambre de commerce. Une courte promenade mène au palais de la République, aux jardins blancs, à la cathédrale du Souvenir africain et au marché Kermel, puis à la gare de Dakar, bâtiment de 1914 restauré qui sert aujourd'hui de terminus au TER. Un bon parcours pour lire l'histoire de la ville, de la capitale de l'AOF à aujourd'hui.",
+        tips: "Ne photographiez pas le palais présidentiel ni les militaires en faction. Le Plateau se visite de préférence en semaine, de jour.",
+        visitMinutes: 120,
+        lat: 14.6695,
+        lng: -17.4321,
+        cover: "/images/voyage/lieu-place-de-l-independance-dakar",
+        en: {
+          name: "Place de l'Indépendance and the Plateau",
+          summary: "Dakar's administrative heart: a large square, colonial buildings, the presidential palace and a restored station.",
+          description:
+            "A vast esplanade in the Plateau, Place de l'Indépendance is lined with 19th- and 20th-century buildings, including the Chamber of Commerce. A short walk leads to the Palace of the Republic with its white gardens, the Cathedral of African Remembrance and Kermel market, then to Dakar station, a restored 1914 building that is now the terminus of the TER train. A good route for reading the city's history, from capital of French West Africa to the present day.",
+          tips: "Do not photograph the presidential palace or soldiers on guard. The Plateau is best visited on weekdays, by day.",
+        },
+      },
+      {
+        slug: "village-des-arts-dakar",
+        category: "CULTURE",
+        name: "Village des Arts de Dakar",
+        summary: "Ateliers et galeries d'artistes contemporains, près du stade Léopold-Sédar-Senghor.",
+        description:
+          "Sur la route de l'aéroport, près du stade Léopold-Sédar-Senghor, le Village des Arts réunit dans un même enclos des dizaines d'ateliers de peintres, sculpteurs, céramistes et plasticiens, ainsi qu'une galerie. On peut y rencontrer les artistes au travail, découvrir la création contemporaine sénégalaise et acheter directement des œuvres. Le lieu participe au « off » de la Biennale de Dakar.",
+        tips: "Les artistes ne sont pas tous présents chaque jour : préférez une visite en semaine, en fin de matinée.",
+        visitMinutes: 90,
+        lat: 14.7464,
+        lng: -17.4573,
+        cover: "/images/voyage/lieu-village-des-arts-dakar",
+        en: {
+          name: "Dakar Village des Arts",
+          summary: "Studios and galleries of contemporary artists, near the Léopold Sédar Senghor stadium.",
+          description:
+            "On the airport road, near the Léopold Sédar Senghor stadium, the Village des Arts gathers dozens of studios of painters, sculptors, ceramicists and visual artists within a single compound, along with a gallery. You can meet artists at work, discover contemporary Senegalese art and buy works directly. The site takes part in the Dakar Biennale's fringe programme.",
+          tips: "Not all artists are present every day: visit on a weekday, in the late morning.",
+        },
+      },
+      {
+        slug: "marche-hlm-dakar",
+        category: "MARKET",
+        name: "Marché HLM",
+        summary: "Le grand marché des tissus de Dakar : wax, bazin, broderies et couturiers à la chaîne.",
+        description:
+          "Dans le quartier des HLM, ce marché est l'adresse dakaroise des tissus : piles de wax imprimé, bazin teint et lustré, voiles, dentelles et fils à broder. Tout autour, des tailleurs confectionnent en quelques jours boubous, chemises ou robes sur mesure. Très animé à l'approche des grandes fêtes (Korité, Tabaski), quand chacun fait faire sa tenue neuve.",
+        tips: "Venez le matin, plus calme ; prévoyez du temps pour négocier et pour les essayages si vous commandez une tenue.",
+        visitMinutes: 120,
+        lat: 14.706,
+        lng: -17.4445,
+        en: {
+          name: "HLM Market",
+          summary: "Dakar's big fabric market: wax prints, bazin, embroidery and busy tailors.",
+          description:
+            "In the HLM district, this market is Dakar's go-to place for fabrics: piles of printed wax, dyed and polished bazin, voiles, lace and embroidery thread. All around, tailors make made-to-measure boubous, shirts and dresses in a few days. It is especially busy in the run-up to the major festivals (Korité, Tabaski), when everyone has a new outfit made.",
+          tips: "Come in the morning, when it is calmer; allow time to bargain and for fittings if you order an outfit.",
         },
       },
     ],
@@ -199,6 +490,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
           "Construite à la fin du XVIIIe siècle, la Maison des Esclaves présente, au rez-de-chaussée, des cellules sombres et un couloir ouvrant sur l'océan, la « porte du voyage sans retour ». Le rôle exact de cette maison dans la traite fait débat parmi les historiens, mais elle est devenue un lieu de mémoire universel, visité par de nombreux chefs d'État et des visiteurs du monde entier. Un moment de recueillement intense.",
         tips: "Venez tôt pour éviter l'affluence des groupes ; un guide local aide à replacer le lieu dans l'histoire de la traite.",
         visitMinutes: 60,
+        lat: 14.6678,
+        lng: -17.3972,
+        cover: "/images/voyage/lieu-maison-des-esclaves-goree",
         en: {
           name: "House of Slaves",
           summary: "Late 18th-century house turned memorial to the slave trade, with its “door of no return”.",
@@ -215,6 +509,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         description:
           "À la pointe nord de l'île, le fort d'Estrées, bâti au XIXe siècle, abrite le musée historique rattaché à l'IFAN (Institut fondamental d'Afrique noire). Ses salles parcourent l'histoire du territoire sénégalais : préhistoire, grands royaumes, islam, traite, colonisation et indépendance. Un bon complément à la visite de la Maison des Esclaves.",
         visitMinutes: 60,
+        lat: 14.6708,
+        lng: -17.3996,
+        cover: "/images/voyage/lieu-musee-historique-goree",
         en: {
           name: "Historical Museum of Senegal in Gorée",
           summary: "Housed in Fort d'Estrées, it traces the country's history from prehistory to independence.",
@@ -230,11 +527,34 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         description:
           "Le Castel, point culminant de l'île, est un plateau rocheux qui conserve d'anciennes fortifications et pièces d'artillerie. Artistes et artisans y exposent souvent leurs œuvres. On y monte par des ruelles et des escaliers pour profiter de la vue sur l'île, l'océan et les tours de Dakar.",
         visitMinutes: 45,
+        lat: 14.6672,
+        lng: -17.3985,
+        cover: "/images/voyage/lieu-castel-de-goree",
         en: {
           name: "The Castel",
           summary: "Rocky plateau in the south of the island, old gun batteries and views of Dakar.",
           description:
             "The Castel, the island's highest point, is a rocky plateau that still holds old fortifications and artillery pieces. Artists and craftspeople often display their work there. You climb up through lanes and steps to enjoy the view over the island, the ocean and Dakar's skyline.",
+        },
+      },
+      {
+        slug: "eglise-saint-charles-borromee-goree",
+        category: "RELIGION",
+        name: "Église Saint-Charles-Borromée",
+        summary: "Église de 1830 aux murs ocre, l'un des plus anciens édifices catholiques du pays.",
+        description:
+          "Achevée en 1830, deux ans après la cathédrale de Saint-Louis, l'église Saint-Charles-Borromée est l'un des plus anciens lieux de culte catholiques d'Afrique de l'Ouest. Sa façade néoclassique aux tons ocre et son petit clocher se dressent près de l'embarcadère, au milieu des maisons coloniales. Elle rappelle la présence ancienne d'une communauté chrétienne, notamment métisse, sur l'île.",
+        tips: "Tenue correcte ; l'église n'est pas toujours ouverte en dehors des offices.",
+        visitMinutes: 20,
+        lat: 14.667,
+        lng: -17.3979,
+        cover: "/images/voyage/lieu-eglise-saint-charles-borromee-goree",
+        en: {
+          name: "Saint Charles Borromeo Church",
+          summary: "An 1830 church with ochre walls, one of the oldest Catholic buildings in the country.",
+          description:
+            "Completed in 1830, two years after the cathedral of Saint-Louis, the Church of Saint Charles Borromeo is one of the oldest Catholic places of worship in West Africa. Its ochre neoclassical façade and small bell tower stand near the jetty, among the colonial houses. It recalls the long-standing presence of a Christian community, notably of mixed descent, on the island.",
+          tips: "Dress respectfully; the church is not always open outside services.",
         },
       },
     ],
@@ -267,6 +587,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         tips: "La couleur est la plus nette vers la mi-journée en saison sèche. France Diplomatie signale des agressions sur ce site : évitez les coins isolés et ne vous y attardez pas à la nuit tombée.",
         bestPeriod: "Saison sèche (novembre à juin)",
         visitMinutes: 120,
+        lat: 14.8386,
+        lng: -17.2306,
+        cover: "/images/voyage/lieu-lac-retba",
         en: {
           name: "Lake Retba and salt harvesting",
           summary: "Watch the salt harvesters in their pirogues and the white mounds along the shore.",
@@ -285,6 +608,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
           "Entre le lac et l'Atlantique s'étend un cordon de dunes que l'on traverse en 4x4, en quad, à cheval ou à dos de dromadaire, jusqu'à la longue plage de la Grande Côte. Une sortie ludique, appréciée en famille, à combiner avec la visite des récolteurs de sel.",
         tips: "Ne vous baignez pas : sur la Grande Côte, la mer est dangereuse et rarement surveillée. Choisissez un prestataire sérieux et exigez casque et équipement pour le quad.",
         visitMinutes: 120,
+        cover: "/images/voyage/lieu-dunes-du-lac-rose",
         en: {
           name: "Lac Rose dunes",
           summary: "4x4, quad or camel ride through the dunes to the ocean beach.",
@@ -323,6 +647,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 180,
         lat: 16.0244,
         lng: -16.5046,
+        cover: "/images/voyage/lieu-ile-de-saint-louis",
         en: {
           name: "Saint-Louis Island and Faidherbe Bridge",
           summary: "A stroll through the historic town of balconied houses, on either side of the Faidherbe bridge.",
@@ -340,6 +665,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
           "Riz cuit dans un bouillon de poisson et de tomate, servi avec poisson farci, légumes (manioc, chou, carotte, aubergine) et sauces, le thiéboudienne (ceebu jën en wolof) est le plat emblématique du Sénégal ; il a été inscrit en 2021 au patrimoine culturel immatériel de l'UNESCO. La tradition en attribue l'invention à Saint-Louis. On le déguste à midi, souvent partagé dans un grand plat commun.",
         tips: "Le thiéboudienne se mange surtout au déjeuner : de nombreux restaurants n'en préparent plus le soir.",
         visitMinutes: 90,
+        cover: "/images/voyage/lieu-thieboudienne-saint-louis",
         en: {
           name: "Saint-Louis thieboudienne",
           summary: "The national dish of rice with fish and vegetables, which Saint-Louis claims as its own.",
@@ -359,6 +685,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 180,
         lat: 15.9,
         lng: -16.5,
+        cover: "/images/voyage/lieu-parc-national-langue-de-barbarie",
         en: {
           name: "Langue de Barbarie National Park",
           summary: "Sand spit between river and ocean, a bird refuge explored by pirogue.",
@@ -379,6 +706,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 240,
         lat: 16.36,
         lng: -16.27,
+        cover: "/images/voyage/lieu-parc-national-oiseaux-djoudj",
         en: {
           name: "Djoudj National Bird Sanctuary",
           summary: "UNESCO-listed wetland, one of the great migratory-bird sanctuaries south of the Sahara.",
@@ -386,6 +714,68 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
             "Some 60 km north of Saint-Louis, in the Senegal river delta, Djoudj park has been a UNESCO World Heritage Site since 1981. Every winter its lakes, creeks and reed beds host hundreds of thousands of birds from Europe, as well as large colonies of great white pelicans and flamingos. A pirogue trip among the pelicans is the highlight of the visit.",
           tips: "Come early in the morning with binoculars and sun protection; check the state of the track after the rainy season.",
           bestPeriod: "November to April (migratory birds)",
+        },
+      },
+      {
+        slug: "cathedrale-saint-louis-du-senegal",
+        category: "RELIGION",
+        name: "Cathédrale de Saint-Louis",
+        summary: "Consacrée en 1828, la plus ancienne église d'Afrique de l'Ouest, rouverte après restauration.",
+        description:
+          "Sur la place d'Armes, au sud de l'île, la cathédrale Saint-Louis a été consacrée en 1828, ce qui en fait la plus ancienne église d'Afrique de l'Ouest. Sa façade à fronton et colonnes, encadrée de deux clochers, domine le quartier sud. Fermée en 2005 car menaçant ruine, elle a été entièrement restaurée et a rouvert ses portes fin 2020.",
+        tips: "Tenue correcte ; visites en dehors des offices.",
+        visitMinutes: 30,
+        lat: 16.0248,
+        lng: -16.5045,
+        cover: "/images/voyage/lieu-cathedrale-saint-louis-du-senegal",
+        en: {
+          name: "Saint-Louis Cathedral",
+          summary: "Consecrated in 1828, West Africa's oldest church, reopened after restoration.",
+          description:
+            "On the Place d'Armes, in the south of the island, Saint-Louis cathedral was consecrated in 1828, making it the oldest church in West Africa. Its pedimented, columned façade framed by two bell towers dominates the southern district. Closed in 2005 because it was in danger of collapse, it was fully restored and reopened at the end of 2020.",
+          tips: "Dress respectfully; visit outside services.",
+        },
+      },
+      {
+        slug: "grande-mosquee-saint-louis-senegal",
+        category: "RELIGION",
+        name: "Grande Mosquée de Saint-Louis",
+        summary: "Mosquée du XIXe siècle au nord de l'île, reconnaissable à son horloge.",
+        description:
+          "Au nord de l'île de Saint-Louis, face au petit bras du fleuve, la Grande Mosquée est l'un des plus anciens lieux de culte musulmans de la ville coloniale ; sa façade associe minarets et une horloge, singularité architecturale qui intrigue les visiteurs. Elle fait face au quartier de pêcheurs de Guet Ndar et rappelle la place de l'islam dans l'histoire de la ville.",
+        tips: "Admirez-la de l'extérieur ; pour entrer, demandez l'autorisation, en tenue couvrante et hors des heures de prière.",
+        visitMinutes: 20,
+        lat: 16.0317,
+        lng: -16.5037,
+        cover: "/images/voyage/lieu-grande-mosquee-saint-louis-senegal",
+        en: {
+          name: "Great Mosque of Saint-Louis",
+          summary: "A 19th-century mosque in the north of the island, recognisable by its clock.",
+          description:
+            "In the north of Saint-Louis island, facing the small arm of the river, the Great Mosque is one of the oldest Muslim places of worship in the colonial town; its façade combines minarets with a clock, an architectural oddity that intrigues visitors. It looks across to the fishing district of Guet Ndar and recalls the place of Islam in the town's history.",
+          tips: "Admire it from outside; to enter, ask permission, wear covering clothes and avoid prayer times.",
+        },
+      },
+      {
+        slug: "reserve-de-guembeul",
+        category: "NATURE",
+        name: "Réserve spéciale de faune de Guembeul",
+        summary: "Lagune et savane clôturées au sud de Saint-Louis : gazelles dama, tortues sillonnées et oiseaux d'eau.",
+        description:
+          "À environ 5 km au sud de Saint-Louis, sur la route de Gandiol, la réserve de Guembeul (environ 720 hectares, site Ramsar) protège une lagune salée entourée de savane sahélienne. Elle sert de centre de réintroduction pour des espèces menacées du Sahel, comme la gazelle dama, la gazelle dorcas, l'oryx algazelle et la tortue sillonnée, et accueille de nombreux oiseaux d'eau. Une visite facile à combiner avec la Langue de Barbarie.",
+        tips: "Visite à pied ou en véhicule avec un guide de la réserve ; venez tôt le matin ou en fin d'après-midi, avec des jumelles.",
+        bestPeriod: "Novembre à avril",
+        visitMinutes: 120,
+        lat: 15.9178,
+        lng: -16.4612,
+        cover: "/images/voyage/lieu-reserve-de-guembeul",
+        en: {
+          name: "Guembeul Special Wildlife Reserve",
+          summary: "Fenced lagoon and savannah south of Saint-Louis: dama gazelles, spurred tortoises and waterbirds.",
+          description:
+            "About 5 km south of Saint-Louis, on the Gandiol road, the Guembeul reserve (about 720 hectares, a Ramsar site) protects a salt lagoon surrounded by Sahelian savannah. It serves as a reintroduction centre for threatened Sahel species such as the dama gazelle, dorcas gazelle, scimitar-horned oryx and African spurred tortoise, and hosts many waterbirds. An easy visit to combine with the Langue de Barbarie.",
+          tips: "Visit on foot or by vehicle with a reserve guide; come early in the morning or late in the afternoon, with binoculars.",
+          bestPeriod: "November to April",
         },
       },
     ],
@@ -416,6 +806,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
           "Inaugurée en 1963 et agrandie depuis, la Grande Mosquée de Touba, avec ses coupoles, ses marbres et son haut minaret central, abrite le mausolée de Cheikh Ahmadou Bamba. Les visiteurs non musulmans peuvent généralement la visiter, accompagnés d'un guide de la communauté, en respectant strictement les règles du lieu.",
         tips: "Tenue couvrante (bras et jambes), foulard pour les femmes ; pas d'alcool ni de cigarettes dans la ville. Passez par un guide présent sur place et évitez les heures de prière.",
         visitMinutes: 90,
+        lat: 14.8631,
+        lng: -15.8756,
+        cover: "/images/voyage/lieu-grande-mosquee-touba",
         en: {
           name: "Great Mosque of Touba",
           summary: "Huge mosque with a tall minaret, housing the mausoleum of Cheikh Ahmadou Bamba.",
@@ -434,6 +827,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         tips: "Une expérience impressionnante mais très dense : routes saturées et hébergement introuvable. Pour une première visite de Touba, préférez une autre période.",
         bestPeriod: "18 safar (date variable selon le calendrier lunaire)",
         visitMinutes: 480,
+        lat: 14.8631,
+        lng: -15.8756,
+        cover: "/images/voyage/lieu-grand-magal-de-touba",
         en: {
           name: "Grand Magal of Touba",
           summary: "The country's largest pilgrimage, commemorating Cheikh Ahmadou Bamba's departure into exile.",
@@ -441,6 +837,24 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
             "Every year, on the 18th of the month of Safar in the Islamic calendar, the Grand Magal commemorates the departure into exile of Cheikh Ahmadou Bamba, deported to Gabon by the colonial administration in 1895. Millions of pilgrims converge on Touba to pray, reflect and share free meals. The date moves about eleven days earlier each year in the Gregorian calendar.",
           tips: "An impressive but very crowded experience: roads are jammed and accommodation impossible to find. For a first visit to Touba, choose another time.",
           bestPeriod: "18 Safar (date varies with the lunar calendar)",
+        },
+      },
+      {
+        slug: "cafe-touba",
+        category: "GASTRONOMY",
+        name: "Le café Touba",
+        summary: "Café épicé au poivre de Guinée (djar), boisson emblématique liée à la ville sainte.",
+        description:
+          "Le café Touba est un café torréfié avec du djar, le poivre de Guinée (graines de Xylopia), qui lui donne un goût poivré et légèrement camphré. La tradition l'associe à Cheikh Ahmadou Bamba et à la ville de Touba, d'où son nom. Servi très sucré dans de petits gobelets, il se boit à toute heure, vendu par des marchands ambulants et dans les kiosques de tout le pays.",
+        tips: "Goûtez-le auprès d'un vendeur de rue, le matin, avec un morceau de pain : c'est le petit-déjeuner de nombreux Sénégalais.",
+        visitMinutes: 15,
+        cover: "/images/voyage/lieu-cafe-touba",
+        en: {
+          name: "Café Touba",
+          summary: "Coffee spiced with Guinea pepper (djar), an emblematic drink linked to the holy city.",
+          description:
+            "Café Touba is coffee roasted with djar, Guinea pepper (Xylopia seeds), which gives it a peppery, slightly camphor-like taste. Tradition links it to Cheikh Ahmadou Bamba and the city of Touba, hence its name. Served very sweet in small cups, it is drunk at any time of day, sold by street vendors and kiosks all over the country.",
+          tips: "Try it from a street vendor in the morning with a piece of bread: it is breakfast for many Senegalese.",
         },
       },
     ],
@@ -454,6 +868,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
       "Entre Dakar et le delta du Saloum, la Petite Côte aligne stations balnéaires (Saly, Somone), villages de pêcheurs et lagunes. La mer y est plus calme que sur la Grande Côte, au nord. On y vient pour se reposer, mais aussi pour la réserve de Bandia et pour Joal-Fadiouth, ville natale de Léopold Sédar Senghor. Proche de l'aéroport international Blaise-Diagne, c'est une étape pratique en début ou fin de séjour.",
     lat: 14.4469,
     lng: -17.0122,
+    cover: "/images/voyage/petite-cote",
     en: {
       name: "The Petite Côte",
       region: "Thiès",
@@ -473,6 +888,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 240,
         lat: 14.4469,
         lng: -17.0122,
+        cover: "/images/voyage/lieu-plage-de-saly",
         en: {
           name: "Saly Beach",
           summary: "The country's main seaside resort: hotels, restaurants and water sports.",
@@ -489,6 +905,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         description:
           "Près de Sindia, à environ une heure de Dakar, la réserve privée de Bandia a réintroduit dans une savane plantée de baobabs des espèces disparues de la région ou venues d'autres pays d'Afrique : girafes, rhinocéros, buffles, zèbres et plusieurs antilopes, aux côtés de singes et de tortues. Le safari se fait en véhicule avec un guide. Une bonne découverte de la faune, accessible en demi-journée.",
         visitMinutes: 180,
+        lat: 14.5886,
+        lng: -16.9552,
+        cover: "/images/voyage/lieu-reserve-de-bandia",
         en: {
           name: "Bandia Reserve",
           summary: "Wildlife reserve among baobabs: giraffes, rhinos, buffalo and antelopes.",
@@ -507,12 +926,93 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 120,
         lat: 14.1508,
         lng: -16.8253,
+        cover: "/images/voyage/lieu-ile-de-fadiouth",
         en: {
           name: "Fadiouth Island",
           summary: "Island made of shells, linked to Joal by a footbridge, with its shared cemetery.",
           description:
             "Linked to Joal by a long wooden footbridge, Fadiouth is an island whose ground is made of shells accumulated over the centuries. Car-free lanes, millet granaries on stilts and, on a neighbouring island, a cemetery where Christians and Muslims lie side by side, a symbol of Senegal's religious coexistence. Joal is also the birthplace of the poet and president Léopold Sédar Senghor.",
           tips: "Use the official guides at the start of the footbridge; a contribution is usually requested.",
+        },
+      },
+      {
+        slug: "sanctuaire-marial-popenguine",
+        category: "RELIGION",
+        name: "Sanctuaire marial de Popenguine",
+        summary: "Basilique Notre-Dame-de-la-Délivrande et grand sanctuaire national, lieu du pèlerinage de Pentecôte.",
+        description:
+          "Fondé à la fin du XIXe siècle par des missionnaires spiritains, le sanctuaire de Popenguine abrite une Vierge noire dans la basilique Notre-Dame-de-la-Délivrande, érigée en basilique mineure par Jean-Paul II avant sa visite de 1992. Un vaste ensemble, inauguré en décembre 2023 comme sanctuaire national, comprend une reproduction de la grotte de Lourdes et un grand édifice de plusieurs dizaines de milliers de places. Chaque lundi de Pentecôte, il accueille le plus grand pèlerinage catholique du pays.",
+        tips: "En dehors du pèlerinage, le lieu est calme ; tenue correcte. Le week-end de Pentecôte, la route et le village sont saturés.",
+        visitMinutes: 60,
+        lat: 14.5546,
+        lng: -17.1116,
+        cover: "/images/voyage/lieu-sanctuaire-marial-popenguine",
+        en: {
+          name: "Popenguine Marian Shrine",
+          summary: "The Basilica of Our Lady of La Délivrande and a large national shrine, site of the Pentecost pilgrimage.",
+          description:
+            "Founded in the late 19th century by Spiritan missionaries, the Popenguine shrine houses a Black Madonna in the Basilica of Our Lady of La Délivrande, made a minor basilica by John Paul II ahead of his 1992 visit. A vast complex, inaugurated in December 2023 as a national shrine, includes a replica of the Lourdes grotto and a large building with tens of thousands of seats. Every Whit Monday it hosts the country's largest Catholic pilgrimage.",
+          tips: "Outside the pilgrimage the site is quiet; dress respectfully. On Pentecost weekend the road and village are packed.",
+        },
+      },
+      {
+        slug: "reserve-naturelle-popenguine",
+        category: "NATURE",
+        name: "Réserve naturelle de Popenguine",
+        summary: "Falaises, savane restaurée et vue sur la Petite Côte, gérées avec les femmes du village.",
+        description:
+          "Créée en 1986 sur environ 1 000 hectares, la réserve naturelle de Popenguine protège des collines et des falaises dominant l'océan, dont le cap de Naze, point culminant de la Petite Côte. Ce milieu, très dégradé par le déboisement et les sécheresses, a été restauré avec l'appui d'une association de femmes du village créée en 1988, exemple souvent cité de conservation communautaire. Sentiers, oiseaux, anciens ouvrages militaires et panoramas sur la côte.",
+        tips: "Partez marcher tôt le matin avec de l'eau et un chapeau ; demandez un guide à l'entrée de la réserve.",
+        visitMinutes: 150,
+        lat: 14.5467,
+        lng: -17.0903,
+        cover: "/images/voyage/lieu-reserve-naturelle-popenguine",
+        en: {
+          name: "Popenguine Nature Reserve",
+          summary: "Cliffs, restored savannah and views of the Petite Côte, managed with the village women.",
+          description:
+            "Created in 1986 over some 1,000 hectares, the Popenguine nature reserve protects hills and cliffs overlooking the ocean, including Cap de Naze, the highest point on the Petite Côte. This environment, badly degraded by deforestation and droughts, was restored with the help of a village women's association founded in 1988, an often-cited example of community conservation. Trails, birds, old military structures and views along the coast.",
+          tips: "Set off early in the morning with water and a hat; ask for a guide at the reserve entrance.",
+        },
+      },
+      {
+        slug: "plage-des-pecheurs-mbour",
+        category: "MARKET",
+        name: "Plage des pêcheurs de Mbour",
+        summary: "L'un des grands ports de pêche artisanale du pays : retour des pirogues et marché au poisson.",
+        description:
+          "Mbour, principale ville de la Petite Côte, vit au rythme de la pêche artisanale. En fin d'après-midi, des centaines de pirogues peintes reviennent sur la plage : le poisson est débarqué à dos d'homme, trié, vendu à la criée, puis fumé ou séché sur place. Un spectacle saisissant, bruyant et très photogénique, à quelques minutes de Saly.",
+        tips: "Sol glissant et odeurs fortes : chaussures fermées conseillées. Demandez avant de photographier et restez à l'écart des zones de déchargement.",
+        visitMinutes: 60,
+        lat: 14.4117,
+        lng: -16.9658,
+        cover: "/images/voyage/lieu-plage-des-pecheurs-mbour",
+        en: {
+          name: "Mbour fishermen's beach",
+          summary: "One of the country's big artisanal fishing ports: pirogues coming in and a fish market.",
+          description:
+            "Mbour, the main town of the Petite Côte, lives to the rhythm of artisanal fishing. In the late afternoon hundreds of painted pirogues return to the beach: fish is carried ashore on men's backs, sorted, auctioned, then smoked or dried on the spot. A striking, noisy and very photogenic scene, a few minutes from Saly.",
+          tips: "Slippery ground and strong smells: closed shoes recommended. Ask before taking photos and keep clear of the unloading areas.",
+        },
+      },
+      {
+        slug: "toubab-dialaw",
+        category: "CULTURE",
+        name: "Toubab Dialaw",
+        summary: "Village de pêcheurs au pied des falaises ocre, repaire d'artistes et de danseurs.",
+        description:
+          "Au nord de la Petite Côte, à une heure environ de Dakar, Toubab Dialaw est un village de pêcheurs adossé à des falaises de latérite rouge, au bord d'une plage où s'alignent les pirogues. Il attire depuis longtemps artistes, musiciens et danseurs : on y trouve des lieux de création et de formation à la danse africaine contemporaine. Une étape paisible, loin des grandes stations.",
+        tips: "La baignade y est possible par mer calme, mais renseignez-vous sur les courants ; respectez la tranquillité du village.",
+        visitMinutes: 180,
+        lat: 14.6061,
+        lng: -17.1503,
+        cover: "/images/voyage/lieu-toubab-dialaw",
+        en: {
+          name: "Toubab Dialaw",
+          summary: "A fishing village below ochre cliffs, a haunt of artists and dancers.",
+          description:
+            "At the northern end of the Petite Côte, about an hour from Dakar, Toubab Dialaw is a fishing village backed by red laterite cliffs, on a beach lined with pirogues. It has long attracted artists, musicians and dancers, and has venues for creation and training in contemporary African dance. A peaceful stop, away from the big resorts.",
+          tips: "Swimming is possible when the sea is calm, but ask about currents; respect the quiet of the village.",
         },
       },
     ],
@@ -526,6 +1026,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
       "Là où les fleuves Sine et Saloum rejoignent l'océan, le delta forme un dédale de bras de mer (bolongs), de mangroves et d'îles habitées par des pêcheurs sérères et niominkas. Réserve de biosphère, il est inscrit au patrimoine mondial de l'UNESCO pour ses amas coquilliers et tumulus funéraires laissés par des générations d'habitants. Campements à Palmarin, Ndangane, Foundiougne ou Toubakouta servent de base pour les sorties en pirogue.",
     lat: 14.1333,
     lng: -16.4667,
+    cover: "/images/voyage/sine-saloum",
     en: {
       name: "Sine-Saloum Delta",
       region: "Fatick",
@@ -544,6 +1045,9 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         tips: "Partez avec un piroguier recommandé par votre campement, avec gilets de sauvetage, chapeau et eau.",
         bestPeriod: "Novembre à mai",
         visitMinutes: 360,
+        lat: 13.8353,
+        lng: -16.4986,
+        cover: "/images/voyage/lieu-bolongs-du-saloum",
         en: {
           name: "Saloum bolongs and islands",
           summary: "Pirogue trip through the mangroves, among island villages, birds and shell middens.",
@@ -561,11 +1065,58 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         description:
           "Au sud du delta, près de Toubakouta, la réserve de Fathala occupe une partie de la forêt de Fathala, rattachée au parc national du Delta du Saloum. On y observe en véhicule, avec un guide, girafes, rhinocéros, buffles, singes et plusieurs antilopes, dont le rare élan de Derby. Une belle sortie complémentaire aux balades en pirogue.",
         visitMinutes: 180,
+        lat: 13.6533,
+        lng: -16.4628,
+        cover: "/images/voyage/lieu-reserve-de-fathala",
         en: {
           name: "Fathala Reserve",
           summary: "Wildlife reserve in dry forest near Toubakouta: giraffes, rhinos, Derby elands.",
           description:
             "South of the delta, near Toubakouta, the Fathala reserve covers part of the Fathala forest, attached to the Saloum Delta National Park. By vehicle and with a guide you can see giraffes, rhinos, buffalo, monkeys and several antelopes, including the rare Derby eland. A good complement to pirogue trips.",
+        },
+      },
+      {
+        slug: "ile-de-mar-lodj",
+        category: "CULTURE",
+        name: "Île de Mar Lodj",
+        summary: "Île sans voitures du Saloum, entre rôniers, mangrove et villages sérères, face à Ndangane.",
+        description:
+          "Accessible en quelques minutes de pirogue depuis l'embarcadère de Ndangane, l'île de Mar abrite les villages de Mar Lodj, Mar Fafaco et Mar Soulou, peuplés d'environ 5 000 habitants. Pistes de sable bordées de rôniers, de fromagers et de manguiers, mangrove, puits et champs : on y découvre la vie des îles du Saloum à pied, à vélo ou en charrette. Musulmans et chrétiens y cohabitent, avec cimetières et lieux de culte voisins.",
+        tips: "Organisez la traversée avec votre campement ou un piroguier de Ndangane ; emportez une lampe, l'éclairage public est limité.",
+        bestPeriod: "Novembre à mai",
+        visitMinutes: 360,
+        lat: 14.043,
+        lng: -16.6789,
+        cover: "/images/voyage/lieu-ile-de-mar-lodj",
+        en: {
+          name: "Mar Lodj Island",
+          summary: "A car-free island in the Saloum among palmyra palms, mangroves and Serer villages, opposite Ndangane.",
+          description:
+            "A few minutes by pirogue from the Ndangane landing, the island of Mar is home to the villages of Mar Lodj, Mar Fafaco and Mar Soulou, with about 5,000 inhabitants. Sandy tracks lined with palmyra palms, kapok and mango trees, mangroves, wells and fields: you discover island life in the Saloum on foot, by bike or by cart. Muslims and Christians live side by side, with neighbouring cemeteries and places of worship.",
+          tips: "Arrange the crossing through your lodge or a boatman in Ndangane; bring a torch, as street lighting is limited.",
+          bestPeriod: "November to May",
+        },
+      },
+      {
+        slug: "palmarin-saloum",
+        category: "NATURE",
+        name: "Palmarin et ses lagunes",
+        summary: "Villages sérères entre océan, palmeraies et tannes salés, à l'entrée de la pointe de Sangomar.",
+        description:
+          "Au nord du delta, Palmarin aligne plusieurs villages sérères sur une étroite bande de terre entre l'océan et les lagunes, au début de la pointe de Sangomar. Palmeraies, mangrove, tannes (étendues salées) et salines artisanales forment des paysages ouverts où l'on observe de nombreux oiseaux. Une base tranquille pour explorer le Saloum en pirogue ou à vélo.",
+        tips: "Les campements organisent sorties en pirogue et balades ; respectez les sites sacrés signalés par les habitants.",
+        bestPeriod: "Novembre à mai",
+        visitMinutes: 240,
+        lat: 14.0131,
+        lng: -16.7645,
+        cover: "/images/voyage/lieu-palmarin-saloum",
+        en: {
+          name: "Palmarin and its lagoons",
+          summary: "Serer villages between ocean, palm groves and salt flats, at the start of the Sangomar spit.",
+          description:
+            "In the north of the delta, Palmarin strings several Serer villages along a narrow strip of land between the ocean and the lagoons, at the start of the Sangomar spit. Palm groves, mangroves, tannes (salt flats) and artisanal salt pans create open landscapes full of birds. A quiet base for exploring the Saloum by pirogue or bike.",
+          tips: "Lodges organise pirogue trips and walks; respect the sacred sites pointed out by local people.",
+          bestPeriod: "November to May",
         },
       },
     ],
@@ -579,6 +1130,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
       "Séparée du nord du pays par la Gambie, la Basse-Casamance est la région la plus verte du Sénégal : fleuve bordé de mangroves, rizières, fromagers géants et villages diola aux traditions vivaces (royaume d'Oussouye, cases à impluvium). Ziguinchor, sa capitale, est reliée à Dakar par avion et par bateau ; Cap Skirring est la grande station balnéaire du sud. La région se visite avec une vigilance renforcée et certaines zones frontalières sont déconseillées : restez sur les axes principaux et suivez les conseils aux voyageurs.",
     lat: 12.5833,
     lng: -16.2719,
+    cover: "/images/voyage/basse-casamance",
     en: {
       name: "Lower Casamance",
       region: "Ziguinchor",
@@ -599,6 +1151,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 240,
         lat: 12.3925,
         lng: -16.7461,
+        cover: "/images/voyage/lieu-plage-de-cap-skirring",
         en: {
           name: "Cap Skirring Beach",
           summary: "Long fine-sand beaches lined with palms, at the end of the road from Ziguinchor.",
@@ -618,6 +1171,7 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 300,
         lat: 12.5367,
         lng: -16.7006,
+        cover: "/images/voyage/lieu-ile-de-carabane",
         en: {
           name: "Carabane Island",
           summary: "Former French trading post at the mouth of the Casamance river, reached by pirogue.",
@@ -634,12 +1188,362 @@ export const SENEGAL_DESTINATIONS: SeedDestination[] = [
           "Habitat traditionnel diola, la case à impluvium est une vaste maison circulaire en banco dont le toit de chaume, en entonnoir, recueille l'eau de pluie dans un bassin central. Plusieurs familles y vivaient autour de cette cour intérieure. À Enampore, entre Ziguinchor et Oussouye, une case se visite et accueille parfois les voyageurs. Une belle introduction à la culture diola.",
         tips: "Venez de jour depuis la route principale Ziguinchor–Oussouye, avec un guide ou un chauffeur local.",
         visitMinutes: 90,
+        lat: 12.5117,
+        lng: -16.4489,
+        cover: "/images/voyage/lieu-case-a-impluvium-enampore",
         en: {
           name: "Enampore impluvium house",
           summary: "Large Jola earthen house whose roof collects rainwater in the centre.",
           description:
             "A traditional Jola dwelling, the impluvium house is a vast circular mud-brick house whose funnel-shaped thatched roof collects rainwater in a central basin. Several families once lived around this inner courtyard. In Enampore, between Ziguinchor and Oussouye, one house is open to visitors and sometimes hosts travellers. A fine introduction to Jola culture.",
           tips: "Go by day from the main Ziguinchor–Oussouye road, with a local guide or driver.",
+        },
+      },
+      {
+        slug: "vieille-ville-ziguinchor",
+        category: "HISTORY",
+        name: "Ziguinchor, ville coloniale et quais du fleuve",
+        summary: "La capitale de la Casamance : quartiers coloniaux, port fluvial et marchés animés.",
+        description:
+          "Fondée par les Portugais au XVIIe siècle et cédée à la France en 1886, Ziguinchor s'étend sur la rive sud du fleuve Casamance. Le centre conserve des bâtiments coloniaux aux façades colorées, des rues ombragées de manguiers et des quais d'où partent pirogues et bateau de Dakar. Marchés, ateliers d'artisans et petite restauration en font une étape vivante avant de partir vers Oussouye ou Cap Skirring.",
+        tips: "Ville de vigilance renforcée selon France Diplomatie : circulez de jour, sur les axes principaux, et évitez les zones forestières en périphérie (forêt de Bayot notamment).",
+        visitMinutes: 180,
+        lat: 12.5611,
+        lng: -16.2833,
+        cover: "/images/voyage/lieu-vieille-ville-ziguinchor",
+        en: {
+          name: "Ziguinchor, colonial town and river quays",
+          summary: "The capital of Casamance: colonial districts, a river port and busy markets.",
+          description:
+            "Founded by the Portuguese in the 17th century and ceded to France in 1886, Ziguinchor spreads along the south bank of the Casamance river. The centre keeps colonial buildings with colourful façades, streets shaded by mango trees and quays from which pirogues and the Dakar boat depart. Markets, craft workshops and street food make it a lively stop before heading to Oussouye or Cap Skirring.",
+          tips: "An area of heightened vigilance according to France Diplomatie: travel by day, on main roads, and avoid forested areas on the outskirts (notably the Bayot forest).",
+        },
+      },
+      {
+        slug: "royaume-d-oussouye",
+        category: "CULTURE",
+        name: "Oussouye et son royaume diola",
+        summary: "Petite ville au cœur d'un royaume diola traditionnel, avec son roi, ses forêts sacrées et ses rizières.",
+        description:
+          "Oussouye est le centre d'un royaume diola dont le roi joue un rôle spirituel et social : gardien des traditions, des forêts sacrées et de la paix entre les villages, il ne possède pas de pouvoir politique. Autour de la ville, rizières, fromagers géants et villages aux cases de banco composent l'un des plus beaux paysages de Casamance. Avec un guide local, il est parfois possible d'être reçu à la cour royale, dans le respect des usages.",
+        tips: "Une visite au roi ne s'improvise pas : passez par un guide d'Oussouye, renseignez-vous sur le protocole et ne photographiez pas sans accord. N'entrez jamais dans un bois sacré.",
+        visitMinutes: 180,
+        lat: 12.4886,
+        lng: -16.5449,
+        cover: "/images/voyage/lieu-royaume-d-oussouye",
+        en: {
+          name: "Oussouye and its Jola kingdom",
+          summary: "A small town at the heart of a traditional Jola kingdom, with its king, sacred forests and rice paddies.",
+          description:
+            "Oussouye is the centre of a Jola kingdom whose king plays a spiritual and social role: guardian of traditions, sacred forests and peace between villages, he holds no political power. Around the town, rice paddies, giant kapok trees and villages of mud-brick houses make up one of the most beautiful landscapes in Casamance. With a local guide it is sometimes possible to be received at the royal court, respecting customs.",
+          tips: "A visit to the king cannot be improvised: go through a guide from Oussouye, ask about protocol and do not take photos without agreement. Never enter a sacred grove.",
+        },
+      },
+      {
+        slug: "cases-a-etage-mlomp",
+        category: "CULTURE",
+        name: "Cases à étage de Mlomp",
+        summary: "Rares maisons diola en banco à étage, sous d'immenses fromagers, entre Oussouye et Elinkine.",
+        description:
+          "Le village de Mlomp, sur la route d'Oussouye à Elinkine, est connu pour ses cases à étage, grandes maisons en banco (terre crue) dotées d'un étage, rares en Afrique de l'Ouest, ainsi que pour ses fromagers monumentaux. Certaines maisons peuvent être visitées avec leurs habitants, qui expliquent les techniques de construction et la vie diola. Un arrêt facile sur la route de Carabane.",
+        tips: "Une petite contribution est généralement demandée pour la visite ; restez sur l'axe principal et voyagez de jour.",
+        visitMinutes: 60,
+        lat: 12.5531,
+        lng: -16.5942,
+        cover: "/images/voyage/lieu-cases-a-etage-mlomp",
+        en: {
+          name: "Mlomp two-storey houses",
+          summary: "Rare two-storey Jola mud houses beneath huge kapok trees, between Oussouye and Elinkine.",
+          description:
+            "The village of Mlomp, on the road from Oussouye to Elinkine, is known for its two-storey houses, large banco (raw earth) dwellings with an upper floor, rare in West Africa, as well as for its monumental kapok trees. Some houses can be visited with their owners, who explain building techniques and Jola life. An easy stop on the way to Carabane.",
+          tips: "A small contribution is usually requested for the visit; stay on the main road and travel by day.",
+        },
+      },
+      {
+        slug: "poulet-yassa-casamance",
+        category: "GASTRONOMY",
+        name: "Le yassa, plat né en Casamance",
+        summary: "Poulet ou poisson mariné au citron et fondu d'oignons, servi avec du riz blanc.",
+        description:
+          "Originaire de Casamance, le yassa est devenu l'un des plats les plus populaires du Sénégal : du poulet (ou du poisson) mariné dans le jus de citron, grillé, puis mijoté dans une sauce d'oignons longuement fondus, relevée de moutarde et de piment, servi avec du riz blanc. En Casamance, on le décline aussi avec des huîtres de palétuvier.",
+        tips: "Demandez « yassa poulet » ou « yassa poisson » dans les gargotes ; le piment est souvent servi à part.",
+        visitMinutes: 60,
+        cover: "/images/voyage/lieu-poulet-yassa-casamance",
+        en: {
+          name: "Yassa, a dish born in Casamance",
+          summary: "Chicken or fish marinated in lemon with melted onions, served with white rice.",
+          description:
+            "Originally from Casamance, yassa has become one of Senegal's most popular dishes: chicken (or fish) marinated in lemon juice, grilled, then simmered in a sauce of slowly cooked onions, spiced with mustard and chilli, and served with white rice. In Casamance it is also made with mangrove oysters.",
+          tips: "Ask for “yassa poulet” or “yassa poisson” in local eateries; chilli is often served on the side.",
+        },
+      },
+    ],
+  },
+  {
+    slug: "thies-grande-cote",
+    name: "Thiès, Tivaouane et la Grande Côte",
+    region: "Thiès",
+    summary: "Ville des tapisseries, cité sainte des Tidjanes, abbaye musicale, pêche à Kayar et dunes de Lompoul.",
+    description:
+      "À une heure de Dakar par l'autoroute, Thiès, carrefour ferroviaire historique, est connue pour ses manufactures de tapisseries d'art. Au nord, Tivaouane est la capitale de la confrérie tidjane et accueille chaque année le Gamou, tandis que l'abbaye de Keur Moussa fait résonner la kora dans sa liturgie. Sur la Grande Côte, Kayar est l'un des plus grands ports de pêche artisanale du pays, et plus au nord, entre Dakar et Saint-Louis, les dunes ocre de Lompoul offrent un avant-goût du Sahara. Attention : la mer est très dangereuse sur toute la Grande Côte.",
+    lat: 14.7906,
+    lng: -16.9247,
+    cover: "/images/voyage/thies-grande-cote",
+    en: {
+      name: "Thiès, Tivaouane and the Grande Côte",
+      region: "Thiès",
+      summary: "City of tapestries, holy city of the Tijaniyya, a musical abbey, fishing at Kayar and the Lompoul dunes.",
+      description:
+        "An hour from Dakar by motorway, Thiès, a historic railway junction, is known for its art tapestry workshops. To the north, Tivaouane is the capital of the Tijani brotherhood and hosts the Gamou every year, while Keur Moussa abbey sets the kora ringing in its liturgy. On the Grande Côte, Kayar is one of the country's biggest artisanal fishing ports, and further north, between Dakar and Saint-Louis, the ochre dunes of Lompoul offer a foretaste of the Sahara. Note that the sea is very dangerous all along the Grande Côte.",
+    },
+    places: [
+      {
+        slug: "manufactures-arts-decoratifs-thies",
+        category: "CULTURE",
+        name: "Manufactures sénégalaises des arts décoratifs (MSAD)",
+        summary: "Atelier de tapisserie d'art créé en 1966 à l'initiative de Senghor : métiers à tisser et œuvres monumentales.",
+        description:
+          "Fondées en 1966 à Thiès à l'initiative de Léopold Sédar Senghor, dans l'élan de l'École de Dakar, les Manufactures sénégalaises des arts décoratifs tissent à la main des tapisseries d'après des cartons d'artistes sénégalais. Les premiers lissiers avaient été formés à la manufacture des Gobelins, à Paris. Une salle d'exposition présente des œuvres aux couleurs vives, et il est souvent possible d'observer les lissiers au travail.",
+        tips: "Renseignez-vous à l'avance sur les possibilités de visite des ateliers ; les tapisseries sont vendues sur commande.",
+        visitMinutes: 60,
+        lat: 14.7945,
+        lng: -16.9343,
+        cover: "/images/voyage/lieu-manufactures-arts-decoratifs-thies",
+        en: {
+          name: "Senegalese Decorative Arts Workshops (MSAD)",
+          summary: "Art tapestry workshop founded in 1966 on Senghor's initiative: looms and monumental works.",
+          description:
+            "Founded in Thiès in 1966 on the initiative of Léopold Sédar Senghor, in the spirit of the Dakar School, the Senegalese Decorative Arts Workshops hand-weave tapestries from designs by Senegalese artists. The first weavers were trained at the Gobelins manufactory in Paris. A showroom displays brightly coloured works, and it is often possible to watch the weavers at work.",
+          tips: "Ask in advance about visiting the workshops; tapestries are sold to order.",
+        },
+      },
+      {
+        slug: "grande-mosquee-tivaouane",
+        category: "RELIGION",
+        name: "Grande Mosquée et cité religieuse de Tivaouane",
+        summary: "Capitale spirituelle de la Tidjaniya au Sénégal, autour des mausolées d'El Hadji Malick Sy.",
+        description:
+          "Tivaouane est le grand foyer de la confrérie soufie tidjane au Sénégal depuis qu'El Hadji Malick Sy s'y est installé au début du XXe siècle. Autour de la Grande Mosquée s'élèvent les mausolées de ses descendants et les demeures de la famille religieuse. Chaque année, la ville accueille le Gamou, la célébration de la naissance du Prophète, qui rassemble des foules immenses.",
+        tips: "Tenue couvrante, foulard pour les femmes ; venez en dehors du Gamou pour une visite tranquille, accompagné d'une personne de la communauté.",
+        visitMinutes: 60,
+        lat: 14.9526,
+        lng: -16.8124,
+        cover: "/images/voyage/lieu-grande-mosquee-tivaouane",
+        en: {
+          name: "Great Mosque and religious city of Tivaouane",
+          summary: "The spiritual capital of the Tijaniyya in Senegal, around the mausoleums of El Hadji Malick Sy.",
+          description:
+            "Tivaouane has been the main centre of the Tijani Sufi brotherhood in Senegal since El Hadji Malick Sy settled there in the early 20th century. Around the Great Mosque stand the mausoleums of his descendants and the homes of the religious family. Every year the town hosts the Gamou, the celebration of the Prophet's birth, which draws immense crowds.",
+          tips: "Wear covering clothes, with a headscarf for women; come outside the Gamou for a quiet visit, accompanied by a member of the community.",
+        },
+      },
+      {
+        slug: "abbaye-de-keur-moussa",
+        category: "RELIGION",
+        name: "Abbaye de Keur Moussa",
+        summary: "Monastère bénédictin célèbre pour sa liturgie accompagnée à la kora.",
+        description:
+          "Fondée en 1961 par des moines venus de l'abbaye de Solesmes et inaugurée en 1963, l'abbaye bénédictine de Keur Moussa, entre Dakar et Thiès, est connue pour avoir adapté la liturgie aux instruments et aux mélodies d'Afrique de l'Ouest : les offices y sont chantés au son de la kora et du balafon. Les moines fabriquent aussi des koras et vendent à la boutique des produits de leur verger, comme des confitures.",
+        tips: "La messe dominicale, très fréquentée, est le meilleur moment pour entendre la kora ; arrivez en avance et restez discret pendant les offices.",
+        visitMinutes: 120,
+        lat: 14.7783,
+        lng: -17.1242,
+        cover: "/images/voyage/lieu-abbaye-de-keur-moussa",
+        en: {
+          name: "Keur Moussa Abbey",
+          summary: "A Benedictine monastery famous for its kora-accompanied liturgy.",
+          description:
+            "Founded in 1961 by monks from Solesmes Abbey and inaugurated in 1963, the Benedictine abbey of Keur Moussa, between Dakar and Thiès, is known for adapting the liturgy to West African instruments and melodies: services are sung to the sound of the kora and balafon. The monks also make koras and sell produce from their orchard, such as jams, in the shop.",
+          tips: "Sunday mass, which is very popular, is the best time to hear the kora; arrive early and stay discreet during services.",
+        },
+      },
+      {
+        slug: "plage-de-kayar",
+        category: "MARKET",
+        name: "Plage des pêcheurs de Kayar",
+        summary: "Grand port de pêche artisanale de la Grande Côte : pirogues par centaines et marché au poisson.",
+        description:
+          "À une soixantaine de kilomètres au nord de Dakar, Kayar est l'un des principaux centres de pêche artisanale du Sénégal. Sur la longue plage, des centaines de pirogues colorées sont tirées sur le sable ; en fin de journée, le débarquement et la vente du poisson donnent lieu à une effervescence spectaculaire. La fosse marine au large, très poissonneuse, explique l'importance du port.",
+        tips: "Ne vous baignez pas : la mer est dangereuse sur la Grande Côte. Demandez avant de photographier et restez à l'écart des pirogues lors des manœuvres.",
+        visitMinutes: 90,
+        lat: 14.9157,
+        lng: -17.1238,
+        cover: "/images/voyage/lieu-plage-de-kayar",
+        en: {
+          name: "Kayar fishermen's beach",
+          summary: "A big artisanal fishing port on the Grande Côte: hundreds of pirogues and a fish market.",
+          description:
+            "Some sixty kilometres north of Dakar, Kayar is one of Senegal's main artisanal fishing centres. On the long beach, hundreds of colourful pirogues are hauled up on the sand; at the end of the day, landing and selling the catch creates a spectacular bustle. The deep, fish-rich submarine canyon offshore explains the port's importance.",
+          tips: "Do not swim: the sea is dangerous on the Grande Côte. Ask before taking photos and keep clear of the pirogues when they are being manoeuvred.",
+        },
+      },
+      {
+        slug: "desert-de-lompoul",
+        category: "NATURE",
+        name: "Désert de Lompoul",
+        summary: "Petit désert de dunes ocre à quelques kilomètres de l'océan, entre Dakar et Saint-Louis.",
+        description:
+          "Dans la région de Louga, entre Kébémer et Lompoul-sur-Mer, le désert de Lompoul couvre environ 18 km² de dunes de sable fin aux tons ocre et orangés, hautes parfois de plusieurs dizaines de mètres. On y vient pour une nuit sous la tente nomade, une balade à dos de dromadaire et le coucher de soleil sur les dunes. Une étape appréciée sur la route de Saint-Louis.",
+        tips: "Prévoyez une veste pour la nuit, fraîche en saison sèche ; réservez votre campement à l'avance et protégez vos appareils du sable.",
+        bestPeriod: "Novembre à mai",
+        visitMinutes: 720,
+        lat: 15.4624,
+        lng: -16.688,
+        cover: "/images/voyage/lieu-desert-de-lompoul",
+        en: {
+          name: "Lompoul Desert",
+          summary: "A small desert of ochre dunes a few kilometres from the ocean, between Dakar and Saint-Louis.",
+          description:
+            "In the Louga region, between Kébémer and Lompoul-sur-Mer, the Lompoul desert covers about 18 km² of fine-sand dunes in ochre and orange tones, sometimes several dozen metres high. People come for a night in a nomad tent, a camel ride and sunset over the dunes. A popular stop on the road to Saint-Louis.",
+          tips: "Bring a jacket for the night, which is cool in the dry season; book your camp in advance and protect your devices from the sand.",
+          bestPeriod: "November to May",
+        },
+      },
+    ],
+  },
+  {
+    slug: "kaolack",
+    name: "Kaolack et les cercles mégalithiques",
+    region: "Kaolack",
+    summary: "Capitale du bassin arachidier, haut lieu de la Tidjaniya niassène et porte des mégalithes classés à l'UNESCO.",
+    description:
+      "Sur la rive du Saloum, à environ 190 km au sud-est de Dakar, Kaolack est un grand carrefour commercial au cœur du bassin arachidier, avec l'un des grands marchés du pays. Le quartier de Médina Baye, fondé par Cheikh Ibrahima Niass, est un centre spirituel de rayonnement international. À l'est, vers Nioro du Rip et Kaffrine, les cercles mégalithiques de Sine Ngayène et de Wanar, inscrits au patrimoine mondial, comptent parmi les ensembles de pierres dressées les plus remarquables d'Afrique.",
+    lat: 14.1667,
+    lng: -16.0833,
+    cover: "/images/voyage/kaolack",
+    en: {
+      name: "Kaolack and the stone circles",
+      region: "Kaolack",
+      summary: "Capital of the groundnut basin, a major Niassene Tijani centre and gateway to UNESCO-listed megaliths.",
+      description:
+        "On the banks of the Saloum, about 190 km south-east of Dakar, Kaolack is a major trading hub at the heart of the groundnut basin, with one of the country's big markets. The Médina Baye district, founded by Cheikh Ibrahima Niass, is a spiritual centre with an international following. To the east, towards Nioro du Rip and Kaffrine, the stone circles of Sine Ngayène and Wanar, World Heritage sites, are among the most remarkable groups of standing stones in Africa.",
+    },
+    places: [
+      {
+        slug: "grande-mosquee-medina-baye-kaolack",
+        category: "RELIGION",
+        name: "Grande Mosquée de Médina Baye",
+        summary: "Le sanctuaire de Cheikh Ibrahima Niass, foyer de la Tidjaniya suivi par des fidèles de toute l'Afrique.",
+        description:
+          "Dans le quartier de Médina Baye, à Kaolack, la Grande Mosquée abrite le mausolée de Cheikh Ibrahima Niass (1900-1975), dit Baye Niass, figure majeure de la confrérie tidjane dont le mouvement compte des millions de disciples au Nigeria, au Ghana, au Niger et au-delà. Le quartier vit au rythme des prières, des enseignements coraniques et des visiteurs venus de toute l'Afrique de l'Ouest, particulièrement lors du Gamou.",
+        tips: "Tenue couvrante, foulard pour les femmes ; demandez à être accompagné par une personne de la communauté et évitez les heures de prière.",
+        visitMinutes: 60,
+        lat: 14.1609,
+        lng: -16.0629,
+        en: {
+          name: "Great Mosque of Médina Baye",
+          summary: "The shrine of Cheikh Ibrahima Niass, a Tijani centre followed by believers from all over Africa.",
+          description:
+            "In the Médina Baye district of Kaolack, the Great Mosque houses the mausoleum of Cheikh Ibrahima Niass (1900-1975), known as Baye Niass, a major figure of the Tijani brotherhood whose movement has millions of followers in Nigeria, Ghana, Niger and beyond. The district lives to the rhythm of prayers, Koranic teaching and visitors from all over West Africa, especially during the Gamou.",
+          tips: "Wear covering clothes, with a headscarf for women; ask to be accompanied by a member of the community and avoid prayer times.",
+        },
+      },
+      {
+        slug: "cercles-megalithiques-sine-ngayene",
+        category: "HISTORY",
+        name: "Cercles mégalithiques de Sine Ngayène et Wanar",
+        summary: "Des dizaines de cercles de pierres dressées vieux de plus de mille ans, inscrits au patrimoine mondial.",
+        description:
+          "Les cercles mégalithiques de Sénégambie, inscrits au patrimoine mondial de l'UNESCO en 2006, regroupent plus de mille monuments le long du fleuve Gambie. Côté sénégalais, Sine Ngayène (52 cercles, près de Nioro du Rip) et Wanar (21 cercles, près de Kaffrine) alignent des pierres de latérite taillées, hautes d'environ deux mètres, élevées au-dessus de sépultures entre le VIIe et le XVe siècle environ.",
+        tips: "Les sites sont isolés : venez de jour avec un chauffeur, de l'eau et un chapeau. Ne déplacez ni ne grimpez sur les pierres.",
+        bestPeriod: "Novembre à mai",
+        visitMinutes: 90,
+        lat: 13.6953,
+        lng: -15.5353,
+        cover: "/images/voyage/lieu-cercles-megalithiques-sine-ngayene",
+        en: {
+          name: "Sine Ngayène and Wanar stone circles",
+          summary: "Dozens of circles of standing stones over a thousand years old, on the World Heritage List.",
+          description:
+            "The Senegambian stone circles, inscribed on the UNESCO World Heritage List in 2006, comprise over a thousand monuments along the Gambia river. On the Senegalese side, Sine Ngayène (52 circles, near Nioro du Rip) and Wanar (21 circles, near Kaffrine) line up dressed laterite stones about two metres high, raised over burials roughly between the 7th and 15th centuries.",
+          tips: "The sites are isolated: come by day with a driver, water and a hat. Do not move or climb on the stones.",
+          bestPeriod: "November to May",
+        },
+      },
+    ],
+  },
+  {
+    slug: "senegal-oriental",
+    name: "Sénégal oriental : Kédougou et Niokolo-Koba",
+    region: "Kédougou / Tambacounda",
+    summary: "Collines, cascades, pays Bassari classé à l'UNESCO et grand parc national de savane, à l'extrême sud-est.",
+    description:
+      "À plus de 650 km de Dakar, le sud-est du pays tranche avec le reste du Sénégal : collines boisées, rivières, cascade de Dindéfelo et villages bassari, bédik et peuls perchés sur les contreforts du Fouta-Djalon, ensemble inscrit au patrimoine mondial en 2012. Plus au nord, le parc national du Niokolo-Koba protège une vaste savane traversée par le fleuve Gambie. Kédougou sert de base. France Diplomatie déconseille, sauf raison impérative, les zones frontalières avec le Mali, à l'est : restez sur les itinéraires vers l'ouest et le sud de Kédougou, de jour, avec un guide local.",
+    lat: 12.5556,
+    lng: -12.1808,
+    cover: "/images/voyage/senegal-oriental",
+    en: {
+      name: "Eastern Senegal: Kédougou and Niokolo-Koba",
+      region: "Kédougou / Tambacounda",
+      summary: "Hills, waterfalls, UNESCO-listed Bassari country and a large savannah national park, in the far south-east.",
+      description:
+        "More than 650 km from Dakar, the south-east contrasts with the rest of Senegal: wooded hills, rivers, the Dindéfelo waterfall and Bassari, Bedik and Fula villages perched on the foothills of the Fouta Djallon, a landscape inscribed on the World Heritage List in 2012. Further north, Niokolo-Koba National Park protects a vast savannah crossed by the Gambia river. Kédougou serves as a base. France Diplomatie advises against all but essential travel to the border areas with Mali, to the east: stick to routes west and south of Kédougou, by day, with a local guide.",
+    },
+    places: [
+      {
+        slug: "pays-bassari-kedougou",
+        category: "CULTURE",
+        name: "Pays Bassari : paysages culturels bassari, peul et bédik",
+        summary: "Villages perchés, terrasses et rites d'initiation vivants, inscrits au patrimoine mondial de l'UNESCO.",
+        description:
+          "Autour de Bandafassi, Salémata et Éthiolo, les Bassari, les Bédik et les Peuls ont façonné des paysages de collines ponctués de villages de cases rondes au toit de chaume, de champs en terrasses et de sites sacrés. Ces paysages culturels, où se maintiennent des rites d'initiation et des cérémonies masquées, sont inscrits au patrimoine mondial depuis 2012. Le village bédik d'Iwol, perché sur une colline et dominé par un fromager géant, est l'une des visites les plus courues.",
+        tips: "Partez avec un guide de Kédougou ou de Bandafassi, demandez toujours l'autorisation du chef de village et avant chaque photo ; prévoyez de bonnes chaussures pour les montées.",
+        bestPeriod: "Novembre à mai",
+        visitMinutes: 360,
+        lat: 12.5933,
+        lng: -12.8458,
+        cover: "/images/voyage/lieu-pays-bassari-kedougou",
+        en: {
+          name: "Bassari Country: Bassari, Fula and Bedik cultural landscapes",
+          summary: "Hilltop villages, terraces and living initiation rites, on the UNESCO World Heritage List.",
+          description:
+            "Around Bandafassi, Salémata and Ethiolo, the Bassari, Bedik and Fula peoples have shaped hilly landscapes dotted with villages of round thatched huts, terraced fields and sacred sites. These cultural landscapes, where initiation rites and masked ceremonies are still practised, have been on the World Heritage List since 2012. The Bedik village of Iwol, perched on a hill and overlooked by a giant kapok tree, is one of the most popular visits.",
+          tips: "Go with a guide from Kédougou or Bandafassi, always ask the village chief's permission and ask before every photo; wear good shoes for the climbs.",
+          bestPeriod: "November to May",
+        },
+      },
+      {
+        slug: "cascade-de-dindefelo",
+        category: "NATURE",
+        name: "Cascade de Dindéfelo",
+        summary: "Chute d'eau d'une centaine de mètres au fond d'une gorge boisée, près de la frontière guinéenne.",
+        description:
+          "Près du village de Dindéfelo, au sud de Kédougou, une courte marche dans une forêt-galerie mène à une chute d'environ 100 mètres qui tombe dans un bassin où l'on peut se baigner. Le site, classé et géré par la communauté villageoise, abrite aussi une population de chimpanzés suivie par des programmes de conservation.",
+        tips: "Le débit est le plus spectaculaire en fin de saison des pluies (septembre-novembre), quand les pistes peuvent être difficiles. Un droit d'entrée communautaire est demandé.",
+        bestPeriod: "Octobre à janvier",
+        visitMinutes: 240,
+        lat: 12.3972,
+        lng: -12.3117,
+        cover: "/images/voyage/lieu-cascade-de-dindefelo",
+        en: {
+          name: "Dindéfelo waterfall",
+          summary: "A waterfall of about a hundred metres in a wooded gorge, near the Guinean border.",
+          description:
+            "Near the village of Dindéfelo, south of Kédougou, a short walk through gallery forest leads to a fall of about 100 metres dropping into a pool where you can swim. The site, listed and managed by the village community, is also home to a chimpanzee population monitored by conservation programmes.",
+          tips: "The flow is most spectacular at the end of the rainy season (September to November), when tracks can be difficult. A community entrance fee is charged.",
+          bestPeriod: "October to January",
+        },
+      },
+      {
+        slug: "parc-national-niokolo-koba",
+        category: "NATURE",
+        name: "Parc national du Niokolo-Koba",
+        summary: "Le plus grand parc du pays, classé à l'UNESCO : savane, forêts-galeries et fleuve Gambie.",
+        description:
+          "Parc national depuis 1954 et inscrit au patrimoine mondial et réserve de biosphère depuis 1981, le Niokolo-Koba couvre près d'un million d'hectares de savanes, de forêts-galeries et de mares le long du fleuve Gambie. On peut y observer antilopes, phacochères, singes, hippopotames, crocodiles et de nombreux oiseaux ; les grands prédateurs sont rares et discrets. Inscrit sur la liste du patrimoine en péril en 2007, il en a été retiré en 2024 grâce à l'amélioration de sa conservation.",
+        tips: "Visite en 4x4 avec un guide agréé, au départ de Tambacounda ou de Kédougou ; la plupart des pistes sont impraticables en saison des pluies.",
+        bestPeriod: "Décembre à mai",
+        visitMinutes: 600,
+        lat: 13.0667,
+        lng: -12.7167,
+        cover: "/images/voyage/lieu-parc-national-niokolo-koba",
+        en: {
+          name: "Niokolo-Koba National Park",
+          summary: "The country's largest park, UNESCO-listed: savannah, gallery forests and the Gambia river.",
+          description:
+            "A national park since 1954 and a World Heritage Site and biosphere reserve since 1981, Niokolo-Koba covers nearly a million hectares of savannah, gallery forest and pools along the Gambia river. Antelopes, warthogs, monkeys, hippos, crocodiles and many birds can be seen; large predators are rare and elusive. Placed on the List of World Heritage in Danger in 2007, it was removed in 2024 thanks to improved conservation.",
+          tips: "Visit by 4x4 with an approved guide, leaving from Tambacounda or Kédougou; most tracks are impassable in the rainy season.",
+          bestPeriod: "December to May",
         },
       },
     ],

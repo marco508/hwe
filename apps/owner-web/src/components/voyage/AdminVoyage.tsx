@@ -1,9 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { Badge, Button, Icon, Input, Label, Select, Textarea, TENANT_URL, compressImage, toast, useAsync } from "@hwe/ui";
-import { PLACE_CATEGORIES, VOYAGE_COUNTRIES, voyageImage } from "@hwe/types";
-import { api, type AdminCircuit, type AdminDestination, type AdminGuide, type AdminPlace } from "../../lib/api";
+import { Badge, Button, Icon, Input, Label, Select, Textarea, TENANT_URL, compressImage, intlLocale, toast, useAsync } from "@hwe/ui";
+import {
+  PLACE_CATEGORIES,
+  VOYAGE_COUNTRIES,
+  VOYAGE_EVENT_KINDS,
+  eventOccurrences,
+  isValidEventRule,
+  voyageImage,
+  type VoyageEventOccurrence,
+  type VoyageEventRule,
+} from "@hwe/types";
+import { api, type AdminCircuit, type AdminDestination, type AdminEvent, type AdminGuide, type AdminPlace } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import { fmtMoney } from "../stays/StaysKit";
 
@@ -67,7 +76,7 @@ function ContentForm({
         else if (f.kind === "bool") body[f.key] = !!val;
         else body[f.key] = typeof val === "string" ? val : val ?? null;
       }
-      for (const k of ["cover", "coverCredit", "destinationId"]) if (k in v) body[k] = v[k];
+      for (const k of ["cover", "coverCredit", "destinationId", "placeId", "rule", "sources"]) if (k in v) body[k] = v[k];
       // Étapes : sans identifiant (l'API remplace toutes les étapes).
       if (Array.isArray(v.steps)) {
         body.steps = (v.steps as AdminCircuit["steps"]).map((s, i) => ({
@@ -281,6 +290,21 @@ export function AdminVoyage() {
     ...flags,
   ];
 
+  const eventFields: Field[] = [
+    { key: "name", label: t("voyAdmin.name"), translatable: true, required: true },
+    { key: "kind", label: t("voyAdmin.eventKind"), kind: "select", options: VOYAGE_EVENT_KINDS.map((k) => ({ value: k, label: t(`voyAdmin.kind.${k}`) })) },
+    { key: "summary", label: t("voyAdmin.summary"), kind: "area", translatable: true, required: true },
+    { key: "description", label: t("voyAdmin.description"), kind: "area", translatable: true, required: true },
+    { key: "tips", label: t("voyAdmin.tips"), kind: "area", translatable: true },
+    { key: "where", label: t("voyAdmin.where"), translatable: true },
+    { key: "dateNote", label: t("voyAdmin.dateNote"), translatable: true },
+    { key: "slug", label: t("voyAdmin.slug") },
+    { key: "position", label: t("voyAdmin.position"), kind: "number" },
+    { key: "publicHoliday", label: t("voyAdmin.publicHoliday"), kind: "bool" },
+    { key: "caution", label: t("voyAdmin.caution"), kind: "bool" },
+    ...flags,
+  ];
+
   const after = async (msg = t("voyAdmin.saved")) => {
     toast.success(msg);
     setOpen(null);
@@ -292,6 +316,7 @@ export function AdminVoyage() {
     (data?.destinations.filter((d) => !d.reviewed).length ?? 0) +
     allPlaces.filter((p) => !p.reviewed).length +
     (data?.circuits.filter((c) => !c.reviewed).length ?? 0) +
+    (data?.events.filter((e) => !e.reviewed).length ?? 0) +
     (data?.guides.filter((g) => !g.reviewed).length ?? 0);
 
   return (
@@ -482,6 +507,68 @@ export function AdminVoyage() {
                           await after();
                         }}
                         extra={(v, set) => <StepsEditor steps={(v.steps as AdminCircuit["steps"]) ?? []} days={Number(v.days) || 1} places={allPlaces} destinations={data.destinations} onChange={(s) => set("steps", s)} />}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <h3 className="font-semibold">{t("voyAdmin.events", { count: data.events.length })}</h3>
+                  <p className="text-xs text-ink-muted max-w-2xl">{t("voyAdmin.eventsSub")}</p>
+                </div>
+                <Button size="sm" variant="secondary" onClick={() => setOpen("event:new")}>
+                  <Icon name="plus" size={14} /> {t("voyAdmin.addEvent")}
+                </Button>
+              </div>
+              {open === "event:new" && (
+                <div className="rounded-2xl border border-brand-300 bg-surface p-4">
+                  <ContentForm
+                    initial={{
+                      country, kind: "FESTIVAL", name: "", summary: "", description: "", tips: "", where: "", dateNote: "", position: data.events.length,
+                      publicHoliday: false, caution: false, published: false, reviewed: false, cover: null, coverCredit: "",
+                      rule: { type: "fixed", month: 1, day: 1 }, destinationId: null, placeId: null, sources: [],
+                    }}
+                    fields={eventFields}
+                    onCancel={() => setOpen(null)}
+                    onSave={async (b) => {
+                      await api.adminSaveEvent(null, { ...b, country });
+                      await after(t("voyAdmin.created"));
+                    }}
+                    extra={(v, set) => <EventExtras v={v} set={set} destinations={data.destinations} />}
+                  />
+                </div>
+              )}
+              {data.events.map((e) => (
+                <div key={e.id} className="rounded-2xl border border-border bg-surface">
+                  <button type="button" className="w-full text-start p-4 flex items-center justify-between gap-2" onClick={() => setOpen(open === `event:${e.id}` ? null : `event:${e.id}`)} aria-expanded={open === `event:${e.id}`}>
+                    <span className="min-w-0">
+                      <span className="font-medium [overflow-wrap:anywhere]">{e.name}</span>{" "}
+                      <span className="text-xs text-ink-muted">
+                        · {t(`voyAdmin.kind.${e.kind}`)}
+                        {e.publicHoliday ? ` · ${t("voyAdmin.publicHolidayShort")}` : ""} · {e.next ? fmtOcc(e.next) : t("voyAdmin.noPreview")}
+                      </span>
+                    </span>
+                    <StatusBadges published={e.published} reviewed={e.reviewed} />
+                  </button>
+                  {open === `event:${e.id}` && (
+                    <div className="p-4 border-t border-border">
+                      <ContentForm
+                        initial={{ ...e, sources: e.sources ?? [] }}
+                        fields={eventFields}
+                        onCancel={() => setOpen(null)}
+                        onDelete={async () => {
+                          await api.adminDeleteEvent(e.id);
+                          await after(t("voyAdmin.deleted"));
+                        }}
+                        onSave={async (b) => {
+                          await api.adminSaveEvent(e.id, b);
+                          await after();
+                        }}
+                        extra={(v, set) => <EventExtras v={v} set={set} destinations={data.destinations} />}
                       />
                     </div>
                   )}
@@ -765,6 +852,227 @@ function GuideEditor({ country, guide, onSaved }: { country: string; guide: Admi
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─────────────────────────── Fêtes et événements ───────────────────────────
+
+const pad2 = (n: number) => String(n).padStart(2, "0");
+
+function fmtOcc(o: VoyageEventOccurrence): string {
+  const f = (d: string, opts: Intl.DateTimeFormatOptions) => new Date(`${d}T12:00:00Z`).toLocaleDateString(intlLocale(), { ...opts, timeZone: "UTC" });
+  if (o.period) return `${f(o.start, { month: "long" })} – ${f(o.end, { month: "long", year: "numeric" })}`;
+  const s = f(o.start, { day: "numeric", month: "long", year: "numeric" });
+  const text = o.start === o.end ? s : `${s} – ${f(o.end, { day: "numeric", month: "long", year: "numeric" })}`;
+  return o.approx ? `~ ${text}` : text;
+}
+
+function monthNames(): string[] {
+  return Array.from({ length: 12 }, (_, i) => new Date(Date.UTC(2026, i, 15)).toLocaleDateString(intlLocale(), { month: "long", timeZone: "UTC" }));
+}
+
+function weekdayNames(): string[] {
+  // 2026-03-01 est un dimanche (weekday 0).
+  return Array.from({ length: 7 }, (_, i) => new Date(Date.UTC(2026, 2, 1 + i)).toLocaleDateString(intlLocale(), { weekday: "long", timeZone: "UTC" }));
+}
+
+/** Noms des mois hégiriens dans la langue de l'interface (repli : numéro). */
+function hijriMonthNames(): string[] {
+  const out: string[] = Array.from({ length: 12 }, (_, i) => String(i + 1));
+  try {
+    const num = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", { month: "numeric", timeZone: "UTC" });
+    const name = new Intl.DateTimeFormat(`${intlLocale()}-u-ca-islamic-umalqura`, { month: "long", timeZone: "UTC" });
+    for (let d = 0; d < 400; d += 10) {
+      const date = new Date(Date.UTC(2026, 0, 1 + d));
+      const m = Number(num.format(date));
+      if (m >= 1 && m <= 12) out[m - 1] = `${m} · ${name.format(date)}`;
+    }
+  } catch {
+    /* calendrier non pris en charge : numéros seuls */
+  }
+  return out;
+}
+
+/** Règle de date, lien vers une destination / un lieu, sources, aperçu des prochaines dates. */
+function EventExtras({ v, set, destinations }: { v: Record<string, unknown>; set: (k: string, v: unknown) => void; destinations: AdminDestination[] }) {
+  const rule = (v.rule as VoyageEventRule) ?? { type: "fixed", month: 1, day: 1 };
+  const setRule = (r: Record<string, unknown>) => set("rule", r);
+  const months = monthNames();
+  const num = (k: string, val: string) => setRule({ ...rule, [k]: val === "" ? undefined : Number(val) });
+  const today = new Date().toISOString().slice(0, 10);
+  const preview = isValidEventRule(rule) ? eventOccurrences(rule, today, `${Number(today.slice(0, 4)) + 3}-12-31`).slice(0, 3) : [];
+  const sources = (v.sources as string[] | null) ?? [];
+  const link = v.placeId ? `p:${v.placeId}` : v.destinationId ? `d:${v.destinationId}` : "";
+  const days = "days" in rule ? rule.days ?? 1 : 1;
+
+  const monthSelect = (id: string, value: number, onChange: (m: number) => void, names = months) => (
+    <Select id={id} value={String(value)} onChange={(e) => onChange(Number(e.target.value))}>
+      {names.map((m, i) => (
+        <option key={i} value={i + 1}>
+          {m}
+        </option>
+      ))}
+    </Select>
+  );
+
+  return (
+    <div className="space-y-4 rounded-2xl border border-border p-4">
+      <div className="grid md:grid-cols-3 gap-3">
+        <div className="md:col-span-3">
+          <Label htmlFor="ev-rule">{t("voyAdmin.rule")}</Label>
+          <Select
+            id="ev-rule"
+            value={rule.type}
+            onChange={(e) => {
+              const type = e.target.value;
+              setRule(
+                type === "fixed" ? { type, month: 1, day: 1 }
+                : type === "easter" ? { type, offset: 1 }
+                : type === "hijri" ? { type, month: 10, day: 1 }
+                : type === "nth-weekday" ? { type, month: 1, weekday: 6, nth: 1 }
+                : { type: "period", from: 1, to: 1 },
+              );
+            }}
+          >
+            {(["fixed", "easter", "hijri", "nth-weekday", "period"] as const).map((x) => (
+              <option key={x} value={x}>
+                {t(`voyAdmin.rule.${x}`)}
+              </option>
+            ))}
+          </Select>
+        </div>
+        {rule.type === "fixed" && (
+          <>
+            <div>
+              <Label htmlFor="ev-m">{t("voyAdmin.month")}</Label>
+              {monthSelect("ev-m", rule.month, (m) => setRule({ ...rule, month: m }))}
+            </div>
+            <div>
+              <Label htmlFor="ev-d">{t("voyAdmin.dayOfMonth")}</Label>
+              <Input id="ev-d" inputMode="numeric" value={String(rule.day ?? "")} onChange={(e) => num("day", e.target.value)} />
+            </div>
+          </>
+        )}
+        {rule.type === "easter" && (
+          <div className="md:col-span-2">
+            <Label htmlFor="ev-off">{t("voyAdmin.easterOffset")}</Label>
+            <Input id="ev-off" inputMode="numeric" value={String(rule.offset ?? "")} onChange={(e) => num("offset", e.target.value)} />
+            <p className="text-xs text-ink-muted mt-1">{t("voyAdmin.easterHint")}</p>
+          </div>
+        )}
+        {rule.type === "hijri" && (
+          <>
+            <div>
+              <Label htmlFor="ev-hm">{t("voyAdmin.hijriMonth")}</Label>
+              {monthSelect("ev-hm", rule.month, (m) => setRule({ ...rule, month: m }), hijriMonthNames())}
+            </div>
+            <div>
+              <Label htmlFor="ev-hd">{t("voyAdmin.dayOfMonth")}</Label>
+              <Input id="ev-hd" inputMode="numeric" value={String(rule.day ?? "")} onChange={(e) => num("day", e.target.value)} />
+            </div>
+            <p className="text-xs text-ink-muted md:col-span-3">{t("voyAdmin.hijriHint")}</p>
+          </>
+        )}
+        {rule.type === "nth-weekday" && (
+          <>
+            <div>
+              <Label htmlFor="ev-nth">{t("voyAdmin.nth")}</Label>
+              <Select id="ev-nth" value={String(rule.nth)} onChange={(e) => setRule({ ...rule, nth: Number(e.target.value) })}>
+                {[1, 2, 3, 4, -1].map((n) => (
+                  <option key={n} value={n}>
+                    {t(`voyAdmin.nth.${n === -1 ? "last" : n}`)}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="ev-wd">{t("voyAdmin.weekday")}</Label>
+              <Select id="ev-wd" value={String(rule.weekday)} onChange={(e) => setRule({ ...rule, weekday: Number(e.target.value) })}>
+                {weekdayNames().map((w, i) => (
+                  <option key={i} value={i}>
+                    {w}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="ev-nm">{t("voyAdmin.month")}</Label>
+              {monthSelect("ev-nm", rule.month, (m) => setRule({ ...rule, month: m }))}
+            </div>
+          </>
+        )}
+        {rule.type === "period" && (
+          <>
+            <div>
+              <Label htmlFor="ev-pf">{t("voyAdmin.fromMonth")}</Label>
+              {monthSelect("ev-pf", rule.from, (m) => setRule({ ...rule, from: m }))}
+            </div>
+            <div>
+              <Label htmlFor="ev-pt">{t("voyAdmin.toMonth")}</Label>
+              {monthSelect("ev-pt", rule.to, (m) => setRule({ ...rule, to: m }))}
+            </div>
+          </>
+        )}
+        {rule.type !== "period" && (
+          <div>
+            <Label htmlFor="ev-days">{t("voyAdmin.duration")}</Label>
+            <Input id="ev-days" inputMode="numeric" value={String(days)} onChange={(e) => num("days", e.target.value)} />
+          </div>
+        )}
+      </div>
+      <div className="text-sm">
+        <span className="font-medium">{t("voyAdmin.preview")} : </span>
+        {preview.length ? preview.map(fmtOcc).join(" · ") : <span className="text-danger">{t("voyAdmin.noPreview")}</span>}
+      </div>
+
+      <div>
+        <Label htmlFor="ev-link">{t("voyAdmin.linkTo")}</Label>
+        <Select
+          id="ev-link"
+          value={link}
+          onChange={(e) => {
+            const x = e.target.value;
+            set("placeId", x.startsWith("p:") ? x.slice(2) : null);
+            set("destinationId", x.startsWith("d:") ? x.slice(2) : null);
+          }}
+        >
+          <option value="">{t("voyAdmin.noLink")}</option>
+          <optgroup label={t("voyAdmin.destGroup")}>
+            {destinations.map((d) => (
+              <option key={d.id} value={`d:${d.id}`}>
+                {d.name}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label={t("voyAdmin.placesGroup")}>
+            {destinations.flatMap((d) =>
+              d.places.map((p) => (
+                <option key={p.id} value={`p:${p.id}`}>
+                  {p.name} ({d.name})
+                </option>
+              )),
+            )}
+          </optgroup>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="ev-src">{t("voyAdmin.sources")}</Label>
+        <Textarea id="ev-src" rows={3} value={sources.join("\n")} onChange={(e) => set("sources", e.target.value.split("\n").map((x) => x.trim()).filter(Boolean))} />
+        <p className="text-xs text-ink-muted mt-1">{t("voyAdmin.sourcesHint")}</p>
+        {sources.length > 0 && (
+          <ul className="mt-2 space-y-1 text-xs">
+            {sources.filter((x) => /^https?:\/\//.test(x)).map((x) => (
+              <li key={x} className="[overflow-wrap:anywhere]">
+                <a href={x} target="_blank" rel="noopener noreferrer nofollow" className="text-brand-700 dark:text-brand-300 hover:underline">
+                  {x}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

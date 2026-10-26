@@ -18,9 +18,12 @@ locataire (`/voyage`) et l'espace propriétaire (`/dashboard/sejours`).
 - Contenu de départ de 10 pays d'Afrique de l'Ouest (`VOYAGE_COUNTRIES` :
   Bénin, Togo, Ghana, Nigeria, Côte d'Ivoire, Sénégal, Burkina Faso, Niger,
   Mali, Guinée) : `apps/api/src/voyage/seed/<pays>.ts` (fr + en) et
-  `<pays>-i18n.ts` (es, pt, ar), liste dans `seed/index.ts`. Chaque pays est
-  inséré une seule fois au démarrage de l'API s'il n'a ni guide ni destination
-  (`VOYAGE_SEED=0` pour désactiver). Ensuite tout se gère dans l'admin.
+  `<pays>-i18n.ts` (es, pt, ar), fêtes dans `<pays>-events.ts` (5 langues et
+  sources), liste dans `seed/index.ts`. Au démarrage de l'API
+  (`VOYAGE_SEED=0` pour désactiver), un pays sans guide ni destination est
+  inséré en entier ; sinon seuls les éléments ajoutés au seed depuis sont
+  insérés (destinations, lieux, circuits, fêtes jamais insérés : journal
+  `VoyageSeedEntry`). Un élément supprimé dans l'admin n'est jamais recréé.
 - Mise à jour du contenu de départ : tant qu'un élément n'a été ni modifié ni
   marqué relu dans l'admin, il suit la version à jour du seed au démarrage
   (textes, traductions, image). Les circuits retirés du seed
@@ -31,8 +34,41 @@ locataire (`/voyage`) et l'espace propriétaire (`/dashboard/sejours`).
   ne passe par une zone formellement déconseillée ; Burkina Faso, Niger et
   Mali, déconseillés dans leur ensemble, sont des guides « patrimoine » sans
   circuit. **À revoir à chaque évolution de ces avis.**
+- Photos de la banque : WebP 3:2 en 480 et 1200 px (`lieu-<slug>` pour un
+  lieu, `fete-<slug>` pour une fête, `<slug>` pour une destination), toutes
+  sous licence libre (Wikimedia Commons), une ligne par photo dans
+  `CREDITS.md`. Le crédit affiché sous chaque photo (auteur · source ·
+  licence) vient de `seed/photo-credits.ts`, généré depuis `CREDITS.md`.
 - Vérifier un fichier pays : test unitaire `voyage.spec.ts` (slugs uniques
-  tous pays confondus, circuits résolus, 5 langues complètes).
+  tous pays confondus, circuits et fêtes résolus, 5 langues complètes,
+  règles de date valides, photos présentes et créditées).
+
+## Fêtes et événements
+
+`VoyageEvent` : jours fériés, fêtes religieuses et traditionnelles, festivals,
+saisons festives et soirées, rattachés à un pays et, si possible, à une
+destination ou un lieu. Les dates ne se saisissent pas chaque année : une
+règle (`rule`) les calcule (`@hwe/types` → `voyage-events.ts`) :
+
+| Règle | Exemple |
+|---|---|
+| `fixed` (mois, jour) | Fête de l'indépendance, 1er août |
+| `easter` (décalage) | Lundi de Pâques +1, Ascension +39, lundi de Pentecôte +50 |
+| `hijri` (mois, jour) | Aïd el-Fitr 10/1, Tabaski 12/10, Maouloud 3/12 — estimation Umm al-Qura à ±1 jour, signalée « vers le » |
+| `nth-weekday` | 1er samedi d'août |
+| `period` (mois → mois) | Festival dont les dates sont annoncées chaque année |
+
+`days` = durée. `publicHoliday` = jour chômé ; `caution` = zone déconseillée
+(avertissement renvoyant à la rubrique Sécurité) ; `sources` = URL consultées,
+visibles seulement dans l'admin.
+
+- Public : `GET /voyage/countries/:cc/events?from&to` (12 mois par défaut,
+  3 ans au plus), `GET /voyage/events/:slug` ; fêtes d'une destination ou d'un
+  lieu dans leurs fiches ; fêtes du pays pendant les dates d'un carnet.
+- Pages : `/voyage/fetes?pays=BJ[&du=…&au=…]` (calendrier par mois, filtres),
+  `/voyage/fetes/<slug>` (fiche), onglet « Fêtes et événements ».
+- Admin (onglet Voyage) : création, règle de date avec aperçu des prochaines
+  dates, liens, sources, traductions.
 
 ## Carnets de voyage
 

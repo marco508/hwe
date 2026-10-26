@@ -3,7 +3,8 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { withAdvisoryLock } from "../common/advisory-lock";
 import { RETIRED_CIRCUITS, SEED_COUNTRIES } from "./seed";
-import type { SeedCountry, SeedDestination, SeedGuide, SeedLang, SeedPlace } from "./seed/types";
+import { PHOTO_CREDITS } from "./seed/photo-credits";
+import type { SeedCircuit, SeedCountry, SeedDestination, SeedEvent, SeedGuide, SeedLang, SeedPlace } from "./seed/types";
 
 const OTHER_LANGS: SeedLang[] = ["es", "pt", "ar"];
 
@@ -19,13 +20,17 @@ function withLangs(en: object, pick: (l: SeedLang) => object | undefined): Prism
 
 type I18n = SeedCountry["i18n"];
 
+/** Crédit affiché sous une photo de la banque (auteur · source · licence). */
+const credit = (cover?: string | null) => (cover ? PHOTO_CREDITS[cover] ?? null : null);
+
 const guideData = (g: SeedGuide, i18n: I18n) => ({
   intro: g.intro,
   sections: g.sections,
   translations: withLangs(g.en, (l) => i18n[l]?.guide),
 });
 
-const destinationData = (d: SeedDestination, i18n: I18n) => ({
+const destinationData = (d: SeedDestination, i18n: I18n, position: number) => ({
+  position,
   name: d.name,
   region: d.region,
   summary: d.summary,
@@ -33,10 +38,12 @@ const destinationData = (d: SeedDestination, i18n: I18n) => ({
   latitude: d.lat,
   longitude: d.lng,
   cover: d.cover ?? null,
+  coverCredit: credit(d.cover),
   translations: withLangs(d.en, (l) => i18n[l]?.destinations[d.slug]),
 });
 
-const placeData = (p: SeedPlace, i18n: I18n) => ({
+const placeData = (p: SeedPlace, i18n: I18n, position: number) => ({
+  position,
   category: p.category,
   name: p.name,
   summary: p.summary,
@@ -46,8 +53,31 @@ const placeData = (p: SeedPlace, i18n: I18n) => ({
   visitMinutes: p.visitMinutes ?? null,
   latitude: p.lat ?? null,
   longitude: p.lng ?? null,
+  cover: p.cover ?? null,
+  coverCredit: credit(p.cover),
   translations: withLangs(p.en, (l) => i18n[l]?.places[p.slug]),
 });
+
+/** Champs d'un événement (sans les liens destination / lieu, résolus par slug). */
+const eventData = (e: SeedEvent, position: number) => ({
+  position,
+  kind: e.kind,
+  publicHoliday: e.publicHoliday,
+  name: e.name,
+  summary: e.summary,
+  description: e.description,
+  tips: e.tips ?? null,
+  where: e.where ?? null,
+  dateNote: e.dateNote ?? null,
+  rule: e.rule as unknown as Prisma.InputJsonValue,
+  caution: e.caution ?? false,
+  cover: e.cover ?? null,
+  coverCredit: credit(e.cover),
+  sources: e.sources as Prisma.InputJsonValue,
+  translations: withLangs(e.en, (l) => e.i18n[l]),
+});
+
+type Tx = Prisma.TransactionClient;
 
 /** JSON à clés triées (jsonb ne conserve pas l'ordre des clés), sans les valeurs undefined. */
 function canonical(v: unknown): string {
@@ -65,10 +95,11 @@ function differs(row: object, data: Record<string, unknown>): boolean {
 }
 
 /**
- * Contenu de départ des guides (seed/), inséré UNE fois par pays au démarrage si le pays
- * n'a encore ni guide ni destination (VOYAGE_SEED=0 pour désactiver). Ensuite,
- * tout se modifie dans l'admin : un contenu supprimé n'est jamais recréé
- * tant qu'il reste au moins une destination ou le guide du pays.
+ * Contenu de départ des guides (seed/), inséré au démarrage (VOYAGE_SEED=0
+ * pour désactiver) : tout le pays s'il n'a encore ni guide ni destination,
+ * sinon seulement les éléments ajoutés au seed depuis (destinations, lieux,
+ * circuits, événements jamais insérés, d'après VoyageSeedEntry). Ensuite,
+ * tout se modifie dans l'admin : un contenu supprimé n'est jamais recréé.
  *
  * Correctifs : un contenu de départ que personne n'a touché dans l'admin
  * (non relu, jamais modifié depuis son insertion) suit la version à jour du
@@ -99,63 +130,136 @@ export class VoyageSeedService implements OnApplicationBootstrap {
   }
 
   async seedCountry(c: SeedCountry): Promise<void> {
-    const { guide: GUIDE, destinations: DESTINATIONS, circuits: CIRCUITS, i18n: I18N } = c;
-    const country = GUIDE.country;
+    const country = c.guide.country;
     const [dest, guide] = await Promise.all([
       this.prisma.destination.count({ where: { country } }),
       this.prisma.countryGuide.count({ where: { country } }),
     ]);
-    if (dest > 0 || guide > 0) return this.refreshUntouched(c);
+    if (dest > 0 || guide > 0) {
+      await this.addNew(c);
+      return this.refreshUntouched(c);
+    }
     await this.prisma.$transaction(
       async (tx) => {
-        await tx.countryGuide.create({ data: { country, ...guideData(GUIDE, I18N) } });
-        const placeIds = new Map<string, string>();
-        const destIds = new Map<string, string>();
-        for (const [i, d] of DESTINATIONS.entries()) {
-          const created = await tx.destination.create({
-            data: { slug: d.slug, country, position: i, ...destinationData(d, I18N) },
-          });
-          destIds.set(d.slug, created.id);
-          for (const [j, p] of d.places.entries()) {
-            const place = await tx.place.create({
-              data: { slug: p.slug, destinationId: created.id, position: j, ...placeData(p, I18N) },
-            });
-            placeIds.set(p.slug, place.id);
-          }
-        }
-        for (const [i, ci] of CIRCUITS.entries()) {
-          await tx.circuit.create({
-            data: {
-              slug: ci.slug,
-              country,
-              title: ci.title,
-              summary: ci.summary,
-              days: ci.days,
-              cover: ci.cover ?? null,
-              position: i,
-              translations: withLangs(ci.en, (l) => I18N[l]?.circuits[ci.slug]),
-              steps: {
-                create: ci.steps.map((s, k) => ({
-                  day: s.day,
-                  position: k,
-                  placeId: s.place ? placeIds.get(s.place) ?? null : null,
-                  destinationId: s.destination ? destIds.get(s.destination) ?? null : null,
-                  note: s.note ?? null,
-                  translations: s.noteEn
-                    ? withLangs({ note: s.noteEn }, (l) => {
-                        const n = I18N[l]?.stepNotes[`${ci.slug}:${k}`];
-                        return n ? { note: n } : undefined;
-                      })
-                    : Prisma.DbNull,
-                })),
-              },
-            },
-          });
-        }
+        await tx.countryGuide.create({ data: { country, ...guideData(c.guide, c.i18n) } });
+        await this.insertItems(tx, c, () => true);
       },
-      { timeout: 60_000 },
+      { timeout: 120_000 },
     );
-    this.logger.log(`guide Voyage ${country} inséré (${DESTINATIONS.length} destinations)`);
+    this.logger.log(`guide Voyage ${country} inséré (${c.destinations.length} destinations, ${c.events.length} événements)`);
+  }
+
+  /**
+   * Insère les éléments du seed retenus par `keep(kind, slug)` et les note
+   * dans VoyageSeedEntry. Lieux, étapes et événements se rattachent par slug
+   * aux destinations / lieux existants (créés ici ou déjà en base).
+   */
+  private async insertItems(tx: Tx, c: SeedCountry, keep: (kind: string, slug: string) => boolean): Promise<number> {
+    const country = c.guide.country;
+    const I18N = c.i18n;
+    let n = 0;
+    const logged: Array<{ kind: string; slug: string }> = [];
+    const allPlaces = c.destinations.flatMap((d) => d.places.map((p) => p.slug));
+    const [dRows, pRows] = await Promise.all([
+      tx.destination.findMany({ where: { slug: { in: c.destinations.map((d) => d.slug) } }, select: { id: true, slug: true } }),
+      tx.place.findMany({ where: { slug: { in: allPlaces } }, select: { id: true, slug: true } }),
+    ]);
+    const destIds = new Map(dRows.map((r) => [r.slug, r.id]));
+    const placeIds = new Map(pRows.map((r) => [r.slug, r.id]));
+    for (const [i, d] of c.destinations.entries()) {
+      if (keep("destination", d.slug) && !destIds.has(d.slug)) {
+        const created = await tx.destination.create({ data: { slug: d.slug, country, ...destinationData(d, I18N, i) } });
+        destIds.set(d.slug, created.id);
+        logged.push({ kind: "destination", slug: d.slug });
+        n++;
+      }
+      const destinationId = destIds.get(d.slug);
+      if (!destinationId) continue; // destination supprimée dans l'admin : ses nouveaux lieux ne sont pas recréés
+      for (const [j, p] of d.places.entries()) {
+        if (!keep("place", p.slug) || placeIds.has(p.slug)) continue;
+        const place = await tx.place.create({ data: { slug: p.slug, destinationId, ...placeData(p, I18N, j) } });
+        placeIds.set(p.slug, place.id);
+        logged.push({ kind: "place", slug: p.slug });
+        n++;
+      }
+    }
+    for (const [i, ci] of c.circuits.entries()) {
+      if (!keep("circuit", ci.slug)) continue;
+      if (await tx.circuit.findUnique({ where: { slug: ci.slug }, select: { id: true } })) continue;
+      await this.createCircuit(tx, country, ci, i, I18N, placeIds, destIds);
+      logged.push({ kind: "circuit", slug: ci.slug });
+      n++;
+    }
+    for (const [i, e] of c.events.entries()) {
+      if (!keep("event", e.slug)) continue;
+      if (await tx.voyageEvent.findUnique({ where: { slug: e.slug }, select: { id: true } })) continue;
+      await tx.voyageEvent.create({
+        data: {
+          slug: e.slug,
+          country,
+          ...eventData(e, i),
+          destinationId: e.destination ? destIds.get(e.destination) ?? null : null,
+          placeId: e.place ? placeIds.get(e.place) ?? null : null,
+        },
+      });
+      logged.push({ kind: "event", slug: e.slug });
+      n++;
+    }
+    if (logged.length) await tx.voyageSeedEntry.createMany({ data: logged, skipDuplicates: true });
+    return n;
+  }
+
+  private async createCircuit(
+    tx: Tx,
+    country: string,
+    ci: SeedCircuit,
+    position: number,
+    I18N: I18n,
+    placeIds: Map<string, string>,
+    destIds: Map<string, string>,
+  ) {
+    await tx.circuit.create({
+      data: {
+        slug: ci.slug,
+        country,
+        title: ci.title,
+        summary: ci.summary,
+        days: ci.days,
+        cover: ci.cover ?? null,
+        coverCredit: credit(ci.cover),
+        position,
+        translations: withLangs(ci.en, (l) => I18N[l]?.circuits[ci.slug]),
+        steps: {
+          create: ci.steps.map((s, k) => ({
+            day: s.day,
+            position: k,
+            placeId: s.place ? placeIds.get(s.place) ?? null : null,
+            destinationId: s.destination ? destIds.get(s.destination) ?? null : null,
+            note: s.note ?? null,
+            translations: s.noteEn
+              ? withLangs({ note: s.noteEn }, (l) => {
+                  const note = I18N[l]?.stepNotes[`${ci.slug}:${k}`];
+                  return note ? { note } : undefined;
+                })
+              : Prisma.DbNull,
+          })),
+        },
+      },
+    });
+  }
+
+  /** Ajoute les éléments du seed jamais insérés (absents de VoyageSeedEntry) à un pays déjà en place. */
+  async addNew(c: SeedCountry): Promise<void> {
+    const seen = await this.prisma.voyageSeedEntry.findMany({ select: { kind: true, slug: true } });
+    const done = new Set(seen.map((x) => `${x.kind}:${x.slug}`));
+    const keep = (kind: string, slug: string) => !done.has(`${kind}:${slug}`) && !(kind === "circuit" && RETIRED_CIRCUITS.includes(slug));
+    const fresh =
+      c.destinations.some((d) => keep("destination", d.slug) || d.places.some((p) => keep("place", p.slug))) ||
+      c.circuits.some((ci) => keep("circuit", ci.slug)) ||
+      c.events.some((e) => keep("event", e.slug));
+    if (!fresh) return;
+    const n = await this.prisma.$transaction((tx) => this.insertItems(tx, c, keep), { timeout: 120_000 });
+    if (n) this.logger.log(`guide Voyage ${c.guide.country} : ${n} nouveau(x) contenu(s) de départ ajouté(s)`);
   }
 
   /**
@@ -165,7 +269,7 @@ export class VoyageSeedService implements OnApplicationBootstrap {
    * transaction). `updatedAt` est réécrit à sa valeur d'origine pour que le
    * contenu reste « intact » aux démarrages suivants.
    */
-  async refreshUntouched({ guide: GUIDE, destinations: DESTINATIONS, i18n: I18N }: SeedCountry): Promise<void> {
+  async refreshUntouched({ guide: GUIDE, destinations: DESTINATIONS, i18n: I18N, events: EVENTS, circuits: CIRCUITS }: SeedCountry): Promise<void> {
     const country = GUIDE.country;
     let changed = 0;
     const dests = await this.prisma.destination.findMany({ where: { country }, include: { places: true } });
@@ -181,24 +285,51 @@ export class VoyageSeedService implements OnApplicationBootstrap {
         changed++;
       }
     }
-    for (const d of DESTINATIONS) {
+    for (const [i, d] of DESTINATIONS.entries()) {
       const row = dests.find((x) => x.slug === d.slug);
       if (!row) continue;
       if (intact(row)) {
-        const data = destinationData(d, I18N);
+        const data = destinationData(d, I18N, i);
         if (differs(row, data)) {
           await this.prisma.destination.update({ where: { id: row.id }, data: { ...data, updatedAt: row.createdAt } });
           changed++;
         }
       }
-      for (const p of d.places) {
+      for (const [j, p] of d.places.entries()) {
         const prow = row.places.find((x) => x.slug === p.slug);
         if (!prow || !intact(prow)) continue;
-        const data = placeData(p, I18N);
+        const data = placeData(p, I18N, j);
         if (differs(prow, data)) {
           await this.prisma.place.update({ where: { id: prow.id }, data: { ...data, updatedAt: prow.createdAt } });
           changed++;
         }
+      }
+    }
+    const evRows = await this.prisma.voyageEvent.findMany({ where: { slug: { in: EVENTS.map((e) => e.slug) } } });
+    const placeIdBySlug = new Map(dests.flatMap((d) => d.places.map((p) => [p.slug, p.id] as const)));
+    const destIdBySlug = new Map(dests.map((d) => [d.slug, d.id] as const));
+    for (const [i, e] of EVENTS.entries()) {
+      const row = evRows.find((x) => x.slug === e.slug);
+      if (!row || !intact(row)) continue;
+      const data = {
+        ...eventData(e, i),
+        destinationId: e.destination ? destIdBySlug.get(e.destination) ?? null : null,
+        placeId: e.place ? placeIdBySlug.get(e.place) ?? null : null,
+      };
+      if (differs(row, data)) {
+        await this.prisma.voyageEvent.update({ where: { id: row.id }, data: { ...data, updatedAt: row.createdAt } });
+        changed++;
+      }
+    }
+    // Circuits : seuls l'image et son crédit suivent le seed (les étapes restent celles de l'insertion).
+    const ciRows = await this.prisma.circuit.findMany({ where: { slug: { in: CIRCUITS.map((c) => c.slug) } } });
+    for (const ci of CIRCUITS) {
+      const row = ciRows.find((x) => x.slug === ci.slug);
+      if (!row || !intact(row)) continue;
+      const data = { cover: ci.cover ?? null, coverCredit: credit(ci.cover) };
+      if (differs(row, data)) {
+        await this.prisma.circuit.update({ where: { id: row.id }, data: { ...data, updatedAt: row.createdAt } });
+        changed++;
       }
     }
     const retired = await this.prisma.circuit.findMany({

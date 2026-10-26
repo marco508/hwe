@@ -127,6 +127,28 @@ const ES: SeedI18n = {
       description:
         "El centro de promoción de la artesanía, que reúne a numerosos artesanos, permite comprar esculturas, bronces, tapices de aplicación inspirados en los bajorrelieves de Abomey, máscaras, cestería y joyas, a menudo viendo trabajar a los artesanos. El regateo forma parte del intercambio.",
     },
+    "cathedrale-notre-dame-de-misericorde-cotonou": {
+      name: "Catedral de Nuestra Señora de la Misericordia",
+      summary: "La catedral de Cotonou, reconocible por sus rayas burdeos y blancas.",
+      description:
+        "Sede de la archidiócesis de Cotonou, la catedral de Notre-Dame-de-Miséricorde se alza en el antiguo barrio de Ganhi, cerca del viejo puente sobre la laguna. Sus fachadas a rayas burdeos y blancas la convierten en uno de los edificios más fotografiados de la ciudad. Iniciada en 1912, sigue siendo un lugar de culto muy concurrido, sobre todo en las misas dominicales y en Navidad y Pascua.",
+      tips: "Se exige vestimenta adecuada; visítela fuera de los oficios y sea discreto durante las celebraciones.",
+    },
+    "place-de-l-etoile-rouge-cotonou": {
+      name: "Plaza de la Estrella Roja",
+      summary: "Gran cruce y monumento heredado del periodo revolucionario de los años setenta.",
+      description:
+        "En el corazón de Cotonou, la plaza de la Estrella Roja se acondicionó bajo el régimen del general Mathieu Kérékou, tras la adopción del marxismo-leninismo como doctrina oficial en 1974, para acoger desfiles y concentraciones. Su monumento central, una alta columna coronada por una estatua, sigue siendo uno de los grandes puntos de referencia de la ciudad, en el cruce de ejes principales. La plaza se ilumina durante las fiestas de fin de año.",
+      tips: "Cruce con mucho tráfico: admire el monumento desde los alrededores y cruce solo donde sea seguro.",
+    },
+    "quartier-haie-vive-cotonou": {
+      name: "Cotonou de noche: Haie Vive y Jonquet",
+      summary: "Los barrios para salir de noche: restaurantes, terrazas, bares y música.",
+      description:
+        "Al caer la noche, Haie Vive, barrio residencial cercano al aeropuerto y a las embajadas, concentra restaurantes de todo tipo de cocinas, terrazas y bares, en un ambiente más bien relajado. Los noctámbulos suelen continuar hacia Jonquet, en el centro, conocido por sus bares y discotecas abiertos hasta tarde. Los fines de semana, los chiringuitos de la playa de Fidjrossè y los maquis de barrio completan el panorama, con pescado a la brasa y música.",
+      tips: "De noche, prefiera un taxi o un conductor de confianza al mototaxi, lleve pocos objetos de valor y manténgase alerta en Jonquet, barrio conocido por la pequeña delincuencia.",
+      bestPeriod: "De jueves a sábado por la noche; diciembre y enero para el ambiente festivo",
+    },
     "cite-lacustre-de-ganvie": {
       name: "Poblado lacustre de Ganvié",
       summary: "Paseo en piragua entre las casas sobre pilotes y el mercado flotante.",
@@ -170,14 +192,15 @@ const ES: SeedI18n = {
       summary: "Instalado en el antiguo fuerte portugués, recorre la historia de la trata y del reino.",
       description:
         "Ubicado en el fuerte portugués de São João Baptista de Ajudá, el museo recorre la historia de Ouidah: el comercio europeo en la costa, la trata negrera, los vínculos con Brasil y el Caribe, y el reino de Danhomè. Un buen punto de partida para comprender la ciudad antes de seguir la Ruta de los Esclavos.",
+      tips: "El fuerte está en obras importantes para acoger el futuro Museo Internacional de la Memoria y de la Esclavitud (MIME): infórmese de los espacios abiertos antes de ir.",
     },
     "vodun-days": {
       name: "Fiesta del Vudú (Vodun Days)",
       summary: "Cada mes de enero, ceremonias, danzas y desfiles celebran los cultos vudú.",
       description:
-        "El 10 de enero es el día nacional de las religiones endógenas en Benín. En Ouidah, las celebraciones adquieren la dimensión de un gran festival, llamado ahora Vodun Days: ceremonias, danzas de máscaras (entre ellas los Egungun y los Zangbeto), música y una concentración en la playa. Una época muy solicitada: reserve su alojamiento con mucha antelación.",
+        "Celebrada durante mucho tiempo el 10 de enero, la fiesta anual de las religiones tradicionales se celebra, desde una ley de 2024, el segundo viernes de enero, y el jueves anterior también es festivo. En Ouidah, las celebraciones adquieren la dimensión de un gran festival, los Vodun Days: ceremonias, danzas de máscaras (entre ellas los Egungun y los Zangbeto), música y una concentración en la playa, frente a la Puerta del No Retorno. Una época muy solicitada: reserve su alojamiento con mucha antelación.",
       tips: "Las fechas exactas y el programa los publican cada año los organizadores: compruébelos antes de reservar.",
-      bestPeriod: "Principios de enero (en torno al 10 de enero)",
+      bestPeriod: "Principios de enero (jueves y segundo viernes de enero)",
     },
     "musee-honme": {
       name: "Museo Honmè (palacio del rey Toffa)",
@@ -223,6 +246,19 @@ const ES: SeedI18n = {
       description:
         "Las familias de artesanos de Abomey perpetúan saberes que antaño estaban al servicio de los reyes: tapices de aplicación con motivos simbólicos, fundición de bronce a la cera perdida, forja. Varios talleres se pueden visitar y venden directamente sus creaciones.",
     },
+    "place-goho-abomey": {
+      name: "Plaza Goho y estatua de Béhanzin",
+      summary: "Plaza histórica dominada por la estatua del rey Béhanzin, figura de la resistencia a la conquista colonial.",
+      description:
+        "Al este del centro, en la carretera de Bohicon, la plaza Goho rinde homenaje a Béhanzin, último rey independiente de Danhomè, que dirigió la resistencia contra las tropas francesas de 1890 a 1894 antes de ser exiliado a Martinica y después a Argelia. Su estatua, bajo un pórtico, lleva una inscripción que recuerda su negativa a ceder la independencia del reino. Los muros de la plaza están adornados con los emblemas de los reyes de Abomey: un buen punto de partida antes de visitar los palacios.",
+    },
+    "village-souterrain-d-agongointo": {
+      name: "Aldea subterránea de Agongointo-Zoungoudo",
+      summary: "Red de viviendas excavadas bajo tierra, descubierta en 1998 cerca de Bohicon.",
+      description:
+        "Descubierto en 1998 durante unas obras viales cerca de Bohicon, a una decena de kilómetros de Abomey, este sitio reúne decenas de cavidades excavadas a unos diez metros bajo la superficie, en la tierra roja de la meseta: estancias, cocinas, pozos y refugios de guerreros. Según la tradición, se remontarían a la época de los primeros reyes de Danhomè, en el siglo XVII. El sitio figura en la lista indicativa de Benín para el Patrimonio Mundial de la UNESCO, y la visita guiada permite bajar a un refugio acondicionado.",
+      tips: "Acceso por pozos estrechos y empinados: no recomendado para personas claustrofóbicas o con movilidad reducida; lleve calzado cerrado.",
+    },
     "plage-de-grand-popo": {
       name: "Playa de Grand-Popo",
       summary: "Gran playa salvaje, ideal para descansar a la sombra de los cocoteros.",
@@ -245,8 +281,8 @@ const ES: SeedI18n = {
       name: "Gruta de Nuestra Señora de Arigbo",
       summary: "Santuario mariano al pie de las colinas, con una gran peregrinación cada mes de agosto.",
       description:
-        "El santuario mariano de Arigbo se desarrolló en torno a una gruta al pie de las colinas. La peregrinación anual, a finales de agosto, reúne a decenas de miles de fieles llegados de Benín y de los países vecinos. El resto del año, el lugar está tranquilo y se visita libremente.",
-      bestPeriod: "Peregrinación a finales de agosto; lugar tranquilo el resto del año",
+        "El santuario mariano de Arigbo se desarrolló en torno a una gruta al pie de las colinas, convertida en lugar de peregrinación en 1954. La peregrinación mariana nacional, un fin de semana de la segunda quincena de agosto, reúne a cientos de miles de fieles llegados de todas las diócesis de Benín y de los países vecinos. El resto del año, el lugar está tranquilo y se visita libremente.",
+      bestPeriod: "Peregrinación nacional un fin de semana de la segunda quincena de agosto; lugar tranquilo el resto del año",
     },
     "collines-de-dassa": {
       name: "Colinas de Dassa",
@@ -427,6 +463,28 @@ const PT: SeedI18n = {
       description:
         "Reunindo numerosos artesãos, o centro de promoção do artesanato permite comprar esculturas, bronzes, tapeçarias de aplicação inspiradas nos baixos-relevos de Abomey, máscaras, cestaria e joias, muitas vezes vendo os artesãos a trabalhar. Regatear faz parte da troca.",
     },
+    "cathedrale-notre-dame-de-misericorde-cotonou": {
+      name: "Catedral de Nossa Senhora da Misericórdia",
+      summary: "A catedral de Cotonou, reconhecível pelas riscas bordô e brancas.",
+      description:
+        "Sede da arquidiocese de Cotonou, a catedral de Notre-Dame-de-Miséricorde ergue-se no antigo bairro de Ganhi, perto da velha ponte sobre a lagoa. As fachadas às riscas bordô e brancas fazem dela um dos edifícios mais fotografados da cidade. Iniciada em 1912, continua a ser um local de culto muito frequentado, sobretudo nas missas de domingo e no Natal e na Páscoa.",
+      tips: "Vestuário adequado obrigatório; visite fora das celebrações e mantenha-se discreto durante os ofícios.",
+    },
+    "place-de-l-etoile-rouge-cotonou": {
+      name: "Praça da Estrela Vermelha",
+      summary: "Grande cruzamento e monumento herdado do período revolucionário dos anos 1970.",
+      description:
+        "No coração de Cotonou, a praça da Estrela Vermelha foi arranjada sob o regime do general Mathieu Kérékou, depois da adoção do marxismo-leninismo como doutrina oficial em 1974, para acolher desfiles e comícios. O monumento central, uma alta coluna encimada por uma estátua, continua a ser uma das grandes referências da cidade, no cruzamento de eixos principais. A praça é iluminada durante as festas de fim de ano.",
+      tips: "Cruzamento muito movimentado: admire o monumento a partir das imediações e atravesse apenas onde for seguro.",
+    },
+    "quartier-haie-vive-cotonou": {
+      name: "Cotonou à noite: Haie Vive e Jonquet",
+      summary: "Os bairros para sair à noite: restaurantes, esplanadas, bares e música.",
+      description:
+        "Ao cair da noite, Haie Vive, bairro residencial perto do aeroporto e das embaixadas, concentra restaurantes de todas as cozinhas, esplanadas e bares, num ambiente bastante descontraído. Os notívagos seguem muitas vezes para Jonquet, no centro, conhecido pelos bares e discotecas abertos até tarde. Ao fim de semana, as barracas da praia de Fidjrossè e os maquis de bairro completam o quadro, com peixe grelhado e música.",
+      tips: "À noite, prefira um táxi ou um motorista de confiança ao mototáxi, leve poucos objetos de valor e mantenha-se atento em Jonquet, bairro conhecido pela pequena criminalidade.",
+      bestPeriod: "De quinta a sábado à noite; dezembro e janeiro para o ambiente festivo",
+    },
     "cite-lacustre-de-ganvie": {
       name: "Aldeia lacustre de Ganvié",
       summary: "Passeio de piroga entre as casas sobre estacas e o mercado flutuante.",
@@ -470,14 +528,15 @@ const PT: SeedI18n = {
       summary: "Instalado no antigo forte português, retraça a história do tráfico de escravos e do reino.",
       description:
         "Instalado no forte português de São João Baptista de Ajudá, o museu retraça a história de Ouidah: o comércio europeu na costa, o tráfico negreiro, as ligações com o Brasil e as Caraíbas, e o reino de Danhomè. Um bom ponto de partida para compreender a cidade antes de seguir a Rota dos Escravos.",
+      tips: "O forte está em obras importantes para acolher o futuro Museu Internacional da Memória e da Escravatura (MIME): informe-se sobre os espaços abertos antes de ir.",
     },
     "vodun-days": {
       name: "Festa do Vodu (Vodun Days)",
       summary: "Todos os anos em janeiro, cerimónias, danças e desfiles celebram os cultos vodu.",
       description:
-        "O dia 10 de janeiro é o dia nacional das religiões endógenas no Benim. Em Ouidah, as celebrações ganham a dimensão de um grande festival, agora chamado Vodun Days: cerimónias, danças de máscaras (entre as quais os Egungun e os Zangbeto), música e uma concentração na praia. Uma época muito procurada: reserve o alojamento com muita antecedência.",
+        "Celebrada durante muito tempo a 10 de janeiro, a festa anual das religiões tradicionais realiza-se, desde uma lei de 2024, na segunda sexta-feira de janeiro, sendo a quinta-feira anterior também feriado. Em Ouidah, as celebrações ganham a dimensão de um grande festival, os Vodun Days: cerimónias, danças de máscaras (entre as quais os Egungun e os Zangbeto), música e uma concentração na praia, diante da Porta do Não Retorno. Uma época muito procurada: reserve o alojamento com muita antecedência.",
       tips: "As datas exatas e o programa são publicados todos os anos pelos organizadores: confirme-os antes de reservar.",
-      bestPeriod: "Início de janeiro (por volta de 10 de janeiro)",
+      bestPeriod: "Início de janeiro (quinta-feira e segunda sexta-feira de janeiro)",
     },
     "musee-honme": {
       name: "Museu Honmè (palácio do rei Toffa)",
@@ -523,6 +582,19 @@ const PT: SeedI18n = {
       description:
         "As famílias de artesãos de Abomey perpetuam saberes outrora ao serviço dos reis: tapeçarias de aplicação com motivos simbólicos, fundição de bronze pela técnica da cera perdida, forja. Várias oficinas podem ser visitadas e vendem diretamente as suas criações.",
     },
+    "place-goho-abomey": {
+      name: "Praça Goho e estátua de Béhanzin",
+      summary: "Praça histórica dominada pela estátua do rei Béhanzin, figura da resistência à conquista colonial.",
+      description:
+        "A leste do centro, na estrada de Bohicon, a praça Goho presta homenagem a Béhanzin, último rei independente do Danhomè, que liderou a resistência contra as tropas francesas de 1890 a 1894 antes de ser exilado na Martinica e depois na Argélia. A sua estátua, sob um pórtico, tem uma inscrição que recorda a sua recusa em ceder a independência do reino. Os muros da praça estão decorados com os emblemas dos reis de Abomey: um bom ponto de partida antes da visita aos palácios.",
+    },
+    "village-souterrain-d-agongointo": {
+      name: "Aldeia subterrânea de Agongointo-Zoungoudo",
+      summary: "Rede de habitações escavadas debaixo da terra, descoberta em 1998 perto de Bohicon.",
+      description:
+        "Posto a descoberto em 1998 durante obras rodoviárias perto de Bohicon, a cerca de dez quilómetros de Abomey, este sítio reúne dezenas de cavidades escavadas a uns dez metros abaixo da superfície, na terra vermelha do planalto: divisões de habitação, cozinhas, poços e refúgios de guerreiros. Segundo a tradição, remontariam à época dos primeiros reis do Danhomè, no século XVII. O sítio consta da lista indicativa do Benim ao Património Mundial da UNESCO, e a visita guiada permite descer a um abrigo preparado para o efeito.",
+      tips: "Acesso por poços estreitos e íngremes: desaconselhado a pessoas claustrofóbicas ou com mobilidade reduzida; use calçado fechado.",
+    },
     "plage-de-grand-popo": {
       name: "Praia de Grand-Popo",
       summary: "Grande praia selvagem, ideal para descansar à sombra dos coqueiros.",
@@ -545,8 +617,8 @@ const PT: SeedI18n = {
       name: "Gruta de Nossa Senhora de Arigbo",
       summary: "Santuário mariano no sopé das colinas, com uma grande peregrinação todos os anos em agosto.",
       description:
-        "O santuário mariano de Arigbo desenvolveu-se em torno de uma gruta no sopé das colinas. A peregrinação anual, no fim de agosto, reúne dezenas de milhares de fiéis vindos do Benim e dos países vizinhos. No resto do ano, o local é calmo e visita-se livremente.",
-      bestPeriod: "Peregrinação no fim de agosto; local calmo no resto do ano",
+        "O santuário mariano de Arigbo desenvolveu-se em torno de uma gruta no sopé das colinas, que se tornou local de peregrinação em 1954. A peregrinação mariana nacional, num fim de semana da segunda quinzena de agosto, reúne centenas de milhares de fiéis vindos de todas as dioceses do Benim e dos países vizinhos. No resto do ano, o local é calmo e visita-se livremente.",
+      bestPeriod: "Peregrinação nacional num fim de semana da segunda quinzena de agosto; local calmo no resto do ano",
     },
     "collines-de-dassa": {
       name: "Colinas de Dassa",
@@ -744,6 +816,28 @@ const AR: SeedI18n = {
       description:
         "يضم مركز ترويج الحرف اليدوية عددًا كبيرًا من الحرفيين، ويتيح شراء المنحوتات والبرونزيات والمنسوجات بالقطع المخيطة المستوحاة من النقوش البارزة في أبومي، والأقنعة، والسلال، والحُليّ، وكثيرًا ما يكون ذلك أثناء مشاهدة الحرفيين وهم يعملون. والمساومة جزء من التعامل.",
     },
+    "cathedrale-notre-dame-de-misericorde-cotonou": {
+      name: "كاتدرائية سيدة الرحمة",
+      summary: "كاتدرائية كوتونو، المعروفة بخطوطها الخمرية والبيضاء.",
+      description:
+        "كاتدرائية سيدة الرحمة هي مقرّ أبرشية كوتونو الكبرى، وتقوم في حي غانهي القديم قرب الجسر القديم فوق البحيرة. وتجعل واجهاتها المخططة بالخمري والأبيض منها أحد أكثر المباني تصويرًا في المدينة. بدأ تشييدها عام 1912، ولا تزال مكان عبادة يرتاده كثيرون، لا سيما في قداديس الأحد وفي عيدي الميلاد والفصح.",
+      tips: "يُشترط لباس محتشم؛ زرها خارج أوقات القداس والتزم الهدوء أثناء الاحتفالات.",
+    },
+    "place-de-l-etoile-rouge-cotonou": {
+      name: "ساحة النجمة الحمراء",
+      summary: "تقاطع كبير ونُصب موروث من الحقبة الثورية في السبعينيات.",
+      description:
+        "في قلب كوتونو، أُنشئت ساحة النجمة الحمراء في عهد الجنرال ماتيو كيريكو، بعد اعتماد الماركسية اللينينية عقيدةً رسمية عام 1974، لاستقبال العروض والتجمعات. ولا يزال نُصبها المركزي، وهو عمود مرتفع يعلوه تمثال، من أبرز معالم المدينة عند ملتقى محاور رئيسية. وتُضاء الساحة خلال أعياد نهاية السنة.",
+      tips: "تقاطع شديد الازدحام: تأمّل النُّصب من الأطراف ولا تعبر الطريق إلا حيث يكون العبور آمنًا.",
+    },
+    "quartier-haie-vive-cotonou": {
+      name: "كوتونو ليلًا: هاي فيف وجونكيه",
+      summary: "أحياء السهر: مطاعم وشرفات وحانات وموسيقى.",
+      description:
+        "عند المساء، يضم حي هاي فيف السكني، القريب من المطار والسفارات، مطاعم من جميع المطابخ وشرفات وحانات في أجواء هادئة نسبيًا. وكثيرًا ما يواصل محبّو السهر طريقهم إلى حي جونكيه في وسط المدينة، المعروف بحاناته وملاهيه التي تبقى مفتوحة حتى ساعة متأخرة. وفي عطلة نهاية الأسبوع، تكمل أكشاك شاطئ فيدجروسيه ومطاعم الأحياء الشعبية (الماكي) المشهد بالسمك المشوي والموسيقى.",
+      tips: "ليلًا، فضّل سيارة أجرة أو سائقًا موثوقًا على الدراجة النارية الأجرة، واحمل القليل من الأغراض الثمينة، وابقَ يقظًا في جونكيه المعروف بالجنح الصغيرة.",
+      bestPeriod: "من الخميس إلى السبت مساءً؛ ديسمبر ويناير لأجواء الأعياد",
+    },
     "cite-lacustre-de-ganvie": {
       name: "قرية غانفيي المائية",
       summary: "جولة بقارب البيروغ بين البيوت المبنية على ركائز والسوق العائمة.",
@@ -787,14 +881,15 @@ const AR: SeedI18n = {
       summary: "يقع في الحصن البرتغالي القديم، ويروي تاريخ تجارة الرقيق والمملكة.",
       description:
         "يقع المتحف في الحصن البرتغالي ساو جواو باتيستا دي أجودا، ويروي تاريخ ويدا: التجارة الأوروبية على الساحل، وتجارة الرقيق، والروابط مع البرازيل ومنطقة الكاريبي، ومملكة دانهومي. نقطة انطلاق جيدة لفهم المدينة قبل سلوك طريق العبيد.",
+      tips: "يشهد الحصن أعمالًا كبيرة لاستقبال المتحف الدولي للذاكرة والعبودية (MIME) مستقبلًا: استعلم عن الأجزاء المفتوحة قبل الزيارة.",
     },
     "vodun-days": {
       name: "مهرجان الفودون (Vodun Days)",
       summary: "في شهر يناير من كل عام، تحتفي الطقوس والرقصات والمواكب بعبادات الفودون.",
       description:
-        "يوافق العاشر من يناير اليوم الوطني للديانات المحلية في بنين. وفي ويدا، تتخذ الاحتفالات حجم مهرجان كبير يُسمّى الآن «أيام الفودون» (Vodun Days): طقوس، ورقصات الأقنعة (ومنها الإيغونغون والزانغبيتو)، وموسيقى، وتجمّع على الشاطئ. فترة مطلوبة جدًا: احجز مكان إقامتك قبل وقت طويل.",
+        "ظلّ العيد السنوي للديانات التقليدية يُحتفل به طويلًا في العاشر من يناير، لكنه يُقام منذ قانون صدر عام 2024 في يوم الجمعة الثاني من يناير، ويكون يوم الخميس الذي يسبقه عطلة رسمية أيضًا. وفي ويدا، تتخذ الاحتفالات حجم مهرجان كبير هو «أيام الفودون» (Vodun Days): طقوس، ورقصات الأقنعة (ومنها الإيغونغون والزانغبيتو)، وموسيقى، وتجمّع على الشاطئ أمام بوابة اللاعودة. فترة مطلوبة جدًا: احجز مكان إقامتك قبل وقت طويل.",
       tips: "ينشر المنظمون كل عام المواعيد الدقيقة والبرنامج: تحقّق منها قبل الحجز.",
-      bestPeriod: "أوائل يناير (حوالي العاشر من يناير)",
+      bestPeriod: "أوائل يناير (الخميس والجمعة الثانية من يناير)",
     },
     "musee-honme": {
       name: "متحف هونميه (قصر الملك توفا)",
@@ -840,6 +935,19 @@ const AR: SeedI18n = {
       description:
         "تواصل عائلات الحرفيين في أبومي مهارات كانت في خدمة الملوك قديمًا: المنسوجات بالقطع المخيطة ذات الزخارف الرمزية، وصبّ البرونز بطريقة الشمع المفقود، والحدادة. ويمكن زيارة عدة ورش تبيع إبداعاتها مباشرة.",
     },
+    "place-goho-abomey": {
+      name: "ساحة غوهو وتمثال بيهانزين",
+      summary: "ساحة تاريخية يتوسطها تمثال الملك بيهانزين، رمز مقاومة الغزو الاستعماري.",
+      description:
+        "شرق وسط المدينة، على طريق بوهيكون، تكرّم ساحة غوهو بيهانزين، آخر ملوك دانهومي المستقلين، الذي قاد المقاومة ضد القوات الفرنسية من 1890 إلى 1894 قبل أن يُنفى إلى المارتينيك ثم إلى الجزائر. ويحمل تمثاله، القائم تحت رواق، نقشًا يذكّر برفضه التنازل عن استقلال المملكة. وتزيّن جدران الساحة شعاراتُ ملوك أبومي: نقطة انطلاق جيدة قبل زيارة القصور.",
+    },
+    "village-souterrain-d-agongointo": {
+      name: "القرية الجوفية في أغونغوينتو-زونغودو",
+      summary: "شبكة مساكن محفورة تحت الأرض، اكتُشفت عام 1998 قرب بوهيكون.",
+      description:
+        "اكتُشف هذا الموقع عام 1998 أثناء أشغال طرق قرب بوهيكون، على بُعد نحو عشرة كيلومترات من أبومي، وهو يضم عشرات التجاويف المحفورة على عمق نحو عشرة أمتار في التربة الحمراء للهضبة: غرف للسكن ومطابخ وآبار وملاجئ للمحاربين. وبحسب الرواية المتوارثة، تعود إلى عهد ملوك دانهومي الأوائل في القرن السابع عشر. والموقع مدرج على القائمة التمهيدية لبنين للتراث العالمي لليونسكو، وتتيح الزيارة المصحوبة بمرشد النزول إلى أحد الملاجئ المجهّزة.",
+      tips: "الدخول عبر آبار ضيقة ومنحدرة: لا يُنصح به لمن يعانون رهاب الأماكن المغلقة أو محدودي الحركة؛ ارتدِ حذاءً مغلقًا.",
+    },
     "plage-de-grand-popo": {
       name: "شاطئ غران بوبو",
       summary: "شاطئ واسع بِكر، مثالي للاسترخاء في ظل أشجار جوز الهند.",
@@ -863,8 +971,8 @@ const AR: SeedI18n = {
       name: "مغارة سيدة أريغبو",
       summary: "مزار مريمي عند سفح التلال، يشهد حجًا كبيرًا في شهر أغسطس من كل عام.",
       description:
-        "نشأ مزار أريغبو المريمي حول مغارة عند سفح التلال. ويجمع الحج السنوي، في أواخر أغسطس، عشرات الآلاف من المؤمنين القادمين من بنين والبلدان المجاورة. وفي بقية أيام السنة، يكون الموقع هادئًا وتُتاح زيارته بحرية.",
-      bestPeriod: "الحج في أواخر أغسطس؛ والموقع هادئ في بقية السنة",
+        "نشأ مزار أريغبو المريمي حول مغارة عند سفح التلال أصبحت مقصدًا للحج منذ عام 1954. ويجمع الحج المريمي الوطني، في عطلة نهاية أسبوع من النصف الثاني من أغسطس، مئات الآلاف من المؤمنين القادمين من جميع أبرشيات بنين ومن البلدان المجاورة. وفي بقية أيام السنة، يكون الموقع هادئًا وتُتاح زيارته بحرية.",
+      bestPeriod: "الحج الوطني في عطلة نهاية أسبوع من النصف الثاني من أغسطس؛ والموقع هادئ في بقية السنة",
     },
     "collines-de-dassa": {
       name: "تلال داسا",

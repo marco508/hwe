@@ -9,6 +9,7 @@ import { TripsService } from "./trips.service";
 import {
   CircuitInput,
   DestinationInput,
+  EventInput,
   FromCircuitInput,
   GuideInput,
   ImageInput,
@@ -34,6 +35,16 @@ export class VoyageController {
   @Get("countries/:cc")
   country(@Param("cc") cc: string) {
     return this.voyage.country(CC.test(cc) ? cc : "XX");
+  }
+
+  @Get("countries/:cc/events")
+  countryEvents(@Param("cc") cc: string, @Query("from") from?: string, @Query("to") to?: string) {
+    return this.voyage.countryEvents(CC.test(cc) ? cc : "XX", { from, to });
+  }
+
+  @Get("events/:slug")
+  event(@Param("slug") slug: string) {
+    return this.voyage.event(slug.slice(0, 80));
   }
 
   @Get("destinations/:slug")
@@ -124,6 +135,27 @@ export class VoyageController {
   @Delete("admin/places/:id")
   deletePlace(@Param("id") id: string) {
     return this.voyage.deletePlace(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Post("admin/events")
+  createEvent(@Body() dto: EventInput) {
+    return this.voyage.createEvent(dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Patch("admin/events/:id")
+  updateEvent(@Param("id") id: string, @Body() dto: EventInput) {
+    return this.voyage.updateEvent(id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Delete("admin/events/:id")
+  deleteEvent(@Param("id") id: string) {
+    return this.voyage.deleteEvent(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

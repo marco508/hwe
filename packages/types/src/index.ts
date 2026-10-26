@@ -651,3 +651,4 @@ export * from "./i18n";
 export * from "./geo";
 export * from "./currencies";
 export * from "./voyage";
+export * from "./voyage-events";

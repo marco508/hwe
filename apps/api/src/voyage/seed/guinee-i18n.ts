@@ -88,6 +88,16 @@ const ES: SeedI18n = {
       description:
         "En el extremo sureste, donde Guinea limita con Costa de Marfil y Liberia, los montes Nimba alcanzan el punto más alto del país. Su reserva natural integral, inscrita en el Patrimonio Mundial de la UNESCO (y en la lista del patrimonio en peligro), alberga una fauna y una flora excepcionales, con numerosas especies endémicas. Atención: en el momento de redactar este texto, France Diplomatie desaconseja, salvo motivo imperativo, las zonas fronterizas con Costa de Marfil; por eso este lugar se presenta como patrimonio, para preparar un viaje cuando las condiciones lo permitan.",
     },
+    boke: {
+      summary: "Ciudad histórica del Río Nunez, en el noroeste, conocida por su fortín colonial convertido en museo.",
+      description:
+        "A unos 250 km al noroeste de Conakry por carretera asfaltada, Boké se extiende a orillas del Río Nunez, en una región poblada sobre todo por landuma y nalu. Antigua puerta de entrada del comercio europeo y después de la colonización, la ciudad conserva un fortín de 1878 convertido en museo regional, que repasa la historia de la región y de sus resistentes. Boké es también el corazón de la explotación de bauxita de Guinea: espere un intenso tráfico de camiones en las carreteras de la región.",
+    },
+    kankan: {
+      summary: "Gran ciudad malinké de la Alta Guinea a orillas del Milo, centro del saber islámico y cuna de la Mamaya.",
+      description:
+        "Segunda ciudad del país, a unos 550 km al este de Conakry, Kankan se extiende a orillas del Milo, afluente del Níger. Fundada según la tradición a finales del siglo XVII, en el siglo XVIII se convirtió en un gran centro religioso y comercial, capital del Baté, que unía la costa, las regiones de la cola y el valle del Níger. Sigue siendo un foco de la cultura malinké y la cuna de la Mamaya, gran fiesta bailada que se celebra después de la Tabaski. La ciudad está en vigilancia reforzada, pero las cercanas zonas fronterizas con Malí (Siguiri, Mandiana) están desaconsejadas salvo motivo imperativo por France Diplomatie: consulte las recomendaciones de viaje antes de salir y no continúe hacia el norte o el este sin información actualizada.",
+    },
   },
   places: {
     "musee-national-guinee": {
@@ -241,6 +251,66 @@ const ES: SeedI18n = {
         "Al pie de los montes Nimba, las colinas boscosas de Bossou albergan una pequeña comunidad de chimpancés seguida por investigadores desde los años setenta. Es conocida en todo el mundo por su uso de herramientas, en especial piedras para partir nueces de palma. Los bosques son sagrados para los habitantes, que tradicionalmente protegen a los chimpancés.",
       tips: "Situado en zona fronteriza (Liberia, Costa de Marfil): consulte las recomendaciones de viaje actualizadas. La observación solo se hace con guías y según las normas del instituto de investigación local; mantenga la distancia con los animales.",
     },
+    "monument-22-novembre-conakry": {
+      name: "Monumento del 22 de Noviembre de 1970",
+      summary: "Monumento que conmemora el fracaso del desembarco portugués de noviembre de 1970 en Conakry.",
+      description:
+        "Este monumento recuerda la operación «Mar Verde»: en la noche del 21 al 22 de noviembre de 1970, tropas portuguesas procedentes de la vecina Guinea Portuguesa (actual Guinea-Bisáu), apoyadas por opositores guineanos, desembarcaron en Conakry para intentar derrocar el régimen de Ahmed Sékou Touré y liberar a prisioneros. El ataque fracasó, pero fue seguido de una ola de represión y detenciones. Levantado en un cruce del centro de Conakry, el monumento, cuya primera piedra se colocó en 1971, sostiene un grupo esculpido de combatientes: un hombre, una mujer y un niño.",
+      tips: "El monumento está en medio de un cruce con mucho tráfico: fotografíelo desde la acera y preste atención a la circulación. Evite fotografiar los edificios militares y oficiales cercanos.",
+    },
+    "cathedrale-sainte-marie-conakry": {
+      name: "Catedral de Santa María",
+      summary: "La catedral católica de Kaloum, sede de la archidiócesis de Conakry, con fachada ocre y blanca.",
+      description:
+        "Sede de la archidiócesis de Conakry, la catedral de Santa María se alza en el barrio de Kaloum, en el corazón de la península. Su construcción comenzó a finales de los años veinte (primera piedra bendecida en 1928) y la mayor parte del edificio data de los años treinta. Su fachada ocre adornada con un gran rosetón geométrico la convierte en uno de los edificios emblemáticos del centro. Es un lugar de culto activo, muy concurrido en Pascua y Navidad.",
+      tips: "Vista de forma adecuada; visítela fuera de los oficios o asista discretamente a una misa, y pida permiso antes de fotografiar el interior.",
+    },
+    "soirees-ratoma-conakry": {
+      name: "Noches de Ratoma (Kipé, Taouyah)",
+      summary: "Restaurantes, terrazas y clubes de los barrios de Kipé y Taouyah, corazón de la vida nocturna de Conakry.",
+      description:
+        "Lejos del centro administrativo de Kaloum, el municipio de Ratoma concentra la mayor parte de la vida nocturna de Conakry. En Kipé y Taouyah, restaurantes, terrazas, maquis y clubes acogen por la noche a un público local y expatriado, a menudo al son de la música guineana, el afrobeat o el coupé-décalé. La animación alcanza su punto álgido los fines de semana y en las fiestas de fin de año. Los locales cambian rápido: pida consejo en su alojamiento.",
+      tips: "France Diplomatie recomienda evitar de noche los lugares oscuros y poco concurridos y desaconseja residir al este de Kipé y Taouyah sin sólidas precauciones: desplácese en coche con un conductor de confianza, lleve pocos objetos de valor y no vuelva a pie.",
+      bestPeriod: "Fines de semana y finales de diciembre",
+    },
+    "ile-de-tamara-fotoba": {
+      name: "Isla de Tamara (Fotoba)",
+      summary: "La más occidental de las islas de Los, con el pueblo de Fotoba, los restos de un presidio colonial y un faro.",
+      description:
+        "Con unos diez kilómetros de longitud, Tamara es la más occidental de las islas de Los. Su pueblo principal, Fotoba, albergó desde 1905 un penal colonial que, de 1918 a la independencia, sirvió de campo penitenciario para toda el África Occidental Francesa; aún se conservan edificios de celdas. En el extremo sur de la isla, un faro en servicio desde 1906 sigue guiando a los barcos hacia Conakry. Una escapada más discreta que Roume o Kassa, entre memoria colonial, pueblo de pescadores y pequeñas playas.",
+      tips: "La travesía es más larga que a Kassa: salga temprano en un barco con chalecos salvavidas y con el mar en calma. Los restos del presidio no están acondicionados: vaya acompañado por alguien del pueblo y pida permiso a los vecinos antes de hacer fotos.",
+      bestPeriod: "De noviembre a abril (estación seca, mar más tranquilo)",
+    },
+    "dame-de-mali": {
+      name: "Dama de Mali (monte Loura)",
+      summary: "Roca con forma de perfil femenino en el monte Loura, punto culminante del Futa Yallon, cerca de la ciudad de Mali.",
+      description:
+        "A unos 120 km al norte de Labé, cerca de la ciudad de Mali (capital de prefectura, que no debe confundirse con el país vecino), el monte Loura alcanza los 1515 m, el punto más alto del Futa Yallon. En uno de sus acantilados, la erosión ha modelado una roca que evoca el rostro de una mujer de perfil: la «Dama de Mali», en torno a la cual circulan numerosas leyendas. Desde la meseta, la vista abarca acantilados y valles boscosos. La prefectura, aislada, cuenta con muchos otros parajes naturales.",
+      tips: "Ruta larga y pista difícil desde Labé: prevea un 4x4, un conductor experimentado y un día completo, o incluso una noche en el lugar. El borde de los acantilados no está protegido; vaya con un guía local.",
+      bestPeriod: "De noviembre a febrero (estación seca, aire más fresco; el harmatán puede velar la vista)",
+    },
+    "musee-fortin-boke": {
+      name: "Museo regional de Boké (fortín)",
+      summary: "Fortín colonial de 1878 donde estuvieron presos Alfa Yaya y Dinah Salifou, hoy museo regional.",
+      description:
+        "Construido en 1878 sobre el Río Nunez, el fortín de Boké fue un puesto de la administración colonial francesa. Allí estuvieron encarcelados dos soberanos que se opusieron a la colonización: el almamy Alfa Yaya Diallo, rey de Labé, y Dinah Salifou Camara, rey de los nalu. Convertido en museo en 1971 y restaurado a principios de los años ochenta, presenta objetos de los distintos pueblos de la región, entre ellos máscaras, así como huellas del periodo colonial, como sus salas subterráneas.",
+      tips: "Infórmese en el lugar sobre las salas abiertas; la visita guiada por el personal del museo ayuda a comprender la historia del sitio.",
+    },
+    "grande-mosquee-kankan": {
+      name: "Gran Mezquita de Kankan",
+      summary: "Amplia mezquita de minaretes ocres coronados por cúpulas verdes, en el corazón de la vida religiosa de la ciudad.",
+      description:
+        "Con sus minaretes cuadrados coronados por cúpulas verdes, la gran mezquita domina el centro de Kankan, ciudad famosa desde el siglo XVIII por sus sabios musulmanes. Reúne a los fieles para la oración del viernes y en las grandes fiestas religiosas, cuando la explanada se llena de gente. Su arquitectura en tonos ocre y verde agua la convierte en un punto de referencia de la ciudad.",
+      tips: "Ropa que cubra (hombros y piernas, pañuelo para las mujeres); no la visite durante las oraciones y pida permiso para entrar o hacer fotos.",
+    },
+    "berges-du-milo-kankan": {
+      name: "Orillas del Milo",
+      summary: "El río de Kankan, sus piraguas y sus bancos de arena, para descubrir al final del día.",
+      description:
+        "El Milo, afluente del Níger, bordea Kankan. En sus orillas trabajan piragüeros, pescadores y extractores de arena, y al final del día se acude a observar la vida del río. La ciudad fue durante mucho tiempo un puerto fluvial y, desde 1914, la terminal del ferrocarril procedente de Conakry, cuyo tráfico está interrumpido desde los años noventa.",
+      tips: "Evite bañarse en agua dulce (corrientes, riesgo de bilharziosis) y pida permiso antes de fotografiar a los trabajadores.",
+      bestPeriod: "Estación seca, al final de la tarde",
+    },
   },
   circuits: {
     "guinee-conakry-fouta-djallon-9-jours": {
@@ -344,6 +414,16 @@ const PT: SeedI18n = {
       summary: "Maciço florestal classificado pela UNESCO, na fronteira marfinense: zona desaconselhada salvo motivo imperativo.",
       description:
         "No extremo sudeste, onde a Guiné faz fronteira com a Costa do Marfim e a Libéria, os montes Nimba atingem o ponto mais alto do país. A sua reserva natural integral, inscrita no Património Mundial da UNESCO (e na lista do património em perigo), abriga uma fauna e uma flora excecionais, com muitas espécies endémicas. Atenção: à data da redação, a France Diplomatie desaconselha, salvo motivo imperativo, as zonas fronteiriças com a Costa do Marfim; este local é, por isso, apresentado como património, para preparar uma viagem quando as condições o permitirem.",
+    },
+    boke: {
+      summary: "Cidade histórica do Rio Nunez, no noroeste, conhecida pelo seu fortim colonial transformado em museu.",
+      description:
+        "A cerca de 250 km a noroeste de Conakry por estrada asfaltada, Boké estende-se nas margens do Rio Nunez, numa região habitada sobretudo por landumas e nalus. Antiga porta de entrada do comércio europeu e depois da colonização, a cidade conserva um fortim de 1878 transformado em museu regional, que retrata a história da região e dos seus resistentes. Boké é também o coração da exploração de bauxite da Guiné: conte com muito trânsito de camiões nas estradas da região.",
+    },
+    kankan: {
+      summary: "Grande cidade malinké da Alta Guiné nas margens do Milo, centro do saber islâmico e berço da Mamaya.",
+      description:
+        "Segunda cidade do país, a cerca de 550 km a leste de Conakry, Kankan estende-se nas margens do Milo, afluente do Níger. Fundada segundo a tradição no final do século XVII, tornou-se no século XVIII um grande centro religioso e comercial, capital do Baté, ligando o litoral, as regiões da cola e o vale do Níger. Continua a ser um foco da cultura malinké e o berço da Mamaya, grande festa dançada celebrada depois da Tabaski. A cidade está em vigilância reforçada, mas as zonas fronteiriças com o Mali, muito próximas (Siguiri, Mandiana), são desaconselhadas salvo motivo imperioso pela France Diplomatie: consulte os conselhos aos viajantes antes de partir e não siga para norte ou leste sem informação atualizada.",
     },
   },
   places: {
@@ -498,6 +578,66 @@ const PT: SeedI18n = {
         "Ao pé dos montes Nimba, as colinas arborizadas de Bossou abrigam uma pequena comunidade de chimpanzés acompanhada por investigadores desde os anos 1970. É conhecida no mundo inteiro pelo uso de ferramentas, em especial pedras para partir nozes de palmeira. As florestas são sagradas para os habitantes, que tradicionalmente protegem os chimpanzés.",
       tips: "Situado em zona fronteiriça (Libéria, Costa do Marfim): consulte os conselhos aos viajantes atualizados. A observação só se faz com guias e segundo as regras do instituto de investigação local; mantenha distância dos animais.",
     },
+    "monument-22-novembre-conakry": {
+      name: "Monumento do 22 de Novembro de 1970",
+      summary: "Monumento que comemora o fracasso do desembarque português de novembro de 1970 em Conakry.",
+      description:
+        "Este monumento recorda a operação «Mar Verde»: na noite de 21 para 22 de novembro de 1970, tropas portuguesas vindas da vizinha Guiné Portuguesa (atual Guiné-Bissau), apoiadas por opositores guineenses, desembarcaram em Conakry para tentar derrubar o regime de Ahmed Sékou Touré e libertar prisioneiros. O ataque falhou, mas foi seguido de uma vaga de repressão e detenções. Erguido num cruzamento do centro de Conakry, o monumento, cuja primeira pedra foi lançada em 1971, ostenta um grupo esculpido de combatentes: um homem, uma mulher e uma criança.",
+      tips: "O monumento fica no meio de um cruzamento muito movimentado: fotografe-o a partir do passeio e esteja atento ao trânsito. Evite fotografar os edifícios militares e oficiais próximos.",
+    },
+    "cathedrale-sainte-marie-conakry": {
+      name: "Catedral de Santa Maria",
+      summary: "A catedral católica de Kaloum, sede da arquidiocese de Conakry, de fachada ocre e branca.",
+      description:
+        "Sede da arquidiocese de Conakry, a catedral de Santa Maria ergue-se no bairro de Kaloum, no coração da península. A construção começou no final dos anos 1920 (primeira pedra benzida em 1928) e a maior parte do edifício data dos anos 1930. A fachada ocre ornada com uma grande rosácea geométrica faz dela um dos edifícios marcantes do centro. É um local de culto ativo, muito frequentado na Páscoa e no Natal.",
+      tips: "Vista-se de forma adequada; visite fora das celebrações ou assista discretamente a uma missa, e peça autorização antes de fotografar o interior.",
+    },
+    "soirees-ratoma-conakry": {
+      name: "Noites de Ratoma (Kipé, Taouyah)",
+      summary: "Restaurantes, esplanadas e clubes dos bairros de Kipé e Taouyah, coração da vida noturna de Conakry.",
+      description:
+        "Longe do centro administrativo de Kaloum, a comuna de Ratoma concentra o essencial da vida noturna de Conakry. Em Kipé e Taouyah, restaurantes, esplanadas, maquis e clubes recebem à noite uma clientela local e expatriada, muitas vezes ao som da música guineense, do afrobeat ou do coupé-décalé. A animação atinge o auge aos fins de semana e nas festas de fim de ano. Os locais mudam depressa: peça conselho no seu alojamento.",
+      tips: "A France Diplomatie recomenda evitar à noite os locais escuros e pouco frequentados e desaconselha residir a leste de Kipé e Taouyah sem sólidas precauções: desloque-se de carro com um motorista de confiança, leve poucos objetos de valor e não regresse a pé.",
+      bestPeriod: "Fins de semana e final de dezembro",
+    },
+    "ile-de-tamara-fotoba": {
+      name: "Ilha de Tamara (Fotoba)",
+      summary: "A mais ocidental das ilhas de Los, com a aldeia de Fotoba, os vestígios de uma colónia penal e um farol.",
+      description:
+        "Com cerca de dez quilómetros de comprimento, Tamara é a mais ocidental das ilhas de Los. A sua aldeia principal, Fotoba, acolheu a partir de 1905 uma penitenciária colonial que, de 1918 até à independência, serviu de campo penal para toda a África Ocidental Francesa; subsistem edifícios de celas. Na ponta sul da ilha, um farol em funcionamento desde 1906 continua a guiar os navios para Conakry. Uma escapadinha mais discreta do que Roume ou Kassa, entre memória colonial, aldeia de pescadores e pequenas praias.",
+      tips: "A travessia é mais longa do que para Kassa: parta cedo num barco com coletes salva-vidas e com mar calmo. Os vestígios da prisão não estão preparados para visitas: vá acompanhado por alguém da aldeia e peça autorização aos habitantes antes de fotografar.",
+      bestPeriod: "De novembro a abril (estação seca, mar mais calmo)",
+    },
+    "dame-de-mali": {
+      name: "Dama de Mali (monte Loura)",
+      summary: "Rocha em forma de perfil feminino no monte Loura, ponto culminante do Futa Jalom, perto da cidade de Mali.",
+      description:
+        "A cerca de 120 km a norte de Labé, perto da cidade de Mali (sede de prefeitura, que não deve ser confundida com o país vizinho), o monte Loura atinge 1515 m, o ponto mais alto do Futa Jalom. Numa das suas falésias, a erosão moldou uma rocha que evoca um rosto de mulher de perfil: a «Dama de Mali», em torno da qual circulam muitas lendas. Do planalto, a vista estende-se sobre falésias e vales arborizados. A prefeitura, isolada, conta com muitos outros sítios naturais.",
+      tips: "Estrada longa e pista difícil a partir de Labé: conte com um 4x4, um motorista experiente e um dia inteiro, ou mesmo uma noite no local. A beira das falésias não tem proteção; vá com um guia local.",
+      bestPeriod: "De novembro a fevereiro (estação seca, ar mais fresco; o harmatão pode enevoar a vista)",
+    },
+    "musee-fortin-boke": {
+      name: "Museu regional de Boké (fortim)",
+      summary: "Fortim colonial de 1878 onde estiveram presos Alfa Yaya e Dinah Salifou, hoje museu regional.",
+      description:
+        "Construído em 1878 sobre o Rio Nunez, o fortim de Boké foi um posto da administração colonial francesa. Aí estiveram encarcerados dois soberanos que se opuseram à colonização: o almamy Alfa Yaya Diallo, rei de Labé, e Dinah Salifou Camara, rei dos nalus. Transformado em museu em 1971 e restaurado no início dos anos 1980, apresenta objetos dos diferentes povos da região, entre os quais máscaras, bem como vestígios do período colonial, como as suas salas subterrâneas.",
+      tips: "Informe-se no local sobre as salas abertas; a visita guiada pelo pessoal do museu ajuda a compreender a história do sítio.",
+    },
+    "grande-mosquee-kankan": {
+      name: "Grande Mesquita de Kankan",
+      summary: "Vasta mesquita de minaretes ocres com cúpulas verdes, no coração da vida religiosa da cidade.",
+      description:
+        "Com os seus minaretes quadrados coroados por cúpulas verdes, a grande mesquita domina o centro de Kankan, cidade conhecida desde o século XVIII pelos seus letrados muçulmanos. Reúne os fiéis para a oração de sexta-feira e nas grandes festas religiosas, quando o adro transborda de gente. A arquitetura em tons de ocre e verde-água faz dela uma referência da cidade.",
+      tips: "Roupa que cubra (ombros e pernas, lenço para as mulheres); não visite durante as orações e peça autorização para entrar ou fotografar.",
+    },
+    "berges-du-milo-kankan": {
+      name: "Margens do Milo",
+      summary: "O rio de Kankan, as suas pirogas e bancos de areia, a descobrir ao fim do dia.",
+      description:
+        "O Milo, afluente do Níger, ladeia Kankan. Nas suas margens trabalham piroguistas, pescadores e extratores de areia, e ao fim do dia vem-se observar a vida do rio. A cidade foi durante muito tempo um porto fluvial e, a partir de 1914, o terminal do caminho de ferro vindo de Conakry, cujo tráfego está interrompido desde os anos 1990.",
+      tips: "Evite banhar-se em água doce (correntes, risco de bilharziose) e peça autorização antes de fotografar os trabalhadores.",
+      bestPeriod: "Estação seca, ao fim da tarde",
+    },
   },
   circuits: {
     "guinee-conakry-fouta-djallon-9-jours": {
@@ -614,6 +754,20 @@ const AR: SeedI18n = {
       summary: "كتلة جبلية حرجية مدرجة في قائمة اليونسكو على الحدود الإيفوارية: منطقة لا يُنصح بزيارتها إلا لسبب قاهر.",
       description:
         "في أقصى الجنوب الشرقي، حيث تلتقي غينيا بكوت ديفوار وليبيريا، ترتفع جبال نيمبا إلى أعلى نقطة في البلاد. ومحميتها الطبيعية المتكاملة، المدرجة في قائمة التراث العالمي لليونسكو (وفي قائمة التراث المعرّض للخطر)، تأوي حيوانات ونباتات استثنائية، منها أنواع كثيرة متوطّنة. تنبيه: حتى تاريخ كتابة هذا النص، تنصح وزارة الخارجية الفرنسية بعدم التوجّه إلى المناطق الحدودية مع كوت ديفوار إلا لسبب قاهر؛ لذا يُقدَّم هذا الموقع بوصفه تراثًا، للتحضير لرحلة حين تسمح الظروف بذلك.",
+    },
+    boke: {
+      name: "بوكي",
+      region: "بوكي",
+      summary: "مدينة تاريخية على نهر ريو نونيز في الشمال الغربي، تشتهر بحصنها الاستعماري الذي تحوّل إلى متحف.",
+      description:
+        "على بعد نحو 250 كيلومترًا شمال غرب كوناكري عبر طريق معبّد، تمتد بوكي على ضفاف نهر ريو نونيز، في منطقة يسكنها خصوصًا شعبا اللاندوما والنالو. كانت قديمًا بوابة للتجارة الأوروبية ثم للاستعمار، وتحتفظ بحصن يعود إلى عام 1878 حُوّل إلى متحف إقليمي يروي تاريخ المنطقة ومقاوميها. وبوكي أيضًا قلب استخراج البوكسيت في غينيا: توقّع حركة شاحنات كثيفة على طرق المنطقة.",
+    },
+    kankan: {
+      name: "كانكان",
+      region: "كانكان",
+      summary: "مدينة مالينكية كبرى في غينيا العليا على ضفاف نهر ميلو، مركز للعلم الإسلامي ومهد الماماية.",
+      description:
+        "ثانية مدن البلاد، على بعد نحو 550 كيلومترًا شرق كوناكري، تمتد كانكان على ضفاف نهر ميلو، أحد روافد النيجر. تأسست وفق الرواية التقليدية في أواخر القرن السابع عشر، وأصبحت في القرن الثامن عشر مركزًا دينيًا وتجاريًا كبيرًا وعاصمة لإقليم باتي، تربط الساحل بمناطق الكولا ووادي النيجر. ولا تزال معقلًا لثقافة المالينكي ومهد الماماية، مهرجان الرقص الكبير الذي يُقام بعد عيد الأضحى. المدينة في مستوى «يقظة معزّزة»، لكن المناطق الحدودية القريبة مع مالي (سيغيري وماندِيانا) يُنصح بعدم السفر إليها إلا للضرورة القصوى وفق الخارجية الفرنسية: راجع نصائح السفر قبل الانطلاق ولا تواصل نحو الشمال أو الشرق دون معلومات محدّثة.",
     },
   },
   places: {
@@ -767,6 +921,66 @@ const AR: SeedI18n = {
       description:
         "عند سفح جبال نيمبا، تأوي تلال بوسو الحرجية مجموعة صغيرة من الشمبانزي يتابعها الباحثون منذ السبعينيات. وهي معروفة عالميًا باستخدامها الأدوات، ولا سيما الحجارة لكسر جوز النخيل. والغابات مقدسة لدى السكان الذين يحمون الشمبانزي تقليديًا.",
       tips: "يقع في منطقة حدودية (ليبيريا، كوت ديفوار): راجع توصيات السفر المحدّثة. ولا تتم المشاهدة إلا برفقة المرشدين ووفق قواعد معهد البحث المحلي؛ وحافظ على مسافة من الحيوانات.",
+    },
+    "monument-22-novembre-conakry": {
+      name: "نصب 22 نوفمبر 1970",
+      summary: "نصب يخلّد فشل الإنزال البرتغالي في كوناكري في نوفمبر 1970.",
+      description:
+        "يذكّر هذا النصب بعملية «البحر الأخضر»: ففي ليلة 21 إلى 22 نوفمبر 1970 نزلت قوات برتغالية قادمة من غينيا البرتغالية المجاورة (غينيا بيساو حاليًا)، يدعمها معارضون غينيون، في كوناكري لمحاولة إسقاط نظام أحمد سيكو توري وتحرير سجناء. فشل الهجوم، لكنه أعقبته موجة من القمع والاعتقالات. ويقوم النصب، الذي وُضع حجره الأساس عام 1971، عند تقاطع في وسط كوناكري، ويعلوه تمثال جماعي لمقاتلين: رجل وامرأة وطفل.",
+      tips: "يقع النصب وسط تقاطع شديد الازدحام: صوّره من الرصيف وانتبه لحركة السير. تجنّب تصوير المباني العسكرية والرسمية المجاورة.",
+    },
+    "cathedrale-sainte-marie-conakry": {
+      name: "كاتدرائية القديسة مريم",
+      summary: "الكاتدرائية الكاثوليكية في كالوم، مقر أبرشية كوناكري، بواجهتها المغرّة والبيضاء.",
+      description:
+        "تقوم كاتدرائية القديسة مريم، مقر أبرشية كوناكري، في حي كالوم في قلب شبه الجزيرة. بدأ بناؤها في أواخر عشرينيات القرن العشرين (بورك حجر الأساس عام 1928)، ويعود معظم المبنى إلى الثلاثينيات. وتجعل واجهتها المغرّة المزدانة بنافذة وردية هندسية كبيرة منها أحد المعالم البارزة في وسط المدينة. وهي مكان عبادة ناشط يكثر رواده في عيدي الفصح والميلاد.",
+      tips: "البس لباسًا لائقًا؛ زرها خارج أوقات القداس أو احضر قداسًا بهدوء، واستأذن قبل تصوير الداخل.",
+    },
+    "soirees-ratoma-conakry": {
+      name: "سهرات راتوما (كيبي، تاوويا)",
+      summary: "مطاعم وشرفات ونوادٍ في حيّي كيبي وتاوويا، قلب الحياة الليلية في كوناكري.",
+      description:
+        "بعيدًا عن المركز الإداري في كالوم، تضم بلدية راتوما معظم الحياة الليلية في كوناكري. ففي كيبي وتاوويا تستقبل المطاعم والشرفات والمقاهي الشعبية والنوادي مساءً روادًا محليين وأجانب، غالبًا على أنغام الموسيقى الغينية والأفروبيت والكوبيه ديكاليه. وتبلغ الحركة ذروتها في عطلات نهاية الأسبوع وخلال أعياد نهاية السنة. وتتغير العناوين بسرعة: اطلب النصح من مكان إقامتك.",
+      tips: "توصي الخارجية الفرنسية بتجنّب الأماكن المظلمة وقليلة الارتياد ليلًا، وتنصح بعدم السكن شرق كيبي وتاوويا دون احتياطات جدية: تنقّل بالسيارة مع سائق موثوق، واحمل قليلًا من الأشياء الثمينة، ولا تعد سيرًا على الأقدام.",
+      bestPeriod: "عطلات نهاية الأسبوع وأواخر ديسمبر",
+    },
+    "ile-de-tamara-fotoba": {
+      name: "جزيرة تامارا (فوتوبا)",
+      summary: "أقصى جزر لوس غربًا، بقرية فوتوبا وبقايا سجن استعماري ومنارة.",
+      description:
+        "يبلغ طول جزيرة تامارا نحو عشرة كيلومترات، وهي أقصى جزر لوس غربًا. احتضنت قريتها الرئيسية فوتوبا منذ عام 1905 سجنًا استعماريًا استُخدم من 1918 حتى الاستقلال معتقلًا جزائيًا لكامل غرب أفريقيا الفرنسية، ولا تزال مبانٍ من زنازينه قائمة. وفي الطرف الجنوبي للجزيرة، لا تزال منارة تعمل منذ عام 1906 ترشد السفن نحو كوناكري. نزهة أكثر هدوءًا من رووم أو كاسا، تجمع بين الذاكرة الاستعمارية وقرية الصيادين والشواطئ الصغيرة.",
+      tips: "العبور أطول منه إلى كاسا: انطلق مبكرًا على قارب مجهّز بسترات نجاة وفي بحر هادئ. بقايا السجن غير مهيأة للزوار: اصطحب أحد أبناء القرية واستأذن السكان قبل التصوير.",
+      bestPeriod: "من نوفمبر إلى أبريل (موسم الجفاف، بحر أهدأ)",
+    },
+    "dame-de-mali": {
+      name: "سيدة مالي (جبل لورا)",
+      summary: "صخرة على هيئة وجه امرأة جانبيًا فوق جبل لورا، أعلى قمة في فوتا جالون، قرب مدينة مالي.",
+      description:
+        "على بعد نحو 120 كيلومترًا شمال لابي، قرب مدينة مالي (مركز محافظة، ولا ينبغي الخلط بينها وبين البلد المجاور)، يرتفع جبل لورا إلى 1515 مترًا، وهو أعلى نقطة في فوتا جالون. وعلى أحد منحدراته الصخرية نحتت التعرية صخرة توحي بوجه امرأة من الجانب: «سيدة مالي» التي تُروى حولها أساطير كثيرة. ومن الهضبة يمتد النظر فوق الجروف والأودية المكسوة بالغابات. وتضم المحافظة المعزولة مواقع طبيعية أخرى كثيرة.",
+      tips: "طريق طويل ومسلك وعر من لابي: خطّط لسيارة رباعية الدفع وسائق متمرس ويوم كامل، بل وليلة في المكان. حافة الجروف غير محمية؛ اصطحب مرشدًا محليًا.",
+      bestPeriod: "من نوفمبر إلى فبراير (موسم الجفاف وهواء أبرد؛ قد تحجب رياح الهرمتان الرؤية)",
+    },
+    "musee-fortin-boke": {
+      name: "متحف بوكي الإقليمي (الحصن)",
+      summary: "حصن استعماري يعود إلى 1878 سُجن فيه ألفا يايا ودينا ساليفو، وأصبح متحفًا إقليميًا.",
+      description:
+        "بُني حصن بوكي عام 1878 مطلًا على نهر ريو نونيز، وكان مركزًا للإدارة الاستعمارية الفرنسية. وسُجن فيه ملكان قاوما الاستعمار: الإمام ألفا يايا ديالو ملك لابي، ودينا ساليفو كامارا ملك النالو. حُوّل إلى متحف عام 1971 ثم رُمّم في مطلع الثمانينيات، ويعرض قطعًا من مختلف شعوب المنطقة، منها أقنعة، إضافة إلى آثار الحقبة الاستعمارية مثل قاعاته تحت الأرض.",
+      tips: "استعلم في المكان عن القاعات المفتوحة؛ فالجولة المصحوبة بموظفي المتحف تساعد على فهم تاريخ الموقع.",
+    },
+    "grande-mosquee-kankan": {
+      name: "المسجد الكبير في كانكان",
+      summary: "مسجد واسع بمآذن مغرّة تعلوها قباب خضراء، في قلب الحياة الدينية للمدينة.",
+      description:
+        "بمآذنه المربعة التي تعلوها قباب خضراء، يهيمن المسجد الكبير على وسط كانكان، المدينة المعروفة منذ القرن الثامن عشر بعلمائها المسلمين. ويجمع المصلين لصلاة الجمعة وفي الأعياد الدينية الكبرى، حين تفيض الساحة بالناس. وتجعل عمارته بألوان المغرة والأخضر الفاتح منه معلمًا من معالم المدينة.",
+      tips: "البس لباسًا ساترًا (الكتفان والساقان، وغطاء رأس للنساء)؛ لا تزره أثناء الصلاة واستأذن قبل الدخول أو التصوير.",
+    },
+    "berges-du-milo-kankan": {
+      name: "ضفاف نهر ميلو",
+      summary: "نهر كانكان وزوارقه وكثبانه الرملية، يُستكشف في آخر النهار.",
+      description:
+        "يحاذي نهر ميلو، أحد روافد النيجر، مدينة كانكان. وعلى ضفافه ينشط أصحاب الزوارق والصيادون ومستخرجو الرمل، ويأتي الناس في آخر النهار لمشاهدة حياة النهر. كانت المدينة طويلًا ميناءً نهريًا، ومنذ عام 1914 محطة نهاية سكة الحديد القادمة من كوناكري، التي توقفت حركتها منذ تسعينيات القرن العشرين.",
+      tips: "تجنّب السباحة في المياه العذبة (تيارات وخطر البلهارسيا)، واستأذن قبل تصوير العاملين.",
+      bestPeriod: "موسم الجفاف، في آخر بعد الظهر",
     },
   },
   circuits: {

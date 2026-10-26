@@ -88,6 +88,30 @@ const ES: SeedI18n = {
       description:
         "En la orilla izquierda del Níger, Gao fue la capital del Imperio songhai, que dominó gran parte de África Occidental en los siglos XV y XVI. Conserva la tumba de los Askia, pirámide de tierra inscrita en el Patrimonio Mundial de la UNESCO en 2004 y en la lista del patrimonio en peligro desde 2012. Frente a la ciudad, la duna rosa se refleja en el río. Zona formalmente desaconsejada.",
     },
+    mopti: {
+      region: "Mopti",
+      summary: "La «Venecia de Malí», puerto fluvial en la confluencia del Níger y el Bani.",
+      description:
+        "Construida en la orilla derecha del Bani, muy cerca de su confluencia con el Níger, Mopti recibe el apodo de «Venecia de Malí»: durante la crecida, aproximadamente de agosto a diciembre, la ciudad se convierte en un conjunto de islotes unidos por diques. Simple aldea de pescadores bozo convertida en gran encrucijada comercial en la época colonial, reúne a bozo, peul, bambara, dogón y songhai en torno a su puerto, sus astilleros de piraguas y su gran mezquita de banco. Era la puerta de entrada a Djenné y al país dogón. Región formalmente desaconsejada en la actualidad.",
+    },
+    kayes: {
+      region: "Kayes",
+      summary: "Antigua capital colonial a orillas del río Senegal, puerta del fuerte de Médine y de las cataratas.",
+      description:
+        "En el oeste del país, a orillas del río Senegal, Kayes fue a finales del siglo XIX la capital de la colonia del Sudán francés, antes del traslado de la capital a Bamako a principios del siglo XX. Es el punto de partida hacia el fuerte de Médine, testigo de los inicios de la colonización, y hacia las cataratas de Félou y Gouina, donde el río salva umbrales rocosos. Como el resto del país, la región está formalmente desaconsejada en la actualidad.",
+    },
+    sikasso: {
+      region: "Sikasso",
+      summary: "Capital del reino de Kénédougou, en el corazón del sur verde.",
+      description:
+        "En el sur del país, más lluvioso y más verde, Sikasso fue la capital del reino de Kénédougou. Sus reyes Tiéba y luego Babemba Traoré la rodearon de una poderosa muralla, el tata, que resistió el asedio de Samory Touré antes de la toma de la ciudad por las tropas coloniales francesas en 1898. Hoy una de las ciudades más pobladas del país, es también un gran mercado agrícola de frutas y verduras. Como el resto del país, la región está formalmente desaconsejada en la actualidad.",
+    },
+    hombori: {
+      region: "Douentza",
+      summary: "Mesetas y agujas de arenisca sobre la llanura del Gourma, con el punto más alto de Malí.",
+      description:
+        "En la carretera entre Mopti y Gao, el pueblo de Hombori, de casas de piedra y callejuelas estrechas, está dominado por los montes Hombori, prolongación del acantilado de Bandiagara. El Hombori Tondo alcanza allí unos 1155 metros, el punto más alto del país, y relieves cercanos como la Mano de Fátima o las agujas de Gami atraían a escaladores. La región del Gourma alberga además elefantes, de los últimos del Sahel. Zona formalmente desaconsejada en la actualidad.",
+    },
   },
   places: {
     "musee-national-du-mali": {
@@ -225,6 +249,113 @@ const ES: SeedI18n = {
         "En la orilla derecha del río, frente a Gao, una gran duna de arena adquiere tonos rosados al amanecer y al atardecer. Desde lo alto, la vista abarca el Níger y la ciudad. Un paseo tradicional para los habitantes de Gao.",
       tips: `${AV_ES} La región de Gao está formalmente desaconsejada.`,
     },
+    "cathedrale-sacre-coeur-bamako": {
+      name: "Catedral del Sagrado Corazón de Bamako",
+      summary: "Catedral católica del centro de la ciudad, terminada en 1936.",
+      description:
+        "En el corazón de Bamako, la catedral del Sagrado Corazón es la sede de la archidiócesis de Bamako. Su primera piedra se colocó en 1925; abierta al culto dos años después, se terminó en 1936 y fue hasta 1957 el único lugar de culto católico oficial de la ciudad. Figura desde 2017 en la lista indicativa de Malí para el Patrimonio Mundial de la UNESCO, testigo de la presencia cristiana en un país mayoritariamente musulmán.",
+      tips: `${AV_ES} Lugar de culto: vestimenta adecuada y discreción durante los oficios.`,
+    },
+    "kamablon-kangaba": {
+      name: "Choza sagrada de Kangaba (Kamablon)",
+      summary: "Choza sagrada del Manden, cuyo techo de paja se renueva cada siete años.",
+      description:
+        "En Kangaba, al suroeste de Bamako, el Kamablon («vestíbulo de la palabra») es una choza redonda de banco cubierta de paja, levantada según la tradición en 1653 y considerada la última de este tipo en el área cultural del Manden, cuna del Imperio de Malí. Cada siete años, la renovación de su techo da lugar a una ceremonia de varios días dirigida por los Keita, descendientes de Sundiata, y los griots Diabaté, que recitan allí la historia del Manden; este ritual figura desde 2009 en el Patrimonio Cultural Inmaterial de la UNESCO. Los sitios históricos del Manden también están en la lista indicativa de Malí.",
+      tips: `${AV_ES} Lugar sagrado: solo se puede acercar con el permiso de las autoridades tradicionales y según sus normas.`,
+    },
+    "sangha-pays-dogon": {
+      name: "Sangha",
+      summary: "Localidad al borde de la meseta, considerada la capital cultural del país dogón.",
+      description:
+        "Al borde de la meseta de Bandiagara, Sangha agrupa una decena de aldeas cercanas, entre ellas Ogol de Arriba y Ogol de Abajo, y se considera la capital cultural del país dogón. El etnólogo Marcel Griaule realizó allí sus investigaciones en los años treinta, y el cineasta Souleymane Cissé rodó allí parte de su película Yeelen. Desde Sangha, unos senderos bajaban por el acantilado hacia aldeas como Ireli, Banani o Tireli.",
+      tips: `${AV_ES} La región sufre violencia armada: no viaje allí mientras las fuentes oficiales lo desaconsejen.`,
+    },
+    "mosquee-sidi-yahia": {
+      name: "Mezquita de Sidi Yahia",
+      summary: "Mezquita del siglo XV, la tercera de las grandes mezquitas de Tombuctú.",
+      description:
+        "Iniciada hacia 1400 y terminada hacia 1440, la mezquita de Sidi Yahia lleva el nombre de su primer imán, Sidi Yahia al-Tadelsi, venerado como santo y enterrado en el edificio. Junto con Djingareyber y Sankoré, forma el conjunto de grandes mezquitas que dieron fama intelectual a la ciudad, inscritas en el Patrimonio Mundial. Muy remodelada en 1939, fue dañada por grupos armados en julio de 2012 y restaurada después bajo la dirección de la UNESCO.",
+      tips: `${AV_ES} La región de Tombuctú está formalmente desaconsejada.`,
+    },
+    "mosquee-komoguel-mopti": {
+      name: "Gran Mezquita de Mopti (Komoguel)",
+      summary: "Mezquita de banco de estilo sudanés de los años treinta, restaurada con técnicas tradicionales.",
+      description:
+        "Inspirada en la Gran Mezquita de Djenné, la mezquita del barrio de Komoguel se construyó en banco en los años treinta, en el lugar de una mezquita de 1908. Recubierta de cemento en 1978 y de nuevo en 2003, se deterioraba; una restauración realizada de 2004 a 2006 con el Aga Khan Trust for Culture le devolvió su revoque de tierra y sus técnicas tradicionales. Protegida como patrimonio nacional desde 2005, figura en la lista indicativa de Malí para el Patrimonio Mundial de la UNESCO.",
+      tips: `${AV_ES} El interior está reservado a los fieles: contemple la mezquita desde fuera y respete las horas de oración.`,
+    },
+    "port-de-mopti": {
+      name: "Puerto de Mopti",
+      summary: "Animado puerto fluvial donde atracan pinasses y piraguas.",
+      description:
+        "A orillas del Bani, el puerto es el corazón de Mopti: pinasses (grandes barcas fluviales) cargadas de mercancías y pasajeros, piraguas de pescadores bozo, astilleros donde se construyen las embarcaciones a mano. Las placas de sal llegadas de Taoudeni por el río se desembarcaban y se vendían aquí al por menor. Un espectáculo permanente junto al agua, sobre todo al final del día.",
+      tips: `${AV_ES} Pida permiso antes de fotografiar a las personas; mantenga sus pertenencias cerca entre la multitud.`,
+    },
+    hamdallahi: {
+      name: "Hamdallahi",
+      summary: "Vestigios de la capital del imperio peul de Macina, fundada en 1818.",
+      description:
+        "A unos cuarenta kilómetros al sur de Mopti, Hamdallahi («alabado sea Dios») fue fundada en 1818 por Sékou Amadou como capital del imperio peul de Macina. La ciudad, rodeada por una muralla de más de cinco kilómetros, tenía una gran mezquita y numerosísimas escuelas coránicas. Conquistada en 1862 por El Hadj Omar Tall, quedó después en ruinas. La ciudad histórica está protegida como patrimonio nacional y figura en la lista indicativa de Malí para la UNESCO; el mausoleo de Sékou Amadou fue dañado por grupos armados durante el conflicto.",
+      tips: `${AV_ES} El centro de Malí sufre violencia armada.`,
+    },
+    "fort-de-medine": {
+      name: "Fuerte de Médine",
+      summary: "Fuerte colonial de 1855, asediado 97 días en 1857 por El Hadj Omar Tall.",
+      description:
+        "A unos doce kilómetros de Kayes, en la orilla izquierda del Senegal, Médine fue la capital del reino de Khasso. En 1855, el gobernador Faidherbe hizo construir allí un fuerte con el acuerdo del rey Diouka Sambala; en 1857, El Hadj Omar Tall lo asedió durante 97 días, hasta la llegada de las tropas francesas. Médine se convirtió después en cabecera de círculo antes de quedar eclipsada por Kayes. El fuerte figura en la lista indicativa de Malí para el Patrimonio Mundial de la UNESCO.",
+      tips: `${AV_ES} Los muros son frágiles: no se suba a las ruinas.`,
+    },
+    "chutes-du-felou": {
+      name: "Cataratas de Félou",
+      summary: "Rápidos y rocas esculpidas por el río Senegal, a 16 km de Kayes.",
+      description:
+        "A unos 16 kilómetros al sureste de Kayes, el río Senegal, de más de un kilómetro de ancho aguas arriba, se estrecha y desciende unos 14 metros entre un caos de rocas pulidas por el agua. El caudal varía enormemente: unos pocos metros cúbicos por segundo al final de la estación seca, varios miles en el punto álgido de la crecida, en octubre. Una central hidroeléctrica se encuentra junto a un canal de derivación.",
+      tips: `${AV_ES} No se bañe cerca de los rápidos: la corriente es peligrosa, sobre todo en crecida.`,
+      bestPeriod: "De septiembre a noviembre, cuando el río está alto",
+    },
+    "chutes-de-gouina": {
+      name: "Cataratas de Gouina",
+      summary: "Amplia cortina de agua del río Senegal, a 80 km de Kayes.",
+      description:
+        "A unos 80 kilómetros al sureste de Kayes, en dirección a Bafoulabé, el río Senegal, de varios cientos de metros de ancho, cae más de quince metros en una amplia cortina de agua. La Organización para el Aprovechamiento del Río Senegal (OMVS) inició allí a finales de 2013 la construcción de una presa hidroeléctrica, que modifica el lugar.",
+      tips: `${AV_ES} El lugar está aislado: infórmese sobre el estado de la pista y el acceso a las obras de la presa.`,
+      bestPeriod: "De septiembre a noviembre, cuando el río está alto",
+    },
+    "mamelon-de-sikasso": {
+      name: "Mamelon de Sikasso",
+      summary: "Colina artificial de los reyes de Kénédougou, en el centro de la ciudad.",
+      description:
+        "En el corazón de Sikasso, el Mamelon es una colina artificial de unos treinta metros de altura, levantada en la década de 1880 por el rey Tiéba Traoré como sede de los soberanos de Kénédougou. En la cima se alza la réplica de un edificio fortificado de dos plantas que servía de lugar de trabajo y de tribunal tradicional, destruido durante la toma de la ciudad por los franceses. Desde lo alto, la vista abarca toda la ciudad.",
+      tips: `${AV_ES} Lleve buen calzado para la subida.`,
+    },
+    "tata-de-sikasso": {
+      name: "Tata de Sikasso",
+      summary: "Vestigios de las murallas de tierra del reino de Kénédougou (finales del siglo XIX).",
+      description:
+        "Construido entre 1877 y 1897 bajo los reinados de Tiéba y luego de Babemba Traoré para resistir los ataques de Samory Touré, el tata de Sikasso contaba en su apogeo con tres recintos, entre ellos una muralla exterior de unos 9 kilómetros, de 6 metros de grosor en la base y de 4 a 6 metros de altura. Quedan lienzos de muralla en varios barrios de la ciudad, como Mancourani, Médine o Wayerma. El tata figura en la lista indicativa de Malí para el Patrimonio Mundial de la UNESCO.",
+      tips: `${AV_ES} Los vestigios están dispersos por la ciudad: un guía local ayuda a encontrarlos.`,
+    },
+    "grottes-de-missirikoro": {
+      name: "Cuevas de Missirikoro",
+      summary: "Roca horadada de cuevas, a la vez mezquita y lugar de culto tradicional.",
+      description:
+        "A unos diez kilómetros al suroeste de Sikasso, cerca de la aldea del mismo nombre, Missirikoro es un montículo de arenisca de unos 80 metros de altura horadado por cuevas. El lugar es a la vez una mezquita y un lugar de culto animista, de ahí su nombre, que significa «vieja mezquita» en bambara. Las cuevas albergan varias especies de murciélagos.",
+      tips: `${AV_ES} Lugar de culto: vestimenta adecuada; pida permiso antes de entrar o hacer fotos.`,
+    },
+    "hombori-tondo": {
+      name: "Hombori Tondo",
+      summary: "Meseta de arenisca de paredes verticales, punto más alto de Malí.",
+      description:
+        "Con unos 1155 metros de altura, esta meseta de arenisca de acantilados abruptos domina el pueblo de Hombori y la llanura del Gourma: es el punto más alto de Malí. Los montes Hombori son también un sitio arqueológico, donde varias cuevas habrían estado habitadas hace unos dos mil años.",
+      tips: `${AV_ES} Zona formalmente desaconsejada: no viaje allí mientras las fuentes oficiales lo desaconsejen.`,
+    },
+    "main-de-fatma-hombori": {
+      name: "Mano de Fátima",
+      summary: "Picos de arenisca que se alzan sobre la llanura como los dedos de una mano.",
+      description:
+        "Cerca de Hombori, junto a la carretera nacional hacia Gao, un macizo de arenisca se divide en varios picos que evocan los dedos de una mano: es la «Mano de Fátima». Visible desde muy lejos en la llanura del Gourma, este relieve espectacular fue uno de los grandes lugares de escalada de África Occidental y sigue siendo una de las imágenes emblemáticas del Sahel maliense.",
+      tips: `${AV_ES} Zona formalmente desaconsejada: no viaje allí mientras las fuentes oficiales lo desaconsejen.`,
+    },
   },
   circuits: {},
   stepNotes: {},
@@ -304,6 +435,30 @@ const PT: SeedI18n = {
       summary: "Antiga capital do Império Songai, na curva do Níger.",
       description:
         "Na margem esquerda do Níger, Gao foi a capital do Império Songai, que dominou grande parte da África Ocidental nos séculos XV e XVI. Conserva o túmulo dos Askia, pirâmide de terra inscrita no Património Mundial da UNESCO em 2004 e na lista do património em perigo desde 2012. Em frente à cidade, a duna rosa reflete-se no rio. Zona formalmente desaconselhada.",
+    },
+    mopti: {
+      region: "Mopti",
+      summary: "A «Veneza do Mali», porto fluvial na confluência do Níger com o Bani.",
+      description:
+        "Construída na margem direita do Bani, muito perto da sua confluência com o Níger, Mopti é conhecida como a «Veneza do Mali»: durante a cheia, aproximadamente de agosto a dezembro, a cidade transforma-se num conjunto de ilhéus ligados por diques. Simples aldeia de pescadores bozo que se tornou um grande entreposto comercial na época colonial, reúne bozo, fulas, bambaras, dogons e songhai em torno do seu porto, dos seus estaleiros de pirogas e da sua grande mesquita de banco. Era a porta de entrada para Djenné e para o país dogon. Região formalmente desaconselhada atualmente.",
+    },
+    kayes: {
+      region: "Kayes",
+      summary: "Antiga capital colonial junto ao rio Senegal, porta do forte de Médine e das cataratas.",
+      description:
+        "No oeste do país, junto ao rio Senegal, Kayes foi no final do século XIX a sede da colónia do Sudão Francês, antes da transferência da capital para Bamako no início do século XX. É o ponto de partida para o forte de Médine, testemunho dos primórdios da colonização, e para as cataratas de Félou e de Gouina, onde o rio transpõe soleiras rochosas. Tal como o resto do país, a região está atualmente formalmente desaconselhada.",
+    },
+    sikasso: {
+      region: "Sikasso",
+      summary: "Capital do reino de Kénédougou, no coração do sul verdejante.",
+      description:
+        "No sul do país, mais chuvoso e mais verde, Sikasso foi a capital do reino de Kénédougou. Os seus reis Tiéba e depois Babemba Traoré cercaram-na com uma poderosa muralha, o tata, que resistiu ao cerco de Samory Touré antes da tomada da cidade pelas tropas coloniais francesas em 1898. Hoje uma das cidades mais populosas do país, é também um grande mercado agrícola de fruta e legumes. Tal como o resto do país, a região está atualmente formalmente desaconselhada.",
+    },
+    hombori: {
+      region: "Douentza",
+      summary: "Mesetas e agulhas de arenito sobre a planície do Gourma, com o ponto mais alto do Mali.",
+      description:
+        "Na estrada entre Mopti e Gao, a localidade de Hombori, de casas de pedra e ruelas estreitas, é dominada pelos montes Hombori, prolongamento da falésia de Bandiagara. O Hombori Tondo atinge ali cerca de 1155 metros, o ponto mais alto do país, e relevos vizinhos como a Mão de Fátima ou as agulhas de Gami atraíam escaladores. A região do Gourma abriga ainda elefantes, dos últimos do Sahel. Zona formalmente desaconselhada atualmente.",
     },
   },
   places: {
@@ -442,6 +597,113 @@ const PT: SeedI18n = {
         "Na margem direita do rio, em frente a Gao, uma grande duna de areia ganha tons rosados ao nascer e ao pôr do sol. Do cimo, a vista abrange o Níger e a cidade. Um passeio tradicional para os habitantes de Gao.",
       tips: `${AV_PT} A região de Gao está formalmente desaconselhada.`,
     },
+    "cathedrale-sacre-coeur-bamako": {
+      name: "Catedral do Sagrado Coração de Bamako",
+      summary: "Catedral católica do centro da cidade, concluída em 1936.",
+      description:
+        "No coração de Bamako, a catedral do Sagrado Coração é a sede da arquidiocese de Bamako. A primeira pedra foi lançada em 1925; aberta ao culto dois anos depois, foi concluída em 1936 e foi até 1957 o único local de culto católico oficial da cidade. Figura desde 2017 na lista indicativa do Mali para o Património Mundial da UNESCO, testemunho da presença cristã num país maioritariamente muçulmano.",
+      tips: `${AV_PT} Local de culto: vestuário adequado e discrição durante as celebrações.`,
+    },
+    "kamablon-kangaba": {
+      name: "Cabana sagrada de Kangaba (Kamablon)",
+      summary: "Cabana sagrada do Manden, cujo telhado de colmo é refeito de sete em sete anos.",
+      description:
+        "Em Kangaba, a sudoeste de Bamako, o Kamablon («vestíbulo da palavra») é uma cabana redonda de banco coberta de colmo, erguida segundo a tradição em 1653 e considerada a última do seu tipo na área cultural do Manden, berço do Império do Mali. De sete em sete anos, a renovação do telhado dá lugar a uma cerimónia de vários dias conduzida pelos Keita, descendentes de Sundiata, e pelos griots Diabaté, que aí recitam a história do Manden; este ritual figura desde 2009 no Património Cultural Imaterial da UNESCO. Os sítios históricos do Manden constam também da lista indicativa do Mali.",
+      tips: `${AV_PT} Local sagrado: só se pode aproximar com o acordo das autoridades tradicionais e segundo as suas regras.`,
+    },
+    "sangha-pays-dogon": {
+      name: "Sangha",
+      summary: "Localidade à beira do planalto, considerada a capital cultural do país dogon.",
+      description:
+        "À beira do planalto de Bandiagara, Sangha agrupa uma dezena de aldeias próximas, entre as quais Ogol de Cima e Ogol de Baixo, e é considerada a capital cultural do país dogon. O etnólogo Marcel Griaule realizou ali as suas pesquisas nos anos 1930 e o cineasta Souleymane Cissé filmou ali parte do seu filme Yeelen. A partir de Sangha, trilhos desciam a falésia em direção a aldeias como Ireli, Banani ou Tireli.",
+      tips: `${AV_PT} A região é afetada pela violência armada: não vá enquanto as fontes oficiais o desaconselharem.`,
+    },
+    "mosquee-sidi-yahia": {
+      name: "Mesquita de Sidi Yahia",
+      summary: "Mesquita do século XV, a terceira das grandes mesquitas de Tombuctu.",
+      description:
+        "Iniciada por volta de 1400 e concluída por volta de 1440, a mesquita de Sidi Yahia tem o nome do seu primeiro imã, Sidi Yahia al-Tadelsi, venerado como santo e sepultado no edifício. Com Djingareyber e Sankoré, forma o conjunto das grandes mesquitas que fizeram a fama intelectual da cidade, inscritas no Património Mundial. Muito remodelada em 1939, foi danificada por grupos armados em julho de 2012 e depois restaurada sob a direção da UNESCO.",
+      tips: `${AV_PT} A região de Tombuctu está formalmente desaconselhada.`,
+    },
+    "mosquee-komoguel-mopti": {
+      name: "Grande Mesquita de Mopti (Komoguel)",
+      summary: "Mesquita de banco de estilo sudanês dos anos 1930, restaurada com técnicas tradicionais.",
+      description:
+        "Inspirada na Grande Mesquita de Djenné, a mesquita do bairro de Komoguel foi construída em banco nos anos 1930, no local de uma mesquita de 1908. Revestida de cimento em 1978 e novamente em 2003, estava a degradar-se; um restauro realizado de 2004 a 2006 com o Aga Khan Trust for Culture devolveu-lhe o reboco de terra e as técnicas tradicionais. Classificada como património nacional desde 2005, figura na lista indicativa do Mali para o Património Mundial da UNESCO.",
+      tips: `${AV_PT} O interior está reservado aos fiéis: observe a mesquita do exterior e respeite as horas de oração.`,
+    },
+    "port-de-mopti": {
+      name: "Porto de Mopti",
+      summary: "Porto fluvial animado, onde atracam pinasses e pirogas.",
+      description:
+        "Junto ao Bani, o porto é o coração de Mopti: pinasses (grandes barcos fluviais) carregadas de mercadorias e passageiros, pirogas de pescadores bozo, estaleiros onde as embarcações são construídas à mão. As placas de sal vindas de Taoudeni pelo rio eram aqui desembarcadas e vendidas a retalho. Um espetáculo permanente à beira da água, sobretudo ao fim do dia.",
+      tips: `${AV_PT} Peça autorização antes de fotografar as pessoas; mantenha os seus pertences perto de si no meio da multidão.`,
+    },
+    hamdallahi: {
+      name: "Hamdallahi",
+      summary: "Vestígios da capital do império fula de Macina, fundada em 1818.",
+      description:
+        "A cerca de quarenta quilómetros a sul de Mopti, Hamdallahi («louvado seja Deus») foi fundada em 1818 por Sékou Amadou para ser a capital do império fula de Macina. A cidade, cercada por uma muralha com mais de cinco quilómetros, tinha uma grande mesquita e muitíssimas escolas corânicas. Conquistada em 1862 por El Hadj Omar Tall, ficou depois em ruínas. A cidade histórica está classificada como património nacional e figura na lista indicativa do Mali para a UNESCO; o mausoléu de Sékou Amadou foi danificado por grupos armados durante o conflito.",
+      tips: `${AV_PT} O centro do Mali é afetado pela violência armada.`,
+    },
+    "fort-de-medine": {
+      name: "Forte de Médine",
+      summary: "Forte colonial de 1855, cercado durante 97 dias em 1857 por El Hadj Omar Tall.",
+      description:
+        "A cerca de doze quilómetros de Kayes, na margem esquerda do Senegal, Médine foi a capital do reino de Khasso. Em 1855, o governador Faidherbe mandou construir ali um forte com o acordo do rei Diouka Sambala; em 1857, El Hadj Omar Tall cercou-o durante 97 dias, até à chegada das tropas francesas. Médine tornou-se depois sede de círculo antes de ser ofuscada por Kayes. O forte figura na lista indicativa do Mali para o Património Mundial da UNESCO.",
+      tips: `${AV_PT} As paredes são frágeis: não suba às ruínas.`,
+    },
+    "chutes-du-felou": {
+      name: "Cataratas de Félou",
+      summary: "Rápidos e rochas esculpidas pelo rio Senegal, a 16 km de Kayes.",
+      description:
+        "A cerca de 16 quilómetros a sudeste de Kayes, o rio Senegal, com mais de um quilómetro de largura a montante, estreita-se e desce cerca de 14 metros por entre um caos de rochas polidas pela água. O caudal varia enormemente: alguns metros cúbicos por segundo no fim da estação seca, vários milhares no auge da cheia, em outubro. Uma central hidroelétrica está instalada junto a um canal de derivação.",
+      tips: `${AV_PT} Não tome banho perto dos rápidos: a corrente é perigosa, sobretudo na cheia.`,
+      bestPeriod: "De setembro a novembro, quando o rio está cheio",
+    },
+    "chutes-de-gouina": {
+      name: "Cataratas de Gouina",
+      summary: "Larga cortina de água do rio Senegal, a 80 km de Kayes.",
+      description:
+        "A cerca de 80 quilómetros a sudeste de Kayes, em direção a Bafoulabé, o rio Senegal, com várias centenas de metros de largura, cai mais de quinze metros numa larga cortina de água. A Organização para a Valorização do Rio Senegal (OMVS) iniciou ali, no final de 2013, a construção de uma barragem hidroelétrica, que altera o local.",
+      tips: `${AV_PT} O local é isolado: informe-se sobre o estado da pista e o acesso às obras da barragem.`,
+      bestPeriod: "De setembro a novembro, quando o rio está cheio",
+    },
+    "mamelon-de-sikasso": {
+      name: "Mamelon de Sikasso",
+      summary: "Colina artificial dos reis do Kénédougou, no centro da cidade.",
+      description:
+        "No coração de Sikasso, o Mamelon é uma colina artificial com cerca de trinta metros de altura, erguida na década de 1880 pelo rei Tiéba Traoré para sede dos soberanos do Kénédougou. No topo ergue-se a réplica de um edifício fortificado de dois pisos que servia de local de trabalho e de tribunal tradicional, destruído aquando da tomada da cidade pelos franceses. Lá de cima, a vista abrange toda a cidade.",
+      tips: `${AV_PT} Use calçado adequado para a subida.`,
+    },
+    "tata-de-sikasso": {
+      name: "Tata de Sikasso",
+      summary: "Vestígios das muralhas de terra do reino do Kénédougou (final do século XIX).",
+      description:
+        "Construído entre 1877 e 1897 nos reinados de Tiéba e depois de Babemba Traoré para resistir aos ataques de Samory Touré, o tata de Sikasso tinha no seu apogeu três recintos, entre os quais uma muralha exterior com cerca de 9 quilómetros, 6 metros de espessura na base e 4 a 6 metros de altura. Subsistem panos de muralha em vários bairros da cidade, como Mancourani, Médine ou Wayerma. O tata figura na lista indicativa do Mali para o Património Mundial da UNESCO.",
+      tips: `${AV_PT} Os vestígios estão dispersos pela cidade: um guia local ajuda a encontrá-los.`,
+    },
+    "grottes-de-missirikoro": {
+      name: "Grutas de Missirikoro",
+      summary: "Rochedo escavado de grutas, ao mesmo tempo mesquita e local de culto tradicional.",
+      description:
+        "A cerca de dez quilómetros a sudoeste de Sikasso, perto da aldeia do mesmo nome, Missirikoro é um monte de arenito com cerca de 80 metros de altura escavado de grutas. O local é ao mesmo tempo uma mesquita e um local de culto animista, daí o seu nome, que significa «velha mesquita» em bambara. As grutas abrigam várias espécies de morcegos.",
+      tips: `${AV_PT} Local de culto: vestuário adequado; peça autorização antes de entrar ou fotografar.`,
+    },
+    "hombori-tondo": {
+      name: "Hombori Tondo",
+      summary: "Meseta de arenito de paredes verticais, ponto mais alto do Mali.",
+      description:
+        "Com cerca de 1155 metros de altitude, esta meseta de arenito de falésias abruptas domina a localidade de Hombori e a planície do Gourma: é o ponto mais alto do Mali. Os montes Hombori são também um sítio arqueológico, onde várias grutas terão sido habitadas há cerca de dois mil anos.",
+      tips: `${AV_PT} Zona formalmente desaconselhada: não vá enquanto as fontes oficiais o desaconselharem.`,
+    },
+    "main-de-fatma-hombori": {
+      name: "Mão de Fátima",
+      summary: "Picos de arenito erguidos sobre a planície como os dedos de uma mão.",
+      description:
+        "Perto de Hombori, junto à estrada nacional para Gao, um maciço de arenito recorta-se em vários picos que lembram os dedos de uma mão: é a «Mão de Fátima». Visível de muito longe na planície do Gourma, este relevo espetacular foi um dos grandes locais de escalada da África Ocidental e continua a ser uma das imagens emblemáticas do Sahel maliano.",
+      tips: `${AV_PT} Zona formalmente desaconselhada: não vá enquanto as fontes oficiais o desaconselharem.`,
+    },
   },
   circuits: {},
   stepNotes: {},
@@ -528,6 +790,34 @@ const AR: SeedI18n = {
       summary: "العاصمة السابقة لإمبراطورية السونغاي، عند منعطف النيجر.",
       description:
         "على الضفة اليسرى للنيجر، كانت غاو عاصمة إمبراطورية السونغاي التي هيمنت على جزء كبير من غرب أفريقيا في القرنين الخامس عشر والسادس عشر. وتحتفظ بضريح الأساكي، الهرم الطيني المدرج على قائمة التراث العالمي لليونسكو عام 2004 وعلى قائمة التراث المعرّض للخطر منذ 2012. وقبالة المدينة، ينعكس الكثيب الوردي على صفحة النهر. منطقة يُنصح بشكل قاطع بعدم التوجه إليها.",
+    },
+    mopti: {
+      name: "موبتي",
+      region: "موبتي",
+      summary: "«بندقية مالي»، ميناء نهري عند ملتقى نهري النيجر وباني.",
+      description:
+        "بُنيت موبتي على الضفة اليمنى لنهر باني، قرب ملتقاه بنهر النيجر، وتُلقَّب بـ«بندقية مالي»: ففي موسم الفيضان، من أغسطس إلى ديسمبر تقريبًا، تتحول المدينة إلى مجموعة من الجزر الصغيرة تربط بينها السدود. كانت قرية بسيطة لصيادي البوزو ثم أصبحت ملتقى تجاريًا كبيرًا في الحقبة الاستعمارية، وتجمع البوزو والفولاني والبامبارا والدوغون والسونغاي حول مينائها وورش صناعة الزوارق ومسجدها الكبير المبني من الطين. وكانت بوابة الوصول إلى جينيه وبلاد الدوغون. المنطقة غير مُستحسن السفر إليها إطلاقًا حاليًا.",
+    },
+    kayes: {
+      name: "كاي",
+      region: "كاي",
+      summary: "عاصمة استعمارية سابقة على نهر السنغال، وبوابة حصن مدينة والشلالات.",
+      description:
+        "في غرب البلاد، على نهر السنغال، كانت كاي في أواخر القرن التاسع عشر مقرّ مستعمرة السودان الفرنسي، قبل نقل العاصمة إلى باماكو في أوائل القرن العشرين. وهي نقطة الانطلاق نحو حصن مدينة، الشاهد على بدايات الاستعمار، ونحو شلالات فيلو وغوينا حيث يجتاز النهر عتبات صخرية. وكسائر البلاد، يُنصح حاليًا بشكل قاطع بعدم السفر إلى المنطقة.",
+    },
+    sikasso: {
+      name: "سيكاسو",
+      region: "سيكاسو",
+      summary: "عاصمة مملكة كينيدوغو، في قلب الجنوب الأخضر.",
+      description:
+        "في جنوب البلاد الأكثر مطرًا وخضرة، كانت سيكاسو عاصمة مملكة كينيدوغو. أحاطها ملكاها تييبا ثم بابيمبا تراوري بسور منيع يُعرف بالتاتا، صمد أمام حصار ساموري توري قبل أن تستولي القوات الاستعمارية الفرنسية على المدينة عام 1898. وهي اليوم من أكثر مدن البلاد سكانًا، وسوق زراعية كبيرة للفواكه والخضروات. وكسائر البلاد، يُنصح حاليًا بشكل قاطع بعدم السفر إلى المنطقة.",
+    },
+    hombori: {
+      name: "هومبوري",
+      region: "دوينتزا",
+      summary: "هضاب وإبر من الحجر الرملي تطل على سهل غورما، وفيها أعلى قمة في مالي.",
+      description:
+        "على الطريق بين موبتي وغاو، تقع بلدة هومبوري ذات البيوت الحجرية والأزقة الضيقة عند سفح جبال هومبوري، امتداد جرف باندياغارا. ويبلغ ارتفاع هومبوري توندو هناك نحو 1155 مترًا، وهو أعلى نقطة في البلاد، وكانت تضاريس مجاورة مثل «يد فاطمة» وإبر غامي تجتذب متسلقي الصخور. وتأوي منطقة غورما أيضًا فيلة من آخر فيلة الساحل. المنطقة غير مُستحسن السفر إليها إطلاقًا حاليًا.",
     },
   },
   places: {
@@ -667,6 +957,113 @@ const AR: SeedI18n = {
       description:
         "على الضفة اليمنى للنهر، قبالة غاو، يكتسي كثيب رملي كبير ألوانًا وردية عند الشروق والغروب. ومن قمته، يمتد المشهد ليشمل النيجر والمدينة. نزهة تقليدية لسكان غاو.",
       tips: `${AV_AR} يُنصح بشكل قاطع بعدم التوجه إلى منطقة غاو.`,
+    },
+    "cathedrale-sacre-coeur-bamako": {
+      name: "كاتدرائية القلب الأقدس في باماكو",
+      summary: "كاتدرائية كاثوليكية في وسط المدينة، اكتمل بناؤها عام 1936.",
+      description:
+        "في قلب باماكو، تُعد كاتدرائية القلب الأقدس مقرّ أبرشية باماكو. وُضع حجر أساسها عام 1925، وفُتحت للعبادة بعد عامين، واكتمل بناؤها عام 1936، وظلت حتى عام 1957 مكان العبادة الكاثوليكي الرسمي الوحيد في المدينة. وهي مدرجة منذ عام 2017 على القائمة التمهيدية لمالي للتراث العالمي لليونسكو، شاهدةً على الحضور المسيحي في بلد غالبيته العظمى من المسلمين.",
+      tips: `${AV_AR} مكان عبادة: ارتدِ لباسًا لائقًا والتزم الهدوء أثناء القداديس.`,
+    },
+    "kamablon-kangaba": {
+      name: "الكوخ المقدس في كانغابا (كامابلون)",
+      summary: "الكوخ المقدس لمنطقة ماندين، يُجدَّد سقفه من القش كل سبع سنوات.",
+      description:
+        "في كانغابا، جنوب غرب باماكو، يُعد الكامابلون («دهليز الكلمة») كوخًا دائريًا من الطين مسقوفًا بالقش، شُيّد وفق الرواية التقليدية عام 1653، ويُعتبر آخر كوخ من نوعه في المجال الثقافي لماندين، مهد إمبراطورية مالي. وكل سبع سنوات، يُقام بمناسبة تجديد سقفه احتفال يدوم عدة أيام يقوده آل كيتا، أحفاد سونجاتا، ورواة الغريو من آل دياباتي الذين يتلون فيه تاريخ ماندين، وقد أُدرجت هذه الطقوس عام 2009 في قائمة التراث الثقافي غير المادي لليونسكو. كما أن المواقع التاريخية لماندين مدرجة على القائمة التمهيدية لمالي.",
+      tips: `${AV_AR} مكان مقدس: لا يُقترب منه إلا بموافقة السلطات التقليدية ووفق قواعدها.`,
+    },
+    "sangha-pays-dogon": {
+      name: "سانغا",
+      summary: "بلدة على حافة الهضبة، تُعد العاصمة الثقافية لبلاد الدوغون.",
+      description:
+        "على حافة هضبة باندياغارا، تضم سانغا نحو عشر قرى متقاربة، منها أوغول العليا وأوغول السفلى، وتُعتبر العاصمة الثقافية لبلاد الدوغون. أجرى فيها عالم الإثنولوجيا مارسيل غريول أبحاثه في ثلاثينيات القرن العشرين، وصوّر فيها المخرج سليمان سيسي جزءًا من فيلمه «يلين». ومنها كانت المسالك تنحدر على الجرف نحو قرى مثل إيريلي وباناني وتيريلي.",
+      tips: `${AV_AR} المنطقة تشهد أعمال عنف مسلح: لا تتوجه إليها ما دامت المصادر الرسمية تنصح بعدم السفر.`,
+    },
+    "mosquee-sidi-yahia": {
+      name: "مسجد سيدي يحيى",
+      summary: "مسجد من القرن الخامس عشر، ثالث المساجد الكبرى في تمبكتو.",
+      description:
+        "بدأ بناء مسجد سيدي يحيى نحو عام 1400 واكتمل نحو عام 1440، ويحمل اسم إمامه الأول سيدي يحيى التادلسي، الذي يُبجَّل وليًّا ودُفن فيه. ويشكّل مع جينغاريبر وسانكوري مجموعة المساجد الكبرى التي صنعت إشعاع المدينة العلمي، وهي مدرجة على قائمة التراث العالمي. أُعيد تشكيله إلى حد كبير عام 1939، وتضرر على أيدي جماعات مسلحة في يوليو 2012، ثم رُمِّم بإشراف اليونسكو.",
+      tips: `${AV_AR} يُنصح بشكل قاطع بعدم التوجه إلى منطقة تمبكتو.`,
+    },
+    "mosquee-komoguel-mopti": {
+      name: "المسجد الكبير في موبتي (كوموغيل)",
+      summary: "مسجد طيني على الطراز السوداني من ثلاثينيات القرن العشرين، رُمِّم بالتقنيات التقليدية.",
+      description:
+        "استُلهم مسجد حي كوموغيل من المسجد الكبير في جينيه، وبُني من الطين في ثلاثينيات القرن العشرين مكان مسجد يعود إلى عام 1908. وقد كُسي بالإسمنت عام 1978 ثم عام 2003 فأخذ يتدهور، إلى أن أعاد إليه ترميمٌ أُنجز بين 2004 و2006 بالتعاون مع صندوق الآغا خان للثقافة طلاءه الطيني ومهاراته التقليدية. وهو مصنف تراثًا وطنيًا منذ عام 2005، ومدرج على القائمة التمهيدية لمالي للتراث العالمي لليونسكو.",
+      tips: `${AV_AR} الداخل مخصص للمصلين: شاهد المسجد من الخارج واحترم أوقات الصلاة.`,
+    },
+    "port-de-mopti": {
+      name: "ميناء موبتي",
+      summary: "ميناء نهري نابض بالحياة ترسو فيه المراكب والزوارق.",
+      description:
+        "على نهر باني، يُعد الميناء القلب النابض لموبتي: مراكب «البيناس» المحمّلة بالبضائع والركاب، وزوارق صيادي البوزو، وورش تُصنع فيها المراكب يدويًا. وكانت ألواح الملح القادمة من تاوديني عبر النهر تُفرَّغ هنا وتُباع بالتجزئة. مشهد دائم على ضفة الماء، لا سيما في آخر النهار.",
+      tips: `${AV_AR} استأذن قبل تصوير الناس، وأبقِ أغراضك قريبة منك وسط الزحام.`,
+    },
+    hamdallahi: {
+      name: "حمد الله",
+      summary: "أطلال عاصمة إمبراطورية ماسينا الفولانية، التي أُسست عام 1818.",
+      description:
+        "على بُعد نحو أربعين كيلومترًا جنوب موبتي، أسس الشيخ أحمدو حمد الله عام 1818 لتكون عاصمة إمبراطورية ماسينا الفولانية. كانت المدينة محاطة بسور يزيد طوله على خمسة كيلومترات، وتضم مسجدًا كبيرًا وعددًا كبيرًا جدًا من المدارس القرآنية. استولى عليها الحاج عمر تال عام 1862، ثم آلت إلى الخراب. والمدينة التاريخية مصنفة تراثًا وطنيًا ومدرجة على القائمة التمهيدية لمالي لدى اليونسكو، وقد تضرر ضريح الشيخ أحمدو على أيدي جماعات مسلحة خلال النزاع.",
+      tips: `${AV_AR} وسط مالي يشهد أعمال عنف مسلح.`,
+    },
+    "fort-de-medine": {
+      name: "حصن مدينة",
+      summary: "حصن استعماري من عام 1855، حاصره الحاج عمر تال 97 يومًا عام 1857.",
+      description:
+        "على بُعد نحو اثني عشر كيلومترًا من كاي، على الضفة اليسرى لنهر السنغال، كانت مدينة عاصمة مملكة خاسو. وفي عام 1855 أمر الحاكم فيدرب ببناء حصن فيها بموافقة الملك ديوكا سامبالا، وفي عام 1857 حاصره الحاج عمر تال مدة 97 يومًا حتى وصول القوات الفرنسية. ثم أصبحت مدينة مركز دائرة قبل أن تطغى عليها كاي. والحصن مدرج على القائمة التمهيدية لمالي للتراث العالمي لليونسكو.",
+      tips: `${AV_AR} الجدران هشة: لا تتسلق الأطلال.`,
+    },
+    "chutes-du-felou": {
+      name: "شلالات فيلو",
+      summary: "منحدرات مائية وصخور نحتها نهر السنغال، على بُعد 16 كم من كاي.",
+      description:
+        "على بُعد نحو 16 كيلومترًا جنوب شرق كاي، يضيق نهر السنغال الذي يتجاوز عرضه كيلومترًا واحدًا عند المنبع، وينحدر نحو 14 مترًا عبر ركام من الصخور التي صقلتها المياه. ويتفاوت تدفق المياه تفاوتًا كبيرًا: بضعة أمتار مكعبة في الثانية في نهاية موسم الجفاف، وعدة آلاف في ذروة الفيضان في أكتوبر. وتقع محطة كهرومائية على ضفة قناة تحويل.",
+      tips: `${AV_AR} لا تسبح قرب المنحدرات: التيار خطير، خاصة في موسم الفيضان.`,
+      bestPeriod: "من سبتمبر إلى نوفمبر، حين يكون منسوب النهر مرتفعًا",
+    },
+    "chutes-de-gouina": {
+      name: "شلالات غوينا",
+      summary: "ستارة مائية عريضة لنهر السنغال، على بُعد 80 كم من كاي.",
+      description:
+        "على بُعد نحو 80 كيلومترًا جنوب شرق كاي، في اتجاه بافولابي، يسقط نهر السنغال الذي يبلغ عرضه عدة مئات من الأمتار من ارتفاع يزيد على خمسة عشر مترًا في ستارة مائية عريضة. وقد بدأت منظمة استثمار نهر السنغال في أواخر عام 2013 بناء سد كهرومائي هناك، مما يغيّر معالم الموقع.",
+      tips: `${AV_AR} الموقع معزول: استعلم عن حالة الطريق والوصول إلى ورشة السد.`,
+      bestPeriod: "من سبتمبر إلى نوفمبر، حين يكون منسوب النهر مرتفعًا",
+    },
+    "mamelon-de-sikasso": {
+      name: "تلة سيكاسو (مامولون)",
+      summary: "تلة اصطناعية لملوك كينيدوغو في وسط المدينة.",
+      description:
+        "في قلب سيكاسو، تُعد «المامولون» تلة اصطناعية يبلغ ارتفاعها نحو ثلاثين مترًا، أقامها الملك تييبا تراوري في ثمانينيات القرن التاسع عشر لتكون مجلس ملوك كينيدوغو. وعلى قمتها نسخة طبق الأصل من مبنى محصّن من طابقين كان مقرًا للعمل ومحكمة تقليدية، دُمّر عند استيلاء الفرنسيين على المدينة. ومن أعلاها يمتد المشهد على المدينة كلها.",
+      tips: `${AV_AR} انتعل حذاءً مناسبًا للصعود.`,
+    },
+    "tata-de-sikasso": {
+      name: "تاتا سيكاسو",
+      summary: "بقايا الأسوار الطينية لمملكة كينيدوغو (أواخر القرن التاسع عشر).",
+      description:
+        "بُني تاتا سيكاسو بين عامي 1877 و1897 في عهد تييبا ثم بابيمبا تراوري لصدّ هجمات ساموري توري، وكان يضم في أوج عزه ثلاثة أسوار، منها سور خارجي يبلغ طوله نحو 9 كيلومترات وسماكته 6 أمتار عند القاعدة وارتفاعه من 4 إلى 6 أمتار. ولا تزال أجزاء من الأسوار قائمة في عدة أحياء من المدينة، مثل مانكوراني ومدينة وواييرما. والتاتا مدرج على القائمة التمهيدية لمالي للتراث العالمي لليونسكو.",
+      tips: `${AV_AR} البقايا متفرقة في أنحاء المدينة: يساعد مرشد محلي على العثور عليها.`,
+    },
+    "grottes-de-missirikoro": {
+      name: "كهوف ميسيريكورو",
+      summary: "صخرة تتخللها كهوف، هي في آن واحد مسجد ومكان عبادة تقليدي.",
+      description:
+        "على بُعد نحو عشرة كيلومترات جنوب غرب سيكاسو، قرب القرية التي تحمل الاسم نفسه، تُعد ميسيريكورو تلة من الحجر الرملي يبلغ ارتفاعها نحو 80 مترًا وتتخللها الكهوف. والمكان مسجد ومكان عبادة إحيائي في آن واحد، ومن هنا اسمه الذي يعني «المسجد القديم» بلغة البامبارا. وتأوي الكهوف أنواعًا عدة من الخفافيش.",
+      tips: `${AV_AR} مكان عبادة: ارتدِ لباسًا لائقًا واستأذن قبل الدخول أو التصوير.`,
+    },
+    "hombori-tondo": {
+      name: "هومبوري توندو",
+      summary: "هضبة من الحجر الرملي ذات جدران عمودية، أعلى نقطة في مالي.",
+      description:
+        "يبلغ ارتفاع هذه الهضبة الرملية ذات الجروف الشاهقة نحو 1155 مترًا، وهي تطل على بلدة هومبوري وسهل غورما، وتُعد أعلى نقطة في مالي. وجبال هومبوري موقع أثري أيضًا، إذ يُرجَّح أن عدة كهوف فيها كانت مأهولة قبل نحو ألفي عام.",
+      tips: `${AV_AR} منطقة يُنصح بشكل قاطع بعدم السفر إليها: لا تتوجه إليها ما دامت المصادر الرسمية تنصح بذلك.`,
+    },
+    "main-de-fatma-hombori": {
+      name: "يد فاطمة",
+      summary: "قمم من الحجر الرملي ترتفع فوق السهل كأصابع اليد.",
+      description:
+        "قرب هومبوري، على جانب الطريق الوطني المؤدي إلى غاو، تنقسم كتلة من الحجر الرملي إلى عدة قمم تشبه أصابع اليد: إنها «يد فاطمة». وهذه التضاريس المذهلة التي تُرى من بعيد في سهل غورما كانت من أبرز مواقع تسلق الصخور في غرب أفريقيا، ولا تزال من الصور الرمزية للساحل المالي.",
+      tips: `${AV_AR} منطقة يُنصح بشكل قاطع بعدم السفر إليها: لا تتوجه إليها ما دامت المصادر الرسمية تنصح بذلك.`,
     },
   },
   circuits: {},

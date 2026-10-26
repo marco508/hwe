@@ -9,6 +9,7 @@ import { useShellParams } from "../../../lib/route-params";
 import {
   AddToTripButton,
   CATEGORY_ICON,
+  EventRow,
   PlaceTile,
   VoyageCover,
   VoyageCrumbs,
@@ -70,8 +71,8 @@ export default function PlacePage() {
               </a>
             )}
           </div>
-          {(p.coverCredit || p.destination.coverCredit) && (
-            <p className="text-xs text-ink-muted">{t("voy.photoCredit", { credit: p.coverCredit ?? p.destination.coverCredit ?? "" })}</p>
+          {(p.cover ? p.coverCredit : p.destination.coverCredit) && (
+            <p className="text-xs text-ink-muted">{t("voy.photoCredit", { credit: (p.cover ? p.coverCredit : p.destination.coverCredit) ?? "" })}</p>
           )}
         </div>
       </div>
@@ -109,6 +110,19 @@ export default function PlacePage() {
           <p className="text-xs text-ink-muted border-t border-border pt-3">{t("voy.place.indicative")}</p>
         </aside>
       </section>
+
+      {p.events.length > 0 && (
+        <section>
+          <h2 className="font-display text-2xl mb-4">{t("voy.place.events")}</h2>
+          <ul className="grid md:grid-cols-2 gap-3">
+            {p.events.map((e) => (
+              <li key={e.id} className="min-w-0">
+                <EventRow e={e} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {p.nearby.length > 0 && (
         <section>

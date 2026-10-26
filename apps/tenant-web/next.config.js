@@ -22,6 +22,7 @@ const shellRewrites = [
   { source: "/voyage/destinations/:slug", destination: "/voyage/destination" },
   { source: "/voyage/lieux/:slug", destination: "/voyage/lieu" },
   { source: "/voyage/circuits/:slug", destination: "/voyage/circuit" },
+  { source: "/voyage/fetes/:slug", destination: "/voyage/fete" },
   { source: "/voyage/mes-voyages/:id", destination: "/voyage/carnet" },
   { source: "/voyage/partage/:token", destination: "/voyage/partage" },
 ];

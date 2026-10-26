@@ -1240,6 +1240,7 @@ model Destination {
   reviewed     Boolean  @default(false)
   places       Place[]
   circuitSteps CircuitStep[]
+  events       VoyageEvent[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -1287,11 +1288,71 @@ model Place {
   reviewed      Boolean       @default(false)
   circuitSteps  CircuitStep[]
   tripItems     TripItem[]
+  events        VoyageEvent[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
   @@index([destinationId, published, position])
   @@index([category])
+}
+
+enum VoyageEventKind {
+  NATIONAL
+  RELIGIOUS
+  TRADITIONAL
+  FESTIVAL
+  SEASONAL
+}
+
+/// Fête, jour férié, festival ou temps fort saisonnier d'un pays. Les dates
+/// sont calculées chaque année à partir de `rule` (voir @hwe/types voyage-events).
+model VoyageEvent {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  country       String          @db.VarChar(2)
+  kind          VoyageEventKind
+  /// Jour férié officiel (chômé) dans le pays.
+  publicHoliday Boolean         @default(false)
+  name          String
+  summary       String          @db.Text
+  description   String          @db.Text
+  tips          String?         @db.Text
+  /// Lieu en texte (« Dans tout le pays ») quand il n'y a ni destination ni lieu.
+  where         String?
+  /// Précision sur la date (« annoncée selon l'observation de la lune »…).
+  dateNote      String?         @db.Text
+  /// { type: "fixed" | "easter" | "hijri" | "nth-weekday" | "period", … }
+  rule          Json
+  destinationId String?
+  destination   Destination?    @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+  placeId       String?
+  place         Place?          @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  /// Zone déconseillée : avertissement renvoyant à la rubrique Sécurité.
+  caution       Boolean         @default(false)
+  cover         String?
+  coverCredit   String?
+  /// Sources consultées (URL), pour la relecture dans l'admin.
+  sources       Json?
+  translations  Json?
+  position      Int             @default(0)
+  published     Boolean         @default(true)
+  reviewed      Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([country, published])
+  @@index([destinationId])
+  @@index([placeId])
+}
+
+/// Contenus de départ déjà insérés (par type et slug) : le seed ajoute les
+/// nouveautés sans jamais recréer ce qui a été supprimé dans l'admin.
+model VoyageSeedEntry {
+  kind      String
+  slug      String
+  createdAt DateTime @default(now())
+
+  @@id([kind, slug])
 }
 
 /// Circuit conseillé (« Le Bénin essentiel en 7 jours »), copiable en voyage.

@@ -5,9 +5,11 @@ import { PrismaService } from "../prisma/prisma.service";
 import { requestLang } from "../i18n/i18n";
 import { assertDataUrl, IMAGE_MIME } from "../common/upload.util";
 import { persistPublicFile } from "../common/file-store";
+import { cleanEventRule, eventOccurrences, isValidEventRule, nextOccurrence, type VoyageEventOccurrence, type VoyageEventRule } from "../shared/hwe-types";
 import {
   CIRCUIT_TEXT,
   DESTINATION_TEXT,
+  EVENT_TEXT,
   GUIDE_TEXT,
   PLACE_TEXT,
   STEP_TEXT,
@@ -23,6 +25,7 @@ import {
 import type {
   CircuitInput,
   DestinationInput,
+  EventInput,
   GuideInput,
   PlaceInput,
 } from "./voyage.dto";
@@ -62,6 +65,30 @@ const destinationCardSelect = {
   _count: { select: { places: { where: { published: true } } } },
 } as const;
 
+const eventCardSelect = {
+  id: true,
+  slug: true,
+  country: true,
+  kind: true,
+  publicHoliday: true,
+  name: true,
+  summary: true,
+  where: true,
+  dateNote: true,
+  caution: true,
+  cover: true,
+  rule: true,
+  position: true,
+  translations: true,
+  destination: { select: { slug: true, name: true, translations: true, published: true } },
+  place: { select: { slug: true, name: true, translations: true, published: true } },
+} as const;
+
+/** Date du jour (AAAA-MM-JJ, UTC). */
+export const todayIso = () => new Date().toISOString().slice(0, 10);
+const plusDays = (day: string, n: number) => new Date(Date.parse(day + "T00:00:00Z") + n * 86_400_000).toISOString().slice(0, 10);
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
 @Injectable()
 export class VoyageService {
   constructor(private readonly prisma: PrismaService) {}
@@ -83,6 +110,73 @@ export class VoyageService {
       destination: p.destination
         ? { slug: p.destination.slug, name: localized(lang, p.destination, "name"), country: p.destination.country }
         : undefined,
+    };
+  }
+
+  /** Carte d'événement traduite, avec ses occurrences (déjà calculées). */
+  eventCard(e: Row, occurrences: VoyageEventOccurrence[]) {
+    const lang = requestLang();
+    const { cover, destination, place, position: _p, ...rest } = localize(lang, e, EVENT_TEXT) as Row & {
+      cover?: string | null;
+      destination?: Row | null;
+      place?: Row | null;
+    };
+    const link = (x?: Row | null) => (x && x.published !== false ? { slug: x.slug as string, name: localized(lang, x, "name") } : null);
+    return { ...rest, cover: coverUrl(cover), destination: link(destination), place: link(place), occurrences };
+  }
+
+  /** Événements publiés d'un pays (ou d'une destination / d'un lieu) qui ont lieu entre `from` et `to`, par date. */
+  async eventsBetween(where: Prisma.VoyageEventWhereInput, from: string, to: string) {
+    const rows = await this.prisma.voyageEvent.findMany({
+      where: { published: true, ...where },
+      orderBy: [{ position: "asc" }, { name: "asc" }],
+      select: eventCardSelect,
+    });
+    return rows
+      .map((e) => ({ e, occ: eventOccurrences(e.rule as unknown as VoyageEventRule, from, to) }))
+      .filter((x) => x.occ.length)
+      .sort((a, b) => {
+        const x = a.occ[0]!;
+        const y = b.occ[0]!;
+        return x.start < y.start ? -1 : x.start > y.start ? 1 : (x.period ? 1 : 0) - (y.period ? 1 : 0);
+      })
+      .map((x) => this.eventCard(x.e as unknown as Row, x.occ));
+  }
+
+  /** Calendrier d'un pays : par défaut, les 12 prochains mois (3 ans au plus). */
+  async countryEvents(cc: string, q: { from?: string; to?: string }) {
+    const from = q.from && ISO_DAY.test(q.from) ? q.from : todayIso();
+    let to = q.to && ISO_DAY.test(q.to) && q.to >= from ? q.to : plusDays(from, 365);
+    if (to > plusDays(from, 3 * 366)) to = plusDays(from, 3 * 366);
+    return { country: cc.toUpperCase(), from, to, events: await this.eventsBetween({ country: cc.toUpperCase() }, from, to) };
+  }
+
+  /** Prochaine occurrence des événements liés (destination, lieu). */
+  private async upcomingFor(where: Prisma.VoyageEventWhereInput) {
+    const today = todayIso();
+    return (await this.eventsBetween(where, today, plusDays(today, 366))).map((e) => ({ ...e, occurrences: e.occurrences.slice(0, 1) }));
+  }
+
+  async event(slug: string) {
+    const e = await this.prisma.voyageEvent.findFirst({
+      where: { slug, published: true },
+      select: { ...eventCardSelect, description: true, tips: true, coverCredit: true, reviewed: true, updatedAt: true },
+    });
+    if (!e) throw new NotFoundException("Événement introuvable.");
+    const today = todayIso();
+    const occ = eventOccurrences(e.rule as unknown as VoyageEventRule, today, plusDays(today, 3 * 366)).slice(0, 3);
+    const lang = requestLang();
+    // Autour de la prochaine date : autres temps forts du pays dans les 45 jours.
+    const anchor = occ[0]?.start ?? today;
+    const related = (await this.eventsBetween({ country: e.country, id: { not: e.id } }, plusDays(anchor, -45), plusDays(anchor, 45)))
+      .filter((x) => !x.occurrences[0]?.period)
+      .slice(0, 6);
+    const card = this.eventCard(e as unknown as Row, occ);
+    return {
+      ...card,
+      description: localized(lang, e as unknown as Row, "description"),
+      tips: localized(lang, e as unknown as Row, "tips"),
+      related,
     };
   }
 
@@ -173,6 +267,7 @@ export class VoyageService {
       select: { id: true, slug: true, title: true, summary: true, days: true, cover: true, translations: true },
       take: 6,
     });
+    const events = await this.upcomingFor({ OR: [{ destinationId: d.id }, { place: { destinationId: d.id } }] });
     const { places, cover, ...rest } = localize(lang, d as unknown as Row, DESTINATION_TEXT) as Row & {
       places: Row[];
       cover?: string | null;
@@ -180,6 +275,7 @@ export class VoyageService {
     return {
       ...rest,
       cover: coverUrl(cover),
+      events,
       places: (places ?? []).map((p) => this.placeCard(p)),
       circuits: circuits.map((c) => {
         const { cover: cc, ...r } = localize(lang, c as unknown as Row, CIRCUIT_TEXT) as Row & { cover?: string | null };
@@ -232,6 +328,7 @@ export class VoyageService {
       take: 6,
       select: placeCardSelect,
     });
+    const events = await this.upcomingFor({ placeId: p.id });
     const { destination, cover, ...rest } = localize(lang, p as unknown as Row, PLACE_TEXT) as Row & {
       destination: Row;
       cover?: string | null;
@@ -239,6 +336,7 @@ export class VoyageService {
     return {
       ...rest,
       cover: coverUrl(cover),
+      events,
       destination: this.destinationCard(destination),
       nearby: nearby.map((n) => this.placeCard(n as unknown as Row)),
     };
@@ -290,7 +388,7 @@ export class VoyageService {
   /** Tout le contenu d'un pays (brouillons compris), données brutes + traductions. */
   async adminContent(country?: string) {
     const cc = country?.toUpperCase();
-    const [guides, destinations, circuits] = await Promise.all([
+    const [guides, destinations, circuits, events] = await Promise.all([
       this.prisma.countryGuide.findMany({ where: cc ? { country: cc } : {}, orderBy: { country: "asc" } }),
       this.prisma.destination.findMany({
         where: cc ? { country: cc } : {},
@@ -302,12 +400,18 @@ export class VoyageService {
         orderBy: [{ country: "asc" }, { position: "asc" }],
         include: { steps: { orderBy: [{ day: "asc" }, { position: "asc" }] } },
       }),
+      this.prisma.voyageEvent.findMany({
+        where: cc ? { country: cc } : {},
+        orderBy: [{ country: "asc" }, { position: "asc" }, { name: "asc" }],
+      }),
     ]);
+    const today = todayIso();
     const withUrl = <T extends { cover: string | null }>(x: T) => ({ ...x, coverUrl: coverUrl(x.cover) });
     return {
       guides,
       destinations: destinations.map((d) => ({ ...withUrl(d), places: d.places.map(withUrl) })),
       circuits: circuits.map(withUrl),
+      events: events.map((e) => ({ ...withUrl(e), next: nextOccurrence(e.rule as unknown as VoyageEventRule, today) })),
     };
   }
 
@@ -321,7 +425,7 @@ export class VoyageService {
     return { cover, url: coverUrl(cover) };
   }
 
-  private async uniqueSlug(kind: "destination" | "place" | "circuit", wanted: string, exceptId?: string): Promise<string> {
+  private async uniqueSlug(kind: "destination" | "place" | "circuit" | "event", wanted: string, exceptId?: string): Promise<string> {
     const base = slugify(wanted) || kind;
     for (let i = 0; i < 50; i++) {
       const slug = i === 0 ? base : `${base}-${i + 1}`;
@@ -331,7 +435,9 @@ export class VoyageService {
           ? await this.prisma.destination.findUnique({ where, select: { id: true } })
           : kind === "place"
             ? await this.prisma.place.findUnique({ where, select: { id: true } })
-            : await this.prisma.circuit.findUnique({ where, select: { id: true } });
+            : kind === "event"
+              ? await this.prisma.voyageEvent.findUnique({ where, select: { id: true } })
+              : await this.prisma.circuit.findUnique({ where, select: { id: true } });
       if (!found || found.id === exceptId) return slug;
     }
     throw new ConflictException("Identifiant d'URL déjà utilisé : choisissez-en un autre.");
@@ -505,6 +611,73 @@ export class VoyageService {
   async deleteCircuit(id: string) {
     const { count } = await this.prisma.circuit.deleteMany({ where: { id } });
     if (!count) throw new NotFoundException("Circuit introuvable.");
+    return { ok: true };
+  }
+
+  private async eventData(dto: EventInput, country: string | null) {
+    const str = (v: string | null | undefined) => (v === undefined ? undefined : v?.trim() || null);
+    const data: Record<string, unknown> = {};
+    if (dto.country !== undefined) data.country = dto.country.toUpperCase();
+    for (const k of ["kind", "publicHoliday", "caution", "position", "published", "reviewed"] as const) {
+      if (dto[k] !== undefined) data[k] = dto[k];
+    }
+    for (const k of ["name", "summary", "description"] as const) if (dto[k] !== undefined) data[k] = dto[k]!.trim();
+    for (const k of ["tips", "where", "dateNote", "coverCredit"] as const) {
+      const v = str(dto[k]);
+      if (v !== undefined) data[k] = v;
+    }
+    if (dto.rule !== undefined) {
+      if (!isValidEventRule(dto.rule)) throw new BadRequestException("Date de l'événement invalide.");
+      data.rule = cleanEventRule(dto.rule) as unknown as Prisma.InputJsonValue;
+    }
+    if (dto.cover !== undefined) data.cover = checkCover(dto.cover);
+    if (dto.sources !== undefined) {
+      const src = (dto.sources ?? []).map((x) => x.trim()).filter(Boolean);
+      if (src.some((x) => !/^https?:\/\/\S+$/.test(x))) throw new BadRequestException("Sources : adresses invalides (https://…).");
+      data.sources = src.length ? src : Prisma.DbNull;
+    }
+    if (dto.translations !== undefined) {
+      data.translations = (cleanTranslations(dto.translations, EVENT_TEXT) ?? Prisma.DbNull) as Prisma.InputJsonValue;
+    }
+    // Liens : destination / lieu du même pays.
+    const cc = (data.country as string | undefined) ?? country;
+    if (dto.destinationId !== undefined) {
+      if (dto.destinationId) {
+        const d = await this.prisma.destination.findUnique({ where: { id: dto.destinationId }, select: { country: true } });
+        if (!d || d.country !== cc) throw new BadRequestException("Destination introuvable dans ce pays.");
+      }
+      data.destinationId = dto.destinationId || null;
+    }
+    if (dto.placeId !== undefined) {
+      if (dto.placeId) {
+        const p = await this.prisma.place.findUnique({ where: { id: dto.placeId }, select: { destination: { select: { country: true } } } });
+        if (!p || p.destination.country !== cc) throw new BadRequestException("Lieu introuvable dans ce pays.");
+      }
+      data.placeId = dto.placeId || null;
+    }
+    return data;
+  }
+
+  async createEvent(dto: EventInput) {
+    if (!dto.name?.trim() || !dto.country || !dto.kind || !dto.summary?.trim() || !dto.description?.trim() || !dto.rule) {
+      throw new BadRequestException("Nom, pays, type, date, résumé et description sont obligatoires.");
+    }
+    const slug = await this.uniqueSlug("event", dto.slug || dto.name);
+    const data = await this.eventData(dto, dto.country.toUpperCase());
+    return this.prisma.voyageEvent.create({ data: { ...data, slug } as Prisma.VoyageEventUncheckedCreateInput });
+  }
+
+  async updateEvent(id: string, dto: EventInput) {
+    const cur = await this.prisma.voyageEvent.findUnique({ where: { id }, select: { id: true, country: true } });
+    if (!cur) throw new NotFoundException("Événement introuvable.");
+    const slug = dto.slug ? await this.uniqueSlug("event", dto.slug, id) : undefined;
+    const data = await this.eventData(dto, cur.country);
+    return this.prisma.voyageEvent.update({ where: { id }, data: { ...data, ...(slug ? { slug } : {}) } });
+  }
+
+  async deleteEvent(id: string) {
+    const { count } = await this.prisma.voyageEvent.deleteMany({ where: { id } });
+    if (!count) throw new NotFoundException("Événement introuvable.");
     return { ok: true };
   }
 

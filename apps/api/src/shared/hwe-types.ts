@@ -8,3 +8,4 @@
 export * from "../../../../packages/types/src/i18n";
 export * from "../../../../packages/types/src/geo";
 export * from "../../../../packages/types/src/currencies";
+export * from "../../../../packages/types/src/voyage-events";

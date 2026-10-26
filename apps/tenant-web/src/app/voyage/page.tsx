@@ -13,6 +13,7 @@ import {
   CATEGORY_ICON,
   CircuitTile,
   DestinationTile,
+  EventTile,
   PlaceTile,
   StaySearchBar,
   VoyageCover,
@@ -30,6 +31,7 @@ function VoyageHome() {
 
   const { data: countries } = useAsync(() => api.voyageCountries(), [lang]);
   const { data, error, reload } = useAsync(() => api.voyageCountry(cc), [cc, lang]);
+  const { data: events } = useAsync(() => api.voyageEvents(cc), [cc, lang]);
   const { data: places } = useAsync<PlaceCard[]>(
     () => api.voyagePlaces({ country: cc, category: category || undefined }),
     [cc, category, lang],
@@ -141,6 +143,29 @@ function VoyageHome() {
                 {data.circuits.map((c) => (
                   <CircuitTile key={c.id} c={c} />
                 ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Fêtes et événements à venir ── */}
+          {events && events.events.length > 0 && (
+            <section>
+              <div className="flex items-end justify-between gap-3 flex-wrap mb-5">
+                <div>
+                  <h2 className="font-display text-2xl sm:text-3xl mb-1">{t("voy.home.events")}</h2>
+                  <p className="text-ink-muted">{t("voy.home.eventsSub", { country: countryName(cc) })}</p>
+                </div>
+                <Link href={`/voyage/fetes?pays=${cc}`} className="text-sm font-medium text-brand-700 dark:text-brand-300 hover:underline inline-flex items-center gap-1">
+                  {t("voy.home.eventsAll", { count: events.events.length })} <Icon name="arrowRight" size={14} />
+                </Link>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {events.events
+                  .filter((e) => !e.occurrences[0]?.period)
+                  .slice(0, 6)
+                  .map((e) => (
+                    <EventTile key={e.id} e={e} />
+                  ))}
               </div>
             </section>
           )}

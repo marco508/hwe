@@ -16,6 +16,8 @@ import type {
   Property,
   VoyageCountrySummary,
   CountryVoyage,
+  CountryEvents,
+  VoyageEventDetail,
   DestinationDetail,
   PlaceCard,
   PlaceDetail,
@@ -183,6 +185,9 @@ export const api = {
     request<PlaceCard[]>(`/voyage/places?${qs(q)}`),
   voyagePlace: (slug: string) => request<PlaceDetail>(`/voyage/places/${encodeURIComponent(slug)}`),
   voyageCircuit: (slug: string) => request<CircuitDetail>(`/voyage/circuits/${encodeURIComponent(slug)}`),
+  voyageEvents: (cc: string, q: { from?: string; to?: string } = {}) =>
+    request<CountryEvents>(`/voyage/countries/${encodeURIComponent(cc)}/events?${qs(q)}`),
+  voyageEvent: (slug: string) => request<VoyageEventDetail>(`/voyage/events/${encodeURIComponent(slug)}`),
 
   // ── Voyage : carnets ──
   trips: () => request<TripSummary[]>("/trips", {}, true),

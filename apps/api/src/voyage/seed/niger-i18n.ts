@@ -86,6 +86,27 @@ const ES: SeedI18n = {
       description:
         "Segunda ciudad del país, Zinder fue la capital del sultanato de Damagaram y después la primera capital de la colonia de Níger hasta 1926. Su barrio antiguo, el Birni, conserva el palacio del sultán y casas de adobe adornadas con decoraciones en relieve características de la arquitectura hausa. La ciudad es también un gran centro comercial y artesanal (cuero, curtiduría). Se encuentra en una zona desaconsejada de forma absoluta.",
     },
+    dosso: {
+      summary: "Capital histórica del reino zarma: palacio del Zarmakoye, museo regional y tradición de la lucha.",
+      description:
+        "A unos 140 km al sureste de Niamey, Dosso fue la capital del reino zarma fundado en el siglo XVIII, cuya dinastía de los Zarmakoye (o Djermakoye) sigue reinando en el plano consuetudinario. La ciudad conserva el palacio del Zarmakoye, construido en 1904 e incluido con otros sitios en la lista indicativa de Níger para el Patrimonio Mundial, un museo regional y una arena de lucha tradicional. Como todo el país, se encuentra en una zona desaconsejada de forma absoluta.",
+    },
+    ayorou: {
+      summary: "Pueblo a orillas del río Níger cerca de la frontera con Malí, célebre por su gran mercado del domingo.",
+      description:
+        "A unos 200 km al noroeste de Niamey, Ayorou se extiende por la orilla izquierda del río Níger y por una isla del mismo nombre. Refugio del soberano songhai Sonni Baro a finales del siglo XV, la ciudad era conocida por los viajeros por su mercado semanal y por los paisajes del río, donde viven hipopótamos y numerosas aves. La zona, próxima a la frontera con Malí, ha sufrido ataques mortíferos y está desaconsejada de forma absoluta.",
+    },
+    yaama: {
+      summary: "Pueblo hausa de la región de Tahoua, célebre por su mezquita de tierra galardonada con el Premio Aga Khan.",
+      description:
+        "En la región de Tahoua, el pueblo de Yaama debe su fama a su mezquita del viernes, obra maestra de la arquitectura de tierra construida colectivamente por los aldeanos. Las mezquitas de tierra de la región de Tahoua figuran en la lista indicativa de Níger para el Patrimonio Mundial. Como todo el país, la zona está desaconsejada de forma absoluta.",
+    },
+    "kawar-djado": {
+      name: "Kawar y Djado",
+      summary: "Oasis del Sáhara oriental: salinas de Bilma, acantilados del Kawar y ksares abandonados de la meseta del Djado.",
+      description:
+        "En el extremo noreste del país, a más de 500 km de Agadez, el acantilado del Kawar alberga un rosario de oasis, entre ellos Bilma, célebre por sus salinas y punto final de las caravanas de sal (azalai) que llegaban del Aïr a través del Teneré. Más al norte, la meseta del Djado conserva grabados rupestres y las ruinas de ksares abandonados, incluidos en la lista indicativa de Níger para el Patrimonio Mundial. Región muy aislada y desaconsejada de forma absoluta.",
+    },
   },
   places: {
     "musee-national-boubou-hama": {
@@ -197,7 +218,7 @@ const ES: SeedI18n = {
       description:
         "Cada año, al final de la estación de lluvias, los pastores tuaregs y peuls llevan sus rebaños a las tierras y fuentes salinas de la región de In-Gall. La Cure Salée («cura de sal») va acompañada de festejos: carreras de camellos, música, danzas y, entre los peuls wodaabe, el Gerewol, célebre concurso de belleza masculina.",
       tips: TIP_ES,
-      bestPeriod: "Final de la estación de lluvias (generalmente septiembre)",
+      bestPeriod: "Final de la estación de lluvias (finales de septiembre o principios de octubre)",
     },
     "palais-du-sultan-zinder": {
       name: "Palacio del sultán de Zinder",
@@ -219,6 +240,117 @@ const ES: SeedI18n = {
       description:
         "Encrucijada comercial entre el Sahel y la vecina Nigeria, Zinder cuenta con un gran mercado donde se encuentran ganado, cereales, especias, telas y, sobre todo, los cueros y artículos de marroquinería que dan fama a la ciudad.",
       tips: TIP_ES,
+    },
+    "cathedrale-niamey": {
+      name: "Catedral de Nuestra Señora del Perpetuo Socorro",
+      summary: "La catedral de Niamey, sede de la archidiócesis, de arquitectura moderna de hormigón y grandes cruces.",
+      description:
+        "Principal lugar de culto católico del país, la catedral de Nuestra Señora del Perpetuo Socorro es la sede de la archidiócesis de Niamey (diócesis en 1961, archidiócesis en 2007). Su edificio moderno, precedido de una alta cruz, reúne a la comunidad cristiana, minoritaria en Níger, sobre todo en Navidad y Pascua.",
+      tips: `Lugar de culto: vestimenta adecuada y discreción durante los oficios. ${TIP_ES}`,
+    },
+    "centre-culturel-oumarou-ganda": {
+      name: "Centro Cultural Oumarou Ganda",
+      summary: "El gran complejo cultural público de Niamey: sala de espectáculos, biblioteca, conciertos y proyecciones.",
+      description:
+        "Bautizado en 1981 en homenaje al cineasta nigerino Oumarou Ganda (Cabascabo, Le Wazzou polygame), este complejo cultural reúne un espacio escénico y una biblioteca. Acoge conciertos, teatro, proyecciones y actos culturales, y es uno de los lugares de ocio cultural de la capital.",
+      tips: `Programación anunciada localmente (prensa, redes sociales). ${TIP_ES}`,
+    },
+    "village-artisanal-wadata": {
+      name: "Aldea artesanal de Wadata",
+      summary: "La aldea de los artesanos de Niamey: cuero, cestería, joyas y tejidos, comprados directamente a sus creadores.",
+      description:
+        "En el barrio de Wadata, la aldea artesanal agrupa talleres y tiendas de artesanos: marroquinería y pufs de cuero, cestería, joyas y cruces tuaregs de plata, tejidos y tallas. Se puede ver a los artesanos trabajando y comprar directamente a los creadores, en un ambiente más tranquilo que el de los grandes mercados.",
+      tips: `El regateo es habitual; pida permiso antes de fotografiar a los artesanos. ${TIP_ES}`,
+    },
+    "palais-du-sultan-agadez": {
+      name: "Palacio del sultán del Aïr",
+      summary: "La residencia del sultán de Agadez, guardián de las tradiciones del Aïr, al pie de la gran mezquita.",
+      description:
+        "En el corazón de la ciudad vieja, a dos pasos de la gran mezquita, el palacio de adobe es la residencia del sultán del Aïr, autoridad tradicional y religiosa todavía muy respetada. Sus gruesos muros de tierra erizados de madera recuerdan la arquitectura del minarete. En su patio concluye cada año la fiesta del Bianou.",
+      tips: `Edificio habitado: se admira desde el exterior; el patio solo se visita con autorización. ${TIP_ES}`,
+    },
+    "maison-heinrich-barth-agadez": {
+      name: "Casa de Heinrich Barth",
+      summary: "La casa de adobe donde se alojó en 1850 el explorador alemán Heinrich Barth, primer europeo en Agadez.",
+      description:
+        "En octubre de 1850, el explorador alemán Heinrich Barth, en camino de Trípoli a Kano, pasó casi un mes en Agadez; una placa colocada en 1966 recuerda que fue el primer europeo en entrar en la ciudad. Su casa de tierra, en la ciudad vieja, todavía se puede visitar, y sus relatos siguen siendo una fuente valiosa sobre la historia de la ciudad y del Sahel.",
+      tips: TIP_ES,
+    },
+    "oasis-de-timia": {
+      name: "Oasis de Timia",
+      summary: "Pueblo-oasis en el corazón del Aïr: huertos, cítricos y palmeras, una guelta y una cascada estacional.",
+      description:
+        "A unos 220 km al noreste de Agadez, Timia se presenta a menudo como el oasis más bello del Aïr. Sus huertos de regadío producen hortalizas, cereales, cítricos y dátiles al pie de montañas oscuras. En el valle, una guelta (poza de agua permanente) y una cascada que corre después de las lluvias, así como el fuerte Massu construido en 1951, completan el paisaje.",
+      tips: TIP_ES,
+      bestPeriod: "Estación fresca (de noviembre a febrero)",
+    },
+    iferouane: {
+      name: "Iférouane",
+      summary: "Oasis tuareg del norte del Aïr, al pie de las Montañas Azules, cuna del Festival del Aïr.",
+      description:
+        "En el valle del Ighazar, al norte del macizo, Iférouane es un oasis de huertos y palmeras que fue durante mucho tiempo un foco principal de la cultura tuareg. Es conocido por el Festival del Aïr, organizado desde 2001, y por los paisajes que lo rodean: las Montañas Azules de rocas veteadas, el monte Tamgak y numerosos sitios de grabados rupestres.",
+      tips: TIP_ES,
+      bestPeriod: "Estación fresca (de noviembre a febrero)",
+    },
+    "monument-arbre-du-tenere": {
+      name: "Monumento del Árbol del Teneré",
+      summary: "Una escultura de metal marca, en pleno desierto, el lugar de la acacia solitaria desaparecida en 1973.",
+      description:
+        "Durante siglos, una acacia aislada, cuyas raíces alcanzaban el agua subterránea a más de 30 metros, sirvió de referencia a las caravanas que cruzaban el Teneré, a unos 235 km al noreste de Agadez. Derribada por un camión en 1973, fue trasladada al museo nacional de Niamey; desde 1975, un árbol estilizado de metal marca su emplazamiento junto a un pozo, como un faro en medio de la arena.",
+      tips: TIP_ES,
+      bestPeriod: "Estación fresca (de noviembre a febrero)",
+    },
+    "ruines-d-assode": {
+      name: "Ruinas de Assodé",
+      summary: "Los restos de piedra de la antigua capital de los tuaregs del Aïr, en el corazón del macizo.",
+      description:
+        "Fundada, según la tradición, hacia finales del siglo IX, Assodé fue probablemente la primera capital de los tuaregs del Aïr antes de que el poder se trasladara a Agadez. Sus habitantes la abandonaron progresivamente; queda un conjunto de casas de piedra volcánica y una mezquita rectangular de unos treinta metros. Un pozo pastoral cercano sigue atrayendo a los dromedarios y asnos de los pastores.",
+      tips: TIP_ES,
+      bestPeriod: "Estación fresca (de noviembre a febrero)",
+    },
+    "palais-du-zarmakoye-dosso": {
+      name: "Palacio del Zarmakoye",
+      summary: "El palacio de los soberanos zarma de Dosso, de fachadas blancas adornadas con motivos azules.",
+      description:
+        "Construido en 1904, el palacio es la residencia del Zarmakoye, jefe tradicional de Dosso. Sus largas fachadas con decoración geométrica, su portal monumental y su fada (sala de audiencias) ilustran la arquitectura de las cortes reales del Sahel. Figura en la lista indicativa de Níger para el Patrimonio Mundial de la UNESCO y sigue siendo el escenario de las grandes ceremonias consuetudinarias.",
+      tips: `Residencia habitada: la visita del interior requiere la autorización de la jefatura. ${TIP_ES}`,
+    },
+    "musee-regional-djermakoye-dosso": {
+      name: "Museo regional Djermakoye",
+      summary: "El museo de Dosso: historia del reino zarma, armas antiguas, instrumentos y centro artesanal.",
+      description:
+        "El museo regional Djermakoye presenta la historia del reino de Dosso y de sus soberanos: retratos, armas antiguas, instrumentos de música de corte como el kakaki y objetos de la vida cotidiana. Su recinto alberga también un centro artesanal donde se encuentran tejidos, cueros y cerámica de la región.",
+      tips: TIP_ES,
+    },
+    "marche-d-ayorou": {
+      name: "Mercado de Ayorou",
+      summary: "El gran mercado del domingo, donde confluyen piraguas, rebaños y comerciantes de varios países.",
+      description:
+        "Los domingos, el mercado invade gran parte de la ciudad y atrae a miles de comerciantes y ganaderos de Níger, Malí, Burkina Faso y Nigeria. Allí se intercambian ganado, cereales, pescado del río, esteras, cerámica y telas, mientras las piraguas traen mercancías y habitantes de las islas vecinas.",
+      tips: `Zona especialmente expuesta, próxima a la frontera con Malí. ${TIP_ES}`,
+    },
+    "mosquee-de-yaama": {
+      name: "Mezquita de Yaama",
+      summary: "Mezquita de adobe de estilo hausa, coronada por una cúpula y cuatro minaretes, Premio Aga Khan 1986.",
+      description:
+        "Iniciada en 1962, la mezquita de Yaama fue construida por toda la comunidad: donación del terreno, fabricación de los ladrillos de tierra, transporte del agua y de la madera. Ampliada con los años con una cúpula central y cuatro minaretes en las esquinas, ilustra el estilo sudano-saheliano en su variante hausa y recibió el Premio Aga Khan de Arquitectura en 1986.",
+      tips: `Lugar de culto: visita solo con autorización y con ropa que cubra el cuerpo. ${TIP_ES}`,
+    },
+    "salines-de-kalala-bilma": {
+      name: "Salinas de Kalala",
+      summary: "Cientos de pozas excavadas a mano donde la sal se extrae como hace siglos.",
+      description:
+        "A las puertas de Bilma, las salinas de Kalala alinean cientos de pozas excavadas a mano: el agua salobre que sube del subsuelo deposita la sal, que después se moldea en panes o conos. Esta sal, intercambiada durante siglos por el mijo de los caravaneros tuaregs, sale hoy sobre todo en camión. El «mai», autoridad tradicional, asigna las parcelas y fija los precios.",
+      tips: TIP_ES,
+      bestPeriod: "Estación fresca (de noviembre a febrero)",
+    },
+    "ksar-de-djado": {
+      name: "Ksar de Djado",
+      summary: "Una ciudad fortificada en ruinas que se alza sobre un palmeral, al sur de la meseta del Djado.",
+      description:
+        "Al sur de la meseta del Djado, en un pequeño oasis de agua salobre, las ruinas de una ciudad fortificada de tierra y piedra dominan un palmeral cuidado por nómadas tubu. La ciudad, abandonada desde hace mucho tiempo, habría sido fundada por los kanuri. La meseta circundante es famosa por sus grabados y pinturas rupestres que representan una fauna desaparecida de la región.",
+      tips: TIP_ES,
+      bestPeriod: "Estación fresca (de noviembre a febrero)",
     },
   },
   circuits: {},
@@ -296,6 +428,27 @@ const PT: SeedI18n = {
       summary: "Antiga capital do sultanato de Damagaram: palácio do sultão e cidade velha hauçá.",
       description:
         "Segunda cidade do país, Zinder foi a capital do sultanato de Damagaram e depois a primeira capital da colónia do Níger até 1926. O seu bairro antigo, o Birni, conserva o palácio do sultão e casas de adobe ornamentadas com decorações em relevo características da arquitetura hauçá. A cidade é também um grande centro comercial e artesanal (couro, curtumes). Situa-se numa zona formalmente desaconselhada.",
+    },
+    dosso: {
+      summary: "Capital histórica do reino zarma: palácio do Zarmakoye, museu regional e tradição da luta.",
+      description:
+        "A cerca de 140 km a sudeste de Niamey, Dosso foi a capital do reino zarma fundado no século XVIII, cuja dinastia dos Zarmakoye (ou Djermakoye) continua a reinar no plano consuetudinário. A cidade conserva o palácio do Zarmakoye, construído em 1904 e incluído, com outros sítios, na lista indicativa do Níger ao Património Mundial, um museu regional e uma arena de luta tradicional. Como todo o país, situa-se numa zona formalmente desaconselhada.",
+    },
+    ayorou: {
+      summary: "Povoação do rio Níger perto da fronteira com o Mali, célebre pelo seu grande mercado de domingo.",
+      description:
+        "A cerca de 200 km a noroeste de Niamey, Ayorou estende-se pela margem esquerda do rio Níger e por uma ilha com o mesmo nome. Refúgio do soberano songhai Sonni Baro no final do século XV, a cidade era conhecida dos viajantes pelo mercado semanal e pelas paisagens do rio, onde vivem hipopótamos e muitas aves. A zona, próxima da fronteira com o Mali, sofreu ataques mortíferos e está formalmente desaconselhada.",
+    },
+    yaama: {
+      summary: "Aldeia hauçá da região de Tahoua, célebre pela sua mesquita de terra galardoada com o Prémio Aga Khan.",
+      description:
+        "Na região de Tahoua, a aldeia de Yaama deve a sua fama à mesquita de sexta-feira, obra-prima da arquitetura de terra construída coletivamente pelos aldeões. As mesquitas de terra da região de Tahoua constam da lista indicativa do Níger ao Património Mundial. Como todo o país, a zona está formalmente desaconselhada.",
+    },
+    "kawar-djado": {
+      name: "Kawar e Djado",
+      summary: "Oásis do Sara oriental: salinas de Bilma, falésias do Kawar e ksares abandonados do planalto do Djado.",
+      description:
+        "No extremo nordeste do país, a mais de 500 km de Agadez, a falésia do Kawar abriga um rosário de oásis, entre os quais Bilma, célebre pelas salinas e ponto final das caravanas do sal (azalai) que vinham do Aïr através do Teneré. Mais a norte, o planalto do Djado conserva gravuras rupestres e as ruínas de ksares abandonados, incluídos na lista indicativa do Níger ao Património Mundial. Região muito isolada e formalmente desaconselhada.",
     },
   },
   places: {
@@ -408,7 +561,7 @@ const PT: SeedI18n = {
       description:
         "Todos os anos, no final da estação das chuvas, os pastores tuaregues e fulas conduzem os seus rebanhos para as terras e nascentes salgadas da região de In-Gall. A Cure Salée («cura de sal») é acompanhada de festejos: corridas de camelos, música, danças e, entre os fulas wodaabe, o Gerewol, célebre concurso de beleza masculina.",
       tips: TIP_PT,
-      bestPeriod: "Final da estação das chuvas (geralmente setembro)",
+      bestPeriod: "Final da estação das chuvas (finais de setembro ou início de outubro)",
     },
     "palais-du-sultan-zinder": {
       name: "Palácio do sultão de Zinder",
@@ -430,6 +583,117 @@ const PT: SeedI18n = {
       description:
         "Encruzilhada comercial entre o Sahel e a vizinha Nigéria, Zinder tem um grande mercado onde se encontram gado, cereais, especiarias, tecidos e, sobretudo, os couros e artigos de marroquinaria que fazem a fama da cidade.",
       tips: TIP_PT,
+    },
+    "cathedrale-niamey": {
+      name: "Catedral de Nossa Senhora do Perpétuo Socorro",
+      summary: "A catedral de Niamey, sede da arquidiocese, de arquitetura moderna em betão e grandes cruzes.",
+      description:
+        "Principal local de culto católico do país, a catedral de Nossa Senhora do Perpétuo Socorro é a sede da arquidiocese de Niamey (diocese em 1961, arquidiocese em 2007). O seu edifício moderno, precedido de uma alta cruz, reúne a comunidade cristã, minoritária no Níger, sobretudo no Natal e na Páscoa.",
+      tips: `Local de culto: vestuário adequado e discrição durante as celebrações. ${TIP_PT}`,
+    },
+    "centre-culturel-oumarou-ganda": {
+      name: "Centro Cultural Oumarou Ganda",
+      summary: "O grande complexo cultural público de Niamey: sala de espetáculos, biblioteca, concertos e projeções.",
+      description:
+        "Batizado em 1981 em homenagem ao cineasta nigerino Oumarou Ganda (Cabascabo, Le Wazzou polygame), este complexo cultural reúne um espaço de espetáculos e uma biblioteca. Acolhe concertos, teatro, projeções e eventos culturais, sendo um dos locais de saída cultural da capital.",
+      tips: `Programação anunciada localmente (imprensa, redes sociais). ${TIP_PT}`,
+    },
+    "village-artisanal-wadata": {
+      name: "Aldeia artesanal de Wadata",
+      summary: "A aldeia dos artesãos de Niamey: couro, cestaria, joias e tecelagem, comprados diretamente aos criadores.",
+      description:
+        "No bairro de Wadata, a aldeia artesanal reúne oficinas e lojas de artesãos: marroquinaria e pufes de couro, cestaria, joias e cruzes tuaregues de prata, tecelagem e esculturas. Pode ver os artesãos a trabalhar e comprar diretamente aos criadores, num ambiente mais calmo do que o dos grandes mercados.",
+      tips: `Regatear é habitual; peça autorização antes de fotografar os artesãos. ${TIP_PT}`,
+    },
+    "palais-du-sultan-agadez": {
+      name: "Palácio do sultão do Aïr",
+      summary: "A residência do sultão de Agadez, guardião das tradições do Aïr, ao pé da grande mesquita.",
+      description:
+        "No coração da cidade velha, a dois passos da grande mesquita, o palácio de adobe é a residência do sultão do Aïr, autoridade tradicional e religiosa ainda muito respeitada. As suas espessas paredes de terra eriçadas de madeira lembram a arquitetura do minarete. É no seu pátio que termina todos os anos a festa do Bianou.",
+      tips: `Edifício habitado: admira-se do exterior; o pátio só se visita com autorização. ${TIP_PT}`,
+    },
+    "maison-heinrich-barth-agadez": {
+      name: "Casa de Heinrich Barth",
+      summary: "A casa de adobe onde se hospedou em 1850 o explorador alemão Heinrich Barth, primeiro europeu em Agadez.",
+      description:
+        "Em outubro de 1850, o explorador alemão Heinrich Barth, a caminho de Trípoli para Kano, passou quase um mês em Agadez; uma placa colocada em 1966 recorda que foi o primeiro europeu a entrar na cidade. A sua casa de terra, na cidade velha, ainda pode ser visitada, e os seus relatos continuam a ser uma fonte preciosa sobre a história da cidade e do Sahel.",
+      tips: TIP_PT,
+    },
+    "oasis-de-timia": {
+      name: "Oásis de Timia",
+      summary: "Aldeia-oásis no coração do Aïr: hortas, citrinos e palmeiras, uma guelta e uma cascata sazonal.",
+      description:
+        "A cerca de 220 km a nordeste de Agadez, Timia é muitas vezes apresentada como o mais belo oásis do Aïr. As suas hortas irrigadas produzem legumes, cereais, citrinos e tâmaras ao pé de montanhas escuras. No vale, uma guelta (poço de água permanente) e uma cascata que corre depois das chuvas, bem como o forte Massu construído em 1951, completam a paisagem.",
+      tips: TIP_PT,
+      bestPeriod: "Estação fresca (de novembro a fevereiro)",
+    },
+    iferouane: {
+      name: "Iférouane",
+      summary: "Oásis tuaregue do norte do Aïr, ao pé das Montanhas Azuis, berço do Festival do Aïr.",
+      description:
+        "No vale do Ighazar, a norte do maciço, Iférouane é um oásis de hortas e palmeiras que foi durante muito tempo um centro importante da cultura tuaregue. É conhecido pelo Festival do Aïr, organizado desde 2001, e pelas paisagens que o rodeiam: as Montanhas Azuis de rochas marmoreadas, o monte Tamgak e numerosos sítios de gravuras rupestres.",
+      tips: TIP_PT,
+      bestPeriod: "Estação fresca (de novembro a fevereiro)",
+    },
+    "monument-arbre-du-tenere": {
+      name: "Monumento da Árvore do Teneré",
+      summary: "Uma escultura de metal marca, em pleno deserto, o local da acácia solitária desaparecida em 1973.",
+      description:
+        "Durante séculos, uma acácia isolada, cujas raízes chegavam ao lençol freático a mais de 30 metros, serviu de referência às caravanas que atravessavam o Teneré, a cerca de 235 km a nordeste de Agadez. Derrubada por um camião em 1973, foi levada para o museu nacional de Niamey; desde 1975, uma árvore estilizada de metal assinala o seu local junto a um poço, como um farol no meio da areia.",
+      tips: TIP_PT,
+      bestPeriod: "Estação fresca (de novembro a fevereiro)",
+    },
+    "ruines-d-assode": {
+      name: "Ruínas de Assodé",
+      summary: "Os vestígios de pedra da antiga capital dos tuaregues do Aïr, no coração do maciço.",
+      description:
+        "Fundada, segundo a tradição, por volta do final do século IX, Assodé foi provavelmente a primeira capital dos tuaregues do Aïr antes de o poder se deslocar para Agadez. Os seus habitantes abandonaram-na progressivamente; resta um conjunto de casas de pedra vulcânica e uma mesquita retangular com cerca de trinta metros. Um poço pastoril vizinho continua a atrair os dromedários e burros dos pastores.",
+      tips: TIP_PT,
+      bestPeriod: "Estação fresca (de novembro a fevereiro)",
+    },
+    "palais-du-zarmakoye-dosso": {
+      name: "Palácio do Zarmakoye",
+      summary: "O palácio dos soberanos zarma de Dosso, de fachadas brancas ornadas com motivos azuis.",
+      description:
+        "Construído em 1904, o palácio é a residência do Zarmakoye, chefe tradicional de Dosso. As suas longas fachadas com decoração geométrica, o portal monumental e a fada (sala de audiências) ilustram a arquitetura das cortes reais do Sahel. Consta da lista indicativa do Níger ao Património Mundial da UNESCO e continua a ser o palco das grandes cerimónias consuetudinárias.",
+      tips: `Residência habitada: a visita ao interior exige autorização da chefia. ${TIP_PT}`,
+    },
+    "musee-regional-djermakoye-dosso": {
+      name: "Museu regional Djermakoye",
+      summary: "O museu de Dosso: história do reino zarma, armas antigas, instrumentos e centro de artesanato.",
+      description:
+        "O museu regional Djermakoye apresenta a história do reino de Dosso e dos seus soberanos: retratos, armas antigas, instrumentos de música da corte como o kakaki e objetos do quotidiano. O seu recinto alberga também um centro de artesanato onde se encontram tecidos, couros e cerâmica da região.",
+      tips: TIP_PT,
+    },
+    "marche-d-ayorou": {
+      name: "Mercado de Ayorou",
+      summary: "O grande mercado de domingo, onde convergem pirogas, rebanhos e comerciantes de vários países.",
+      description:
+        "Ao domingo, o mercado invade grande parte da cidade e atrai milhares de comerciantes e criadores vindos do Níger, do Mali, do Burkina Faso e da Nigéria. Trocam-se gado, cereais, peixe do rio, esteiras, cerâmica e tecidos, enquanto as pirogas trazem mercadorias e habitantes das ilhas vizinhas.",
+      tips: `Zona particularmente exposta, próxima da fronteira com o Mali. ${TIP_PT}`,
+    },
+    "mosquee-de-yaama": {
+      name: "Mesquita de Yaama",
+      summary: "Mesquita de adobe de estilo hauçá, coroada por uma cúpula e quatro minaretes, Prémio Aga Khan 1986.",
+      description:
+        "Iniciada em 1962, a mesquita de Yaama foi construída por toda a comunidade: doação do terreno, fabrico dos tijolos de terra, transporte da água e da madeira. Ampliada ao longo dos anos com uma cúpula central e quatro minaretes de canto, ilustra o estilo sudano-saheliano na sua variante hauçá e recebeu o Prémio Aga Khan de Arquitetura em 1986.",
+      tips: `Local de culto: visita apenas com autorização, com roupa que cubra o corpo. ${TIP_PT}`,
+    },
+    "salines-de-kalala-bilma": {
+      name: "Salinas de Kalala",
+      summary: "Centenas de poços escavados à mão onde o sal é extraído como há séculos.",
+      description:
+        "Às portas de Bilma, as salinas de Kalala alinham centenas de poços escavados à mão: a água salobra que sobe do subsolo deposita o sal, depois moldado em pães ou cones. Este sal, trocado durante séculos pelo milho-miúdo dos caravaneiros tuaregues, segue hoje sobretudo de camião. O «mai», autoridade tradicional, atribui as parcelas e fixa os preços.",
+      tips: TIP_PT,
+      bestPeriod: "Estação fresca (de novembro a fevereiro)",
+    },
+    "ksar-de-djado": {
+      name: "Ksar de Djado",
+      summary: "Uma cidade fortificada em ruínas erguida sobre um palmar, a sul do planalto do Djado.",
+      description:
+        "A sul do planalto do Djado, num pequeno oásis de água salobra, as ruínas de uma cidade fortificada de terra e pedra dominam um palmar cuidado por nómadas tubu. A cidade, abandonada há muito, teria sido fundada pelos kanuri. O planalto circundante é famoso pelas gravuras e pinturas rupestres que representam uma fauna há muito desaparecida da região.",
+      tips: TIP_PT,
+      bestPeriod: "Estação fresca (de novembro a fevereiro)",
     },
   },
   circuits: {},
@@ -517,6 +781,34 @@ const AR: SeedI18n = {
       summary: "العاصمة السابقة لسلطنة دماغرام: قصر السلطان ومدينة هوسا القديمة.",
       description:
         "زيندر ثانية مدن البلاد، كانت عاصمة سلطنة دماغرام ثم أول عاصمة لمستعمرة النيجر حتى عام 1926. ويحافظ حيّها القديم، البيرني، على قصر السلطان وعلى بيوت من الطين مزيّنة بزخارف بارزة تميّز عمارة الهوسا. والمدينة أيضًا مركز تجاري وحرفي كبير (الجلود والدباغة). وتقع في منطقة يُنصح بعدم السفر إليها إطلاقًا.",
+    },
+    dosso: {
+      name: "دوسو",
+      region: "دوسو",
+      summary: "العاصمة التاريخية لمملكة الزرما: قصر الزرماكوي ومتحف إقليمي وتقاليد المصارعة.",
+      description:
+        "على بُعد نحو 140 كيلومترًا جنوب شرق نيامي، كانت دوسو عاصمة مملكة الزرما التي تأسست في القرن الثامن عشر، ولا تزال سلالة الزرماكوي (أو الجرماكوي) تحكم فيها على الصعيد العُرفي. وتحافظ المدينة على قصر الزرماكوي المشيَّد عام 1904 والمدرج مع مواقع أخرى في القائمة التمهيدية للنيجر للتراث العالمي، وعلى متحف إقليمي وحلبة للمصارعة التقليدية. وهي، كسائر البلاد، في منطقة يُنصح بعدم السفر إليها إطلاقًا.",
+    },
+    ayorou: {
+      name: "أيورو",
+      region: "تيلابيري",
+      summary: "بلدة على نهر النيجر قرب الحدود المالية، تشتهر بسوقها الكبيرة يوم الأحد.",
+      description:
+        "على بُعد نحو 200 كيلومتر شمال غرب نيامي، تمتد أيورو على الضفة اليسرى لنهر النيجر وعلى جزيرة تحمل الاسم نفسه. كانت ملجأً لحاكم السونغاي سني بارو في أواخر القرن الخامس عشر، وعرفها المسافرون بسوقها الأسبوعية ومناظر النهر حيث تعيش أفراس النهر وطيور كثيرة. والمنطقة القريبة من الحدود المالية شهدت هجمات دامية، ويُنصح بعدم السفر إليها إطلاقًا.",
+    },
+    yaama: {
+      name: "ياما",
+      region: "تاهوا",
+      summary: "قرية هوساوية في منطقة تاهوا، تشتهر بمسجدها الطيني الحائز جائزة الآغا خان.",
+      description:
+        "في منطقة تاهوا، تدين قرية ياما بشهرتها لمسجد الجمعة فيها، وهو تحفة من العمارة الطينية بناه القرويون بصورة جماعية. والمساجد الطينية في منطقة تاهوا مدرجة في القائمة التمهيدية للنيجر للتراث العالمي. والمنطقة، كسائر البلاد، يُنصح بعدم السفر إليها إطلاقًا.",
+    },
+    "kawar-djado": {
+      name: "كاوار وجادو",
+      region: "أغاديز",
+      summary: "واحات الصحراء الكبرى الشرقية: ملاحات بيلما وجروف كاوار وقصور هضبة جادو المهجورة.",
+      description:
+        "في أقصى شمال شرق البلاد، على بُعد أكثر من 500 كيلومتر من أغاديز، يحتضن جرف كاوار سلسلة من الواحات منها بيلما، الشهيرة بملاحاتها والمحطة الأخيرة لقوافل الملح (أزالاي) القادمة من آيير عبر تينيري. وإلى الشمال تحتفظ هضبة جادو بنقوش صخرية وبأطلال قصور مهجورة مدرجة في القائمة التمهيدية للنيجر للتراث العالمي. منطقة شديدة العزلة يُنصح بعدم السفر إليها إطلاقًا.",
     },
   },
   places: {
@@ -629,7 +921,7 @@ const AR: SeedI18n = {
       description:
         "في كل عام، مع نهاية موسم الأمطار، يقود رعاة الطوارق والفولاني قطعانهم إلى الأراضي والينابيع المالحة في منطقة إن غال. ويرافق «كور ساليه» («علاج الملح») احتفالات: سباقات الجمال والموسيقى والرقص، ولدى الفولاني الوودابي مهرجان «غيريوول»، مسابقة جمال الرجال الشهيرة.",
       tips: TIP_AR,
-      bestPeriod: "نهاية موسم الأمطار (سبتمبر عادةً)",
+      bestPeriod: "نهاية موسم الأمطار (أواخر سبتمبر أو أوائل أكتوبر)",
     },
     "palais-du-sultan-zinder": {
       name: "قصر سلطان زيندر",
@@ -651,6 +943,117 @@ const AR: SeedI18n = {
       description:
         "زيندر ملتقى تجاري بين الساحل ونيجيريا المجاورة، وفيها سوق كبير تُعرض فيه المواشي والحبوب والتوابل والأقمشة، وقبل كل شيء الجلود والمصنوعات الجلدية التي اشتهرت بها المدينة.",
       tips: TIP_AR,
+    },
+    "cathedrale-niamey": {
+      name: "كاتدرائية سيدة المعونة الدائمة",
+      summary: "كاتدرائية نيامي ومقرّ رئاسة الأسقفية، بعمارة حديثة من الخرسانة وصلبان كبيرة.",
+      description:
+        "كاتدرائية سيدة المعونة الدائمة هي أهم مكان للعبادة الكاثوليكية في البلاد ومقرّ رئاسة أسقفية نيامي (أبرشية منذ 1961 ورئاسة أسقفية منذ 2007). ويجمع مبناها الحديث، الذي يتقدّمه صليب عالٍ، الجماعة المسيحية، وهي أقلية في النيجر، لا سيما في عيد الميلاد وعيد الفصح.",
+      tips: `مكان عبادة: لباس لائق وتكتّم أثناء القداديس. ${TIP_AR}`,
+    },
+    "centre-culturel-oumarou-ganda": {
+      name: "مركز عمرو غاندا الثقافي",
+      summary: "المجمّع الثقافي العام الكبير في نيامي: قاعة عروض ومكتبة وحفلات موسيقية وعروض سينمائية.",
+      description:
+        "سُمّي هذا المجمّع الثقافي عام 1981 تكريمًا للمخرج النيجري عمرو غاندا (كاباسكابو، وازو متعدّد الزوجات)، ويضم فضاءً للعروض ومكتبة. ويستضيف حفلات موسيقية ومسرحًا وعروضًا سينمائية وفعاليات ثقافية، وهو من أماكن السهر الثقافي في العاصمة.",
+      tips: `يُعلَن عن البرنامج محليًا (الصحافة ومواقع التواصل). ${TIP_AR}`,
+    },
+    "village-artisanal-wadata": {
+      name: "قرية وادتا الحرفية",
+      summary: "قرية الحرفيين في نيامي: جلود وسلال وحليّ ونسيج تُشترى مباشرة من صانعيها.",
+      description:
+        "في حي وادتا، تضم القرية الحرفية ورشًا ومتاجر للحرفيين: مصنوعات جلدية ومقاعد جلدية، وسلال، وحليّ وصلبان طوارقية من الفضة، ومنسوجات ومنحوتات. ويمكن مشاهدة الحرفيين أثناء العمل والشراء منهم مباشرة، في جو أهدأ من الأسواق الكبرى.",
+      tips: `المساومة متعارف عليها؛ استأذنوا قبل تصوير الحرفيين. ${TIP_AR}`,
+    },
+    "palais-du-sultan-agadez": {
+      name: "قصر سلطان آيير",
+      summary: "مقرّ سلطان أغاديز، حارس تقاليد آيير، عند سفح المسجد الكبير.",
+      description:
+        "في قلب المدينة القديمة، على مقربة من المسجد الكبير، يقوم القصر المبني من الطين مقرًّا لسلطان آيير، وهو سلطة تقليدية ودينية لا تزال تحظى باحترام كبير. وتذكّر جدرانه الطينية السميكة المغروزة بالأخشاب بعمارة المئذنة. وفي فنائه يُختتم احتفال البيانو كل عام.",
+      tips: `مبنى مأهول: يُشاهَد من الخارج، ولا يُزار الفناء إلا بإذن. ${TIP_AR}`,
+    },
+    "maison-heinrich-barth-agadez": {
+      name: "بيت هاينريش بارت",
+      summary: "البيت الطيني الذي أقام فيه عام 1850 المستكشف الألماني هاينريش بارت، أول أوروبي في أغاديز.",
+      description:
+        "في أكتوبر 1850، أمضى المستكشف الألماني هاينريش بارت، في طريقه من طرابلس إلى كانو، قرابة شهر في أغاديز؛ وتذكّر لوحة وُضعت عام 1966 بأنه أول أوروبي دخل المدينة. ولا يزال بيته الطيني في المدينة القديمة مفتوحًا للزيارة، وتبقى كتاباته مصدرًا قيّمًا لتاريخ المدينة والساحل.",
+      tips: TIP_AR,
+    },
+    "oasis-de-timia": {
+      name: "واحة تيميا",
+      summary: "قرية-واحة في قلب آيير: بساتين وحمضيات ونخيل، وغيلتة وشلال موسمي.",
+      description:
+        "على بُعد نحو 220 كيلومترًا شمال شرق أغاديز، كثيرًا ما توصف تيميا بأنها أجمل واحات آيير. وتنتج بساتينها المرويّة الخضر والحبوب والحمضيات والتمور عند سفح جبال داكنة. وفي الوادي غيلتة (بركة ماء دائمة) وشلال يجري بعد الأمطار، إضافة إلى حصن ماسو المشيَّد عام 1951.",
+      tips: TIP_AR,
+      bestPeriod: "الموسم البارد (من نوفمبر إلى فبراير)",
+    },
+    iferouane: {
+      name: "إيفروان",
+      summary: "واحة طوارقية في شمال آيير عند سفح الجبال الزرقاء، ومهد مهرجان آيير.",
+      description:
+        "في وادي إيغازر شمال الكتلة الجبلية، إيفروان واحة من البساتين والنخيل ظلّت طويلًا مركزًا رئيسيًا للثقافة الطوارقية. وتشتهر بمهرجان آيير الذي يُنظَّم منذ عام 2001، وبالمناظر المحيطة بها: الجبال الزرقاء ذات الصخور المعرّقة، وجبل تامغاك، ومواقع عديدة للنقوش الصخرية.",
+      tips: TIP_AR,
+      bestPeriod: "الموسم البارد (من نوفمبر إلى فبراير)",
+    },
+    "monument-arbre-du-tenere": {
+      name: "نصب شجرة تينيري",
+      summary: "منحوتة معدنية تحدّد، في قلب الصحراء، موضع شجرة الأكاسيا المنعزلة التي اختفت عام 1973.",
+      description:
+        "طوال قرون، كانت شجرة أكاسيا منعزلة، تبلغ جذورها المياه الجوفية على عمق يزيد على 30 مترًا، علامةً تهتدي بها القوافل العابرة لتينيري، على بُعد نحو 235 كيلومترًا شمال شرق أغاديز. وبعد أن صدمتها شاحنة عام 1973 نُقلت إلى المتحف الوطني في نيامي؛ ومنذ 1975 تحدّد شجرة معدنية مُنمَّقة موضعها قرب بئر، كأنها منارة وسط الرمال.",
+      tips: TIP_AR,
+      bestPeriod: "الموسم البارد (من نوفمبر إلى فبراير)",
+    },
+    "ruines-d-assode": {
+      name: "أطلال أسودي",
+      summary: "البقايا الحجرية للعاصمة القديمة لطوارق آيير، في قلب الكتلة الجبلية.",
+      description:
+        "تأسست أسودي، بحسب الرواية المتوارثة، نحو أواخر القرن التاسع، وكانت على الأرجح أول عاصمة لطوارق آيير قبل أن تنتقل السلطة إلى أغاديز. وقد هجرها سكانها تدريجيًا، ولم يبقَ منها سوى مجموعة من البيوت المبنية بالحجر البركاني ومسجد مستطيل طوله نحو ثلاثين مترًا. ولا تزال بئر رعوية قريبة تجتذب إبل الرعاة وحميرهم.",
+      tips: TIP_AR,
+      bestPeriod: "الموسم البارد (من نوفمبر إلى فبراير)",
+    },
+    "palais-du-zarmakoye-dosso": {
+      name: "قصر الزرماكوي",
+      summary: "قصر حكّام الزرما في دوسو، بواجهاته البيضاء المزيّنة بزخارف زرقاء.",
+      description:
+        "شُيّد القصر عام 1904، وهو مقرّ الزرماكوي، الزعيم التقليدي لدوسو. وتجسّد واجهاته الطويلة ذات الزخارف الهندسية وبوابته الضخمة و«الفادا» (قاعة الاستقبال) عمارةَ البلاطات الملكية في الساحل. وهو مدرج في القائمة التمهيدية للنيجر للتراث العالمي لليونسكو، ولا يزال مسرحًا للاحتفالات العُرفية الكبرى.",
+      tips: `مقرّ مأهول: زيارة الداخل تتطلّب إذن الزعامة التقليدية. ${TIP_AR}`,
+    },
+    "musee-regional-djermakoye-dosso": {
+      name: "متحف الجرماكوي الإقليمي",
+      summary: "متحف دوسو: تاريخ مملكة الزرما وأسلحة قديمة وآلات موسيقية ومركز للحِرف.",
+      description:
+        "يعرض متحف الجرماكوي الإقليمي تاريخ مملكة دوسو وحكّامها: صور شخصية، وأسلحة قديمة، وآلات موسيقى البلاط مثل الكاكاكي، وأدوات من الحياة اليومية. ويضم حرمه أيضًا مركزًا للحِرف تُعرض فيه منسوجات ومصنوعات جلدية وفخاريات من المنطقة.",
+      tips: TIP_AR,
+    },
+    "marche-d-ayorou": {
+      name: "سوق أيورو",
+      summary: "سوق الأحد الكبيرة، حيث تلتقي الزوارق والقطعان والتجار من بلدان عدة.",
+      description:
+        "يوم الأحد، تمتد السوق على جزء كبير من البلدة وتجتذب آلاف التجار والرعاة القادمين من النيجر ومالي وبوركينا فاسو ونيجيريا. وتُتبادل فيها المواشي والحبوب وأسماك النهر والحُصر والفخار والأقمشة، فيما تجلب الزوارق البضائع وسكان الجزر المجاورة.",
+      tips: `منطقة معرّضة بشكل خاص للخطر، قريبة من الحدود المالية. ${TIP_AR}`,
+    },
+    "mosquee-de-yaama": {
+      name: "مسجد ياما",
+      summary: "مسجد من الطين على الطراز الهوساوي، تعلوه قبة وأربع مآذن، حائز جائزة الآغا خان عام 1986.",
+      description:
+        "بدأ بناء مسجد ياما عام 1962، وشارك فيه المجتمع كله: من التبرّع بالأرض إلى صنع الطوب الطيني ونقل الماء والخشب. وقد وُسّع على مرّ السنين بقبة مركزية وأربع مآذن في الزوايا، فصار مثالًا للطراز السوداني الساحلي في صيغته الهوساوية، ونال جائزة الآغا خان للعمارة عام 1986.",
+      tips: `مكان عبادة: الزيارة بإذن فقط وبلباس ساتر. ${TIP_AR}`,
+    },
+    "salines-de-kalala-bilma": {
+      name: "ملاحات كالالا",
+      summary: "مئات الأحواض المحفورة يدويًا يُستخرج منها الملح كما منذ قرون.",
+      description:
+        "على أبواب بيلما، تصطفّ في ملاحات كالالا مئات الأحواض المحفورة يدويًا: يصعد الماء المالح من باطن الأرض فيترسّب الملح، ثم يُقولَب في أرغفة أو مخاريط. وهذا الملح، الذي ظل قرونًا يُقايَض بدُخن قوافل الطوارق، يُنقل اليوم في الغالب بالشاحنات. ويتولّى «الماي»، وهو سلطة تقليدية، توزيع القطع وتحديد الأسعار.",
+      tips: TIP_AR,
+      bestPeriod: "الموسم البارد (من نوفمبر إلى فبراير)",
+    },
+    "ksar-de-djado": {
+      name: "قصر جادو",
+      summary: "مدينة محصّنة مهدّمة تعلو بستان نخيل، في جنوب هضبة جادو.",
+      description:
+        "في جنوب هضبة جادو، في واحة صغيرة ذات مياه مالحة، تعلو أطلالُ مدينة محصّنة من الطين والحجر بستانَ نخيل يعتني به رحّل التبو. ويُعتقد أن الكانوري أسّسوا هذه المدينة المهجورة منذ زمن بعيد. وتشتهر الهضبة المحيطة بنقوشها ورسومها الصخرية التي تصوّر حيوانات اختفت من المنطقة.",
+      tips: TIP_AR,
+      bestPeriod: "الموسم البارد (من نوفمبر إلى فبراير)",
     },
   },
   circuits: {},

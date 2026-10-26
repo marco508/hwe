@@ -54,7 +54,7 @@ export function HomeTabs() {
 }
 
 /**
- * Voyage : Découvrir · Mes voyages · Réservations. Les pages à identifiant
+ * Voyage : Découvrir · Fêtes et événements · Mes voyages · Réservations. Les pages à identifiant
  * sont servies par une coquille (/voyage/destination…) : les deux formes de
  * chemin sont listées. Pas d'onglets sur la page publique de partage.
  */
@@ -79,6 +79,12 @@ export function VoyageTabs() {
             "/voyage/circuit",
             "/voyage/sejours",
           ],
+        },
+        {
+          href: "/voyage/fetes",
+          label: t("tabs.voyage.events"),
+          icon: "party",
+          paths: ["/voyage/fetes", "/voyage/fetes/*", "/voyage/fete"],
         },
         {
           href: "/voyage/mes-voyages",

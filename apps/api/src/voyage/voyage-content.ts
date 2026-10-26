@@ -88,6 +88,7 @@ export const PLACE_TEXT = ["name", "summary", "description", "tips", "openingHou
 export const CIRCUIT_TEXT = ["title", "summary"] as const;
 export const STEP_TEXT = ["note"] as const;
 export const GUIDE_TEXT = ["intro"] as const;
+export const EVENT_TEXT = ["name", "summary", "description", "tips", "where", "dateNote"] as const;
 
 /** Sections d'un guide pays traduites : translations[lang].sections = JSON [{title, body}]. */
 export function localizedSections(lang: Lang, guide: { sections: unknown; translations: unknown }): Array<{ title: string; body: string }> {

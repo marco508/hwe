@@ -81,7 +81,22 @@ const ES: SeedI18n = {
       name: "Koutammakou, el país de los batammariba",
       summary: "Paisaje cultural declarado Patrimonio de la UNESCO, famoso por sus casas-fortaleza de tierra, las takienta.",
       description:
-        "Al noreste de Kara, a lo largo de la frontera con Benín, el Koutammakou es el país de los batammariba. Sus casas-fortaleza de varios pisos con torrecillas, las takienta, dispersas en un paisaje de colinas y campos, forman un paisaje cultural vivo inscrito en el Patrimonio Mundial de la UNESCO desde 2004. Del lado togolés, prolonga el sitio de las Tata Somba de Benín. Se encuentra justo al sur de la región de las Savanes, desaconsejada: permanezca en el Koutammakou y consulte las recomendaciones de viaje antes de salir.",
+        "Al noreste de Kara, a lo largo de la frontera con Benín, el Koutammakou es el país de los batammariba. Sus casas-fortaleza de varios pisos con torrecillas, las takienta, dispersas en un paisaje de colinas y campos, forman un paisaje cultural vivo inscrito en el Patrimonio Mundial de la UNESCO desde 2004. Desde 2023, el bien inscrito se extiende también a la vecina Benín, al país de las Tata Somba. Se encuentra justo al sur de la región de las Savanes, desaconsejada: permanezca en el Koutammakou y consulte las recomendaciones de viaje antes de salir.",
+    },
+    notse: {
+      summary: "Cuna histórica de los ewe, ciudad de las murallas de Agbogbo y de la gran fiesta de Agbogbo-za.",
+      description:
+        "A unos 90 km al norte de Lomé, capital de la prefectura de Haho, Notsé está considerada la cuna tradicional de los ewe, cuyos antepasados se dispersaron desde aquí hacia el sur de Togo y de Ghana. Se pueden ver los últimos vestigios de las murallas de Agbogbo y un monumento dedicado a la «cuna del pueblo ewe». A principios de septiembre, la fiesta de Agbogbo-za reúne a ewe de Togo, Ghana, Benín y la diáspora.",
+    },
+    badou: {
+      summary: "Pequeña ciudad de las colinas de Wawa, entre bosques, plantaciones de café y cacao y la cascada de Akloa.",
+      description:
+        "Capital de la prefectura de Wawa, cerca de la frontera con Ghana, Badou está rodeada de colinas boscosas donde se cultivan café y cacao. Se viene sobre todo por la cascada de Akloa, una de las más conocidas del país, al final de una caminata por el bosque. Una etapa de naturaleza fuera de los circuitos habituales, más al norte que Kpalimé, en la misma región de las Plateaux.",
+    },
+    bassar: {
+      summary: "Ciudad del país bassar, en el corazón de una región de metalurgia antigua del hierro inscrita en la lista indicativa de la UNESCO.",
+      description:
+        "Al oeste de Kara, Bassar es la capital de una prefectura de colinas y sabanas arboladas. Su región es uno de los grandes focos antiguos de la metalurgia del hierro en África Occidental: hornos, montones de escoria y antiguas minas salpican los alrededores, sobre todo en torno a Bandjéli. Tierra de ñame, celebra también la fiesta de la cosecha D'pontr, que marca el año nuevo de los bassar y los konkomba. Consulte las recomendaciones de viaje antes de salir: la región de las Savanes, más al norte, está desaconsejada.",
     },
   },
   places: {
@@ -186,11 +201,11 @@ const ES: SeedI18n = {
     },
     "adossa-sokode": {
       name: "Adossa, la fiesta de los cuchillos",
-      summary: "Gran fiesta tem celebrada después del Mawlid, con danzas y demostraciones de valentía.",
+      summary: "Gran fiesta tem de danzas y demostraciones de valentía, hoy asociada a la fiesta de la cosecha Gadao.",
       description:
-        "Celebrada por los tem de Sokodé en los días que siguen al Mawlid (aniversario del nacimiento del Profeta), la Adossa es una fiesta de purificación y cohesión. Bailarines y músicos desfilan por la ciudad; el momento más espectacular es la danza de los cuchillos, en la que los participantes manejan hojas como demostración de valor. Acude una gran multitud de todo el país.",
-      tips: "La fecha sigue el calendario musulmán y, por tanto, cambia cada año: compruébela antes de salir.",
-      bestPeriod: "Unos días después del Mawlid (fecha variable)",
+        "Gran fiesta de los tem de Sokodé, la Adossa está tradicionalmente ligada a Gaani, el mes lunar del nacimiento del Profeta (3.er mes del calendario musulmán). Es una fiesta de purificación y cohesión: bailarines y músicos desfilan por la ciudad, y el momento más espectacular es la danza de los cuchillos, en la que los participantes manejan hojas como demostración de valor. Ahora se celebra junto con Gadao, la fiesta de la cosecha de los tem, en una gran edición «Adossa-Gadao» que en los últimos años ha tenido lugar en enero y atrae a una multitud de todo el país y de la diáspora.",
+      tips: "Las fechas las fijan cada año los organizadores en Sokodé (durante mucho tiempo siguieron el calendario musulmán): compruébelas antes de salir.",
+      bestPeriod: "En los últimos años, en enero (fechas anunciadas cada año)",
     },
     "parc-national-fazao-malfakassa": {
       name: "Parque Nacional de Fazao-Malfakassa",
@@ -228,6 +243,66 @@ const ES: SeedI18n = {
       description:
         "En torno al pueblo de Nadoba, principal punto de acogida de los visitantes, algunas familias abren su takienta. Construida en tierra, esta casa-fortaleza reúne en la planta baja el espacio de los animales y los altares y, en el piso superior, una terraza, los dormitorios y los graneros con torrecillas. El guía explica el simbolismo de cada parte y las técnicas de construcción, transmitidas de generación en generación.",
       tips: "La familia que lo recibe suele pedir una contribución; pida siempre permiso antes de hacer fotos.",
+    },
+    "cathedrale-sacre-coeur-lome": {
+      name: "Catedral del Sagrado Corazón de Lomé",
+      summary: "Iglesia neogótica de la época alemana, consagrada en 1902, a dos pasos del Gran Mercado.",
+      description:
+        "Construida en poco más de un año, de abril de 1901 a septiembre de 1902, bajo la administración colonial alemana, la catedral del Sagrado Corazón fue consagrada el 21 de septiembre de 1902. Con sus dos agujas y su fachada roja y blanca de estilo neogótico, domina el barrio del Gran Mercado y sigue siendo uno de los monumentos emblemáticos de la capital. Convertida en catedral de la archidiócesis de Lomé en 1955, acogió una misa del papa Juan Pablo II en agosto de 1985.",
+      tips: "Vista con decoro; evite visitarla durante los oficios y pida permiso antes de fotografiar a los fieles.",
+    },
+    "plage-de-lome": {
+      name: "Playa de Lomé",
+      summary: "Larga franja de arena bordeada de cocoteros, lugar de paseo de los habitantes al final del día y los fines de semana.",
+      description:
+        "Lomé se extiende a lo largo de una playa de arena bordeada de cocoteros, desde la frontera con Ghana hasta el puerto. El paseo marítimo, frente al palacio de Lomé y al centro de la ciudad, es un lugar de paseo y descanso para los habitantes, sobre todo al final de la tarde, los fines de semana y en días de fiesta. Las olas y las corrientes son fuertes: se viene por el aire marino, el paseo y la puesta de sol más que para bañarse.",
+      tips: "No se bañe (fuertes corrientes) y abandone la playa antes del anochecer, como recomiendan las autoridades francesas. Lleve pocos objetos de valor.",
+      bestPeriod: "De noviembre a marzo (estación seca), al final de la tarde",
+    },
+    "chateau-viale": {
+      name: "Castillo Viale",
+      summary: "Castillo de piedra de los años cuarenta, encaramado en el bosque en las alturas de Kpalimé.",
+      description:
+        "En las alturas boscosas al noroeste de Kpalimé, en la carretera de Kouma, el castillo Viale fue construido entre 1940 y 1944 por el francés Raymond Viale, cautivado por el paisaje. Propiedad del Estado togolés, ha servido de residencia presidencial y ha acogido a invitados ilustres. Con sus muros de piedra y su torre redonda que emerge del bosque, es una curiosidad arquitectónica y un buen punto de partida para pasear por las colinas del Kloto.",
+      tips: "El acceso al interior depende de los permisos del momento: infórmese en el lugar o a través de su guía.",
+    },
+    "cascade-de-kpime": {
+      name: "Cascada de Kpimé",
+      summary: "Alta cascada que cae en varios saltos por un acantilado boscoso, al norte de Kpalimé.",
+      description:
+        "A unos diez kilómetros al norte de Kpalimé, la cascada de Kpimé se precipita en varios saltos por un acantilado cubierto de bosque. El lugar está ligado a la presa hidroeléctrica de Kpimé, construida en 1962 para abastecer de electricidad a Kpalimé: el caudal varía mucho según la estación y el uso del agua. Una excursión que se combina bien con la cascada de Womé y los pueblos de las colinas.",
+      tips: "El caudal es escaso en la estación seca. Las rocas al pie de la cascada resbalan: lleve calzado adecuado.",
+      bestPeriod: "Durante la estación de lluvias y justo después",
+    },
+    "faille-d-aledjo": {
+      name: "Falla de Alédjo",
+      summary: "Espectacular paso de la carretera nacional 1 a través del acantilado, entre Sokodé y Kara.",
+      description:
+        "En la carretera nacional 1, en la prefectura de Assoli, la ruta hacia el norte atraviesa la escarpa de Alédjo por un estrecho corte en la roca: es la falla de Alédjo, uno de los paisajes de carretera más fotografiados del país. Sus paredes de arenisca cubiertas de vegetación y la vista sobre los valles circundantes la convierten en una parada apreciada a medio camino entre Sokodé y Kara, no lejos de Bafilo.",
+      tips: "Estacione con seguridad fuera de la calzada: el tráfico de camiones es intenso en este eje. Evite circular por aquí de noche.",
+    },
+    "murailles-agbogbo-notse": {
+      name: "Murallas de Agbogbo",
+      summary: "Vestigios de las murallas de tierra del antiguo reino de Notsé, cuna de los ewe.",
+      description:
+        "Según la tradición, el rey Agokoli, cuyo reinado se sitúa en el siglo XVII o a principios del XVIII según las fuentes, hizo levantar alrededor de Notsé murallas de arcilla amasada, el Agbogbo. Su dureza habría empujado a parte de la población a huir: es este éxodo fundador lo que conmemora cada año la fiesta de Agbogbo-za. Solo quedan algunos fragmentos de las murallas, protegidos de la erosión por cobertizos, así como antiguos pavimentos sacados a la luz por las excavaciones arqueológicas.",
+      tips: "Visítelas con un guía local o presentándose ante la jefatura tradicional; algunos lugares cercanos son sagrados.",
+    },
+    "cascade-d-akloa": {
+      name: "Cascada de Akloa",
+      summary: "Alta cascada en pleno bosque, a la que se llega por un sendero desde el pueblo de Akloa.",
+      description:
+        "Cerca de Badou, la cascada de Akloa (o Akrowa) cae desde una alta pared rocosa en un entorno de bosque denso. Se llega a pie por un sendero que sale del pueblo de Akloa y cruza arroyos y plantaciones: la caminata forma parte del placer. La poza y las rocas al pie de la cascada ofrecen una pausa refrescante.",
+      tips: "Vaya con un guía del pueblo, buen calzado y agua; el sendero resbala después de la lluvia.",
+      bestPeriod: "Durante y después de la estación de lluvias (mayor caudal)",
+    },
+    "sites-metallurgiques-bassar": {
+      name: "Sitios de la metalurgia antigua del hierro de Bassar",
+      summary: "Hornos, escorias y antiguas minas de un centro siderúrgico activo durante más de dos milenios.",
+      description:
+        "En torno a Bassar, sobre todo en Bandjéli, Nangbani, Bitchabé o Kabou, se conservan los vestigios de una metalurgia del hierro cuyas huellas más antiguas se remontan, según la UNESCO, al siglo V antes de nuestra era, y que se mantuvo hasta mediados del siglo XX: altos hornos de tierra, bases de hornos, montones de escoria, minas y forjas. Estos sitios figuran desde 2021 en la lista indicativa del Patrimonio Mundial. La visita, todavía poco organizada, se prepara con un guía local.",
+      tips: "Infórmese en Bassar o ante la jefatura de Bandjéli. No recoja escorias ni fragmentos: forman parte del patrimonio arqueológico.",
+      bestPeriod: "De noviembre a marzo (estación seca)",
     },
   },
   circuits: {
@@ -332,7 +407,22 @@ const PT: SeedI18n = {
       name: "Koutammakou, a terra dos batammariba",
       summary: "Paisagem cultural classificada pela UNESCO, famosa pelas suas casas-fortaleza de terra, as takienta.",
       description:
-        "A nordeste de Kara, ao longo da fronteira com o Benim, o Koutammakou é a terra dos batammariba. As suas casas-fortaleza de vários pisos com torreões, as takienta, dispersas numa paisagem de colinas e campos, formam uma paisagem cultural viva inscrita no Património Mundial da UNESCO desde 2004. Do lado togolês, prolonga o sítio das Tata Somba do Benim. Situa-se logo a sul da região das Savanes, desaconselhada: permaneça no Koutammakou e consulte os conselhos aos viajantes antes de partir.",
+        "A nordeste de Kara, ao longo da fronteira com o Benim, o Koutammakou é a terra dos batammariba. As suas casas-fortaleza de vários pisos com torreões, as takienta, dispersas numa paisagem de colinas e campos, formam uma paisagem cultural viva inscrita no Património Mundial da UNESCO desde 2004. Desde 2023, o bem inscrito estende-se também ao vizinho Benim, à terra das Tata Somba. Situa-se logo a sul da região das Savanes, desaconselhada: permaneça no Koutammakou e consulte os conselhos aos viajantes antes de partir.",
+    },
+    notse: {
+      summary: "Berço histórico dos ewe, cidade das muralhas de Agbogbo e da grande festa de Agbogbo-za.",
+      description:
+        "A cerca de 90 km a norte de Lomé, sede da prefeitura de Haho, Notsé é considerada o berço tradicional dos ewe, cujos antepassados se dispersaram daqui para o sul do Togo e do Gana. Podem ver-se os últimos vestígios das muralhas de Agbogbo e um monumento dedicado ao «berço do povo ewe». No início de setembro, a festa de Agbogbo-za reúne ewe do Togo, do Gana, do Benim e da diáspora.",
+    },
+    badou: {
+      summary: "Pequena cidade das colinas de Wawa, entre florestas, plantações de café e cacau e a cascata de Akloa.",
+      description:
+        "Sede da prefeitura de Wawa, perto da fronteira com o Gana, Badou está rodeada de colinas arborizadas onde se cultivam café e cacau. Vem-se sobretudo pela cascata de Akloa, uma das mais conhecidas do país, no fim de uma caminhada pela floresta. Uma etapa de natureza fora dos roteiros habituais, mais a norte do que Kpalimé, na mesma região dos Planaltos.",
+    },
+    bassar: {
+      summary: "Cidade da terra bassar, no coração de uma região de metalurgia antiga do ferro inscrita na lista indicativa da UNESCO.",
+      description:
+        "A oeste de Kara, Bassar é a sede de uma prefeitura de colinas e savanas arborizadas. A sua região é um dos grandes centros antigos da metalurgia do ferro na África Ocidental: fornos, montes de escória e antigas minas pontuam os arredores, sobretudo em torno de Bandjéli. Terra de inhame, celebra também a festa das colheitas D'pontr, que marca o ano novo dos bassar e dos konkomba. Consulte os conselhos aos viajantes antes de partir: a região das Savanes, mais a norte, é desaconselhada.",
     },
   },
   places: {
@@ -437,11 +527,11 @@ const PT: SeedI18n = {
     },
     "adossa-sokode": {
       name: "Adossa, a festa das facas",
-      summary: "Grande festa tem celebrada depois do Mawlid, com danças e demonstrações de bravura.",
+      summary: "Grande festa tem de danças e demonstrações de bravura, hoje associada à festa das colheitas Gadao.",
       description:
-        "Celebrada pelos tem de Sokodé nos dias que se seguem ao Mawlid (aniversário do nascimento do Profeta), a Adossa é uma festa de purificação e de coesão. Bailarinos e músicos desfilam pela cidade; o momento mais espetacular é a dança das facas, em que os participantes manejam lâminas em demonstração de coragem. Uma grande multidão acorre de todo o país.",
-      tips: "A data segue o calendário muçulmano e muda, por isso, todos os anos: confirme-a antes de partir.",
-      bestPeriod: "Alguns dias depois do Mawlid (data variável)",
+        "Grande festa dos tem de Sokodé, a Adossa está tradicionalmente ligada a Gaani, o mês lunar do nascimento do Profeta (3.º mês do calendário muçulmano). É uma festa de purificação e de coesão: bailarinos e músicos desfilam pela cidade, e o momento mais espetacular é a dança das facas, em que os participantes manejam lâminas em demonstração de coragem. É agora celebrada em conjunto com Gadao, a festa das colheitas dos tem, numa grande edição «Adossa-Gadao» que nos últimos anos se realizou em janeiro e atrai uma multidão de todo o país e da diáspora.",
+      tips: "As datas são fixadas todos os anos pelos organizadores em Sokodé (durante muito tempo seguiram o calendário muçulmano): confirme-as antes de partir.",
+      bestPeriod: "Nos últimos anos, em janeiro (datas anunciadas todos os anos)",
     },
     "parc-national-fazao-malfakassa": {
       name: "Parque Nacional de Fazao-Malfakassa",
@@ -479,6 +569,66 @@ const PT: SeedI18n = {
       description:
         "À volta da aldeia de Nadoba, principal ponto de acolhimento dos visitantes, algumas famílias abrem a sua takienta. Construída em terra, esta casa-fortaleza reúne no rés-do-chão o espaço dos animais e os altares e, no andar superior, um terraço, os quartos e os celeiros com torreões. O guia explica o simbolismo de cada parte e as técnicas de construção, transmitidas de geração em geração.",
       tips: "A família que o recebe costuma pedir uma contribuição; peça sempre autorização antes de fotografar.",
+    },
+    "cathedrale-sacre-coeur-lome": {
+      name: "Catedral do Sagrado Coração de Lomé",
+      summary: "Igreja neogótica da época alemã, consagrada em 1902, a dois passos do Grande Mercado.",
+      description:
+        "Construída em pouco mais de um ano, de abril de 1901 a setembro de 1902, sob a administração colonial alemã, a catedral do Sagrado Coração foi consagrada a 21 de setembro de 1902. Com as suas duas flechas e a fachada vermelha e branca de estilo neogótico, domina o bairro do Grande Mercado e continua a ser um dos monumentos emblemáticos da capital. Tornou-se catedral da arquidiocese de Lomé em 1955 e acolheu uma missa do papa João Paulo II em agosto de 1985.",
+      tips: "Vista-se com decoro; evite visitar durante as celebrações e peça autorização antes de fotografar os fiéis.",
+    },
+    "plage-de-lome": {
+      name: "Praia de Lomé",
+      summary: "Longa faixa de areia ladeada de coqueiros, local de passeio dos habitantes ao fim do dia e aos fins de semana.",
+      description:
+        "Lomé estende-se ao longo de uma praia de areia ladeada de coqueiros, da fronteira com o Gana até ao porto. A marginal, em frente ao palácio de Lomé e ao centro da cidade, é um local de passeio e descontração para os habitantes, sobretudo ao fim da tarde, aos fins de semana e nos dias de festa. As ondas e as correntes são fortes: vem-se pelo ar do mar, pelo passeio e pelo pôr do sol, mais do que para tomar banho.",
+      tips: "Não tome banho (correntes fortes) e saia da praia antes do anoitecer, como recomendam as autoridades francesas. Leve poucos objetos de valor.",
+      bestPeriod: "De novembro a março (estação seca), ao fim da tarde",
+    },
+    "chateau-viale": {
+      name: "Castelo Viale",
+      summary: "Castelo de pedra dos anos 1940, empoleirado na floresta nas alturas de Kpalimé.",
+      description:
+        "Nas alturas arborizadas a noroeste de Kpalimé, na estrada de Kouma, o castelo Viale foi construído entre 1940 e 1944 pelo francês Raymond Viale, encantado com a paisagem. Propriedade do Estado togolês, serviu de residência presidencial e acolheu convidados ilustres. Com as suas paredes de pedra e a torre redonda a emergir da floresta, é uma curiosidade arquitetónica e um bom ponto de partida para passeios pelas colinas do Kloto.",
+      tips: "O acesso ao interior depende das autorizações do momento: informe-se no local ou junto do seu guia.",
+    },
+    "cascade-de-kpime": {
+      name: "Cascata de Kpimé",
+      summary: "Alta queda de água em vários degraus numa falésia arborizada, a norte de Kpalimé.",
+      description:
+        "A cerca de dez quilómetros a norte de Kpalimé, a cascata de Kpimé desce em várias quedas uma falésia coberta de floresta. O local está ligado à barragem hidroelétrica de Kpimé, construída em 1962 para abastecer Kpalimé de eletricidade: o caudal varia muito consoante as estações e a utilização da água. Uma excursão a combinar com a cascata de Womé e as aldeias das colinas.",
+      tips: "O caudal é fraco na estação seca. As rochas ao pé da queda são escorregadias: leve calçado adequado.",
+      bestPeriod: "Durante e logo após a estação das chuvas",
+    },
+    "faille-d-aledjo": {
+      name: "Falha de Alédjo",
+      summary: "Espetacular passagem da estrada nacional 1 através da falésia, entre Sokodé e Kara.",
+      description:
+        "Na estrada nacional 1, na prefeitura de Assoli, a estrada para norte atravessa a escarpa de Alédjo por um estreito corte na rocha: é a falha de Alédjo, uma das paisagens rodoviárias mais fotografadas do país. As paredes de arenito cobertas de vegetação e a vista sobre os vales em redor fazem dela uma paragem apreciada a meio caminho entre Sokodé e Kara, não longe de Bafilo.",
+      tips: "Estacione em segurança fora da faixa de rodagem: o tráfego de camiões é intenso neste eixo. Evite circular aqui de noite.",
+    },
+    "murailles-agbogbo-notse": {
+      name: "Muralhas de Agbogbo",
+      summary: "Vestígios das muralhas de terra do antigo reino de Notsé, berço dos ewe.",
+      description:
+        "Segundo a tradição, o rei Agokoli, cujo reinado é situado no século XVII ou no início do século XVIII consoante as fontes, mandou erguer à volta de Notsé muralhas de argila amassada, o Agbogbo. A sua dureza terá levado parte da população a fugir: é esse êxodo fundador que a festa de Agbogbo-za comemora todos os anos. Restam apenas alguns fragmentos das muralhas, protegidos da erosão por abrigos, bem como antigos pavimentos postos a descoberto pelas escavações arqueológicas.",
+      tips: "Visite com um guia local ou apresentando-se à chefatura tradicional; alguns locais vizinhos são sagrados.",
+    },
+    "cascade-d-akloa": {
+      name: "Cascata de Akloa",
+      summary: "Alta cascata no coração da floresta, alcançada por um trilho a partir da aldeia de Akloa.",
+      description:
+        "Perto de Badou, a cascata de Akloa (ou Akrowa) cai de uma alta parede rochosa num cenário de floresta densa. Chega-se a pé por um trilho que parte da aldeia de Akloa e atravessa ribeiros e plantações: a caminhada faz parte do prazer. A lagoa e as rochas ao pé da queda oferecem uma pausa refrescante.",
+      tips: "Vá com um guia da aldeia, bom calçado e água; o trilho é escorregadio depois da chuva.",
+      bestPeriod: "Durante e depois da estação das chuvas (caudal mais forte)",
+    },
+    "sites-metallurgiques-bassar": {
+      name: "Sítios da metalurgia antiga do ferro de Bassar",
+      summary: "Fornos, escórias e antigas minas de um centro siderúrgico ativo durante mais de dois milénios.",
+      description:
+        "Em redor de Bassar, nomeadamente em Bandjéli, Nangbani, Bitchabé ou Kabou, subsistem os vestígios de uma metalurgia do ferro cujos vestígios mais antigos remontam, segundo a UNESCO, ao século V antes da nossa era, e que se manteve até meados do século XX: altos-fornos de terra, bases de fornos, montes de escória, minas e forjas. Estes sítios constam desde 2021 da lista indicativa do Património Mundial. A visita, ainda pouco organizada, prepara-se com um guia local.",
+      tips: "Informe-se em Bassar ou junto da chefatura de Bandjéli. Não apanhe escórias nem fragmentos: fazem parte do património arqueológico.",
+      bestPeriod: "De novembro a março (estação seca)",
     },
   },
   circuits: {
@@ -595,7 +745,25 @@ const AR: SeedI18n = {
       region: "منطقة كارا",
       summary: "مشهد ثقافي مدرج في قائمة اليونسكو، يشتهر بمنازله الحصينة المبنية من الطين، التاكيينتا.",
       description:
-        "شمال شرق كارا، على امتداد الحدود مع بنين، يقع كوتاماكو، بلاد شعب الباتاماريبا. منازلهم الحصينة ذات الطوابق والأبراج الصغيرة، التاكيينتا، المنتشرة وسط مشهد من التلال والحقول، تشكّل مشهدًا ثقافيًا حيًّا مدرجًا في قائمة التراث العالمي لليونسكو منذ عام 2004. وهو امتداد، من الجهة التوغولية، لموقع تاتا سومبا في بنين. يقع مباشرة جنوب منطقة السافانا التي يُنصح بتجنّبها: ابقَ داخل كوتاماكو وراجع نصائح السفر قبل الانطلاق.",
+        "شمال شرق كارا، على امتداد الحدود مع بنين، يقع كوتاماكو، بلاد شعب الباتاماريبا. منازلهم الحصينة ذات الطوابق والأبراج الصغيرة، التاكيينتا، المنتشرة وسط مشهد من التلال والحقول، تشكّل مشهدًا ثقافيًا حيًّا مدرجًا في قائمة التراث العالمي لليونسكو منذ عام 2004. ومنذ عام 2023 امتدّ الموقع المُدرج ليشمل أيضًا بنين المجاورة، بلاد تاتا سومبا. يقع مباشرة جنوب منطقة السافانا التي يُنصح بتجنّبها: ابقَ داخل كوتاماكو وراجع نصائح السفر قبل الانطلاق.",
+    },
+    notse: {
+      name: "نوتسيه",
+      summary: "المهد التاريخي لشعب الإيوي، مدينة أسوار أغبوغبو ومهرجان أغبوغبو-زا الكبير.",
+      description:
+        "على بُعد نحو 90 كم شمال لومي، وهي مركز محافظة هاهو، تُعدّ نوتسيه المهد التقليدي لشعب الإيوي الذي تفرّق أجداده منها نحو جنوب توغو وغانا. يمكن رؤية آخر بقايا أسوار أغبوغبو ونصب مكرّس لـ«مهد شعب الإيوي». وفي مطلع سبتمبر يجمع مهرجان أغبوغبو-زا أبناء الإيوي من توغو وغانا وبنين والمهجر.",
+    },
+    badou: {
+      name: "بادو",
+      summary: "بلدة صغيرة في تلال واوا، بين الغابات ومزارع البن والكاكاو وشلال أكلوا.",
+      description:
+        "بادو مركز محافظة واوا قرب الحدود الغانية، تحيط بها تلال مكسوّة بالغابات يُزرع فيها البن والكاكاو. يأتيها الزوار خصوصًا من أجل شلال أكلوا، أحد أشهر شلالات البلاد، في نهاية مسير عبر الغابة. محطة طبيعية بعيدة عن المسارات المعتادة، إلى الشمال من كباليمي في منطقة الهضاب نفسها.",
+    },
+    bassar: {
+      name: "باسار",
+      summary: "مدينة بلاد الباسار، في قلب منطقة لتعدين الحديد القديم مدرجة في القائمة التمهيدية لليونسكو.",
+      description:
+        "إلى الغرب من كارا، باسار مركز محافظة من التلال والسافانا المشجّرة. وتُعدّ منطقتها من أكبر المراكز القديمة لصناعة الحديد في غرب أفريقيا: أفران وأكوام من الخَبَث ومناجم قديمة تنتشر في الأرجاء، لا سيما حول باندجيلي. وهي أرض اليام، وتحتفل أيضًا بمهرجان الحصاد «دبونتر» الذي يمثّل رأس السنة لدى شعبي الباسار والكونكومبا. راجع نصائح السفر قبل الانطلاق: يُنصح بتجنّب منطقة السافانا الواقعة شمالًا.",
     },
   },
   places: {
@@ -700,11 +868,11 @@ const AR: SeedI18n = {
     },
     "adossa-sokode": {
       name: "أدوسا، مهرجان السكاكين",
-      summary: "مهرجان كبير لشعب التيم يُقام بعد المولد النبوي، برقصات وعروض للشجاعة.",
+      summary: "مهرجان كبير لشعب التيم برقصات وعروض للشجاعة، يقترن اليوم بمهرجان الحصاد غاداو.",
       description:
-        "يحتفل شعب التيم في سوكوديه بمهرجان أدوسا في الأيام التي تلي المولد النبوي، وهو مهرجان للتطهّر والتلاحم. يجوب الراقصون والموسيقيون المدينة، وأكثر اللحظات إثارة رقصة السكاكين، حيث يتعامل المشاركون مع النصال استعراضًا لشجاعتهم. وتتوافد حشود كبيرة من أنحاء البلاد.",
-      tips: "يتبع الموعد التقويم الهجري، ولذلك يتغيّر كل عام: تحقّق منه قبل السفر.",
-      bestPeriod: "بعد المولد النبوي ببضعة أيام (موعد متغيّر)",
+        "أدوسا هو المهرجان الكبير لشعب التيم في سوكوديه، ويرتبط تقليديًا بشهر «غاني»، الشهر القمري لمولد النبي (الشهر الثالث من التقويم الهجري). وهو مهرجان للتطهّر والتلاحم: يجوب الراقصون والموسيقيون المدينة، وأكثر اللحظات إثارة رقصة السكاكين، حيث يتعامل المشاركون مع النصال استعراضًا لشجاعتهم. ويُحتفل به الآن مع غاداو، مهرجان الحصاد لدى التيم، في دورة كبرى باسم «أدوسا-غاداو» أُقيمت في السنوات الأخيرة في يناير، وتجتذب حشودًا من أنحاء البلاد ومن المهجر.",
+      tips: "يحدّد المنظّمون في سوكوديه المواعيد كل عام (وقد ظلّت طويلًا تتبع التقويم الهجري): تحقّق منها قبل السفر.",
+      bestPeriod: "في السنوات الأخيرة في يناير (تُعلن المواعيد كل عام)",
     },
     "parc-national-fazao-malfakassa": {
       name: "متنزه فازاو-مالفاكاسا الوطني",
@@ -742,6 +910,66 @@ const AR: SeedI18n = {
       description:
         "حول قرية نادوبا، نقطة الاستقبال الرئيسية للزوار، تفتح بعض العائلات أبواب تاكيينتا خاصتها. هذا المنزل الحصين المبني من الطين يضم في الطابق الأرضي مكان الحيوانات والمذابح، وفي الطابق العلوي سطحًا وغرف النوم ومخازن الحبوب ذات الأبراج الصغيرة. ويشرح المرشد رمزية كل جزء ومهارات البناء المتوارثة جيلًا بعد جيل.",
       tips: "تطلب العائلة المضيفة عادة مساهمة مالية؛ واستأذن دائمًا قبل التصوير.",
+    },
+    "cathedrale-sacre-coeur-lome": {
+      name: "كاتدرائية القلب الأقدس في لومي",
+      summary: "كنيسة على الطراز القوطي الجديد من الحقبة الألمانية، كُرّست عام 1902، على مقربة من السوق الكبير.",
+      description:
+        "شُيّدت كاتدرائية القلب الأقدس في ما يزيد قليلًا على عام، من أبريل 1901 إلى سبتمبر 1902، في عهد الإدارة الاستعمارية الألمانية، وكُرّست في 21 سبتمبر 1902. ببرجيها المدبّبين وواجهتها الحمراء والبيضاء على الطراز القوطي الجديد، تهيمن على حيّ السوق الكبير وتبقى من المعالم الرمزية للعاصمة. أصبحت كاتدرائية أبرشية لومي عام 1955، واستضافت قدّاسًا ترأّسه البابا يوحنا بولس الثاني في أغسطس 1985.",
+      tips: "ارتدِ لباسًا محتشمًا، وتجنّب الزيارة أثناء الصلوات، واستأذن قبل تصوير المصلّين.",
+    },
+    "plage-de-lome": {
+      name: "شاطئ لومي",
+      summary: "شريط رملي طويل تحفّه أشجار جوز الهند، يتنزّه فيه السكان آخر النهار وفي عطلات نهاية الأسبوع.",
+      description:
+        "تمتدّ لومي على طول شاطئ رملي تحفّه أشجار جوز الهند، من الحدود الغانية حتى الميناء. الواجهة البحرية، قبالة قصر لومي ووسط المدينة، مكان للتنزّه والاسترخاء لدى السكان، ولا سيما في آخر العصر وفي عطلات نهاية الأسبوع والأعياد. الأمواج والتيارات قوية: يأتي الناس للنسيم البحري والتنزّه ومشاهدة الغروب لا للسباحة.",
+      tips: "لا تسبح (تيارات قوية)، وغادر الشاطئ قبل حلول الظلام كما توصي السلطات الفرنسية. احمل معك أقل قدر من الأغراض الثمينة.",
+      bestPeriod: "من نوفمبر إلى مارس (موسم الجفاف)، في آخر العصر",
+    },
+    "chateau-viale": {
+      name: "قصر فيال",
+      summary: "قصر حجري من أربعينيات القرن العشرين، يعلو الغابة على مرتفعات كباليمي.",
+      description:
+        "على المرتفعات المكسوّة بالغابات شمال غرب كباليمي، على طريق كوما، شيّد الفرنسي رايمون فيال هذا القصر بين عامَي 1940 و1944 بعدما أسره جمال المكان. وهو ملك للدولة التوغولية، وقد استُخدم مقرًّا رئاسيًا واستقبل ضيوفًا بارزين. بجدرانه الحجرية وبرجه المستدير الذي يبرز من بين الأشجار، يُعدّ طرفة معمارية ونقطة انطلاق جيدة للتنزّه في تلال كلوتو.",
+      tips: "يتوقّف دخول المبنى على الأذونات المعمول بها: استفسر في المكان أو عبر مرشدك.",
+    },
+    "cascade-de-kpime": {
+      name: "شلال كبيميه",
+      summary: "شلال عالٍ ينحدر على عدّة درجات فوق جرف مكسوّ بالغابات، شمال كباليمي.",
+      description:
+        "على بُعد نحو عشرة كيلومترات شمال كباليمي، ينحدر شلال كبيميه على عدّة مساقط فوق جرف تغطّيه الغابة. ويرتبط الموقع بسدّ كبيميه الكهرومائي الذي بُني عام 1962 لتزويد كباليمي بالكهرباء، لذلك يتفاوت تدفّق المياه كثيرًا بحسب الفصول واستخدام المياه. رحلة يسهل الجمع بينها وبين شلال وومي وقرى التلال.",
+      tips: "يضعف تدفّق المياه في موسم الجفاف. الصخور عند أسفل الشلال زلقة: انتعل حذاءً مناسبًا.",
+      bestPeriod: "خلال موسم الأمطار وبعده مباشرة",
+    },
+    "faille-d-aledjo": {
+      name: "صدع أليدجو",
+      summary: "ممرّ مذهل للطريق الوطني 1 عبر الجرف، بين سوكوديه وكارا.",
+      description:
+        "على الطريق الوطني 1، في محافظة أسولي، يعبر طريق الشمال جرف أليدجو من خلال شقّ ضيّق في الصخر: إنه صدع أليدجو، من أكثر المناظر على الطرق تصويرًا في البلاد. جدرانه من الحجر الرملي المكسوّة بالنباتات والإطلالة على الأودية المحيطة تجعله محطة محبّبة في منتصف الطريق بين سوكوديه وكارا، غير بعيد عن بافيلو.",
+      tips: "توقّف بأمان خارج الطريق، فحركة الشاحنات كثيفة على هذا المحور. تجنّب القيادة هنا ليلًا.",
+    },
+    "murailles-agbogbo-notse": {
+      name: "أسوار أغبوغبو",
+      summary: "بقايا الأسوار الطينية لمملكة نوتسيه القديمة، مهد شعب الإيوي.",
+      description:
+        "تروي التقاليد أن الملك أغوكولي، الذي يُحدَّد حكمه في القرن السابع عشر أو مطلع الثامن عشر بحسب المصادر، أمر ببناء أسوار من الطين المعجون حول نوتسيه تُعرف بـ«أغبوغبو». ويُقال إن قسوته دفعت جزءًا من السكان إلى الفرار، وهذه الهجرة المؤسِّسة هي ما يحييه مهرجان أغبوغبو-زا كل عام. لم يبقَ من الأسوار سوى أجزاء قليلة محميّة من التعرية بمظلّات، إضافة إلى أرضيات قديمة كشفت عنها الحفريات الأثرية.",
+      tips: "قم بالزيارة مع مرشد محلي أو بعد التعريف بنفسك لدى الزعامة التقليدية؛ بعض الأماكن المجاورة مقدّسة.",
+    },
+    "cascade-d-akloa": {
+      name: "شلال أكلوا",
+      summary: "شلال عالٍ في قلب الغابة، يُبلغ عبر درب ينطلق من قرية أكلوا.",
+      description:
+        "قرب بادو، ينهمر شلال أكلوا (أو أكروا) من جدار صخري عالٍ وسط غابة كثيفة. يُبلغ سيرًا على درب ينطلق من قرية أكلوا ويعبر جداول ومزارع، والمسير جزء من المتعة. وتوفّر البركة والصخور عند أسفل الشلال استراحة منعشة.",
+      tips: "اذهب برفقة مرشد من القرية، مع حذاء جيد وماء؛ الدرب زلق بعد المطر.",
+      bestPeriod: "خلال موسم الأمطار وبعده (تدفّق أقوى)",
+    },
+    "sites-metallurgiques-bassar": {
+      name: "مواقع تعدين الحديد القديم في باسار",
+      summary: "أفران وخَبَث ومناجم قديمة لمركز لصناعة الحديد ظلّ نشطًا أكثر من ألفي عام.",
+      description:
+        "حول باسار، ولا سيما في باندجيلي ونانغباني وبيتشابيه وكابو، لا تزال قائمة بقايا صناعة للحديد تعود أقدم آثارها، بحسب اليونسكو، إلى القرن الخامس قبل الميلاد، واستمرّت حتى منتصف القرن العشرين: أفران صهر طينية عالية، وقواعد أفران، وأكوام من الخَبَث، ومناجم وورش حدادة. وقد أُدرجت هذه المواقع منذ عام 2021 في القائمة التمهيدية للتراث العالمي. الزيارة ما زالت قليلة التنظيم، وتُحضَّر مع مرشد محلي.",
+      tips: "استفسر في باسار أو لدى زعامة باندجيلي. لا تلتقط الخَبَث أو القطع، فهي جزء من التراث الأثري.",
+      bestPeriod: "من نوفمبر إلى مارس (موسم الجفاف)",
     },
   },
   circuits: {

@@ -14,6 +14,9 @@ import {
   type PlaceCategory,
   type StaySearchItem,
   type TripSummary,
+  type VoyageEventCard,
+  type VoyageEventKind,
+  type VoyageEventOccurrence,
 } from "@hwe/types";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
@@ -646,5 +649,137 @@ export function VoyageCrumbs({ items }: { items: Array<{ href?: string; label: s
         </React.Fragment>
       ))}
     </nav>
+  );
+}
+
+// ─────────────────────────── Fêtes et événements ───────────────────────────
+
+export const EVENT_KIND_ICON: Record<VoyageEventKind, IconName> = {
+  NATIONAL: "landmark",
+  RELIGIOUS: "sparkles",
+  TRADITIONAL: "users",
+  FESTIVAL: "party",
+  SEASONAL: "flame",
+};
+
+/** Dégradé de repli (sans photo) : celui de la catégorie de lieu la plus proche. */
+export const EVENT_KIND_CATEGORY: Record<VoyageEventKind, PlaceCategory> = {
+  NATIONAL: "HISTORY",
+  RELIGIOUS: "RELIGION",
+  TRADITIONAL: "CULTURE",
+  FESTIVAL: "FESTIVAL",
+  SEASONAL: "LEISURE",
+};
+
+const MONTH_ONLY: Intl.DateTimeFormatOptions = { month: "long", year: "numeric" };
+const DAY_MONTH: Intl.DateTimeFormatOptions = { day: "numeric", month: "long" };
+const FULL: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "long", year: "numeric" };
+
+/** « sam. 10 janvier 2027 », « 8 – 10 janvier 2027 », « vers le 20 mars 2027 », « février – mars 2027 ». */
+export function fmtOccurrence(o: VoyageEventOccurrence): string {
+  if (o.period) {
+    const a = fmtDay(o.start, { month: "long" });
+    const b = fmtDay(o.end, MONTH_ONLY);
+    return o.start.slice(0, 7) === o.end.slice(0, 7) ? fmtDay(o.start, MONTH_ONLY) : `${a} – ${b}`;
+  }
+  const one = o.start === o.end;
+  const text = one ? fmtDay(o.start, FULL) : `${fmtDay(o.start, DAY_MONTH)} – ${fmtDay(o.end, { ...DAY_MONTH, year: "numeric" })}`;
+  return o.approx ? t("voy.ev.around", { date: text }) : text;
+}
+
+/** Pastille de date (jour + mois abrégé), ou mois pour une période. */
+export function EventDateChip({ o }: { o: VoyageEventOccurrence | undefined }) {
+  if (!o) return null;
+  return (
+    <div className="shrink-0 w-14 rounded-xl bg-brand-50 dark:bg-brand-900/40 text-brand-800 dark:text-brand-200 text-center py-1.5 leading-tight" aria-hidden="true">
+      {o.period ? (
+        <>
+          <div className="text-[11px] uppercase tracking-wide">{fmtDay(o.start, { month: "short" })}</div>
+          <div className="text-[10px] opacity-75">{t("voy.ev.chipPeriod")}</div>
+        </>
+      ) : (
+        <>
+          <div className="text-xl font-display">{o.approx ? "~" : ""}{fmtDay(o.start, { day: "numeric" })}</div>
+          <div className="text-[11px] uppercase tracking-wide">{fmtDay(o.start, { month: "short" })}</div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function EventBadges({ e }: { e: Pick<VoyageEventCard, "kind" | "publicHoliday" | "caution"> }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 flex-wrap">
+      <Badge tone="ocean">
+        <span className="inline-flex items-center gap-1">
+          <Icon name={EVENT_KIND_ICON[e.kind]} size={12} /> {t(`voy.ev.kind.${e.kind}`)}
+        </span>
+      </Badge>
+      {e.publicHoliday && <Badge tone="accent">{t("voy.ev.holiday")}</Badge>}
+      {e.caution && (
+        <Badge tone="danger">
+          <span className="inline-flex items-center gap-1">
+            <Icon name="alert" size={12} /> {t("voy.ev.caution")}
+          </span>
+        </Badge>
+      )}
+    </span>
+  );
+}
+
+/** Où : lieu, destination ou texte libre. */
+export function eventWhere(e: VoyageEventCard): string | null {
+  return e.place?.name ?? e.destination?.name ?? e.where;
+}
+
+export function EventTile({ e }: { e: VoyageEventCard }) {
+  const o = e.occurrences[0];
+  const where = eventWhere(e);
+  return (
+    <Link
+      href={`/voyage/fetes/${e.slug}`}
+      className="group rounded-2xl border border-border bg-surface overflow-hidden shadow-sm hover:shadow-card transition flex flex-col min-w-0 text-ink hover:text-ink"
+    >
+      <div className="relative aspect-[3/2] overflow-hidden">
+        <VoyageCover cover={e.cover} alt={e.name} category={EVENT_KIND_CATEGORY[e.kind]} className="group-hover:scale-105 transition-transform duration-500" />
+        {o && (
+          <span className="absolute top-3 start-3 rounded-full bg-black/60 backdrop-blur text-white text-xs px-2.5 py-1 max-w-[calc(100%-1.5rem)] truncate">
+            {fmtOccurrence(o)}
+          </span>
+        )}
+      </div>
+      <div className="p-4 flex flex-col gap-2 flex-1 min-w-0">
+        <EventBadges e={e} />
+        <div className="font-semibold [overflow-wrap:anywhere]">{e.name}</div>
+        <p className="text-sm text-ink-muted line-clamp-3">{e.summary}</p>
+        {where && (
+          <div className="mt-auto pt-1 text-xs text-ink-muted inline-flex items-center gap-1 min-w-0">
+            <Icon name="mapPin" size={12} className="shrink-0" /> <span className="truncate">{where}</span>
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
+/** Ligne compacte (calendrier, carnet, fiches destination / lieu). */
+export function EventRow({ e, o = e.occurrences[0] }: { e: VoyageEventCard; o?: VoyageEventOccurrence }) {
+  const where = eventWhere(e);
+  return (
+    <Link
+      href={`/voyage/fetes/${e.slug}`}
+      className="flex gap-3 items-start rounded-2xl border border-border bg-surface p-3 hover:border-brand-400 hover:shadow-card transition text-ink hover:text-ink min-w-0"
+    >
+      <EventDateChip o={o} />
+      <span className="min-w-0 flex-1 space-y-1">
+        <span className="block font-semibold [overflow-wrap:anywhere]">{e.name}</span>
+        <span className="block text-xs text-ink-muted">
+          {o ? fmtOccurrence(o) : ""}
+          {where ? ` · ${where}` : ""}
+        </span>
+        <span className="block text-sm text-ink-muted line-clamp-2">{e.summary}</span>
+        <EventBadges e={e} />
+      </span>
+    </Link>
   );
 }

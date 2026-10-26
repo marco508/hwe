@@ -92,6 +92,17 @@ const ES: SeedI18n = {
       description:
         "En el noreste del país, el Parque Nacional de Comoé es una de las mayores áreas protegidas de África Occidental, inscrita en el Patrimonio Mundial de la UNESCO. Atravesado por el río Comoé, combina sabanas, bosques de galería e islotes de selva densa, y alberga elefantes, hipopótamos, búfalos, antílopes, chimpancés y numerosas aves. Importante: Francia y el Reino Unido desaconsejan actualmente de forma formal viajar allí, sea cual sea el motivo (riesgo terrorista y de secuestro). Se presenta aquí para preparar una visita cuando las condiciones lo permitan.",
     },
+    "abengourou": {
+      region: "Indénié-Djuablin",
+      summary: "Capital del reino agni de Indénié, ciudad del cacao y de la fiesta del ñame.",
+      description: "En el este del país, no lejos de la frontera con Ghana, Abengourou es la sede del reino agni de Indénié, fundado en el siglo XVIII por pueblos akan llegados del actual Ghana. Ciudad del cacao y del café, alberga la corte real, donde cada año, en febrero o marzo, se celebra la fiesta del ñame, gran momento de la vida tradicional agni. Una etapa para descubrir la cultura akan del este, a pocas horas por carretera de Abiyán.",
+    },
+    "parc-national-de-tai": {
+      name: "Parque Nacional de Taï",
+      region: "Suroeste",
+      summary: "Uno de los últimos grandes bosques primarios de África Occidental, Patrimonio de la UNESCO, cerca de la frontera con Liberia.",
+      description: "En el suroeste del país, el Parque Nacional de Taï protege más de 4500 km² de uno de los últimos bosques primarios de África Occidental, en torno al monte Niénokoué. Inscrito en el Patrimonio Mundial de la UNESCO desde 1982 y reserva de la biosfera, alberga elefantes de bosque, hipopótamos pigmeos, búfalos, duikers, leopardos y numerosos monos, entre ellos chimpancés. Importante: Francia desaconseja, salvo razón imperiosa, viajar a la ciudad de Taï y a la zona fronteriza con Liberia, y el Reino Unido desaconseja las inmediaciones de la frontera; consulte las recomendaciones de viaje actualizadas y las condiciones de acceso con la Oficina Marfileña de Parques y Reservas antes de cualquier proyecto.",
+    },
   },
   places: {
     "cathedrale-saint-paul-abidjan": {
@@ -118,7 +129,7 @@ const ES: SeedI18n = {
       name: "Maquis y attiéké",
       summary: "Pescado a la brasa, alloco y attiéké en los maquis, corazón de la vida de Abiyán.",
       description:
-        "El maquis, restaurante popular a menudo al aire libre, es una institución marfileña. Se come pescado o pollo a la brasa con attiéké (sémola de mandioca fermentada), alloco (plátano macho frito), salsa de semillas de palma o kedjenou (guiso cocido a fuego lento en vasija de barro), acompañados de zumo de bissap o de gnamankoudji (jengibre). El garba, attiéké con atún frito, es el plato callejero por excelencia. Los animados maquis de Treichville, Marcory o la rue Princesse en Yopougon son también lugares de música.",
+        "El maquis, restaurante popular a menudo al aire libre, es una institución marfileña. Se come pescado o pollo a la brasa con attiéké (sémola de mandioca fermentada), alloco (plátano macho frito), salsa de semillas de palma o kedjenou (guiso cocido a fuego lento en vasija de barro), acompañados de zumo de bissap o de gnamankoudji (jengibre). El garba, attiéké con atún frito, es el plato callejero por excelencia. Los animados maquis de Treichville, Marcory o Yopougon son también lugares de música.",
       tips: "Por la noche, desplácese en taxi en lugar de a pie, sobre todo en los barrios populares.",
     },
     "quartier-france-grand-bassam": {
@@ -249,6 +260,73 @@ const ES: SeedI18n = {
       tips: "No vaya mientras las recomendaciones de viaje oficiales lo desaconsejen formalmente; consúltelas con regularidad.",
       bestPeriod: "Estación seca (de diciembre a abril), cuando las condiciones de seguridad lo permitan",
     },
+    "grande-mosquee-du-plateau-abidjan": {
+      name: "Gran Mezquita del Plateau",
+      summary: "Mezquita de cúpula azul y alto minarete en pleno barrio de negocios.",
+      description: "En medio de las torres del Plateau, la gran mezquita se reconoce desde lejos por su cúpula azul y su esbelto minarete. Es un lugar de oración importante para la comunidad musulmana de Abiyán, muy concurrido los viernes a mediodía, durante el ramadán y en las grandes fiestas como la Tabaski. Se admira sobre todo desde el exterior, durante un paseo por el centro administrativo entre la catedral de San Pablo y el Museo de las Civilizaciones.",
+      tips: "El acceso a la sala de oración no siempre es posible para los no musulmanes: pregunte en el lugar, fuera de las horas de oración y con ropa que cubra.",
+    },
+    "palais-de-la-culture-treichville": {
+      name: "Palacio de la Cultura Bernard Binlin Dadié",
+      summary: "Gran centro cultural a orillas de la laguna, entre los dos puentes de Treichville.",
+      description: "Inaugurado en 1999 en el frente lagunar de Treichville, entre los puentes Félix Houphouët-Boigny y General de Gaulle, el Palacio de la Cultura es uno de los principales escenarios de Abiyán. Reúne dos salas de espectáculos y un amplio teatro al aire libre donde se suceden conciertos, teatro, danza y grandes ceremonias; es la sede principal del MASA, el mercado de las artes escénicas africanas. En la explanada, el primer avión presidencial marfileño se ha convertido en biblioteca.",
+      tips: "Consulte la programación antes de ir: el lugar se anima sobre todo las noches de espectáculo. Bonitas vistas de la laguna y de las torres del Plateau.",
+    },
+    "marche-de-treichville": {
+      name: "Mercado de Treichville",
+      summary: "Gran mercado cubierto de varios niveles en un barrio popular y comercial.",
+      description: "Treichville, barrio popular junto al puerto, es una de las grandes zonas comerciales de Abiyán. Su mercado cubierto, de varios niveles en torno a un patio central, rebosa de puestos de alimentos, pescado ahumado, especias, telas y artículos cotidianos. Una inmersión en la Abiyán del pequeño comercio, fácil de combinar con una visita al cercano Palacio de la Cultura.",
+      tips: "Vaya por la mañana, mantenga sus pertenencias cerca, pida permiso antes de fotografiar a los comerciantes y regatee con una sonrisa.",
+    },
+    "jardin-botanique-de-bingerville": {
+      name: "Jardín Botánico de Bingerville",
+      summary: "Jardín creado en 1904 en la antigua capital colonial, al este de Abiyán.",
+      description: "En Bingerville, municipio de la aglomeración que fue capital de la colonia a principios del siglo XX, el jardín botánico se creó en 1904 por iniciativa del gobernador Angoulvant, detrás de su residencia. Declarado monumento histórico, reúne palmerales, ceibas gigantes, árboles plantados por personalidades y viveros, a lo largo de paseos sombreados donde se observan aves, insectos y ardillas. Una escapada verde a una veintena de kilómetros del centro de Abiyán, apreciada por las familias los fines de semana.",
+      tips: "Evite las horas de más calor y combine la visita con un paseo por el casco antiguo de Bingerville.",
+    },
+    "vie-nocturne-abidjan": {
+      name: "Noches de Abiyán: Yopougon, Marcory, Treichville",
+      summary: "Maquis, puestos de alloco y discotecas: la ciudad del coupé-décalé también vive de noche.",
+      description: "Abiyán es famosa en toda África Occidental por sus noches, al ritmo del coupé-décalé, el zouglou y los DJ. En Yopougon, el municipio más poblado de la ciudad, los maquis se cuentan por cientos; la célebre rue Princesse, demolida en 2011, sigue en la memoria de todos. En Marcory, la Zona 4 y Biétry concentran restaurantes, bares y clubes más selectos, mientras que Treichville y sus maquis conservan un ambiente popular. Los fines de semana y en las fiestas de fin de año, la fiesta dura hasta el amanecer.",
+      tips: "De noche, desplácese en taxi con taxímetro o VTC, lleve solo lo necesario y esté atento a la salida de los locales. Los sitios de moda cambian rápido: pida consejo en su alojamiento.",
+    },
+    "phare-de-grand-bassam": {
+      name: "Faro de Grand-Bassam",
+      summary: "Antiguo faro de 1914, parte de la ciudad histórica inscrita en el Patrimonio Mundial.",
+      description: "Construido entre diciembre de 1913 y febrero de 1914 y puesto en servicio en 1915, el faro de Grand-Bassam guio a los barcos hasta 1951, cuando lo relevó el de Port-Bouët, en Abiyán. Esta alta torre redonda de mampostería, típica de la arquitectura de la época, forma parte de la ciudad histórica inscrita en el Patrimonio Mundial de la UNESCO en 2012. Se alza entre las casas del barrio, no lejos de la playa.",
+      tips: "Se contempla desde el exterior: combínelo con un paseo a pie por el Quartier France.",
+    },
+    "parc-national-des-iles-ehotile": {
+      name: "Parque Nacional de las Islas Ehotilé",
+      summary: "Archipiélago protegido de la laguna Aby: manglares, aves, murciélagos frugívoros e islas sagradas.",
+      description: "Creado en 1974 por iniciativa de las comunidades ribereñas, el Parque Nacional de las Islas Ehotilé protege seis islas de la laguna Aby, cerca de su desembocadura, entre Assinie-Mafia y Adiaké. Se han censado más de ciento veinte especies de aves, así como una importante colonia de murciélagos frugívoros en la isla Balouaté, que los habitantes consideran la presencia de sus difuntos; el manatí, hoy escaso, aún frecuenta sus aguas. El archipiélago, que incluye una isla sagrada, es también sitio Ramsar. Se descubre en barca, entre manglares y brazos de laguna.",
+      tips: "Salga de Assinie-Mafia o de Adiaké con un barquero o un guía recomendado, exija chalecos salvavidas y respete los tabúes de las islas sagradas.",
+    },
+    "mont-tonkoui": {
+      name: "Monte Tonkoui",
+      summary: "Una de las cumbres más altas del país, con amplias vistas sobre las montañas del oeste.",
+      description: "Al oeste de Man se alza el monte Tonkoui, o Tonkpi («gran montaña» en dan), uno de los puntos culminantes de Costa de Marfil, a más de 1100 metros de altitud. Una carretera de montaña sube entre bosques y plantaciones hasta las antenas de la cumbre; en días despejados, la vista abarca las sierras boscosas y los pueblos de la región de las dieciocho montañas. El aire es claramente más fresco que en la llanura.",
+      tips: "Suba temprano por la mañana, antes de que las nubes cubran la cima, con un conductor local y un vehículo adecuado a la pista; lleve algo de abrigo.",
+    },
+    "foret-sacree-de-gbepleu": {
+      name: "Bosque sagrado de los monos de Gbêpleu",
+      summary: "Bosque sagrado a las puertas de Man, poblado de monos acostumbrados a los visitantes.",
+      description: "A unos tres kilómetros del centro de Man, el bosque de Gbêpleu es un lugar sagrado vinculado, según la tradición local, a la fundación de la ciudad en el siglo XIX. Protegido por tabúes tradicionales, alberga una importante población de monos verdes que los visitantes acuden a observar acompañados por los guardianes del lugar. Una visita corta muy apreciada por las familias, que se combina fácilmente con la cascada.",
+      tips: "Siga las indicaciones de los guardianes: alimente a los monos solo si ellos lo permiten, mantenga la distancia y no entre en las partes prohibidas del bosque. Suele pedirse una contribución.",
+    },
+    "cour-royale-de-l-indenie": {
+      name: "Corte real de Indénié",
+      summary: "Residencia del rey de Indénié, corazón de la vida tradicional agni.",
+      description: "En el centro de Abengourou, la corte real es la residencia del rey de Indénié, soberano tradicional de los agni n'dénian. El palacio, cuyo origen se remonta a finales del siglo XIX, conserva objetos del patrimonio real y acoge las grandes ceremonias, empezando por la fiesta del ñame y el culto de los taburetes reales. Una inmersión en los reinos akan, todavía muy vivos en Costa de Marfil.",
+      tips: "Infórmese con antelación sobre las condiciones de visita, siga el protocolo de la corte y fotografíe solo con autorización.",
+    },
+    "foret-et-chimpanzes-de-tai": {
+      name: "Bosque primario y fauna de Taï",
+      summary: "Árboles gigantes, chimpancés e hipopótamos pigmeos en un bosque Patrimonio de la UNESCO.",
+      description: "El bosque de Taï es un vestigio del gran bosque guineano que antaño cubría buena parte de África Occidental: árboles gigantes, lianas, ríos y relieves graníticos. Protegido desde la época colonial y declarado parque nacional en 1972, alberga una fauna excepcional, con especies amenazadas como el hipopótamo pigmeo y varios primates, entre ellos los chimpancés. La deforestación de los alrededores y la caza furtiva siguen siendo las principales amenazas para el parque.",
+      tips: "No vaya sin consultar las recomendaciones de viaje (zona desaconsejada salvo razón imperiosa); toda visita se organiza con la Oficina Marfileña de Parques y Reservas y guías autorizados.",
+      bestPeriod: "Estación seca (diciembre a febrero), si las condiciones de seguridad lo permiten",
+    },
   },
   circuits: {
     "cote-d-ivoire-essentiel-8-jours": {
@@ -363,6 +441,17 @@ const PT: SeedI18n = {
       description:
         "No nordeste do país, o Parque Nacional de Comoé é uma das maiores áreas protegidas da África Ocidental, inscrita no Património Mundial da UNESCO. Atravessado pelo rio Comoé, combina savanas, florestas-galeria e manchas de floresta densa, e abriga elefantes, hipopótamos, búfalos, antílopes, chimpanzés e inúmeras aves. Importante: a França e o Reino Unido desaconselham atualmente de forma formal qualquer deslocação ao parque, seja qual for o motivo (risco terrorista e de rapto). É aqui apresentado para preparar uma visita quando as condições o permitirem.",
     },
+    "abengourou": {
+      region: "Indénié-Djuablin",
+      summary: "Capital do reino agni de Indénié, cidade do cacau e da festa do inhame.",
+      description: "No leste do país, não longe da fronteira com o Gana, Abengourou é a sede do reino agni de Indénié, fundado no século XVIII por povos akan vindos do atual Gana. Cidade do cacau e do café, acolhe a corte real, onde todos os anos, em fevereiro ou março, se realiza a festa do inhame, grande momento da vida tradicional agni. Uma etapa para descobrir a cultura akan do leste, a poucas horas de estrada de Abidjan.",
+    },
+    "parc-national-de-tai": {
+      name: "Parque Nacional de Taï",
+      region: "Sudoeste",
+      summary: "Uma das últimas grandes florestas primárias da África Ocidental, Património da UNESCO, perto da fronteira com a Libéria.",
+      description: "No sudoeste do país, o Parque Nacional de Taï protege mais de 4500 km² de uma das últimas florestas primárias da África Ocidental, em torno do monte Niénokoué. Inscrito no Património Mundial da UNESCO desde 1982 e reserva da biosfera, abriga elefantes-da-floresta, hipopótamos-pigmeus, búfalos, cefalofos, leopardos e numerosos macacos, entre os quais chimpanzés. Importante: a França desaconselha, salvo razão imperiosa, viagens à cidade de Taï e à zona fronteiriça com a Libéria, e o Reino Unido desaconselha as imediações da fronteira; consulte os conselhos aos viajantes atualizados e as condições de acesso junto do Gabinete Marfinense de Parques e Reservas antes de qualquer projeto.",
+    },
   },
   places: {
     "cathedrale-saint-paul-abidjan": {
@@ -389,7 +478,7 @@ const PT: SeedI18n = {
       name: "Maquis e attiéké",
       summary: "Peixe grelhado, alloco e attiéké nos maquis, coração da vida de Abidjan.",
       description:
-        "O maquis, restaurante popular muitas vezes ao ar livre, é uma instituição marfinense. Come-se peixe ou frango grelhado com attiéké (sêmola de mandioca fermentada), alloco (banana-pão frita), molho de semente de palma ou kedjenou (guisado cozinhado lentamente num pote de barro), acompanhados de sumo de bissap ou de gnamankoudji (gengibre). O garba, attiéké com atum frito, é o prato de rua por excelência. Os animados maquis de Treichville, de Marcory ou da rue Princesse, em Yopougon, são também locais de música.",
+        "O maquis, restaurante popular muitas vezes ao ar livre, é uma instituição marfinense. Come-se peixe ou frango grelhado com attiéké (sêmola de mandioca fermentada), alloco (banana-pão frita), molho de semente de palma ou kedjenou (guisado cozinhado lentamente num pote de barro), acompanhados de sumo de bissap ou de gnamankoudji (gengibre). O garba, attiéké com atum frito, é o prato de rua por excelência. Os animados maquis de Treichville, de Marcory ou de Yopougon são também locais de música.",
       tips: "À noite, desloque-se de táxi em vez de a pé, sobretudo nos bairros populares.",
     },
     "quartier-france-grand-bassam": {
@@ -520,6 +609,73 @@ const PT: SeedI18n = {
       tips: "Não vá enquanto os conselhos oficiais aos viajantes o desaconselharem formalmente; consulte-os regularmente.",
       bestPeriod: "Estação seca (de dezembro a abril), quando as condições de segurança o permitirem",
     },
+    "grande-mosquee-du-plateau-abidjan": {
+      name: "Grande Mesquita do Plateau",
+      summary: "Mesquita de cúpula azul e alto minarete no coração do bairro de negócios.",
+      description: "No meio das torres do Plateau, a grande mesquita reconhece-se ao longe pela cúpula azul e pelo minarete esguio. É um importante local de oração para a comunidade muçulmana de Abidjan, muito frequentado à sexta-feira ao meio-dia, durante o Ramadão e nas grandes festas como a Tabaski. Admira-se sobretudo do exterior, num passeio pelo centro administrativo entre a catedral de São Paulo e o Museu das Civilizações.",
+      tips: "O acesso à sala de oração nem sempre é possível para não muçulmanos: pergunte no local, fora das horas de oração e com roupa que cubra o corpo.",
+    },
+    "palais-de-la-culture-treichville": {
+      name: "Palácio da Cultura Bernard Binlin Dadié",
+      summary: "Grande centro cultural à beira da laguna, entre as duas pontes de Treichville.",
+      description: "Inaugurado em 1999 na frente lagunar de Treichville, entre as pontes Félix Houphouët-Boigny e General de Gaulle, o Palácio da Cultura é um dos principais palcos de Abidjan. Reúne duas salas de espetáculos e um amplo teatro ao ar livre, onde se sucedem concertos, teatro, dança e grandes cerimónias; é o principal local do MASA, o mercado das artes do espetáculo africanas. No adro, o primeiro avião presidencial marfinense foi transformado em biblioteca.",
+      tips: "Consulte a programação antes de ir: o espaço anima-se sobretudo nas noites de espetáculo. Bela vista sobre a laguna e as torres do Plateau.",
+    },
+    "marche-de-treichville": {
+      name: "Mercado de Treichville",
+      summary: "Grande mercado coberto de vários pisos, num bairro popular e comercial.",
+      description: "Treichville, bairro popular junto ao porto, é uma das grandes zonas comerciais de Abidjan. O seu mercado coberto, com vários pisos em torno de um pátio central, transborda de bancas de alimentos, peixe fumado, especiarias, tecidos e artigos do dia a dia. Um mergulho na Abidjan do pequeno comércio, fácil de combinar com uma visita ao vizinho Palácio da Cultura.",
+      tips: "Vá de manhã, mantenha os seus pertences por perto, peça autorização antes de fotografar os comerciantes e negoceie os preços com um sorriso.",
+    },
+    "jardin-botanique-de-bingerville": {
+      name: "Jardim Botânico de Bingerville",
+      summary: "Jardim criado em 1904 na antiga capital colonial, a leste de Abidjan.",
+      description: "Em Bingerville, município da aglomeração que foi capital da colónia no início do século XX, o jardim botânico foi criado em 1904 por iniciativa do governador Angoulvant, atrás da sua residência. Classificado como monumento histórico, reúne palmeirais, sumaúmas gigantes, árvores plantadas por personalidades e viveiros, ao longo de alamedas sombreadas onde se observam aves, insetos e esquilos. Uma escapadela verde a cerca de vinte quilómetros do centro de Abidjan, apreciada pelas famílias ao fim de semana.",
+      tips: "Evite as horas de maior calor e combine a visita com um passeio pela parte antiga de Bingerville.",
+    },
+    "vie-nocturne-abidjan": {
+      name: "Noites de Abidjan: Yopougon, Marcory, Treichville",
+      summary: "Maquis, bancas de alloco e discotecas: a cidade do coupé-décalé também vive à noite.",
+      description: "Abidjan é famosa em toda a África Ocidental pelas suas noites, ao ritmo do coupé-décalé, do zouglou e dos DJ. Em Yopougon, o município mais populoso da cidade, os maquis contam-se às centenas; a célebre rue Princesse, demolida em 2011, continua na memória de todos. Em Marcory, a Zona 4 e Biétry concentram restaurantes, bares e clubes mais requintados, enquanto Treichville e os seus maquis mantêm um ambiente popular. Aos fins de semana e nas festas de fim de ano, a festa prolonga-se até de madrugada.",
+      tips: "À noite, desloque-se de táxi com taxímetro ou TVDE, leve apenas o necessário e mantenha-se atento à saída dos estabelecimentos. Os sítios da moda mudam depressa: peça conselho no seu alojamento.",
+    },
+    "phare-de-grand-bassam": {
+      name: "Farol de Grand-Bassam",
+      summary: "Antigo farol de 1914, parte da cidade histórica inscrita no Património Mundial.",
+      description: "Construído entre dezembro de 1913 e fevereiro de 1914 e posto em funcionamento em 1915, o farol de Grand-Bassam guiou os navios até 1951, quando o de Port-Bouët, em Abidjan, o substituiu. Esta alta torre redonda de alvenaria, típica da arquitetura da época, faz parte da cidade histórica inscrita no Património Mundial da UNESCO em 2012. Ergue-se entre as casas do bairro, perto da praia.",
+      tips: "Vê-se do exterior: combine-o com um passeio a pé pelo Quartier France.",
+    },
+    "parc-national-des-iles-ehotile": {
+      name: "Parque Nacional das Ilhas Ehotilé",
+      summary: "Arquipélago protegido da laguna Aby: mangais, aves, morcegos-da-fruta e ilhas sagradas.",
+      description: "Criado em 1974 por iniciativa das comunidades ribeirinhas, o Parque Nacional das Ilhas Ehotilé protege seis ilhas da laguna Aby, perto da sua foz, entre Assinie-Mafia e Adiaké. Foram recenseadas mais de cento e vinte espécies de aves, bem como uma importante colónia de morcegos-da-fruta na ilha Balouaté, que os habitantes consideram a presença dos seus defuntos; o manatim, hoje raro, ainda frequenta as suas águas. O arquipélago, que inclui uma ilha sagrada, é também sítio Ramsar. Descobre-se de barco, entre mangais e braços de laguna.",
+      tips: "Parta de Assinie-Mafia ou de Adiaké com um piroguero ou guia recomendado, exija coletes salva-vidas e respeite os interditos das ilhas sagradas.",
+    },
+    "mont-tonkoui": {
+      name: "Monte Tonkoui",
+      summary: "Um dos cumes mais altos do país, com vistas amplas sobre as montanhas do oeste.",
+      description: "A oeste de Man ergue-se o monte Tonkoui, ou Tonkpi («grande montanha» em dan), um dos pontos culminantes da Costa do Marfim, a mais de 1100 metros de altitude. Uma estrada de montanha sobe por entre floresta e plantações até às antenas do cume; em dias limpos, a vista abrange as serras arborizadas e as aldeias da região das dezoito montanhas. O ar é nitidamente mais fresco do que na planície.",
+      tips: "Suba cedo de manhã, antes de as nuvens cobrirem o cume, com um motorista local e um veículo adequado à pista; leve um agasalho leve.",
+    },
+    "foret-sacree-de-gbepleu": {
+      name: "Floresta sagrada dos macacos de Gbêpleu",
+      summary: "Floresta sagrada às portas de Man, povoada por macacos habituados aos visitantes.",
+      description: "A cerca de três quilómetros do centro de Man, a floresta de Gbêpleu é um lugar sagrado ligado, segundo a tradição local, à fundação da cidade no século XIX. Protegida por interditos tradicionais, abriga uma importante população de macacos-verdes, que os visitantes vêm observar acompanhados pelos guardiões do local. Uma visita curta muito apreciada pelas famílias, fácil de combinar com a cascata.",
+      tips: "Siga as indicações dos guardiões: alimente os macacos apenas se eles o permitirem, mantenha a distância e não entre nas zonas proibidas da floresta. Costuma ser pedida uma contribuição.",
+    },
+    "cour-royale-de-l-indenie": {
+      name: "Corte real de Indénié",
+      summary: "Residência do rei de Indénié, coração da vida tradicional agni.",
+      description: "No centro de Abengourou, a corte real é a residência do rei de Indénié, soberano tradicional dos agni n'dénian. O palácio, cuja origem remonta ao final do século XIX, conserva objetos do património real e acolhe as grandes cerimónias, a começar pela festa do inhame e pelo culto dos bancos reais. Um mergulho nos reinos akan, ainda muito vivos na Costa do Marfim.",
+      tips: "Informe-se antecipadamente sobre as condições de visita, siga o protocolo da corte e só fotografe com autorização.",
+    },
+    "foret-et-chimpanzes-de-tai": {
+      name: "Floresta primária e fauna de Taï",
+      summary: "Árvores gigantes, chimpanzés e hipopótamos-pigmeus numa floresta Património da UNESCO.",
+      description: "A floresta de Taï é um vestígio da grande floresta guineense que outrora cobria boa parte da África Ocidental: árvores gigantes, lianas, rios e relevos graníticos. Protegida desde a época colonial e elevada a parque nacional em 1972, abriga uma fauna excecional, com espécies ameaçadas como o hipopótamo-pigmeu e vários primatas, entre os quais os chimpanzés. A desflorestação em redor e a caça furtiva continuam a ser as principais ameaças ao parque.",
+      tips: "Não vá sem consultar os conselhos aos viajantes (zona desaconselhada salvo razão imperiosa); qualquer visita organiza-se com o Gabinete Marfinense de Parques e Reservas e guias autorizados.",
+      bestPeriod: "Estação seca (dezembro a fevereiro), se as condições de segurança o permitirem",
+    },
   },
   circuits: {
     "cote-d-ivoire-essentiel-8-jours": {
@@ -646,6 +802,18 @@ const AR: SeedI18n = {
       description:
         "في شمال شرق البلاد، يُعدّ متنزه كومويه الوطني من أوسع المناطق المحمية في غرب أفريقيا، وهو مدرج في قائمة التراث العالمي لليونسكو. يعبره نهر كومويه، ويجمع بين السافانا والغابات المحاذية للأنهار وجيوب من الغابات الكثيفة، ويؤوي الفيلة وأفراس النهر والجواميس والظباء والشمبانزي وأنواعًا كثيرة من الطيور. مهم: تنصح فرنسا والمملكة المتحدة حاليًا بشدة بعدم التوجه إليه مهما كان السبب (خطر الإرهاب والاختطاف). نعرضه هنا للتحضير لزيارة حين تسمح الظروف بذلك.",
     },
+    "abengourou": {
+      name: "أبينغورو",
+      region: "إندينييه-جوابلين",
+      summary: "عاصمة مملكة إندينييه لشعب الأنيي، ومدينة الكاكاو وعيد اليام.",
+      description: "في شرق البلاد، غير بعيد عن الحدود الغانية، تُعدّ أبينغورو مقرّ مملكة إندينييه لشعب الأنيي، التي أسستها في القرن الثامن عشر شعوب الأكان القادمة من غانا الحالية. وهي مدينة الكاكاو والبن، وتضم البلاط الملكي الذي يحتضن كل عام، في فبراير أو مارس، عيد اليام، أبرز محطات الحياة العرفية لدى الأنيي. محطة لاكتشاف ثقافة الأكان في الشرق، على بُعد ساعات قليلة بالسيارة من أبيدجان.",
+    },
+    "parc-national-de-tai": {
+      name: "منتزه تاي الوطني",
+      region: "الجنوب الغربي",
+      summary: "إحدى آخر الغابات الأولية الكبرى في غرب أفريقيا، مدرجة في قائمة اليونسكو، قرب الحدود الليبيرية.",
+      description: "في جنوب غرب البلاد، يحمي منتزه تاي الوطني أكثر من 4500 كيلومتر مربع من إحدى آخر الغابات الأولية في غرب أفريقيا، حول جبل نيينوكوي. وهو مدرج في قائمة التراث العالمي لليونسكو منذ عام 1982 ومحمية للمحيط الحيوي، ويؤوي فيلة الغابات وأفراس النهر القزمة والجواميس والظباء الصغيرة والفهود وقرودًا كثيرة منها الشمبانزي. تنبيه مهم: توصي فرنسا بعدم السفر إلى مدينة تاي والمنطقة الحدودية مع ليبيريا إلا لضرورة قصوى، وتوصي المملكة المتحدة بتجنب محيط الحدود؛ راجع نصائح السفر المحدّثة وشروط الدخول لدى المكتب الإيفواري للمنتزهات والمحميات قبل أي مشروع.",
+    },
   },
   places: {
     "cathedrale-saint-paul-abidjan": {
@@ -672,7 +840,7 @@ const AR: SeedI18n = {
       name: "مطاعم الماكي والأتيكيه",
       summary: "سمك مشوي وألوكو وأتيكيه في مطاعم الماكي، قلب الحياة في أبيدجان.",
       description:
-        "«الماكي»، أي المطعم الشعبي الذي يكون غالبًا في الهواء الطلق، مؤسسة إيفوارية عريقة. يُؤكل فيه السمك أو الدجاج المشوي مع الأتيكيه (سميد الكسافا المخمّر)، والألوكو (موز الطبخ المقلي)، وصلصة بذور النخيل أو الكيدجينو (يخنة تُطهى ببطء في قدر فخارية)، مع عصير البيساب أو النيامانكودجي (الزنجبيل). أما «الغاربا»، أي الأتيكيه مع التونة المقلية، فهو طبق الشارع بامتياز. ومطاعم الماكي الصاخبة في تريشفيل وماركوري وشارع برانسيس في يوبوغون هي أيضًا أماكن للموسيقى.",
+        "«الماكي»، أي المطعم الشعبي الذي يكون غالبًا في الهواء الطلق، مؤسسة إيفوارية عريقة. يُؤكل فيه السمك أو الدجاج المشوي مع الأتيكيه (سميد الكسافا المخمّر)، والألوكو (موز الطبخ المقلي)، وصلصة بذور النخيل أو الكيدجينو (يخنة تُطهى ببطء في قدر فخارية)، مع عصير البيساب أو النيامانكودجي (الزنجبيل). أما «الغاربا»، أي الأتيكيه مع التونة المقلية، فهو طبق الشارع بامتياز. ومطاعم الماكي الصاخبة في تريشفيل وماركوري ويوبوغون هي أيضًا أماكن للموسيقى.",
       tips: "في المساء تنقّل بسيارة أجرة بدلًا من المشي، خاصةً في الأحياء الشعبية.",
     },
     "quartier-france-grand-bassam": {
@@ -802,6 +970,73 @@ const AR: SeedI18n = {
         "يدين المتنزه بثرائه لتنوّع بيئاته التي تشكّل انتقالًا بين الغابة والسافانا. ونهر كومويه وروافده هي شريانه الحيوي، تتردد عليها أفراس النهر وطيور كثيرة. وبعد سنوات من الصيد الجائر، أتاحت جهود الحماية شطبه من قائمة التراث العالمي المعرّض للخطر عام 2017. وفي الوقت الحالي، تنصح توصيات السفر الفرنسية والبريطانية بشدة بعدم التوجه إلى المنطقة.",
       tips: "لا تذهب إليه ما دامت توصيات السفر الرسمية تنصح بشدة بعدم التوجه إليه، وراجعها بانتظام.",
       bestPeriod: "موسم الجفاف (من ديسمبر إلى أبريل)، حين تسمح الظروف الأمنية",
+    },
+    "grande-mosquee-du-plateau-abidjan": {
+      name: "المسجد الكبير في بلاتو",
+      summary: "مسجد بقبة زرقاء ومئذنة شاهقة في قلب حي الأعمال.",
+      description: "وسط أبراج حي بلاتو، يُعرف المسجد الكبير من بعيد بقبته الزرقاء ومئذنته الرشيقة. وهو مكان صلاة مهم لمسلمي أبيدجان، يزدحم ظهر يوم الجمعة وفي شهر رمضان وفي الأعياد الكبرى مثل عيد الأضحى (تاباسكي). يُستمتع بمشاهدته خصوصًا من الخارج، خلال جولة في المركز الإداري بين كاتدرائية القديس بولس ومتحف الحضارات.",
+      tips: "لا يُسمح دائمًا لغير المسلمين بدخول قاعة الصلاة: اسأل في المكان خارج أوقات الصلاة، والبس ثيابًا ساترة.",
+    },
+    "palais-de-la-culture-treichville": {
+      name: "قصر الثقافة برنار بينلين دادييه",
+      summary: "مركز ثقافي كبير على ضفة البحيرة الشاطئية بين جسرَي تريشفيل.",
+      description: "افتُتح قصر الثقافة عام 1999 على واجهة البحيرة في تريشفيل، بين جسر فيليكس هوفويت بوانيي وجسر الجنرال ديغول، وهو من أبرز مسارح أبيدجان. يضم قاعتين للعروض ومسرحًا واسعًا في الهواء الطلق تتوالى فيه الحفلات الموسيقية والمسرحيات والرقص والاحتفالات الكبرى، وهو الموقع الرئيسي لسوق فنون العرض الأفريقية «ماسا». وفي الساحة الأمامية، حُوّلت أول طائرة رئاسية إيفوارية إلى مكتبة.",
+      tips: "اطّلع على البرنامج قبل الذهاب: يكتظ المكان خصوصًا في أمسيات العروض. إطلالة جميلة على البحيرة وأبراج بلاتو.",
+    },
+    "marche-de-treichville": {
+      name: "سوق تريشفيل",
+      summary: "سوق مغطاة كبيرة متعددة الطوابق في حي شعبي وتجاري.",
+      description: "تريشفيل حي شعبي مجاور للميناء، وهو من أكبر المناطق التجارية في أبيدجان. تعجّ سوقه المغطاة، الموزعة على عدة طوابق حول فناء مركزي، بأكشاك المواد الغذائية والسمك المدخّن والتوابل والأقمشة والسلع اليومية. غوص في أبيدجان التجارة الصغيرة، ويسهل الجمع بينه وبين زيارة قصر الثقافة القريب.",
+      tips: "اذهب صباحًا، وأبقِ أغراضك قريبة منك، واستأذن قبل تصوير التجار، وفاوض على الأسعار بابتسامة.",
+    },
+    "jardin-botanique-de-bingerville": {
+      name: "حديقة بينجرفيل النباتية",
+      summary: "حديقة أُنشئت عام 1904 في العاصمة الاستعمارية السابقة شرق أبيدجان.",
+      description: "في بينجرفيل، البلدة التابعة لأبيدجان الكبرى التي كانت عاصمة المستعمرة في مطلع القرن العشرين، أُنشئت الحديقة النباتية عام 1904 بمبادرة من الحاكم أنغولفان خلف مقر إقامته. وهي مصنّفة معلمًا تاريخيًا، وتضم بساتين نخيل وأشجار سيبا عملاقة وأشجارًا غرسها مشاهير ومشاتل، على امتداد ممرات ظليلة تُرى فيها الطيور والحشرات والسناجب. متنفس أخضر على بُعد نحو عشرين كيلومترًا من وسط أبيدجان، تقصده العائلات في عطلات نهاية الأسبوع.",
+      tips: "تجنّب ساعات الحر الشديد، واجمع الزيارة مع نزهة في البلدة القديمة لبينجرفيل.",
+    },
+    "vie-nocturne-abidjan": {
+      name: "ليالي أبيدجان: يوبوغون وماركوري وتريشفيل",
+      summary: "مطاعم ماكي وأكشاك ألوكو وملاهٍ ليلية: مدينة «كوبيه ديكاليه» تحيا ليلًا أيضًا.",
+      description: "تشتهر أبيدجان في غرب أفريقيا كلها بلياليها على إيقاع «الكوبيه ديكاليه» و«الزوغلو» ومنسّقي الأغاني. في يوبوغون، أكثر بلديات المدينة سكانًا، تُعدّ مطاعم الماكي بالمئات، ولا يزال «شارع برانسيس» الشهير، الذي هُدم عام 2011، حاضرًا في الذاكرة. وفي ماركوري تتركز في المنطقة 4 وحي بيِيتري مطاعم وحانات ونوادٍ أرقى، بينما تحافظ تريشفيل ومطاعمها على أجواء شعبية. وفي عطلات نهاية الأسبوع وأعياد آخر السنة، يستمر السهر حتى الفجر.",
+      tips: "تنقّل ليلًا بسيارة أجرة بعدّاد أو بسيارة نقل عبر التطبيقات، ولا تحمل إلا الضروري، وكن يقظًا عند الخروج من الأماكن. تتغير الأماكن الرائجة بسرعة: اطلب النصيحة من مكان إقامتك.",
+    },
+    "phare-de-grand-bassam": {
+      name: "منارة غران بسام",
+      summary: "منارة قديمة من عام 1914، جزء من المدينة التاريخية المدرجة في التراث العالمي.",
+      description: "شُيّدت منارة غران بسام بين ديسمبر 1913 وفبراير 1914 ودخلت الخدمة عام 1915، وظلت ترشد السفن حتى عام 1951 حين حلّت محلها منارة بور بويه في أبيدجان. هذا البرج المستدير المرتفع المبني بالحجارة، النموذجي لعمارة تلك الحقبة، جزء من المدينة التاريخية المدرجة في قائمة التراث العالمي لليونسكو عام 2012. ويرتفع بين بيوت الحي غير بعيد عن الشاطئ.",
+      tips: "تُشاهَد من الخارج: اجمعها مع جولة سيرًا على الأقدام في الحي الفرنسي.",
+    },
+    "parc-national-des-iles-ehotile": {
+      name: "منتزه جزر إيهوتيليه الوطني",
+      summary: "أرخبيل محمي في بحيرة آبي: مانغروف وطيور وخفافيش فاكهة وجزر مقدسة.",
+      description: "أُنشئ منتزه جزر إيهوتيليه الوطني عام 1974 بمبادرة من المجتمعات المحلية، ويحمي ست جزر في بحيرة آبي قرب مصبّها، بين أسيني-مافيا وأدياكيه. أُحصي فيه أكثر من مئة وعشرين نوعًا من الطيور، إضافة إلى مستعمرة كبيرة من خفافيش الفاكهة في جزيرة بالواتيه يعدّها السكان حضورًا لأرواح موتاهم، ولا يزال خروف البحر، الذي صار نادرًا، يرتاد مياهه. والأرخبيل، الذي يضم جزيرة مقدسة، مصنّف أيضًا موقعًا من مواقع رامسار. يُكتشف بالقارب بين المانغروف وأذرع البحيرة.",
+      tips: "انطلق من أسيني-مافيا أو أدياكيه مع مراكبي أو مرشد موصى به، واطلب سترات النجاة، واحترم المحظورات المتعلقة بالجزر المقدسة.",
+    },
+    "mont-tonkoui": {
+      name: "جبل تونكوي",
+      summary: "من أعلى قمم البلاد، بإطلالات واسعة على جبال الغرب.",
+      description: "غرب مدينة مان يرتفع جبل تونكوي أو «تونكبي» (أي «الجبل الكبير» بلغة الدان)، وهو من أعلى نقاط كوت ديفوار بارتفاع يتجاوز 1100 متر. تصعد طريق جبلية عبر الغابات والمزارع حتى هوائيات القمة، وفي الأيام الصافية يشمل المشهد التلال المكسوّة بالغابات وقرى منطقة الجبال الثمانية عشر. والهواء هناك أبرد بوضوح منه في السهول.",
+      tips: "اصعد في الصباح الباكر قبل أن تغطي الغيوم القمة، مع سائق محلي وسيارة مناسبة للطريق الترابية، وخذ معك سترة خفيفة.",
+    },
+    "foret-sacree-de-gbepleu": {
+      name: "غابة القرود المقدسة في غبيبلو",
+      summary: "غابة مقدسة على مشارف مان، تسكنها قرود اعتادت الزوار.",
+      description: "على بُعد نحو ثلاثة كيلومترات من وسط مان، تُعدّ غابة غبيبلو مكانًا مقدسًا يرتبط، وفق التقاليد المحلية، بتأسيس المدينة في القرن التاسع عشر. وتحميها المحظورات العرفية، وتؤوي أعدادًا كبيرة من القرود الخضراء يأتي الزوار لمشاهدتها برفقة حرّاس الموقع. زيارة قصيرة تحبها العائلات، ويسهل الجمع بينها وبين الشلال.",
+      tips: "اتبع تعليمات الحراس: لا تطعم القرود إلا بإذنهم، وحافظ على المسافة، ولا تدخل الأجزاء المحظورة من الغابة. يُطلب عادة مبلغ رمزي.",
+    },
+    "cour-royale-de-l-indenie": {
+      name: "البلاط الملكي في إندينييه",
+      summary: "مقر إقامة ملك إندينييه، قلب الحياة العرفية لدى الأنيي.",
+      description: "في وسط أبينغورو، البلاط الملكي هو مقر إقامة ملك إندينييه، الحاكم العرفي لشعب الأنيي ندينيان. ويعود أصل القصر إلى أواخر القرن التاسع عشر، ويحفظ قطعًا من التراث الملكي، ويحتضن الاحتفالات الكبرى وفي مقدمتها عيد اليام وتبجيل الكراسي الملكية. نافذة على ممالك الأكان التي لا تزال حيّة في كوت ديفوار.",
+      tips: "استعلم مسبقًا عن شروط الزيارة، واتبع بروتوكول البلاط، ولا تلتقط الصور إلا بإذن.",
+    },
+    "foret-et-chimpanzes-de-tai": {
+      name: "غابة تاي الأولية وحياتها البرية",
+      summary: "أشجار عملاقة وشمبانزي وأفراس نهر قزمة في غابة مدرجة في قائمة اليونسكو.",
+      description: "غابة تاي بقية من الغابة الغينية الكبرى التي كانت تغطي قديمًا جزءًا كبيرًا من غرب أفريقيا: أشجار عملاقة ونباتات متسلقة وأنهار وتلال غرانيتية. وهي محمية منذ الحقبة الاستعمارية وأصبحت منتزهًا وطنيًا عام 1972، وتؤوي حياة برية استثنائية تضم أنواعًا مهددة مثل فرس النهر القزم وعددًا من الرئيسيات منها الشمبانزي. ولا تزال إزالة الغابات المحيطة والصيد الجائر أكبر التهديدات التي تواجه المنتزه.",
+      tips: "لا تذهب قبل الاطلاع على نصائح السفر (منطقة لا يُنصح بزيارتها إلا لضرورة قصوى)؛ تُنظَّم أي زيارة مع المكتب الإيفواري للمنتزهات والمحميات ومرشدين معتمدين.",
+      bestPeriod: "موسم الجفاف (من ديسمبر إلى فبراير)، إذا سمحت الظروف الأمنية",
     },
   },
   circuits: {

@@ -115,6 +115,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
           "Au centre de Lomé, le Grand Marché (ou marché d'Assigamé) et les rues qui l'entourent forment le cœur commerçant de la ville : tissus, produits frais, épices, ustensiles, artisanat. Il est associé aux « Nana Benz », ces commerçantes de pagnes wax devenues célèbres pour leur réussite à partir des années 1960-1970. Une immersion vivante dans l'économie de la capitale.",
         tips: "Venez le matin, gardez vos affaires près de vous et demandez avant de photographier. Le marchandage fait partie de l'échange.",
         visitMinutes: 120,
+        lat: 6.1260,
+        lng: 1.2273,
+        cover: "/images/voyage/lieu-grand-marche-lome",
         en: {
           name: "Lomé Grand Market",
           summary: "The city's commercial heart, home of wax prints and the famous “Nana Benz”.",
@@ -132,6 +135,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
           "Dans le quartier d'Akodessewa, à l'est du centre, ce marché réunit les étals des ingrédients, statuettes et objets utilisés dans les pratiques vodun et la médecine traditionnelle. Les vendeurs et tradipraticiens expliquent volontiers leur usage. Le spectacle peut surprendre (animaux séchés notamment), mais il éclaire la place du vodun dans la vie quotidienne de la côte.",
         tips: "La visite se fait généralement avec un guide du marché ; une participation est demandée, et souvent un supplément pour les photos : convenez-en avant.",
         visitMinutes: 60,
+        lat: 6.1534,
+        lng: 1.2682,
+        cover: "/images/voyage/lieu-marche-des-feticheurs-akodessewa",
         en: {
           name: "Akodessewa Fetish Market",
           summary: "A market devoted to the objects and ingredients of vodun practice and traditional medicine.",
@@ -148,6 +154,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "Au centre de la place de l'Indépendance, ce monument commémore l'accession du Togo à l'indépendance, le 27 avril 1960. Sa haute silhouette sculptée est l'un des emblèmes de la capitale ; la place qui l'entoure accueille les grandes célébrations nationales. Une étape courte mais incontournable d'une découverte de Lomé.",
         visitMinutes: 30,
+        lat: 6.1300,
+        lng: 1.2160,
+        cover: "/images/voyage/lieu-monument-de-l-independance-lome",
         en: {
           name: "Independence Monument",
           summary: "Symbol of Togo's independence, proclaimed on 27 April 1960.",
@@ -165,6 +174,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 90,
         lat: 6.1204,
         lng: 1.2121,
+        cover: "/images/voyage/lieu-palais-de-lome",
         en: {
           name: "Palais de Lomé",
           summary: "The former governors' palace, restored as an arts and culture centre with a large park.",
@@ -180,11 +190,54 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "Installé au palais des Congrès, le Musée national présente des objets venus des différentes régions du pays : parures, instruments de musique, objets rituels et du quotidien, ainsi que des pièces évoquant l'histoire du Togo. Une introduction utile à la diversité des cultures togolaises avant de partir vers l'intérieur.",
         visitMinutes: 60,
+        lat: 6.1305,
+        lng: 1.2175,
+        cover: "/images/voyage/lieu-musee-national-togo",
         en: {
           name: "National Museum of Togo",
           summary: "Collections of traditional objects and history, in the Palais des Congrès.",
           description:
             "Housed in the Palais des Congrès, the National Museum displays objects from the country's different regions: ornaments, musical instruments, ritual and everyday objects, as well as items relating to Togo's history. A useful introduction to the diversity of Togolese cultures before heading inland.",
+        },
+      },
+      {
+        slug: "cathedrale-sacre-coeur-lome",
+        category: "RELIGION",
+        name: "Cathédrale du Sacré-Cœur de Lomé",
+        summary: "Église néogothique de l'époque allemande, consacrée en 1902, à deux pas du Grand Marché.",
+        description:
+          "Bâtie en un peu plus d'un an, d'avril 1901 à septembre 1902, sous l'administration coloniale allemande, la cathédrale du Sacré-Cœur a été consacrée le 21 septembre 1902. Avec ses deux flèches et sa façade rouge et blanche de style néogothique, elle domine le quartier du Grand Marché et reste l'un des monuments emblématiques de la capitale. Devenue cathédrale de l'archidiocèse de Lomé en 1955, elle a accueilli une messe du pape Jean-Paul II en août 1985.",
+        tips: "Tenue correcte ; évitez de visiter pendant les offices et demandez avant de photographier les fidèles.",
+        visitMinutes: 30,
+        lat: 6.1250,
+        lng: 1.2263,
+        cover: "/images/voyage/lieu-cathedrale-sacre-coeur-lome",
+        en: {
+          name: "Sacred Heart Cathedral, Lomé",
+          summary: "A German-era neo-Gothic church, consecrated in 1902, a stone's throw from the Grand Market.",
+          description:
+            "Built in just over a year, from April 1901 to September 1902, under the German colonial administration, the Sacred Heart Cathedral was consecrated on 21 September 1902. With its twin spires and red-and-white neo-Gothic facade, it towers over the Grand Market district and remains one of the capital's landmark buildings. It became the cathedral of the Archdiocese of Lomé in 1955 and hosted a Mass celebrated by Pope John Paul II in August 1985.",
+          tips: "Dress respectfully; avoid visiting during services and ask before photographing worshippers.",
+        },
+      },
+      {
+        slug: "plage-de-lome",
+        category: "BEACH",
+        name: "Plage de Lomé",
+        summary: "Long ruban de sable bordé de cocotiers, lieu de promenade des Loméens en fin de journée et le week-end.",
+        description:
+          "Lomé s'étire le long d'une plage de sable bordée de cocotiers, de la frontière ghanéenne jusqu'au port. Le front de mer, face au palais de Lomé et au centre-ville, est un lieu de promenade et de détente pour les habitants, surtout en fin d'après-midi, le week-end et pendant les fêtes. Les vagues et les courants y sont puissants : on y vient pour l'air marin, la promenade et le coucher du soleil plutôt que pour la baignade.",
+        tips: "Ne vous baignez pas (forts courants) et quittez la plage avant la tombée de la nuit, comme le recommandent les autorités françaises. Gardez peu d'objets de valeur sur vous.",
+        bestPeriod: "Novembre à mars (saison sèche), en fin d'après-midi",
+        visitMinutes: 90,
+        cover: "/images/voyage/lieu-plage-de-lome",
+        en: {
+          name: "Lomé beach",
+          summary: "A long ribbon of palm-fringed sand, where Lomé residents stroll in the late afternoon and at weekends.",
+          description:
+            "Lomé stretches along a palm-fringed sandy beach from the Ghanaian border to the port. The seafront, opposite the Palais de Lomé and the city centre, is a place for residents to stroll and relax, especially in the late afternoon, at weekends and during the holidays. The waves and currents are powerful: people come for the sea air, a walk and the sunset rather than for a swim.",
+          tips: "Do not swim (strong currents) and leave the beach before nightfall, as the French authorities advise. Carry few valuables.",
+          bestPeriod: "November to March (dry season), in the late afternoon",
         },
       },
     ],
@@ -215,6 +268,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "À Agbodrafo, la « Maison des esclaves » (ou maison Wood) a été construite au XIXe siècle par un négociant. Après l'interdiction officielle de la traite, des captifs auraient été entassés dans sa cave, à l'abri des regards, avant d'être embarqués clandestinement. La visite guidée de ce lieu de mémoire, avec la descente dans la cave, est un moment fort.",
         visitMinutes: 45,
+        lat: 6.2038,
+        lng: 1.4768,
+        cover: "/images/voyage/lieu-maison-des-esclaves-agbodrafo",
         en: {
           name: "Agbodrafo Slave House",
           summary: "A 19th-century house whose cellar was used to hide captives after the slave trade was abolished.",
@@ -231,6 +287,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
           "Depuis la rive d'Agbodrafo, des piroguiers proposent la traversée vers Togoville. Le trajet, à la voile, à la perche ou au moteur, offre une belle vue sur la lagune, ses pêcheurs et les villages des rives. Certains hébergements au bord du lac proposent aussi des sorties plus longues.",
         tips: "Négociez le prix et la durée de l'aller-retour avant d'embarquer, et demandez un gilet de sauvetage.",
         visitMinutes: 90,
+        cover: "/images/voyage/lieu-traversee-du-lac-togo",
         en: {
           name: "Lake Togo pirogue crossing",
           summary: "Gliding across the lagoon past fishermen and villages, from Agbodrafo to Togoville.",
@@ -248,6 +305,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
           "Togoville fut l'un des premiers foyers missionnaires de la région. Son église Notre-Dame, aux peintures intérieures colorées, est devenue un lieu de pèlerinage marial, renforcé par la visite du pape Jean-Paul II en 1985. Dans la petite ville, églises et sanctuaires vodun se côtoient, comme souvent sur la côte.",
         tips: "Tenue correcte ; ne visitez pas pendant les offices.",
         visitMinutes: 45,
+        lat: 6.2323,
+        lng: 1.4776,
+        cover: "/images/voyage/lieu-sanctuaire-notre-dame-togoville",
         en: {
           name: "Our Lady of Togoville Shrine",
           summary: "A church and Marian pilgrimage site, visited by Pope John Paul II in 1985.",
@@ -264,6 +324,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "En juillet 1884, le roi Mlapa III de Togoville signa avec l'explorateur allemand Gustav Nachtigal le traité qui fit de la région un protectorat allemand : le nom de la ville, « Togo », passa ensuite à tout le pays. Un monument érigé pour le centenaire du traité, des statues et la maison de la famille royale rappellent cet épisode fondateur, à découvrir avec un guide local.",
         visitMinutes: 60,
+        cover: "/images/voyage/lieu-monument-du-centenaire-togoville",
         en: {
           name: "Togoville, town of the 1884 treaty",
           summary: "Centenary monument and the memory of King Mlapa III, who signed the treaty with Germany.",
@@ -282,6 +343,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
       "Près de la frontière béninoise, Aného s'est développée entre l'océan et la lagune, à l'embouchure du lac Togo. Ancien comptoir commercial et l'une des premières capitales de la colonie allemande avant Lomé, elle garde des maisons coloniales et afro-brésiliennes un peu décrépites qui font son charme. C'est aussi le pays des Guin (Gen) : chaque année, la fête d'Epe Ekpe rassemble les foules dans le village voisin de Glidji.",
     lat: 6.2333,
     lng: 1.6,
+    cover: "/images/voyage/aneho",
     en: {
       region: "Maritime",
       summary: "A former colonial capital between lagoon and ocean, heartland of Guin culture.",
@@ -297,6 +359,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "Le centre d'Aného se découvre à pied : façades à vérandas de l'époque coloniale, demeures de familles afro-brésiliennes, anciennes églises et vue sur la lagune et le pont qui enjambe l'embouchure. Une balade tranquille, idéalement avec un guide local qui raconte l'histoire commerçante de la ville.",
         visitMinutes: 90,
+        lat: 6.2289,
+        lng: 1.5931,
+        cover: "/images/voyage/lieu-vieille-ville-aneho",
         en: {
           name: "Aného old town",
           summary: "A stroll among colonial houses, old churches and the lagoon shore.",
@@ -314,6 +379,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         tips: "Les dates varient chaque année : renseignez-vous auprès des autorités locales ou de votre hébergement. Respectez les consignes, certaines cérémonies n'étant pas ouvertes au public.",
         bestPeriod: "En général en septembre",
         visitMinutes: 360,
+        lat: 6.2512,
+        lng: 1.6015,
+        cover: "/images/voyage/lieu-epe-ekpe-glidji",
         en: {
           name: "Epe Ekpe festival in Glidji",
           summary: "The Guin traditional new year, marked by the “taking of the sacred stone”.",
@@ -353,6 +421,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 300,
         lat: 6.8731,
         lng: 0.7492,
+        cover: "/images/voyage/lieu-mont-agou",
         en: {
           name: "Mount Agou",
           summary: "Togo's highest point (986 m), covered in forest and Ewe villages.",
@@ -371,6 +440,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         tips: "Le sentier peut être glissant : prévoyez des chaussures adaptées. Une participation est demandée par le village gestionnaire du site.",
         bestPeriod: "Juillet à novembre (débit plus fort)",
         visitMinutes: 180,
+        lat: 6.8583,
+        lng: 0.5546,
+        cover: "/images/voyage/lieu-cascade-de-wome",
         en: {
           name: "Womé Waterfall",
           summary: "A forest waterfall reached by a dirt track and a short walk down.",
@@ -388,6 +460,8 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "Kpalimé est réputée pour son artisanat. Au centre artisanal, on voit travailler sculpteurs sur bois, tisserands de kente, potiers, vanniers et peintres, et l'on peut acheter directement leurs créations. Une bonne occasion de rapporter un souvenir fabriqué sur place.",
         visitMinutes: 60,
+        lat: 6.9239,
+        lng: 0.6178,
         en: {
           name: "Kpalimé Crafts Centre",
           summary: "Workshops of carvers, weavers, potters and painters, with direct sales.",
@@ -403,11 +477,54 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "Les collines autour de Kpalimé sont la principale région de production de café et de cacao du Togo. Des randonnées accompagnées traversent les plantations, à l'ombre des grands arbres, et expliquent le chemin de la cerise de café ou de la cabosse jusqu'à la tasse ou la tablette. Certaines coopératives et petites chocolateries locales proposent dégustations et vente.",
         visitMinutes: 150,
+        cover: "/images/voyage/lieu-cafe-cacao-kpalime",
         en: {
           name: "Coffee and cocoa of the Kpalimé region",
           summary: "Plantation visits and tastings in the country's main coffee-growing region.",
           description:
             "The hills around Kpalimé are Togo's main coffee- and cocoa-producing region. Guided walks cross the plantations in the shade of tall trees and explain the journey from coffee cherry or cocoa pod to cup or bar. Some cooperatives and small local chocolate makers offer tastings and sales.",
+        },
+      },
+      {
+        slug: "chateau-viale",
+        category: "HISTORY",
+        name: "Château Viale",
+        summary: "Château de pierre des années 1940, perché dans la forêt sur les hauteurs de Kpalimé.",
+        description:
+          "Sur les hauteurs boisées au nord-ouest de Kpalimé, sur la route de Kouma, le château Viale a été construit de 1940 à 1944 par le Français Raymond Viale, séduit par le paysage. Propriété de l'État togolais, il a servi de résidence présidentielle et accueilli des hôtes de marque. Avec ses murs de pierre et sa tour ronde émergeant de la forêt, c'est une curiosité architecturale et un bon point de départ pour se promener dans les collines du Kloto.",
+        tips: "L'accès à l'intérieur dépend des autorisations du moment : renseignez-vous sur place ou auprès de votre guide.",
+        visitMinutes: 60,
+        lat: 6.9520,
+        lng: 0.5822,
+        cover: "/images/voyage/lieu-chateau-viale",
+        en: {
+          name: "Château Viale",
+          summary: "A 1940s stone castle perched in the forest on the heights above Kpalimé.",
+          description:
+            "On the wooded heights north-west of Kpalimé, on the road to Kouma, Château Viale was built between 1940 and 1944 by Frenchman Raymond Viale, who had fallen for the landscape. Owned by the Togolese state, it has served as a presidential residence and hosted distinguished guests. With its stone walls and round tower rising out of the forest, it is an architectural curiosity and a good starting point for walks in the Kloto hills.",
+          tips: "Access to the interior depends on current permissions: ask on site or through your guide.",
+        },
+      },
+      {
+        slug: "cascade-de-kpime",
+        category: "NATURE",
+        name: "Cascade de Kpimé",
+        summary: "Haute chute d'eau en plusieurs ressauts sur une falaise boisée, au nord de Kpalimé.",
+        description:
+          "À une dizaine de kilomètres au nord de Kpalimé, la cascade de Kpimé dévale en plusieurs chutes une falaise couverte de forêt. Le site est lié au barrage hydroélectrique de Kpimé, construit en 1962 pour alimenter Kpalimé en électricité : le débit varie fortement selon les saisons et l'usage de l'eau. Une excursion à combiner avec la cascade de Womé et les villages des collines.",
+        tips: "Le débit est faible en saison sèche. Les rochers au pied de la chute sont glissants : prévoyez des chaussures adaptées.",
+        bestPeriod: "Pendant et juste après la saison des pluies",
+        visitMinutes: 120,
+        lat: 7.0084,
+        lng: 0.6456,
+        cover: "/images/voyage/lieu-cascade-de-kpime",
+        en: {
+          name: "Kpimé Waterfall",
+          summary: "A tall waterfall tumbling down a wooded cliff in several steps, north of Kpalimé.",
+          description:
+            "About ten kilometres north of Kpalimé, Kpimé waterfall tumbles down a forested cliff in several drops. The site is linked to the Kpimé hydroelectric dam, built in 1962 to supply Kpalimé with electricity: the flow varies greatly with the seasons and with water use. An outing easily combined with Womé waterfall and the hill villages.",
+          tips: "The flow is low in the dry season. The rocks at the foot of the falls are slippery: wear suitable shoes.",
+          bestPeriod: "During and just after the rainy season",
         },
       },
     ],
@@ -421,6 +538,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
       "Au centre du Togo, sur la route nationale 1, Sokodé est la grande ville du pays tem (kotokoli), majoritairement musulman. Elle est surtout connue pour l'Adossa, ou fête des couteaux, l'une des grandes fêtes traditionnelles du pays. C'est aussi une étape sur la route du nord et une porte d'accès au parc national de Fazao-Malfakassa.",
     lat: 8.9833,
     lng: 1.1333,
+    cover: "/images/voyage/sokode",
     en: {
       region: "Centrale",
       summary: "A major town in the centre, famous for the knife festival (Adossa), and gateway to Fazao-Malfakassa park.",
@@ -432,19 +550,22 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         slug: "adossa-sokode",
         category: "FESTIVAL",
         name: "Adossa, la fête des couteaux",
-        summary: "Grande fête tem célébrée après le Maouloud, avec danses et démonstrations de bravoure.",
+        summary: "Grande fête tem faite de danses et de démonstrations de bravoure, aujourd'hui associée à la fête des récoltes Gadao.",
         description:
-          "Célébrée par les Tem de Sokodé dans les jours qui suivent le Maouloud (anniversaire de la naissance du Prophète), l'Adossa est une fête de purification et de cohésion. Danseurs et musiciens défilent dans la ville ; le moment le plus spectaculaire est la danse des couteaux, où les participants manient des lames en démonstration de courage. Une foule nombreuse vient de tout le pays.",
-        tips: "La date suit le calendrier musulman et change donc chaque année : vérifiez-la avant de partir.",
-        bestPeriod: "Quelques jours après le Maouloud (date variable)",
+          "Grande fête des Tem de Sokodé, l'Adossa est traditionnellement liée à Gaani, le mois lunaire de la naissance du Prophète (3e mois du calendrier musulman). C'est une fête de purification et de cohésion : danseurs et musiciens défilent dans la ville, et le moment le plus spectaculaire est la danse des couteaux, où les participants manient des lames en démonstration de courage. Elle est désormais associée à Gadao, la fête des récoltes des Tem, lors d'une grande édition « Adossa-Gadao » qui s'est tenue ces dernières années en janvier et attire une foule venue de tout le pays et de la diaspora.",
+        tips: "Les dates sont fixées chaque année par les organisateurs de Sokodé (elles ont longtemps suivi le calendrier musulman) : vérifiez-les avant de partir.",
+        bestPeriod: "Ces dernières années en janvier (dates annoncées chaque année)",
         visitMinutes: 300,
+        lat: 8.9834,
+        lng: 1.1438,
+        cover: "/images/voyage/lieu-adossa-sokode",
         en: {
           name: "Adossa, the knife festival",
-          summary: "A major Tem festival held after Mawlid, with dances and displays of bravery.",
+          summary: "A major Tem festival with dances and displays of bravery, now held together with the Gadao harvest festival.",
           description:
-            "Celebrated by the Tem people of Sokodé in the days following Mawlid (the Prophet's birthday), Adossa is a festival of purification and unity. Dancers and musicians parade through the town; the most spectacular moment is the knife dance, in which participants handle blades as a display of courage. Large crowds come from all over the country.",
-          tips: "The date follows the Islamic calendar and therefore changes every year: check it before leaving.",
-          bestPeriod: "A few days after Mawlid (variable date)",
+            "The great festival of the Tem people of Sokodé, Adossa is traditionally linked to Gaani, the lunar month of the Prophet's birth (the 3rd month of the Islamic calendar). It is a festival of purification and unity: dancers and musicians parade through the town, and the most spectacular moment is the knife dance, in which participants handle blades as a display of courage. It is now combined with Gadao, the Tem harvest festival, in a major “Adossa-Gadao” edition that in recent years has been held in January and draws crowds from all over the country and the diaspora.",
+          tips: "The dates are set every year by the organisers in Sokodé (they long followed the Islamic calendar): check them before leaving.",
+          bestPeriod: "In recent years, January (dates announced each year)",
         },
       },
       {
@@ -457,6 +578,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         tips: "Renseignez-vous sur les conditions d'accès auprès des gestionnaires du parc et réservez un guide avant de vous y rendre ; un véhicule adapté est nécessaire.",
         bestPeriod: "Novembre à mars (saison sèche)",
         visitMinutes: 480,
+        lat: 8.7657,
+        lng: 0.7609,
+        cover: "/images/voyage/lieu-parc-national-fazao-malfakassa",
         en: {
           name: "Fazao-Malfakassa National Park",
           summary: "Togo's largest park: hills, forests, savannahs and waterfalls.",
@@ -464,6 +588,26 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
             "Between Sokodé and Bassar, Fazao-Malfakassa National Park is the country's largest protected area. Its hills, cliffs, gallery forests and savannahs shelter elusive wildlife (antelopes, monkeys, many birds). Tourist facilities are limited: people come for hiking and nature rather than for a safari, with a guide and after planning ahead.",
           tips: "Check access conditions with the park managers and book a guide before going; a suitable vehicle is required.",
           bestPeriod: "November to March (dry season)",
+        },
+      },
+      {
+        slug: "faille-d-aledjo",
+        category: "NATURE",
+        name: "Faille d'Alédjo",
+        summary: "Spectaculaire passage de la route nationale 1 à travers la falaise, entre Sokodé et Kara.",
+        description:
+          "Sur la route nationale 1, dans la préfecture d'Assoli, la route du nord franchit l'escarpement d'Alédjo par une étroite entaille dans la roche : c'est la faille d'Alédjo, l'un des paysages routiers les plus photographiés du pays. Les parois de grès couvertes de végétation et la vue sur les vallées alentour en font une halte appréciée à mi-chemin entre Sokodé et Kara, non loin de Bafilo.",
+        tips: "Garez-vous en sécurité hors de la chaussée : le trafic de camions est dense sur cet axe. Évitez d'y rouler de nuit.",
+        visitMinutes: 30,
+        lat: 9.2749,
+        lng: 1.2214,
+        cover: "/images/voyage/lieu-faille-d-aledjo",
+        en: {
+          name: "Alédjo Gap",
+          summary: "A spectacular passage of National Road 1 through the cliff, between Sokodé and Kara.",
+          description:
+            "On National Road 1, in the Assoli prefecture, the road north crosses the Alédjo escarpment through a narrow cut in the rock: this is the Alédjo gap (faille d'Alédjo), one of the most photographed road landscapes in the country. Its vegetation-covered sandstone walls and the view over the surrounding valleys make it a popular stop halfway between Sokodé and Kara, not far from Bafilo.",
+          tips: "Park safely off the road: lorry traffic is heavy on this route. Avoid driving here at night.",
         },
       },
     ],
@@ -477,6 +621,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
       "Grande ville du nord, Kara est la capitale de la région du même nom et du pays kabyè, aux collines cultivées en terrasses. Ville moderne et aérée, elle est surtout connue pour les Evala, rites initiatiques marqués par la lutte traditionnelle, qui attirent chaque été des foules de spectateurs. C'est la base naturelle pour découvrir le Koutammakou.",
     lat: 9.55,
     lng: 1.1833,
+    cover: "/images/voyage/kara",
     en: {
       region: "Kara",
       summary: "Capital of Kabye country, famous for the Evala initiation wrestling.",
@@ -494,6 +639,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         tips: "Le programme est fixé localement chaque année : renseignez-vous sur les lieux et les jours des combats. Restez à la place indiquée aux spectateurs.",
         bestPeriod: "Juillet",
         visitMinutes: 240,
+        cover: "/images/voyage/lieu-evala-kara",
         en: {
           name: "The Evala",
           summary: "Kabye initiation rites marked by traditional wrestling bouts.",
@@ -511,6 +657,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         description:
           "Dans le nord du Togo, le tchoukoutou, bière de mil (sorgho) brassée par les femmes, se partage dans les cabarets de quartier, souvent servie dans des calebasses. On l'accompagne de plats de pâte (de maïs, de mil ou d'igname) et de sauces aux légumes, à l'arachide ou au gombo, que l'on goûte dans les maquis de Kara.",
         visitMinutes: 90,
+        cover: "/images/voyage/lieu-tchoukoutou-kara",
         en: {
           name: "Tchoukoutou and northern cuisine",
           summary: "Home-brewed millet beer and dishes of pâte and sauce, in Kara's cabarets and maquis.",
@@ -526,7 +673,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
     region: "Kara",
     summary: "Paysage culturel inscrit à l'UNESCO, célèbre pour ses maisons-forteresses de terre, les takienta.",
     description:
-      "Au nord-est de Kara, le long de la frontière béninoise, le Koutammakou est le pays des Batammariba. Leurs maisons-forteresses à étages et tourelles, les takienta, dispersées dans un paysage de collines et de champs, forment un paysage culturel vivant inscrit au patrimoine mondial de l'UNESCO depuis 2004. Le site prolonge, côté togolais, celui des Tata Somba du Bénin. Il se situe juste au sud de la région des Savanes, déconseillée : restez dans le Koutammakou et vérifiez les conseils aux voyageurs avant de partir.",
+      "Au nord-est de Kara, le long de la frontière béninoise, le Koutammakou est le pays des Batammariba. Leurs maisons-forteresses à étages et tourelles, les takienta, dispersées dans un paysage de collines et de champs, forment un paysage culturel vivant inscrit au patrimoine mondial de l'UNESCO depuis 2004. Depuis 2023, le bien inscrit s'étend aussi au Bénin voisin, au pays des Tata Somba. Il se situe juste au sud de la région des Savanes, déconseillée : restez dans le Koutammakou et vérifiez les conseils aux voyageurs avant de partir.",
     lat: 10.0667,
     lng: 1.1333,
     cover: "/images/voyage/koutammakou",
@@ -535,7 +682,7 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
       region: "Kara",
       summary: "A UNESCO-listed cultural landscape famous for its earthen fortress houses, the takienta.",
       description:
-        "North-east of Kara, along the Beninese border, Koutammakou is the land of the Batammariba. Their multi-storey, turreted fortress houses, the takienta, scattered across a landscape of hills and fields, form a living cultural landscape listed as a UNESCO World Heritage Site since 2004. On the Togolese side, it is the counterpart of Benin's Tata Somba. It lies just south of the Savanes region, which travellers are advised to avoid: stay within Koutammakou and check travel advice before you go.",
+        "North-east of Kara, along the Beninese border, Koutammakou is the land of the Batammariba. Their multi-storey, turreted fortress houses, the takienta, scattered across a landscape of hills and fields, form a living cultural landscape listed as a UNESCO World Heritage Site since 2004. Since 2023, the listed property has also extended into neighbouring Benin, the land of the Tata Somba. It lies just south of the Savanes region, which travellers are advised to avoid: stay within Koutammakou and check travel advice before you go.",
     },
     places: [
       {
@@ -548,6 +695,9 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
         tips: "Passez par un guide de la région ; certains lieux sacrés ne se visitent pas. Évitez la route de nuit et ne vous aventurez pas au nord, vers la région des Savanes.",
         bestPeriod: "Novembre à février (saison sèche, pistes praticables)",
         visitMinutes: 360,
+        lat: 10.0669,
+        lng: 1.1331,
+        cover: "/images/voyage/lieu-paysage-culturel-koutammakou",
         en: {
           name: "Koutammakou cultural landscape",
           summary: "A living landscape where homes, fields and sacred sites reflect Batammariba culture.",
@@ -566,12 +716,129 @@ export const TOGO_DESTINATIONS: SeedDestination[] = [
           "Autour du village de Nadoba, principal point d'accueil des visiteurs, des familles ouvrent leur takienta. Bâtie en terre, cette maison-forteresse réunit au rez-de-chaussée l'espace des animaux et des autels, et à l'étage une terrasse, les chambres et les greniers à tourelles. Le guide explique la symbolique de chaque partie et les savoir-faire de construction, transmis de génération en génération.",
         tips: "Une participation est généralement demandée par la famille qui vous reçoit ; demandez toujours avant de photographier.",
         visitMinutes: 120,
+        lat: 10.1385,
+        lng: 1.0806,
+        cover: "/images/voyage/lieu-takienta-nadoba",
         en: {
           name: "Takienta of Nadoba",
           summary: "Visiting a Batammariba fortress house, from the entrance yard to the upstairs granaries.",
           description:
             "Around the village of Nadoba, the main welcome point for visitors, families open their takienta to guests. Built of earth, this fortress house brings together the animals' quarters and altars on the ground floor and, upstairs, a terrace, bedrooms and turreted granaries. The guide explains the symbolism of each part and the building skills passed down from generation to generation.",
           tips: "The family hosting you usually asks for a contribution; always ask before taking photos.",
+        },
+      },
+    ],
+  },
+  {
+    slug: "notse",
+    name: "Notsé",
+    region: "Plateaux",
+    summary: "Berceau historique des Éwé, ville des murailles d'Agbogbo et de la grande fête d'Agbogbo-za.",
+    description:
+      "À environ 90 km au nord de Lomé, chef-lieu de la préfecture du Haho, Notsé est considérée comme le berceau traditionnel des Éwé, dont les ancêtres se sont dispersés d'ici vers le sud du Togo et du Ghana. On y voit les derniers vestiges des remparts d'Agbogbo et un monument dédié au « berceau du peuple éwé ». Début septembre, la fête d'Agbogbo-za y rassemble des Éwé du Togo, du Ghana, du Bénin et de la diaspora.",
+    lat: 6.9480,
+    lng: 1.1703,
+    cover: "/images/voyage/notse",
+    en: {
+      region: "Plateaux",
+      summary: "The historic cradle of the Ewe people, home of the Agbogbo walls and the great Agbogbo-za festival.",
+      description:
+        "About 90 km north of Lomé, the seat of Haho prefecture, Notsé is regarded as the traditional cradle of the Ewe people, whose ancestors dispersed from here towards southern Togo and Ghana. You can see the last remains of the Agbogbo ramparts and a monument dedicated to the “cradle of the Ewe people”. In early September, the Agbogbo-za festival brings together Ewe people from Togo, Ghana, Benin and the diaspora.",
+    },
+    places: [
+      {
+        slug: "murailles-agbogbo-notse",
+        category: "HISTORY",
+        name: "Murailles d'Agbogbo",
+        summary: "Vestiges des remparts de terre de l'ancien royaume de Notsé, berceau des Éwé.",
+        description:
+          "Selon la tradition, le roi Agokoli, dont le règne est situé au XVIIe ou au début du XVIIIe siècle selon les sources, fit élever autour de Notsé des remparts en argile pétrie, l'Agbogbo. Sa dureté aurait poussé une partie de la population à fuir : c'est cet exode fondateur que commémore chaque année la fête d'Agbogbo-za. Il ne subsiste que quelques fragments des murailles, protégés de l'érosion par des abris, ainsi que des pavements anciens mis au jour par les fouilles archéologiques.",
+        tips: "Visitez avec un guide local ou en vous présentant à la chefferie ; certains lieux voisins sont sacrés.",
+        visitMinutes: 60,
+        cover: "/images/voyage/lieu-murailles-agbogbo-notse",
+        en: {
+          name: "Agbogbo walls",
+          summary: "Remains of the earthen ramparts of the old kingdom of Notsé, cradle of the Ewe people.",
+          description:
+            "According to tradition, King Agokoli, whose reign is placed in the 17th or early 18th century depending on the source, had ramparts of kneaded clay, the Agbogbo, built around Notsé. His harshness is said to have driven part of the population to flee: this founding exodus is commemorated every year by the Agbogbo-za festival. Only a few fragments of the walls remain, protected from erosion by shelters, along with ancient pavements uncovered by archaeological digs.",
+          tips: "Visit with a local guide or by introducing yourself to the traditional chiefs; some nearby places are sacred.",
+        },
+      },
+    ],
+  },
+  {
+    slug: "badou",
+    name: "Badou",
+    region: "Plateaux",
+    summary: "Petite ville des collines du Wawa, entre forêts, plantations de café et de cacao et cascade d'Akloa.",
+    description:
+      "Chef-lieu de la préfecture de Wawa, près de la frontière ghanéenne, Badou est entourée de collines boisées où l'on cultive le café et le cacao. On y vient surtout pour la cascade d'Akloa, l'une des chutes les plus réputées du pays, au bout d'une marche en forêt. Une étape nature hors des sentiers battus, plus au nord que Kpalimé, dans la même région des Plateaux.",
+    lat: 7.5833,
+    lng: 0.6074,
+    cover: "/images/voyage/badou",
+    en: {
+      region: "Plateaux",
+      summary: "A small town in the Wawa hills, among forests, coffee and cocoa plantations and Akloa waterfall.",
+      description:
+        "The seat of Wawa prefecture, near the Ghanaian border, Badou is surrounded by wooded hills where coffee and cocoa are grown. People come mainly for Akloa waterfall, one of the country's best-known falls, reached by a walk through the forest. An off-the-beaten-track nature stop, further north than Kpalimé in the same Plateaux region.",
+    },
+    places: [
+      {
+        slug: "cascade-d-akloa",
+        category: "NATURE",
+        name: "Cascade d'Akloa",
+        summary: "Haute cascade au cœur de la forêt, atteinte par un sentier depuis le village d'Akloa.",
+        description:
+          "Près de Badou, la cascade d'Akloa (ou Akrowa) tombe d'une haute paroi rocheuse dans un cadre de forêt dense. On l'atteint à pied par un sentier qui part du village d'Akloa et traverse ruisseaux et plantations : la marche fait partie du plaisir. Le bassin et les rochers au pied de la chute offrent une pause rafraîchissante.",
+        tips: "Partez avec un guide du village, de bonnes chaussures et de l'eau ; le sentier est glissant après la pluie.",
+        bestPeriod: "Pendant et après la saison des pluies (débit plus fort)",
+        visitMinutes: 180,
+        cover: "/images/voyage/lieu-cascade-d-akloa",
+        en: {
+          name: "Akloa Waterfall",
+          summary: "A tall waterfall deep in the forest, reached by a path from Akloa village.",
+          description:
+            "Near Badou, Akloa (or Akrowa) waterfall drops from a high rock face in a setting of dense forest. It is reached on foot by a path that starts from Akloa village and crosses streams and plantations: the walk is part of the pleasure. The pool and rocks at the foot of the falls offer a refreshing break.",
+          tips: "Go with a guide from the village, good shoes and water; the path is slippery after rain.",
+          bestPeriod: "During and after the rainy season (stronger flow)",
+        },
+      },
+    ],
+  },
+  {
+    slug: "bassar",
+    name: "Bassar",
+    region: "Kara",
+    summary: "Ville du pays bassar, au cœur d'une région de métallurgie ancienne du fer inscrite sur la liste indicative de l'UNESCO.",
+    description:
+      "À l'ouest de Kara, Bassar est le chef-lieu d'une préfecture de collines et de savanes arborées. Sa région est l'un des grands foyers anciens de la métallurgie du fer en Afrique de l'Ouest : fourneaux, amas de scories et anciennes mines jalonnent les environs, notamment autour de Bandjéli. Pays d'igname, elle célèbre aussi la fête des récoltes D'pontr, qui marque le nouvel an des Bassar et des Konkomba. Vérifiez les conseils aux voyageurs avant de partir : la région des Savanes, plus au nord, est déconseillée.",
+    lat: 9.2609,
+    lng: 0.7800,
+    en: {
+      region: "Kara",
+      summary: "A town in Bassar country, at the heart of an ancient iron-working region on UNESCO's Tentative List.",
+      description:
+        "West of Kara, Bassar is the seat of a prefecture of hills and wooded savannah. Its region is one of the great ancient centres of iron-working in West Africa: furnaces, slag heaps and old mines dot the surroundings, especially around Bandjéli. Yam country, it also celebrates the D'pontr harvest festival, which marks the new year of the Bassar and Konkomba peoples. Check travel advice before you go: the Savanes region, further north, is to be avoided.",
+    },
+    places: [
+      {
+        slug: "sites-metallurgiques-bassar",
+        category: "HISTORY",
+        name: "Sites de la métallurgie ancienne du fer de Bassar",
+        summary: "Fourneaux, scories et anciennes mines d'un foyer sidérurgique actif pendant plus de deux millénaires.",
+        description:
+          "Autour de Bassar, à Bandjéli, Nangbani, Bitchabé ou Kabou notamment, subsistent les vestiges d'une métallurgie du fer dont les plus anciennes traces remontent, selon l'UNESCO, au Ve siècle avant notre ère, et qui s'est poursuivie jusqu'au milieu du XXe siècle : hauts fourneaux en terre, bases de fourneaux, amas de scories, mines et forges. Ces sites figurent depuis 2021 sur la liste indicative du patrimoine mondial. La visite, encore peu organisée, se prépare avec un guide local.",
+        tips: "Renseignez-vous à Bassar ou auprès de la chefferie de Bandjéli. Ne ramassez ni scories ni fragments : ils font partie du patrimoine archéologique.",
+        bestPeriod: "Novembre à mars (saison sèche)",
+        visitMinutes: 180,
+        cover: "/images/voyage/lieu-sites-metallurgiques-bassar",
+        en: {
+          name: "Ancient iron-working sites of Bassar",
+          summary: "Furnaces, slag and old mines from an iron-making centre active for more than two millennia.",
+          description:
+            "Around Bassar, notably in Bandjéli, Nangbani, Bitchabé and Kabou, survive the remains of an iron industry whose oldest traces date back, according to UNESCO, to the 5th century BCE, and which continued until the mid-20th century: earthen blast furnaces, furnace bases, slag heaps, mines and forges. These sites have been on the World Heritage Tentative List since 2021. Visits, still little organised, are best arranged with a local guide.",
+          tips: "Ask in Bassar or at the chief's compound in Bandjéli. Do not pick up slag or fragments: they are part of the archaeological heritage.",
+          bestPeriod: "November to March (dry season)",
         },
       },
     ],

@@ -114,6 +114,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Installé dans le quartier de Sandervalia, à Kaloum, le Musée national présente les cultures des quatre grandes régions du pays : masques et statues de la côte (dont les célèbres figures Nimba des Baga), objets du Fouta-Djallon, de Haute-Guinée et de Guinée forestière, instruments de musique et objets du quotidien. Une introduction utile avant de partir à l'intérieur du pays.",
         tips: "Renseignez-vous sur place sur les salles ouvertes ; une visite guidée aide à comprendre les collections.",
         visitMinutes: 75,
+        lat: 9.5047,
+        lng: -13.709,
+        cover: "/images/voyage/lieu-musee-national-guinee",
         en: {
           name: "National Museum of Guinea (Sandervalia)",
           summary: "Masks, statues and instruments of Guinea's peoples, in the Sandervalia district.",
@@ -131,6 +134,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Financée avec l'appui de l'Arabie saoudite et inaugurée au début des années 1980, la Grande Mosquée Fayçal domine le quartier de Camayenne avec ses minarets. Elle peut accueillir des milliers de fidèles. À proximité, le mausolée de Camayenne abrite les tombes de plusieurs grandes figures de l'histoire guinéenne.",
         tips: "Tenue couvrante (épaules et jambes, foulard pour les femmes) ; pas de visite pendant les prières, demandez l'autorisation pour entrer.",
         visitMinutes: 45,
+        lat: 9.5332,
+        lng: -13.6841,
+        cover: "/images/voyage/lieu-grande-mosquee-faycal-conakry",
         en: {
           name: "Grand Mosque Faisal",
           summary: "One of the largest mosques in West Africa, inaugurated in the early 1980s.",
@@ -148,6 +154,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Immense et labyrinthique, le marché de Madina est le cœur commercial de Conakry. On y trouve des pagnes et des bazins teints, des épices, des fruits du pays, de la vaisselle, des produits venus de toute la sous-région et quelques étals d'artisanat. Une immersion intense dans l'économie du quotidien.",
         tips: "Venez le matin, avec peu d'objets de valeur, et de préférence accompagné d'une personne qui connaît le marché ; les pickpockets y sont actifs. Demandez avant de photographier.",
         visitMinutes: 120,
+        lat: 9.5422,
+        lng: -13.6672,
+        cover: "/images/voyage/lieu-marche-madina-conakry",
         en: {
           name: "Madina Market",
           summary: "The capital's largest market: fabrics, spices, fruit, crafts and everything else.",
@@ -164,11 +173,72 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
         description:
           "Créé à l'époque coloniale comme jardin d'essai, le jardin botanique de Camayenne conserve de très grands arbres tropicaux et des allées ombragées en pleine ville. Une pause au calme, loin du bruit de la circulation, idéale en fin de journée.",
         visitMinutes: 60,
+        lat: 9.5307,
+        lng: -13.6859,
         en: {
           name: "Camayenne Botanical Garden",
           summary: "A shady park dating from colonial times, with century-old trees.",
           description:
             "Created in colonial times as an experimental garden, the Camayenne botanical garden preserves very large tropical trees and shady paths in the middle of the city. A quiet break away from the traffic, ideal in the late afternoon.",
+        },
+      },
+      {
+        slug: "monument-22-novembre-conakry",
+        category: "HISTORY",
+        name: "Monument du 22 Novembre 1970",
+        summary: "Monument commémorant l'échec du débarquement portugais de novembre 1970 à Conakry.",
+        description:
+          "Ce monument rappelle l'opération « Mer Verte » : dans la nuit du 21 au 22 novembre 1970, des troupes portugaises venues de la Guinée portugaise voisine (actuelle Guinée-Bissau), appuyées par des opposants guinéens, débarquèrent à Conakry pour tenter de renverser le régime d'Ahmed Sékou Touré et libérer des prisonniers. L'attaque échoua, mais elle fut suivie d'une vague de répression et d'arrestations. Dressé sur un carrefour du centre de Conakry, le monument, dont la première pierre fut posée en 1971, porte un groupe sculpté de combattants, homme, femme et enfant.",
+        tips: "Le monument se trouve au milieu d'un carrefour très fréquenté : photographiez-le depuis le trottoir et restez attentif à la circulation. Évitez de photographier les bâtiments militaires et officiels alentour.",
+        visitMinutes: 20,
+        lat: 9.5215,
+        lng: -13.6905,
+        cover: "/images/voyage/lieu-monument-22-novembre-conakry",
+        en: {
+          name: "22 November 1970 Monument",
+          summary: "A monument commemorating the failed Portuguese landing in Conakry in November 1970.",
+          description:
+            "This monument recalls Operation Green Sea: on the night of 21–22 November 1970, Portuguese troops from neighbouring Portuguese Guinea (now Guinea-Bissau), backed by Guinean opponents, landed in Conakry in an attempt to overthrow Ahmed Sékou Touré's regime and free prisoners. The attack failed, but it was followed by a wave of repression and arrests. Standing at a junction in central Conakry, the monument, whose foundation stone was laid in 1971, bears a sculpted group of fighters: a man, a woman and a child.",
+          tips: "The monument stands in the middle of a very busy junction: photograph it from the pavement and watch the traffic. Avoid photographing the military and government buildings nearby.",
+        },
+      },
+      {
+        slug: "cathedrale-sainte-marie-conakry",
+        category: "RELIGION",
+        name: "Cathédrale Sainte-Marie",
+        summary: "La cathédrale catholique de Kaloum, siège de l'archidiocèse de Conakry, à la façade ocre et blanche.",
+        description:
+          "Siège de l'archidiocèse de Conakry, la cathédrale Sainte-Marie se dresse dans le quartier de Kaloum, au cœur de la presqu'île. Sa construction a commencé à la fin des années 1920 (première pierre bénie en 1928) et l'essentiel de l'édifice date des années 1930. Sa façade ocre ornée d'une grande rosace géométrique en fait l'un des bâtiments marquants du centre-ville. C'est un lieu de culte actif, très fréquenté à Pâques et à Noël.",
+        tips: "Tenue correcte ; visitez en dehors des offices ou assistez discrètement à une messe, et demandez avant de photographier l'intérieur.",
+        visitMinutes: 30,
+        lat: 9.5102,
+        lng: -13.7149,
+        cover: "/images/voyage/lieu-cathedrale-sainte-marie-conakry",
+        en: {
+          name: "Saint Mary's Cathedral",
+          summary: "Kaloum's Catholic cathedral, seat of the Archdiocese of Conakry, with an ochre and white façade.",
+          description:
+            "The seat of the Archdiocese of Conakry, Saint Mary's Cathedral stands in the Kaloum district, at the heart of the peninsula. Construction began in the late 1920s (the foundation stone was blessed in 1928) and most of the building dates from the 1930s. Its ochre façade with a large geometric rose window makes it one of the landmarks of the city centre. It is an active place of worship, very busy at Easter and Christmas.",
+          tips: "Dress respectfully; visit outside services or attend a mass discreetly, and ask before photographing the interior.",
+        },
+      },
+      {
+        slug: "soirees-ratoma-conakry",
+        category: "LEISURE",
+        name: "Soirées de Ratoma (Kipé, Taouyah)",
+        summary: "Restaurants, terrasses et clubs des quartiers de Kipé et Taouyah, cœur de la vie nocturne de Conakry.",
+        description:
+          "Loin du centre administratif de Kaloum, la commune de Ratoma concentre l'essentiel de la vie nocturne de Conakry. À Kipé et Taouyah, restaurants, terrasses, maquis et clubs accueillent le soir une clientèle locale et expatriée, souvent au son de la musique guinéenne, de l'afrobeat ou du coupé-décalé. L'animation culmine le week-end et pendant les fêtes de fin d'année. Les adresses changent vite : demandez conseil à votre hébergement.",
+        tips: "France Diplomatie recommande d'éviter le soir les lieux sombres et peu fréquentés et déconseille de résider à l'est de Kipé et Taouyah sans solides précautions : déplacez-vous en voiture avec un chauffeur de confiance, gardez peu d'objets de valeur et ne rentrez pas à pied.",
+        bestPeriod: "Week-ends et fin décembre",
+        visitMinutes: 180,
+        en: {
+          name: "Evenings in Ratoma (Kipé, Taouyah)",
+          summary: "Restaurants, terraces and clubs in the Kipé and Taouyah districts, the heart of Conakry's nightlife.",
+          description:
+            "Away from the administrative centre of Kaloum, the Ratoma district is home to most of Conakry's nightlife. In Kipé and Taouyah, restaurants, terraces, maquis (informal eateries) and clubs welcome local and expatriate crowds in the evening, often to the sound of Guinean music, Afrobeats or coupé-décalé. Things peak at weekends and during the year-end festivities. Venues change quickly: ask where you are staying for advice.",
+          tips: "France Diplomatie advises avoiding dark, deserted places at night and recommends against living east of Kipé and Taouyah without solid precautions: get around by car with a trusted driver, carry few valuables and do not walk home.",
+          bestPeriod: "Weekends and late December",
         },
       },
     ],
@@ -182,6 +252,7 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
       "À quelques kilomètres au large de Conakry, l'archipel des îles de Loos compte trois îles principales, Kassa, Tamara (Fotoba) et Roume, et plusieurs îlots. On y vient le temps d'une journée ou d'un week-end pour leurs plages, leurs cocoteraies et leurs villages de pêcheurs, loin de l'agitation de la capitale. Les traversées se font en bateau au départ de Conakry.",
     lat: 9.4833,
     lng: -13.8,
+    cover: "/images/voyage/iles-de-loos",
     en: {
       name: "Loos Islands",
       region: "Conakry",
@@ -200,6 +271,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
         tips: "Choisissez un bateau sérieux, équipé de gilets de sauvetage, et évitez les traversées par mer agitée ou en saison des pluies. Emportez de l'eau et de l'argent liquide.",
         bestPeriod: "Novembre à avril (saison sèche, mer plus calme)",
         visitMinutes: 360,
+        lat: 9.4635,
+        lng: -13.7932,
+        cover: "/images/voyage/lieu-ile-de-roume",
         en: {
           name: "Roume Island",
           summary: "A wooded island with sandy coves, linked by local tradition to “Treasure Island”.",
@@ -218,12 +292,37 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Face à la capitale, Kassa est l'île la plus accessible de l'archipel. Ses plages, ses villages de pêcheurs et ses quelques hébergements en font une escapade appréciée des habitants de Conakry le week-end. L'île a autrefois été exploitée pour la bauxite, dont on devine encore les traces.",
         tips: "Mêmes précautions pour la traversée ; renseignez-vous sur l'état de la mer avant de vous baigner.",
         visitMinutes: 300,
+        lat: 9.4744,
+        lng: -13.7554,
+        cover: "/images/voyage/lieu-ile-de-kassa",
         en: {
           name: "Kassa Island",
           summary: "The closest island to Conakry: beaches, fishing villages and small hotels.",
           description:
             "Facing the capital, Kassa is the most accessible island in the archipelago. Its beaches, fishing villages and handful of places to stay make it a favourite weekend getaway for Conakry residents. The island was once mined for bauxite, traces of which can still be seen.",
           tips: "Take the same precautions for the crossing; check sea conditions before swimming.",
+        },
+      },
+      {
+        slug: "ile-de-tamara-fotoba",
+        category: "HISTORY",
+        name: "Île de Tamara (Fotoba)",
+        summary: "La plus occidentale des îles de Loos, avec le village de Fotoba, les vestiges d'un bagne colonial et un phare.",
+        description:
+          "Longue d'une dizaine de kilomètres, Tamara est la plus occidentale des îles de Loos. Son village principal, Fotoba, a abrité à partir de 1905 un pénitencier colonial qui servit, de 1918 à l'indépendance, de camp pénal pour toute l'Afrique-Occidentale française ; des bâtiments de cellules en subsistent. À l'extrémité sud de l'île, un phare en service depuis 1906 guide toujours les navires vers Conakry. Une escapade plus confidentielle que Roume ou Kassa, entre mémoire coloniale, village de pêcheurs et petites plages.",
+        tips: "La traversée est plus longue que vers Kassa : partez tôt avec un bateau équipé de gilets, par mer calme. Les vestiges du bagne ne sont pas aménagés : faites-vous accompagner par une personne du village et demandez l'accord des habitants avant de photographier.",
+        bestPeriod: "Novembre à avril (saison sèche, mer plus calme)",
+        visitMinutes: 360,
+        lat: 9.5086,
+        lng: -13.7993,
+        cover: "/images/voyage/lieu-ile-de-tamara-fotoba",
+        en: {
+          name: "Tamara Island (Fotoba)",
+          summary: "The westernmost of the Loos Islands, with Fotoba village, the remains of a colonial penal colony and a lighthouse.",
+          description:
+            "Some ten kilometres long, Tamara is the westernmost of the Loos Islands. Its main village, Fotoba, housed a colonial penitentiary from 1905 which, from 1918 until independence, served as the penal camp for the whole of French West Africa; cell blocks still stand. At the southern tip of the island, a lighthouse in service since 1906 still guides ships towards Conakry. A quieter getaway than Roume or Kassa, combining colonial history, a fishing village and small beaches.",
+          tips: "The crossing is longer than to Kassa: leave early on a boat with life jackets, in calm seas. The prison remains are not set up for visitors: go with someone from the village and ask residents before taking photos.",
+          bestPeriod: "November to April (dry season, calmer sea)",
         },
       },
     ],
@@ -237,6 +336,7 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
       "Au nord-est de la capitale, la préfecture de Dubréka est une échappée verte facile depuis Conakry. On y vient surtout pour les chutes de la Soumba, au pied de falaises couvertes de végétation, et pour les paysages du massif du Kakoulima, qui domine la région côtière.",
     lat: 9.7906,
     lng: -13.5233,
+    cover: "/images/voyage/dubreka",
     en: {
       region: "Kindia",
       summary: "Waterfalls and green hills some fifty kilometres from Conakry.",
@@ -254,6 +354,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
         tips: "Les rochers sont glissants ; ne vous baignez qu'aux endroits calmes et jamais en période de crue.",
         bestPeriod: "Fin de saison des pluies et début de saison sèche (débit plus fort)",
         visitMinutes: 150,
+        cover: "/images/voyage/lieu-chutes-de-la-soumba",
+        lat: 9.9114,
+        lng: -13.4512,
         en: {
           name: "Soumba Falls",
           summary: "A waterfall set in lush greenery, a popular spot for picnics and swimming.",
@@ -272,6 +375,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Le Kakoulima est le relief le plus marquant des environs de Conakry. Ses pentes boisées se prêtent à la randonnée et offrent, par temps clair, des vues étendues sur la plaine côtière. Montez avec un guide local qui connaît les sentiers.",
         tips: "Partez tôt avec de l'eau et de bonnes chaussures ; évitez la saison des pluies, quand les sentiers deviennent glissants.",
         visitMinutes: 300,
+        lat: 9.7707,
+        lng: -13.4477,
+        cover: "/images/voyage/lieu-mont-kakoulima",
         en: {
           name: "Kakoulima massif",
           summary: "A wooded mountain overlooking the Conakry region, to hike with a guide.",
@@ -309,6 +415,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
         tips: "En saison sèche avancée, le débit peut être faible ; les rochers sont glissants près de la chute.",
         bestPeriod: "Septembre à décembre (après les pluies)",
         visitMinutes: 120,
+        lat: 9.9825,
+        lng: -12.7964,
+        cover: "/images/voyage/lieu-voile-de-la-mariee-kindia",
         en: {
           name: "Bridal Veil Falls (Voile de la Mariée)",
           summary: "A waterfall spreading in fine threads down a cliff, emblem of the Kindia region.",
@@ -327,6 +436,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Le mont Gangan domine Kindia et occupe une place importante dans les traditions locales, qui lui prêtent de nombreuses légendes. Son ascension, avec un guide, offre de beaux panoramas sur la ville et les collines environnantes.",
         tips: "Faites-vous accompagner par un guide local et respectez les consignes liées aux lieux sacrés.",
         visitMinutes: 240,
+        lat: 10.0725,
+        lng: -12.9002,
+        cover: "/images/voyage/lieu-mont-gangan",
         en: {
           name: "Mount Gangan",
           summary: "Kindia's guardian mountain, steeped in legend, for a hike with views.",
@@ -344,6 +456,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Le marché de Kindia reflète la richesse agricole de la région : montagnes de mangues et d'ananas selon la saison, bananes, agrumes, légumes, épices et produits du quotidien. Un bon endroit pour goûter les fruits locaux avant de reprendre la route.",
         tips: "Gardez vos affaires près de vous et demandez avant de photographier les vendeuses.",
         visitMinutes: 60,
+        lat: 10.0486,
+        lng: -12.8563,
+        cover: "/images/voyage/lieu-marche-de-kindia",
         en: {
           name: "Kindia Market",
           summary: "A lively market piled high with the region's fruit.",
@@ -381,6 +496,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
         tips: "Piste difficile en saison des pluies : un 4x4 et un guide local sont recommandés. Prévoyez de bonnes chaussures.",
         bestPeriod: "Septembre à décembre (débit important, pistes praticables)",
         visitMinutes: 240,
+        lat: 10.8162,
+        lng: -12.1859,
+        cover: "/images/voyage/lieu-chutes-de-ditinn",
         en: {
           name: "Ditinn Falls",
           summary: "One of Guinea's highest waterfalls, plunging from a cliff into a wooded amphitheatre.",
@@ -399,6 +517,7 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Exilée d'Afrique du Sud, la chanteuse Miriam Makeba a vécu en Guinée à partir de la fin des années 1960. À Dalaba, elle disposait d'une maison de style local, où elle recevait artistes et personnalités. La bâtisse s'est dégradée et un projet de restauration a été annoncé : l'état du site et les conditions de visite sont à vérifier sur place.",
         tips: "Renseignez-vous à Dalaba sur la possibilité de visite et passez par un guide local.",
         visitMinutes: 45,
+        cover: "/images/voyage/lieu-maison-miriam-makeba-dalaba",
         en: {
           name: "Miriam Makeba's house",
           summary: "The Guinean home of “Mama Africa”, given to her during her exile.",
@@ -416,6 +535,7 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Autour de la ville, des sentiers relient pinèdes, cultures en terrasses et villages peuls aux cases rondes. Le climat d'altitude rend la marche agréable, et les crêtes offrent de larges vues sur les plateaux et les vallées du Fouta-Djallon.",
         tips: "Les nuits peuvent être fraîches en saison sèche : prévoyez une petite laine. Un guide local facilite les échanges dans les villages.",
         visitMinutes: 180,
+        cover: "/images/voyage/lieu-collines-de-dalaba",
         en: {
           name: "Dalaba hills and pine woods",
           summary: "Cool hikes through pine woods and Fula villages, with views over the Fouta Djallon.",
@@ -453,6 +573,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
         tips: "Véhicule tout-terrain et guide conseillés ; la descente est raide et glissante. Prévoyez la journée.",
         bestPeriod: "Septembre à décembre (débit maximal)",
         visitMinutes: 300,
+        lat: 10.9941,
+        lng: -12.493,
+        cover: "/images/voyage/lieu-chutes-de-kambadaga",
         en: {
           name: "Kambadaga Falls",
           summary: "A succession of powerful cascades in wild scenery, west of Pita.",
@@ -471,6 +594,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Près de Pita, la rivière franchit une série de chutes à proximité du barrage hydroélectrique de Kinkon. Le site, plus facile d'accès que Kambadaga, offre une jolie promenade dans les paysages du Fouta-Djallon.",
         tips: "Ne photographiez pas les installations du barrage sans autorisation.",
         visitMinutes: 120,
+        lat: 11.0562,
+        lng: -12.454,
+        cover: "/images/voyage/lieu-chutes-de-kinkon",
         en: {
           name: "Kinkon Falls",
           summary: "Waterfalls and a reservoir near Pita, linked to the Kinkon dam.",
@@ -490,6 +616,7 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
       "Grande ville du nord du Fouta-Djallon, Labé fut le chef-lieu de l'une des principales provinces de l'État théocratique peul fondé au XVIIIe siècle. Elle reste un centre religieux et culturel majeur de la culture peule, avec sa grande mosquée, son marché animé et ses spécialités culinaires. Une bonne base pour rayonner dans les villages et les paysages du nord du Fouta.",
     lat: 11.3182,
     lng: -12.2833,
+    cover: "/images/voyage/labe",
     en: {
       region: "Labé",
       summary: "Capital of the Fouta Djallon, a city of Fula culture, Islamic scholarship and good curdled milk.",
@@ -506,6 +633,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Portant le nom de Karamoko Alfa mo Labé, figure fondatrice de la province de Labé, la grande mosquée est au cœur de la vie religieuse de la ville et de tout le Fouta-Djallon. Elle a fait l'objet d'importants travaux de rénovation ces dernières années.",
         tips: "Tenue couvrante ; ne visitez pas pendant les prières et demandez l'autorisation avant d'entrer ou de photographier.",
         visitMinutes: 30,
+        cover: "/images/voyage/lieu-grande-mosquee-labe",
+        lat: 11.3185,
+        lng: -12.2774,
         en: {
           name: "Great Mosque of Labé (Karamoko Alfa mo Labé)",
           summary: "The city's great mosque, named after the founder of the Labé province.",
@@ -523,6 +653,8 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Le marché de Labé rassemble les productions de tout le nord du Fouta-Djallon : légumes, fonio, beurre de karité, tissus teints, vannerie, cuirs et objets du quotidien. Un lieu idéal pour observer la vie de la région et rapporter un tissu ou une vannerie.",
         tips: "Venez le matin ; marchandez avec le sourire et demandez avant de photographier.",
         visitMinutes: 90,
+        lat: 11.3157,
+        lng: -12.2772,
         en: {
           name: "Labé Central Market",
           summary: "A large regional market: dyed fabrics, village produce, Fula crafts.",
@@ -540,12 +672,133 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Le Fouta-Djallon est le pays du fonio, petite céréale cultivée depuis des siècles, servie avec des sauces à base de feuilles ou d'arachide. Le lait caillé, issu des troupeaux peuls, accompagne de nombreux repas et se déguste aussi sucré. Les gargotes et restaurants de Labé sont l'endroit idéal pour découvrir cette cuisine simple et généreuse.",
         tips: "Demandez conseil à votre hébergement pour trouver une bonne adresse ; privilégiez les plats bien cuits et l'eau en bouteille.",
         visitMinutes: 90,
+        cover: "/images/voyage/lieu-cuisine-du-fouta-labe",
         en: {
           name: "Flavours of the Fouta Djallon",
           summary: "Fonio, curdled milk and leaf sauces: Fula cuisine to taste in Labé.",
           description:
             "The Fouta Djallon is the land of fonio, a tiny grain grown for centuries and served with leaf- or groundnut-based sauces. Curdled milk from Fula herds accompanies many meals and is also enjoyed sweetened. Labé's eateries and restaurants are the ideal place to discover this simple, generous cuisine.",
           tips: "Ask where you are staying for a good address; choose well-cooked dishes and bottled water.",
+        },
+      },
+      {
+        slug: "dame-de-mali",
+        category: "NATURE",
+        name: "Dame de Mali (mont Loura)",
+        summary: "Rocher en forme de profil féminin sur le mont Loura, point culminant du Fouta-Djallon, près de la ville de Mali.",
+        description:
+          "À environ 120 km au nord de Labé, près de la ville de Mali (chef-lieu de préfecture, à ne pas confondre avec le pays voisin), le mont Loura culmine à 1 515 m, au point le plus haut du Fouta-Djallon. Sur l'une de ses falaises, l'érosion a façonné un rocher qui évoque un visage de femme de profil : la « Dame de Mali », autour de laquelle circulent de nombreuses légendes. Depuis le plateau, la vue s'étend sur les falaises et les vallées boisées. La préfecture, isolée, recense de nombreux autres sites naturels.",
+        tips: "Longue route et piste difficile depuis Labé : prévoyez un 4x4, un chauffeur expérimenté et une journée complète, voire une nuit sur place. Le bord des falaises n'est pas sécurisé ; partez avec un guide local.",
+        bestPeriod: "Novembre à février (saison sèche, air plus frais ; l'harmattan peut voiler la vue)",
+        visitMinutes: 240,
+        lat: 12.1119,
+        lng: -12.2631,
+        cover: "/images/voyage/lieu-dame-de-mali",
+        en: {
+          name: "Lady of Mali (Mount Loura)",
+          summary: "A rock shaped like a woman's profile on Mount Loura, the highest point of the Fouta Djallon, near the town of Mali.",
+          description:
+            "About 120 km north of Labé, near the town of Mali (a prefecture capital, not to be confused with the neighbouring country), Mount Loura rises to 1,515 m, the highest point of the Fouta Djallon. On one of its cliffs, erosion has shaped a rock that looks like a woman's face in profile: the \"Lady of Mali\", the subject of many legends. From the plateau, the view stretches over cliffs and wooded valleys. The remote prefecture has many other natural sites on record.",
+          tips: "A long drive and a rough track from Labé: plan on a 4x4, an experienced driver and a full day, or even a night there. The cliff edges are unprotected; go with a local guide.",
+          bestPeriod: "November to February (dry season, cooler air; the harmattan can haze the view)",
+        },
+      },
+    ],
+  },
+  {
+    slug: "boke",
+    name: "Boké",
+    region: "Boké",
+    summary: "Ville historique du Rio Nunez, au nord-ouest, connue pour son fortin colonial devenu musée.",
+    description:
+      "À environ 250 km au nord-ouest de Conakry par une route goudronnée, Boké s'étend au bord du Rio Nunez, dans une région peuplée notamment de Landouma et de Nalou. Porte d'entrée ancienne du commerce européen puis de la colonisation, la ville conserve un fortin de 1878 transformé en musée régional, qui retrace l'histoire de la région et de ses résistants. Boké est aussi le cœur de l'exploitation de la bauxite guinéenne : attendez-vous à une importante circulation de camions sur les routes de la région.",
+    lat: 10.9314,
+    lng: -14.2892,
+    cover: "/images/voyage/boke",
+    en: {
+      region: "Boké",
+      summary: "A historic town on the Rio Nunez in the north-west, known for its colonial fort turned museum.",
+      description:
+        "About 250 km north-west of Conakry by paved road, Boké lies on the banks of the Rio Nunez, in a region home notably to the Landuma and Nalu peoples. Long a gateway for European trade and then colonisation, the town keeps an 1878 fort turned regional museum, which traces the history of the region and its resistance fighters. Boké is also the heart of Guinea's bauxite mining: expect heavy truck traffic on the region's roads.",
+    },
+    places: [
+      {
+        slug: "musee-fortin-boke",
+        category: "MUSEUM",
+        name: "Musée régional de Boké (fortin)",
+        summary: "Fortin colonial de 1878 où furent détenus Alfa Yaya et Dinah Salifou, devenu musée régional.",
+        description:
+          "Construit en 1878 au-dessus du Rio Nunez, le fortin de Boké servit de poste à l'administration coloniale française. Deux souverains qui s'opposèrent à la colonisation y furent incarcérés : l'almamy Alfa Yaya Diallo, roi du Labé, et Dinah Salifou Camara, roi des Nalou. Transformé en musée en 1971 puis restauré au début des années 1980, il présente des objets des différents peuples de la région, dont des masques, ainsi que les traces de la période coloniale, comme ses salles souterraines.",
+        tips: "Renseignez-vous sur place sur les salles ouvertes ; la visite guidée par le personnel du musée aide à comprendre l'histoire du site.",
+        visitMinutes: 60,
+        lat: 10.9332,
+        lng: -14.2957,
+        cover: "/images/voyage/lieu-musee-fortin-boke",
+        en: {
+          name: "Boké Regional Museum (fort)",
+          summary: "An 1878 colonial fort where Alfa Yaya and Dinah Salifou were held, now a regional museum.",
+          description:
+            "Built in 1878 above the Rio Nunez, the Boké fort was a French colonial administrative post. Two rulers who opposed colonisation were imprisoned here: Almamy Alfa Yaya Diallo, king of Labé, and Dinah Salifou Camara, king of the Nalu. Turned into a museum in 1971 and restored in the early 1980s, it displays objects from the region's various peoples, including masks, as well as traces of the colonial period such as its underground rooms.",
+          tips: "Ask on site which rooms are open; a guided tour by museum staff helps make sense of the site's history.",
+        },
+      },
+    ],
+  },
+  {
+    slug: "kankan",
+    name: "Kankan",
+    region: "Kankan",
+    summary: "Grande ville malinké de Haute-Guinée sur les rives du Milo, cité de savoir islamique et berceau de la Mamaya.",
+    description:
+      "Deuxième ville du pays, à quelque 550 km à l'est de Conakry, Kankan s'étend au bord du Milo, un affluent du Niger. Fondée selon la tradition à la fin du XVIIe siècle, elle devint au XVIIIe siècle un grand centre religieux et marchand, capitale du Batè, reliant la côte, les régions de la kola et la vallée du Niger. Elle reste un foyer de la culture malinké et le berceau de la Mamaya, grande fête dansée célébrée après la Tabaski. La ville est en vigilance renforcée, mais les zones frontalières du Mali toutes proches (Siguiri, Mandiana) sont déconseillées sauf raison impérative par France Diplomatie : vérifiez les conseils aux voyageurs avant de partir et ne poursuivez pas vers le nord ou l'est sans avis à jour.",
+    lat: 10.3833,
+    lng: -9.3,
+    cover: "/images/voyage/kankan",
+    en: {
+      region: "Kankan",
+      summary: "A major Malinke city of Upper Guinea on the banks of the Milo, a centre of Islamic learning and birthplace of the Mamaya.",
+      description:
+        "The country's second city, some 550 km east of Conakry, Kankan lies on the Milo, a tributary of the Niger. Founded according to tradition in the late 17th century, it became a major religious and trading centre in the 18th century, capital of the Baté, linking the coast, the kola-growing regions and the Niger valley. It remains a stronghold of Malinke culture and the birthplace of the Mamaya, a great dance festival held after Tabaski. The city is under heightened vigilance, but the nearby border areas with Mali (Siguiri, Mandiana) are advised against except for essential travel by France Diplomatie: check travel advice before leaving and do not continue north or east without up-to-date advice.",
+    },
+    places: [
+      {
+        slug: "grande-mosquee-kankan",
+        category: "RELIGION",
+        name: "Grande mosquée de Kankan",
+        summary: "Vaste mosquée aux minarets ocre coiffés de coupoles vertes, au cœur de la vie religieuse de la ville.",
+        description:
+          "Avec ses minarets carrés coiffés de coupoles vertes, la grande mosquée domine le centre de Kankan, ville réputée depuis le XVIIIe siècle pour ses lettrés musulmans. Elle rassemble les fidèles pour la prière du vendredi et pour les grandes fêtes religieuses, quand le parvis déborde de monde. Son architecture aux couleurs ocre et vert d'eau en fait un repère de la ville.",
+        tips: "Tenue couvrante (épaules et jambes, foulard pour les femmes) ; pas de visite pendant les prières, demandez l'autorisation pour entrer ou photographier.",
+        visitMinutes: 30,
+        lat: 10.3771,
+        lng: -9.2954,
+        cover: "/images/voyage/lieu-grande-mosquee-kankan",
+        en: {
+          name: "Great Mosque of Kankan",
+          summary: "A large mosque with ochre minarets topped by green domes, at the heart of the city's religious life.",
+          description:
+            "With its square minarets topped by green domes, the great mosque dominates the centre of Kankan, a city renowned since the 18th century for its Muslim scholars. It gathers the faithful for Friday prayers and major religious festivals, when the forecourt overflows. Its ochre and pale-green architecture makes it a city landmark.",
+          tips: "Wear covering clothes (shoulders and legs, headscarf for women); do not visit during prayers and ask permission before entering or taking photos.",
+        },
+      },
+      {
+        slug: "berges-du-milo-kankan",
+        category: "NATURE",
+        name: "Berges du Milo",
+        summary: "La rivière de Kankan, ses pirogues et ses bancs de sable, à découvrir en fin de journée.",
+        description:
+          "Le Milo, affluent du Niger, borde Kankan. Sur ses berges s'activent piroguiers, pêcheurs et extracteurs de sable, et l'on vient en fin de journée observer la vie de la rivière. La ville fut longtemps un port fluvial et, à partir de 1914, le terminus du chemin de fer venu de Conakry, dont le trafic est interrompu depuis les années 1990.",
+        tips: "Évitez de vous baigner en eau douce (courants, risque de bilharziose) et demandez avant de photographier les travailleurs.",
+        bestPeriod: "Saison sèche, en fin d'après-midi",
+        visitMinutes: 60,
+        cover: "/images/voyage/lieu-berges-du-milo-kankan",
+        en: {
+          name: "Banks of the Milo",
+          summary: "Kankan's river, its pirogues and sandbanks, best seen in the late afternoon.",
+          description:
+            "The Milo, a tributary of the Niger, runs along Kankan. Boatmen, fishermen and sand diggers are busy on its banks, and people come in the late afternoon to watch river life. The town was long a river port and, from 1914, the terminus of the railway from Conakry, on which traffic has been suspended since the 1990s.",
+          tips: "Avoid swimming in fresh water (currents, risk of bilharzia) and ask before photographing workers.",
+          bestPeriod: "Dry season, late afternoon",
         },
       },
     ],
@@ -559,6 +812,7 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
       "À l'extrême sud-est, aux confins de la Côte d'Ivoire et du Liberia, les monts Nimba culminent au point le plus haut du pays. Leur réserve naturelle intégrale, inscrite au patrimoine mondial de l'UNESCO (et sur la liste du patrimoine en péril), abrite une faune et une flore exceptionnelles, dont de nombreuses espèces endémiques. Attention : à la date de rédaction, France Diplomatie déconseille, sauf raison impérative, les zones frontalières avec la Côte d'Ivoire ; ce site est donc présenté à titre de patrimoine, pour préparer un voyage quand les conditions le permettront.",
     lat: 7.6167,
     lng: -8.4167,
+    cover: "/images/voyage/mont-nimba",
     en: {
       name: "Nimba Mountains",
       region: "Nzérékoré",
@@ -578,6 +832,7 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 480,
         lat: 7.6167,
         lng: -8.4167,
+        cover: "/images/voyage/lieu-reserve-des-monts-nimba",
         en: {
           name: "Mount Nimba Strict Nature Reserve",
           summary: "Forests, mountain grasslands and endemic species in a World Heritage Site shared with Côte d'Ivoire.",
@@ -595,6 +850,9 @@ export const GUINEE_DESTINATIONS: SeedDestination[] = [
           "Au pied des monts Nimba, les collines boisées de Bossou abritent une petite communauté de chimpanzés suivie par des chercheurs depuis les années 1970. Elle est connue dans le monde entier pour son usage d'outils, notamment des pierres servant à casser les noix de palme. Les forêts sont sacrées pour les habitants, qui protègent traditionnellement les chimpanzés.",
         tips: "Situé en zone frontalière (Liberia, Côte d'Ivoire) : vérifiez les conseils aux voyageurs à jour. L'observation ne se fait qu'avec les guides et selon les règles de l'institut de recherche local ; gardez vos distances avec les animaux.",
         visitMinutes: 240,
+        lat: 7.6487,
+        lng: -8.5054,
+        cover: "/images/voyage/lieu-chimpanzes-de-bossou",
         en: {
           name: "Bossou chimpanzees",
           summary: "A chimpanzee community studied for decades, famous for using stone tools.",

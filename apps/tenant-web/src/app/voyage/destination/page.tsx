@@ -11,6 +11,7 @@ import { useShellParams } from "../../../lib/route-params";
 import {
   AddToTripButton,
   CircuitTile,
+  EventRow,
   PlaceTile,
   StaySearchBar,
   StayTile,
@@ -73,6 +74,24 @@ export default function DestinationPage() {
               <PlaceTile key={p.id} p={p} action={<AddToTripButton place={p} country={d.country} />} />
             ))}
           </div>
+        </section>
+      )}
+
+      {d.events.length > 0 && (
+        <section>
+          <div className="flex items-end justify-between gap-3 flex-wrap mb-4">
+            <h2 className="font-display text-2xl">{t("voy.dest.events", { name: d.name })}</h2>
+            <Link href={`/voyage/fetes?pays=${d.country}`} className="text-sm font-medium text-brand-700 dark:text-brand-300 hover:underline">
+              {t("voy.ev.seeCalendar")}
+            </Link>
+          </div>
+          <ul className="grid md:grid-cols-2 gap-3">
+            {d.events.map((e) => (
+              <li key={e.id} className="min-w-0">
+                <EventRow e={e} />
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

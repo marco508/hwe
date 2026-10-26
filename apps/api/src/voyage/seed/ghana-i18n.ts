@@ -91,6 +91,48 @@ const ES: SeedI18n = {
       description:
         "La mayor área protegida del país, el parque nacional de Mole abarca sabanas arboladas donde viven elefantes, antílopes, facóqueros, babuinos y numerosas aves. Es famoso por sus safaris a pie acompañados de guardas armados, que a menudo permiten acercarse a los elefantes. Se llega desde Tamale, con vuelos desde Accra. El parque no está en una zona desaconsejada por las autoridades francesas o británicas, pero el norte del país exige una vigilancia reforzada: consulte las recomendaciones de viaje antes de salir.",
     },
+    keta: {
+      name: "Keta y el estuario del Volta",
+      region: "Volta",
+      summary: "Lagunas, cordón de arena, fuerte danés y desembocadura del Volta, en el país de los ewe anlo.",
+      description:
+        "En el extremo sureste del país, la costa de la región del Volta extiende un estrecho cordón de arena entre el océano y la gran laguna de Keta, rica en aves. La pequeña ciudad de Keta conserva las ruinas del fuerte danés Prinzenstein, y la cercana Anloga acoge cada noviembre el gran festival Hogbetsotso. Más al oeste, Ada Foah marca la desembocadura del Volta, con sus bancos de arena y sus paseos en piragua. Una costa tranquila, lejos del ajetreo de Accra.",
+    },
+    akosombo: {
+      name: "Akosombo y el lago Volta",
+      region: "Oriental",
+      summary: "La gran presa, el lago Volta, el puente de Adomi y el país krobo de las cuentas de vidrio.",
+      description:
+        "A unas dos horas al noreste de Accra, Akosombo es la puerta del lago Volta, el inmenso embalse creado por la presa terminada en 1965. Las colinas boscosas que enmarcan el río, el puente de Adomi y los cruceros por el lago hacen de la zona una escapada apreciada desde la capital. Muy cerca, el país krobo, en torno a Odumase y Somanya, perpetúa el arte de las cuentas de vidrio y celebra cada otoño el Ngmayem.",
+    },
+    "koforidua-kwahu": {
+      name: "Koforidua, Boti y la meseta de Kwahu",
+      region: "Oriental",
+      summary: "Cascadas gemelas, rocas sorprendentes y acantilados del Kwahu, meca del parapente en Semana Santa.",
+      description:
+        "Capital de la región Oriental, Koforidua está rodeada de colinas boscosas donde se esconden las cataratas gemelas de Boti y la sorprendente Umbrella Rock. Más al noroeste, la meseta de Kwahu alza sus acantilados sobre la llanura: sus ciudades encaramadas, como Abetifi y Mpraeso, se animan sobre todo en Semana Santa, cuando la diáspora kwahu vuelve a casa y el festival de parapente de Odweanoma atrae a miles de visitantes.",
+    },
+    kintampo: {
+      name: "Kintampo y Bono Oriental",
+      region: "Bono Oriental",
+      summary: "Cascadas escalonadas y un bosque sagrado de monos, a medio camino entre Kumasi y Tamale.",
+      description:
+        "En la gran carretera que une Kumasi con Tamale, la región de Bono Oriental marca la transición entre selva y sabana. Las cataratas de Kintampo, escalonadas sobre el río Pumpum, ofrecen una parada refrescante, y el santuario de Boabeng-Fiema, cerca de Nkoranza, protege monos considerados sagrados por los aldeanos. Techiman, gran mercado agrícola, es la ciudad principal de la zona.",
+    },
+    tamale: {
+      name: "Tamale",
+      region: "Norte",
+      summary: "La gran ciudad del norte, puerta del parque de Mole y corazón del reino dagomba.",
+      description:
+        "Capital de la región Norte, Tamale es la principal ciudad del norte de Ghana y la puerta de entrada al parque nacional de Mole, con vuelos desde Accra. Ciudad mayoritariamente musulmana, de amplias avenidas recorridas por motos, es el centro cultural de los dagomba: se ven las túnicas tejidas en tiras («smocks» o «fugu») y se puede asistir al Damba o a la fiesta del fuego (Bugum). Las zonas cercanas a la frontera norte deben evitarse, pero Tamale no está en una zona desaconsejada: consulte de todos modos las recomendaciones de viaje.",
+    },
+    "beyin-nzulezo": {
+      name: "Beyin, Nzulezo y Ankasa",
+      region: "Occidental",
+      summary: "Un pueblo sobre pilotes, un fuerte británico junto al océano y selva tropical primaria en el extremo oeste.",
+      description:
+        "En el extremo occidental de la costa, cerca de Costa de Marfil, el país nzema ofrece una etapa fuera de los caminos trillados. Desde Beyin, dominado por el fuerte Apollonia, una piragua remonta los pantanos de rafia hasta Nzulezo, un pueblo construido íntegramente sobre pilotes en medio del lago Amansuri. Más al norte, el área de conservación de Ankasa protege una de las selvas tropicales húmedas más ricas del país. Las carreteras son largas: cuente al menos dos días desde Busua o Takoradi.",
+    },
   },
   places: {
     "parc-memorial-kwame-nkrumah": {
@@ -250,6 +292,209 @@ const ES: SeedI18n = {
         "A pocos kilómetros de la entrada del parque, el pueblo de Larabanga alberga una pequeña mezquita blanca de adobe erizada de vigas de madera, de estilo sudano-saheliano. La tradición la remonta a varios siglos atrás, lo que la convierte en una de las mezquitas más antiguas de Ghana. Se contempla desde el exterior, acompañado de un guía del pueblo.",
       tips: "Lugar de culto activo: ropa que cubra, visita exterior y no acuda durante las oraciones. Recurra al guía oficial del pueblo.",
     },
+    "place-de-l-independance-accra": {
+      name: "Plaza de la Independencia (Black Star Square)",
+      summary: "Inmensa explanada frente al océano, con el arco de la Independencia y la Estrella Negra.",
+      description:
+        "Construida a principios de los años sesenta, bajo la presidencia de Kwame Nkrumah, esta vasta plaza de desfiles bordea el océano a pocos minutos del parque conmemorativo. El arco de la Independencia, la Estrella Negra que simboliza el país y la llama del soldado desconocido recuerdan el nacimiento de la nación. Allí se celebran los grandes desfiles oficiales, en particular el de la fiesta de la Independencia, el 6 de marzo.",
+      tips: "El lugar está rodeado de edificios oficiales: pida permiso antes de fotografiar a militares y guardias, y evite las horas de más calor.",
+    },
+    "musee-national-du-ghana": {
+      name: "Museo Nacional de Ghana",
+      summary: "Arqueología, etnografía y artes de Ghana en un museo renovado del barrio de Adabraka.",
+      description:
+        "Inaugurado en 1957, el año de la independencia, el museo nacional depende del Ghana Museums and Monuments Board. Cerrado durante varios años por obras, reabrió en 2022 tras una renovación completa. Sus colecciones presentan la arqueología, los objetos de corte, los instrumentos musicales, los textiles y el arte del país: una buena introducción antes de partir hacia Kumasi o la costa.",
+      tips: "Infórmese sobre las condiciones de visita antes de desplazarse; la fotografía puede estar regulada en las salas.",
+    },
+    "centre-national-de-culture-accra": {
+      name: "Centro Nacional de Cultura (Arts Centre)",
+      summary: "El gran mercado artesanal de Accra: kente, máscaras, tambores, cuentas y tallas.",
+      description:
+        "Cerca del paseo marítimo, entre Jamestown y la plaza de la Independencia, el Centro Nacional de Cultura, al que todos llaman «Arts Centre», reúne decenas de puestos de artesanos y revendedores. Allí se encuentran telas kente y adinkra, cuentas, tambores, máscaras, tallas y cestas de todo el país. Una parada práctica para las compras de final de viaje.",
+      tips: "Los primeros precios son altos: compare varios puestos y regatee con una sonrisa. Muéstrese firme ante los vendedores demasiado insistentes.",
+    },
+    "plage-de-labadi": {
+      name: "Playa de Labadi (La Pleasure Beach)",
+      summary: "La playa más animada de Accra: música, baile, paseos a caballo y fiestas de fin de semana.",
+      description:
+        "Al este del centro, la playa de Labadi, o La Pleasure Beach, es el punto de encuentro de los acrenses los fines de semana y días festivos. En la arena se suceden equipos de sonido, percusionistas, acróbatas, jinetes y vendedores de cocos o pescado a la parrilla, y la animación se prolonga por la noche, sobre todo en diciembre y en Semana Santa. Más una inmersión en el ocio de la capital que una playa para bañarse.",
+      tips: "El baño es peligroso (grandes olas y corrientes): quédese en la orilla. Lleve pocos objetos de valor y márchese antes de que anochezca del todo si va solo.",
+    },
+    "plage-de-kokrobite": {
+      name: "Playa de Kokrobite",
+      summary: "Pueblo de pescadores y larga playa al oeste de Accra, escapada apreciada los fines de semana.",
+      description:
+        "A unos treinta kilómetros al oeste del centro de Accra, Kokrobite es un pueblo de pescadores ga cuya larga playa, bordeada de piraguas y cocoteros, atrae a urbanitas y viajeros en busca de calma. Se viene a pasear junto al agua, ver el regreso de los pescadores y disfrutar de un ambiente relajado, a menudo acompañado de música y percusión.",
+      tips: "Corrientes peligrosas: infórmese antes de bañarse. No se aísle en la playa, sobre todo por la noche, y prevea un transporte fiable para el regreso.",
+    },
+    "jardins-botaniques-d-aburi": {
+      name: "Jardines botánicos de Aburi",
+      summary: "Jardín creado en 1890 en las frescas colinas del Akuapem, a una hora de Accra.",
+      description:
+        "Encaramados en la cresta del Akuapem, al norte de Accra, los jardines botánicos de Aburi se abrieron en 1890. Avenidas de palmeras reales, árboles gigantes, plantas medicinales y céspedes sombreados los convierten en un lugar de paseo muy apreciado, de agradable frescor. La carretera de subida está bordeada de talleres de tallistas de madera, y la cercana ciudad de Akropong acoge cada otoño la fiesta del Odwira.",
+      tips: "Venga entre semana para disfrutar de más calma; lleve una prenda de abrigo ligera en la estación de lluvias, ya que las colinas son más frescas que la costa.",
+    },
+    "reserve-de-shai-hills": {
+      name: "Reserva de Shai Hills",
+      summary: "Sabana, colinas rocosas, cuevas y babuinos a una hora al este de Accra.",
+      description:
+        "Al noreste de Accra, la Shai Hills Resource Reserve protege una sabana salpicada de inselbergs, antaño habitados por el pueblo shai. Senderos y pistas permiten observar babuinos, antílopes y numerosas aves, y subir hasta cuevas y miradores sobre las llanuras de Accra. Una salida de naturaleza fácil de combinar con la carretera de Akosombo.",
+      tips: "Salga temprano por la mañana, cuando los animales están activos y el calor es soportable. No alimente a los babuinos y mantenga las bolsas cerradas.",
+    },
+    "fort-william-anomabo": {
+      name: "Fuerte William de Anomabo",
+      summary: "Fuerte británico del siglo XVIII junto al océano, Patrimonio Mundial.",
+      description:
+        "A unos quince kilómetros al este de Cape Coast, el fuerte William fue construido por los británicos a mediados del siglo XVIII en Anomabo, entonces uno de los principales puertos de trata de la Costa de Oro. Forma parte de los fuertes y castillos de Ghana inscritos en el Patrimonio Mundial de la UNESCO. Menos visitado que los castillos de Cape Coast y Elmina, permite una visita más íntima de sus patios, mazmorras y murallas frente al mar.",
+      tips: "Una parada fácil en la carretera Accra–Cape Coast; hágase acompañar por el guía del lugar.",
+    },
+    "marche-de-kejetia": {
+      name: "Mercado de Kejetia (mercado central de Kumasi)",
+      summary: "Uno de los mayores mercados de África Occidental, un laberinto de miles de puestos.",
+      description:
+        "En el corazón de Kumasi, el mercado central de Kejetia cuenta con miles de tiendas y puestos y está considerado uno de los mayores mercados de África Occidental. Telas, cuentas, zapatos, utensilios, ñames, especias, caracoles gigantes y plantas medicinales se codean en un dédalo de callejuelas. Parte del recinto se reconstruyó a finales de la década de 2010 en torno a una nueva estación de autobuses.",
+      tips: "Venga por la mañana con un guía o un vecino para no perderse; mantenga sus cosas cerca entre la multitud.",
+    },
+    "batiments-traditionnels-ashanti": {
+      name: "Edificios tradicionales ashanti (santuario de Besease)",
+      summary: "Santuarios con bajorrelieves tallados, últimos testigos de la arquitectura ashanti, inscritos por la UNESCO.",
+      description:
+        "En torno a Kumasi subsisten algunos santuarios tradicionales, inscritos en conjunto en el Patrimonio Mundial de la UNESCO con el nombre de «Edificios tradicionales ashanti». Construidos con tierra, madera y paja, están decorados con bajorrelieves de motivos simbólicos. El santuario de Besease, cerca de Ejisu, restaurado y dotado de un pequeño espacio de acogida, es el más accesible para comprender este arte de construir y su papel religioso.",
+      tips: "Son lugares de culto todavía respetados: siga las indicaciones del guarda y pida permiso antes de fotografiar el interior.",
+    },
+    "ntonso-adinkra": {
+      name: "Ntonso, el pueblo del adinkra",
+      summary: "Los impresores de telas adinkra trabajando, con sellos de calabaza y tinte de corteza.",
+      description:
+        "Al norte de Kumasi, el pueblo de Ntonso es famoso por la estampación de las telas adinkra. Los artesanos tallan sellos en calabazas y preparan un tinte negro a partir de corteza de árbol, y después estampan a mano los símbolos adinkra, cada uno portador de un proverbio o un valor. Se puede asistir a la fabricación y a veces probar a estampar.",
+      tips: "Reserve tiempo para el taller de estampación y compre directamente a los artesanos; combine la visita con Bonwire y Ahwiaa.",
+    },
+    "ahwiaa-sculpture-sur-bois": {
+      name: "Ahwiaa, el pueblo de los tallistas de madera",
+      summary: "Taburetes, máscaras y tambores tallados en los talleres de un pueblo cercano a Kumasi.",
+      description:
+        "En la carretera de Mampong, a pocos kilómetros al norte de Kumasi, el pueblo de Ahwiaa alinea talleres y tiendas de tallistas de madera. Allí se ve dar forma a los taburetes ashanti, las muñecas akuaba, máscaras, estatuillas y yembés, que se venden en el lugar. Una etapa fácil en el circuito de los pueblos artesanos con Bonwire y Ntonso.",
+      tips: "Compruebe la calidad de la madera y de los acabados antes de comprar, y regatee con cortesía; evite los objetos antiguos o presentados como tales.",
+    },
+    "chutes-de-tagbo": {
+      name: "Cataratas de Tagbo",
+      summary: "Cascada en plena selva al pie del monte Afadjato, accesible a pie desde Liati Wote.",
+      description:
+        "Desde el pueblo de Liati Wote, un sendero atraviesa plantaciones de cacao y bosque hasta las cataratas de Tagbo, que caen por una pared cubierta de vegetación al pie del monte Afadjato. La caminata, de unos tres cuartos de hora, se combina fácilmente con la ascensión del monte en el mismo día, dentro del proyecto de ecoturismo comunitario del pueblo.",
+      tips: "El sendero puede estar embarrado y resbaladizo: calzado cerrado imprescindible. Pase por la oficina de acogida del pueblo para el guía.",
+      bestPeriod: "Durante y después de la estación de lluvias, cuando el caudal es fuerte",
+    },
+    "fort-prinzenstein-keta": {
+      name: "Fuerte Prinzenstein",
+      summary: "Ruinas de un fuerte danés de finales del siglo XVIII, carcomido por el océano.",
+      description:
+        "Construido por los daneses en 1784 en Keta, el fuerte Prinzenstein sirvió de factoría y de lugar de detención de cautivos durante la trata atlántica. Forma parte de los fuertes y castillos de Ghana inscritos en el Patrimonio Mundial de la UNESCO. La erosión costera se ha llevado gran parte de él: quedan lienzos de muro, celdas y edificios en ruinas junto al océano, testigos impactantes de la historia y de la fragilidad de esta costa.",
+      tips: "Las ruinas son frágiles: permanezca en las zonas accesibles y hágase acompañar por un guía local.",
+    },
+    "lagune-de-keta": {
+      name: "Laguna de Keta",
+      summary: "La mayor laguna de Ghana, humedal protegido rico en aves acuáticas.",
+      description:
+        "Separada del océano por un estrecho cordón de arena, la laguna de Keta es la más extensa del país. Declarada humedal de importancia internacional (sitio Ramsar), acoge numerosas aves acuáticas, residentes o migratorias, y da sustento a pescadores y productores de sal. Se descubre desde la carretera del cordón, de pueblo en pueblo, o en una salida en piragua con pescadores.",
+      tips: "Las mañanas y los finales de la tarde son los mejores momentos para las aves; lleve prismáticos y protección solar.",
+      bestPeriod: "De octubre a marzo para las aves migratorias",
+    },
+    "estuaire-de-la-volta-ada": {
+      name: "Ada Foah y el estuario del Volta",
+      summary: "Donde el Volta se une al océano: bancos de arena, islas, piraguas y playas.",
+      description:
+        "En Ada Foah, el río Volta termina su curso en el océano formando un estuario salpicado de islas y bancos de arena. Los paseos en piragua permiten descubrir pueblos de pescadores, manglares y playas aisladas entre río y mar. El lugar es muy apreciado por los habitantes de Accra los fines de semana y durante el Asafotufiam, la gran fiesta de Ada a principios de agosto.",
+      tips: "Báñese solo donde le indiquen los lugareños: las corrientes de la desembocadura y del océano son peligrosas. Exija chalecos salvavidas en las piraguas.",
+    },
+    "barrage-d-akosombo": {
+      name: "Presa de Akosombo y lago Volta",
+      summary: "La presa hidroeléctrica que creó el lago Volta, uno de los mayores lagos artificiales del mundo.",
+      description:
+        "Terminada en 1965, la presa de Akosombo retiene las aguas del Volta y dio origen al lago Volta, que se extiende cientos de kilómetros hacia el norte y figura entre los mayores lagos artificiales del mundo por su superficie. La presa, símbolo de la industrialización impulsada por Kwame Nkrumah, suministra gran parte de la electricidad del país. Desde los alrededores se disfruta de vistas sobre el lago y sus colinas, y se ofrecen salidas en barco por el embalse.",
+      tips: "La presa es un lugar sensible: fotografíe solo donde esté permitido e infórmese en el lugar sobre las condiciones de visita.",
+    },
+    "pont-d-adomi": {
+      name: "Puente de Adomi",
+      summary: "Elegante puente de arco metálico sobre el Volta en Atimpoku.",
+      description:
+        "Aguas abajo de la presa, el puente de Adomi cruza el Volta con un solo arco de acero, entre colinas boscosas. Abierto a finales de los años cincuenta, une Accra con la región del Volta y sigue siendo una de las imágenes más conocidas del país. Las orillas de Atimpoku, al pie del puente, están animadas por las vendedoras de gambas y pescado del río.",
+      tips: "Deténgase de día en las orillas para disfrutar de la vista; no estacione en el propio puente.",
+    },
+    "perles-de-krobo": {
+      name: "Cuentas de vidrio krobo (Odumase-Krobo)",
+      summary: "El país krobo, cuna de las cuentas de vidrio reciclado, lucidas en las grandes ceremonias.",
+      description:
+        "En torno a Odumase-Krobo y Somanya, los krobo fabrican desde hace generaciones cuentas de vidrio reciclado, triturado y cocido en moldes de arcilla y decorado a mano. Estas cuentas, que se lucen sobre todo durante el Dipo, rito de paso de las muchachas, y el Ngmayem, se venden en los talleres y en los mercados de la región, entre ellos el de Koforidua. Una visita a un taller permite seguir todas las etapas de fabricación.",
+      tips: "Las cuentas antiguas alcanzan precios elevados: pida consejo y desconfíe de las imitaciones. Compre preferentemente a los artesanos.",
+    },
+    "chutes-de-boti": {
+      name: "Cataratas de Boti",
+      summary: "Dos cascadas gemelas que caen en un anfiteatro rocoso en plena selva.",
+      description:
+        "A unos veinte kilómetros de Koforidua, las cataratas de Boti caen en dos brazos paralelos, que la tradición local llama «macho» y «hembra», en un circo de roca en medio del bosque. Una larga escalera baja hasta la poza. El lugar forma parte de una reserva forestal donde los senderos llevan también a Umbrella Rock y a una palmera de tres cabezas.",
+      tips: "La escalera es empinada y resbaladiza cuando hay humedad; lleve buen calzado y agua.",
+      bestPeriod: "Durante y justo después de la estación de lluvias (más caudal)",
+    },
+    "umbrella-rock-boti": {
+      name: "Umbrella Rock",
+      summary: "Una enorme roca en forma de sombrilla sobre un pedestal, con vistas sobre el bosque.",
+      description:
+        "A un corto paseo de las cataratas de Boti, Umbrella Rock es un gran bloque de arenisca en voladizo, apoyado sobre una base rocosa como una sombrilla gigante. Se puede subir a la cima por una escalera para disfrutar de una amplia vista sobre las colinas boscosas. El sendero pasa por plantaciones y pueblos y se combina fácilmente con la visita a las cataratas.",
+      tips: "Hágase acompañar por un guía del lugar; no se recomienda subir por la escalera cuando llueve.",
+    },
+    "plateau-de-kwahu": {
+      name: "Meseta de Kwahu y monte Odweanoma",
+      summary: "Acantilados espectaculares, ciudades encaramadas y, en Semana Santa, el festival de parapente.",
+      description:
+        "La meseta de Kwahu domina la llanura con sus escarpes boscosos, al norte de Nkawkaw. El monte Odweanoma, cerca de Atibie y Mpraeso, sirve de despegue al festival de parapente que organiza cada fin de semana de Pascua la Autoridad de Turismo de Ghana, con vuelos en tándem para el público. El resto del año, el frescor de las alturas, los miradores y pueblos como Abetifi, una de las ciudades más altas del país, invitan al paseo.",
+      tips: "En Semana Santa la afluencia es enorme: reserve el alojamiento con mucha antelación y prevea atascos en la carretera de Nkawkaw.",
+      bestPeriod: "El fin de semana de Pascua por el ambiente; la estación seca por las vistas",
+    },
+    "chutes-de-kintampo": {
+      name: "Cataratas de Kintampo",
+      summary: "Una cascada escalonada en medio del bosque, parada clásica en la ruta del norte.",
+      description:
+        "Justo al norte de la ciudad de Kintampo, el río Pumpum desciende por una sucesión de escalones rocosos antes de caer en una poza rodeada de bosque. Una escalera lleva al pie de las cataratas, donde uno puede refrescarse, y en el lugar se ha instalado una pasarela entre los árboles. Es una de las paradas más populares entre Kumasi y Tamale.",
+      tips: "El lugar está muy concurrido los fines de semana y festivos; venga temprano. Las rocas junto al agua resbalan.",
+      bestPeriod: "Durante y justo después de la estación de lluvias",
+    },
+    "sanctuaire-de-boabeng-fiema": {
+      name: "Santuario de monos de Boabeng-Fiema",
+      summary: "Bosque sagrado donde colobos blanquinegros y monos mona viven bajo la protección de los aldeanos.",
+      description:
+        "Entre los pueblos gemelos de Boabeng y Fiema, cerca de Nkoranza, un bosque alberga colobos blanquinegros y monos mona que los habitantes consideran sagrados: la tradición prohíbe cazarlos, e incluso se entierra a los monos muertos en un cementerio reservado para ellos. El santuario, gestionado con la comunidad, se visita con un guía que cuenta estas creencias y ayuda a localizar a los animales.",
+      tips: "Respete las normas locales y las indicaciones del guía; no alimente a los monos y guarde silencio para observarlos.",
+      bestPeriod: "A primera hora de la mañana o al final de la tarde",
+    },
+    "mosquee-centrale-de-tamale": {
+      name: "Mezquita central de Tamale",
+      summary: "La gran mezquita del centro, referente de la vida religiosa de Tamale.",
+      description:
+        "En el corazón de Tamale, cerca del mercado central, la mezquita central alza sus minaretes sobre las calles comerciales. Es uno de los principales lugares de oración de la ciudad, muy concurrido los viernes y durante las grandes fiestas musulmanas, cuando los fieles desbordan a las calles cercanas. Se contempla desde el exterior, respetando las horas de oración.",
+      tips: "Lugar de culto activo: ropa que cubra, ninguna visita durante las oraciones, y pida permiso antes de entrar o fotografiar a los fieles.",
+    },
+    "village-sur-pilotis-de-nzulezo": {
+      name: "Pueblo sobre pilotes de Nzulezo",
+      summary: "Un pueblo construido íntegramente sobre pilotes en medio del lago Amansuri, al que se llega en piragua.",
+      description:
+        "Al final de una travesía en piragua por pantanos de rafia y canales, Nzulezo aparece en medio del lago Amansuri: casas, escuela e iglesia están todas construidas sobre pilotes y unidas por una larga pasarela de madera. Según la tradición, los antepasados de sus habitantes llegaron del oeste guiados por un caracol. El pueblo figura en la lista indicativa de Ghana para el Patrimonio Mundial de la UNESCO.",
+      tips: "Reserve la piragua y el guía en la oficina de acogida de Beyin, cuente con media jornada y lleve agua y protección solar. Pida permiso antes de fotografiar a los habitantes.",
+    },
+    "fort-apollonia-beyin": {
+      name: "Fuerte Apollonia",
+      summary: "Fuerte británico de finales del siglo XVIII frente al océano, Patrimonio Mundial.",
+      description:
+        "Construido por los británicos en Beyin entre 1768 y 1770, el fuerte Apollonia es el más occidental de los fuertes de Ghana inscritos en el Patrimonio Mundial de la UNESCO. Restaurado, domina la playa y los cocoteros y recibe a los visitantes que vienen a descubrir la historia de la costa nzema antes de partir hacia Nzulezo.",
+      tips: "Visita guiada en el lugar; combínela con la excursión a Nzulezo, que sale del mismo pueblo.",
+    },
+    "aire-de-conservation-d-ankasa": {
+      name: "Área de conservación de Ankasa",
+      summary: "Selva tropical húmeda siempreverde entre las más ricas de Ghana, para senderistas y ornitólogos.",
+      description:
+        "En el extremo suroeste del país, el área de conservación de Ankasa, que reúne la reserva de Ankasa y el parque nacional de Nini-Suhien, protege una selva tropical húmeda siempreverde de una biodiversidad excepcional para Ghana. Los senderos llevan a arroyos y pozas naturales bajo los grandes árboles; se observan sobre todo aves, mariposas y plantas, ya que los mamíferos son muy discretos.",
+      tips: "Acceso por una pista a veces difícil en la estación de lluvias: vehículo adecuado y guía imprescindibles. Lleve repelente y ropa larga.",
+      bestPeriod: "Estación seca, de diciembre a marzo",
+    },
   },
   circuits: {
     "ghana-essentiel-8-jours": {
@@ -354,6 +599,48 @@ const PT: SeedI18n = {
       summary: "O maior parque do Gana: safaris a pé entre elefantes na savana do norte.",
       description:
         "A maior área protegida do país, o parque nacional de Mole abrange savanas arborizadas onde vivem elefantes, antílopes, javalis-africanos, babuínos e muitas aves. É famoso pelos safaris a pé acompanhados por guardas armados, que muitas vezes permitem aproximar-se dos elefantes. Chega-se a partir de Tamale, servida por voos desde Acra. O parque não se situa numa zona desaconselhada pelas autoridades francesas ou britânicas, mas o norte do país exige vigilância reforçada: consulte os conselhos aos viajantes antes de partir.",
+    },
+    keta: {
+      name: "Keta e o estuário do Volta",
+      region: "Volta",
+      summary: "Lagoas, cordão de areia, forte dinamarquês e foz do Volta, na terra dos ewe anlo.",
+      description:
+        "No extremo sudeste do país, a costa da região do Volta estende um estreito cordão de areia entre o oceano e a grande lagoa de Keta, rica em aves. A pequena cidade de Keta guarda as ruínas do forte dinamarquês Prinzenstein, e a vizinha Anloga acolhe todos os novembros o grande festival Hogbetsotso. Mais a oeste, Ada Foah marca a foz do Volta, com os seus bancos de areia e passeios de piroga. Uma costa tranquila, longe da agitação de Acra.",
+    },
+    akosombo: {
+      name: "Akosombo e o lago Volta",
+      region: "Oriental",
+      summary: "A grande barragem, o lago Volta, a ponte de Adomi e a terra krobo das contas de vidro.",
+      description:
+        "A cerca de duas horas a nordeste de Acra, Akosombo é a porta do lago Volta, a imensa albufeira criada pela barragem concluída em 1965. As colinas arborizadas que enquadram o rio, a ponte de Adomi e os cruzeiros no lago fazem da região uma escapadinha apreciada a partir da capital. Muito perto, a terra krobo, em torno de Odumase e Somanya, perpetua a arte das contas de vidro e celebra todos os outonos o Ngmayem.",
+    },
+    "koforidua-kwahu": {
+      name: "Koforidua, Boti e o planalto de Kwahu",
+      region: "Oriental",
+      summary: "Cascatas gémeas, rochas surpreendentes e falésias do Kwahu, meca do parapente na Páscoa.",
+      description:
+        "Capital da região Oriental, Koforidua está rodeada de colinas florestadas onde se escondem as cascatas gémeas de Boti e a surpreendente Umbrella Rock. Mais a noroeste, o planalto de Kwahu ergue as suas falésias acima da planície: as suas cidades empoleiradas, como Abetifi e Mpraeso, animam-se sobretudo na Páscoa, quando a diáspora kwahu regressa à terra e o festival de parapente de Odweanoma atrai milhares de visitantes.",
+    },
+    kintampo: {
+      name: "Kintampo e Bono Oriental",
+      region: "Bono Oriental",
+      summary: "Cascatas em degraus e uma floresta sagrada de macacos, a meio caminho entre Kumasi e Tamale.",
+      description:
+        "Na grande estrada que liga Kumasi a Tamale, a região de Bono Oriental marca a transição entre a floresta e a savana. As cascatas de Kintampo, em degraus sobre o rio Pumpum, oferecem uma paragem refrescante, e o santuário de Boabeng-Fiema, perto de Nkoranza, protege macacos considerados sagrados pelos aldeões. Techiman, grande mercado agrícola, é a principal cidade da zona.",
+    },
+    tamale: {
+      name: "Tamale",
+      region: "Norte",
+      summary: "A grande cidade do norte, porta do parque de Mole e coração do reino dagomba.",
+      description:
+        "Capital da região Norte, Tamale é a principal cidade do norte do Gana e a porta de entrada para o parque nacional de Mole, servida por voos a partir de Acra. Cidade maioritariamente muçulmana, de largas avenidas percorridas por motas, é o centro cultural dos dagomba: veem-se as túnicas tecidas em tiras («smocks» ou «fugu») e é possível assistir ao Damba ou à festa do fogo (Bugum). As zonas próximas da fronteira norte devem ser evitadas, mas Tamale não fica numa zona desaconselhada: consulte ainda assim os conselhos aos viajantes.",
+    },
+    "beyin-nzulezo": {
+      name: "Beyin, Nzulezo e Ankasa",
+      region: "Ocidental",
+      summary: "Uma aldeia sobre estacas, um forte britânico à beira do oceano e floresta tropical primária no extremo oeste.",
+      description:
+        "No extremo ocidental da costa, perto da Costa do Marfim, a terra nzema oferece uma etapa fora dos circuitos habituais. A partir de Beyin, dominada pelo forte Apollonia, uma piroga sobe pelos pântanos de ráfia até Nzulezo, aldeia inteiramente construída sobre estacas no meio do lago Amansuri. Mais a norte, a área de conservação de Ankasa protege uma das florestas tropicais húmidas mais ricas do país. As estradas são longas: conte com pelo menos dois dias a partir de Busua ou Takoradi.",
     },
   },
   places: {
@@ -514,6 +801,209 @@ const PT: SeedI18n = {
         "A poucos quilómetros da entrada do parque, a aldeia de Larabanga alberga uma pequena mesquita branca de adobe eriçada de vigas de madeira, de estilo sudano-saheliano. A tradição fá-la remontar a vários séculos, o que a torna uma das mesquitas mais antigas do Gana. Visita-se pelo exterior, acompanhado por um guia da aldeia.",
       tips: "Local de culto ativo: roupa que cubra o corpo, visita exterior e não vá durante as orações. Recorra ao guia oficial da aldeia.",
     },
+    "place-de-l-independance-accra": {
+      name: "Praça da Independência (Black Star Square)",
+      summary: "Imensa esplanada virada para o oceano, com o arco da Independência e a Estrela Negra.",
+      description:
+        "Construída no início dos anos 1960, sob a presidência de Kwame Nkrumah, esta vasta praça de desfiles ladeia o oceano a poucos minutos do parque memorial. O arco da Independência, a Estrela Negra que simboliza o país e a chama do soldado desconhecido evocam o nascimento da nação. É aqui que se realizam os grandes desfiles oficiais, nomeadamente o do Dia da Independência, a 6 de março.",
+      tips: "O local está rodeado de edifícios oficiais: peça autorização antes de fotografar militares e guardas, e evite as horas de maior calor.",
+    },
+    "musee-national-du-ghana": {
+      name: "Museu Nacional do Gana",
+      summary: "Arqueologia, etnografia e artes do Gana, num museu renovado do bairro de Adabraka.",
+      description:
+        "Inaugurado em 1957, o ano da independência, o museu nacional é gerido pelo Ghana Museums and Monuments Board. Encerrado durante vários anos para obras, reabriu em 2022 após uma renovação completa. As suas coleções apresentam a arqueologia, os objetos de corte, os instrumentos musicais, os têxteis e a arte do país: uma boa introdução antes de partir para Kumasi ou para a costa.",
+      tips: "Informe-se sobre as condições de visita antes de se deslocar; a fotografia pode ser restringida nas salas.",
+    },
+    "centre-national-de-culture-accra": {
+      name: "Centro Nacional de Cultura (Arts Centre)",
+      summary: "O grande mercado de artesanato de Acra: kente, máscaras, tambores, contas e esculturas.",
+      description:
+        "Perto da marginal, entre Jamestown e a praça da Independência, o Centro Nacional de Cultura, a que todos chamam «Arts Centre», reúne dezenas de bancas de artesãos e revendedores. Encontram-se aqui panos kente e adinkra, contas, tambores, máscaras, esculturas e cestos de todo o país. Uma paragem prática para as compras de fim de viagem.",
+      tips: "Os primeiros preços anunciados são altos: compare várias bancas e negoceie com um sorriso. Seja firme com os vendedores demasiado insistentes.",
+    },
+    "plage-de-labadi": {
+      name: "Praia de Labadi (La Pleasure Beach)",
+      summary: "A praia mais animada de Acra: música, dança, passeios a cavalo e festas de fim de semana.",
+      description:
+        "A leste do centro, a praia de Labadi, ou La Pleasure Beach, é o ponto de encontro dos habitantes de Acra aos fins de semana e feriados. Na areia sucedem-se aparelhagens de som, percussionistas, acrobatas, cavaleiros e vendedores de cocos ou peixe grelhado, e a animação prolonga-se pela noite, sobretudo em dezembro e na Páscoa. Mais uma imersão nos lazeres da capital do que uma praia para banhos.",
+      tips: "Os banhos são perigosos (ondas fortes e correntes): fique à beira-mar. Leve poucos objetos de valor e saia antes de anoitecer por completo se estiver sozinho.",
+    },
+    "plage-de-kokrobite": {
+      name: "Praia de Kokrobite",
+      summary: "Aldeia de pescadores e longa praia a oeste de Acra, escapadinha apreciada ao fim de semana.",
+      description:
+        "A cerca de trinta quilómetros a oeste do centro de Acra, Kokrobite é uma aldeia de pescadores ga cuja longa praia, ladeada de pirogas e coqueiros, atrai citadinos e viajantes em busca de sossego. Vem-se aqui passear à beira-mar, ver o regresso dos pescadores e aproveitar um ambiente descontraído, muitas vezes ao ritmo da música e da percussão.",
+      tips: "Correntes perigosas: informe-se antes de tomar banho. Não se isole na praia, sobretudo à noite, e garanta um transporte fiável para o regresso.",
+    },
+    "jardins-botaniques-d-aburi": {
+      name: "Jardins botânicos de Aburi",
+      summary: "Jardim criado em 1890 nas frescas colinas do Akuapem, a uma hora de Acra.",
+      description:
+        "Empoleirados na cumeada do Akuapem, a norte de Acra, os jardins botânicos de Aburi foram abertos em 1890. Alamedas de palmeiras-reais, árvores gigantes, plantas medicinais e relvados à sombra fazem deles um local de passeio apreciado, de uma frescura bem-vinda. A estrada que sobe até lá está ladeada de oficinas de escultores em madeira, e a vizinha cidade de Akropong acolhe todos os outonos a festa do Odwira.",
+      tips: "Venha durante a semana para ter mais sossego; leve um agasalho leve na época das chuvas, pois as colinas são mais frescas do que a costa.",
+    },
+    "reserve-de-shai-hills": {
+      name: "Reserva de Shai Hills",
+      summary: "Savana, colinas rochosas, grutas e babuínos a uma hora a leste de Acra.",
+      description:
+        "A nordeste de Acra, a Shai Hills Resource Reserve protege uma savana salpicada de inselbergs, outrora habitados pelo povo shai. Trilhos e pistas permitem observar babuínos, antílopes e muitas aves, e subir até grutas e miradouros sobre as planícies de Acra. Uma saída na natureza fácil de combinar com a estrada para Akosombo.",
+      tips: "Parta cedo de manhã, quando os animais estão ativos e o calor é suportável. Não alimente os babuínos e mantenha os sacos fechados.",
+    },
+    "fort-william-anomabo": {
+      name: "Forte William de Anomabo",
+      summary: "Forte britânico do século XVIII à beira do oceano, Património Mundial.",
+      description:
+        "A cerca de quinze quilómetros a leste de Cape Coast, o forte William foi construído pelos britânicos em meados do século XVIII em Anomabo, então um dos principais portos de tráfico da Costa do Ouro. Faz parte dos fortes e castelos do Gana inscritos no Património Mundial da UNESCO. Menos visitado do que os castelos de Cape Coast e Elmina, permite uma visita mais intimista dos seus pátios, masmorras e muralhas viradas para o mar.",
+      tips: "Uma paragem fácil na estrada Acra–Cape Coast; faça a visita com o guia do local.",
+    },
+    "marche-de-kejetia": {
+      name: "Mercado de Kejetia (mercado central de Kumasi)",
+      summary: "Um dos maiores mercados da África Ocidental, um labirinto de milhares de bancas.",
+      description:
+        "No coração de Kumasi, o mercado central de Kejetia conta com milhares de lojas e bancas e é tido como um dos maiores mercados da África Ocidental. Tecidos, contas, sapatos, utensílios, inhames, especiarias, caracóis gigantes e plantas medicinais convivem num dédalo de corredores. Parte do recinto foi reconstruída no final da década de 2010 em torno de um novo terminal rodoviário.",
+      tips: "Venha de manhã com um guia ou um habitante para não se perder; mantenha os seus pertences por perto no meio da multidão.",
+    },
+    "batiments-traditionnels-ashanti": {
+      name: "Edifícios tradicionais axantis (santuário de Besease)",
+      summary: "Santuários com baixos-relevos esculpidos, últimos testemunhos da arquitetura axanti, classificados pela UNESCO.",
+      description:
+        "Em redor de Kumasi subsistem alguns santuários tradicionais, inscritos em conjunto no Património Mundial da UNESCO com o nome de «Edifícios tradicionais axantis». Construídos em terra, madeira e colmo, estão ornamentados com baixos-relevos de motivos simbólicos. O santuário de Besease, perto de Ejisu, restaurado e dotado de um pequeno espaço de acolhimento, é o mais acessível para compreender esta arte de construir e o seu papel religioso.",
+      tips: "São locais de culto ainda respeitados: siga as indicações do guarda e peça autorização antes de fotografar o interior.",
+    },
+    "ntonso-adinkra": {
+      name: "Ntonso, a aldeia do adinkra",
+      summary: "Os estampadores de panos adinkra ao trabalho, com carimbos de cabaça e tinta de casca de árvore.",
+      description:
+        "A norte de Kumasi, a aldeia de Ntonso é conhecida pela estampagem dos panos adinkra. Os artesãos gravam carimbos em cabaças e preparam uma tinta negra a partir de casca de árvore, imprimindo depois à mão os símbolos adinkra, cada um portador de um provérbio ou de um valor. É possível assistir ao fabrico e por vezes experimentar a estampagem.",
+      tips: "Reserve tempo para a oficina de estampagem e compre diretamente aos artesãos; combine a visita com Bonwire e Ahwiaa.",
+    },
+    "ahwiaa-sculpture-sur-bois": {
+      name: "Ahwiaa, a aldeia dos escultores em madeira",
+      summary: "Bancos, máscaras e tambores esculpidos nas oficinas de uma aldeia perto de Kumasi.",
+      description:
+        "Na estrada de Mampong, a poucos quilómetros a norte de Kumasi, a aldeia de Ahwiaa alinha oficinas e lojas de escultores em madeira. Aqui vê-se moldar os bancos axantis, as bonecas akuaba, máscaras, estatuetas e djembés, vendidos no local. Uma etapa fácil no circuito das aldeias de artesãos com Bonwire e Ntonso.",
+      tips: "Verifique a qualidade da madeira e dos acabamentos antes de comprar, e negoceie com cortesia; evite objetos antigos ou apresentados como tal.",
+    },
+    "chutes-de-tagbo": {
+      name: "Cascatas de Tagbo",
+      summary: "Cascata em plena floresta no sopé do monte Afadjato, acessível a pé a partir de Liati Wote.",
+      description:
+        "A partir da aldeia de Liati Wote, um trilho atravessa plantações de cacau e floresta até às cascatas de Tagbo, que se precipitam por uma parede coberta de vegetação no sopé do monte Afadjato. A caminhada, de cerca de três quartos de hora, combina-se facilmente com a subida ao monte no mesmo dia, no âmbito do projeto de ecoturismo comunitário da aldeia.",
+      tips: "O trilho pode estar enlameado e escorregadio: calçado fechado indispensável. Passe pelo posto de acolhimento da aldeia para obter um guia.",
+      bestPeriod: "Durante e após a época das chuvas, quando o caudal é forte",
+    },
+    "fort-prinzenstein-keta": {
+      name: "Forte Prinzenstein",
+      summary: "Ruínas de um forte dinamarquês do final do século XVIII, corroído pelo oceano.",
+      description:
+        "Construído pelos dinamarqueses em 1784 em Keta, o forte Prinzenstein serviu de entreposto e de local de detenção de cativos durante o tráfico atlântico. Faz parte dos fortes e castelos do Gana inscritos no Património Mundial da UNESCO. A erosão costeira levou grande parte dele: restam panos de muralha, celas e edifícios em ruínas à beira do oceano, testemunhos impressionantes da história e da fragilidade desta costa.",
+      tips: "As ruínas são frágeis: mantenha-se nas zonas acessíveis e faça-se acompanhar por um guia local.",
+    },
+    "lagune-de-keta": {
+      name: "Lagoa de Keta",
+      summary: "A maior lagoa do Gana, zona húmida protegida rica em aves aquáticas.",
+      description:
+        "Separada do oceano por um estreito cordão de areia, a lagoa de Keta é a maior do país. Classificada como zona húmida de importância internacional (sítio Ramsar), acolhe muitas aves aquáticas, residentes ou migratórias, e faz viver pescadores e produtores de sal. Descobre-se a partir da estrada do cordão, de aldeia em aldeia, ou num passeio de piroga com pescadores.",
+      tips: "As manhãs e os fins de tarde são os melhores momentos para as aves; leve binóculos e proteção solar.",
+      bestPeriod: "De outubro a março para as aves migratórias",
+    },
+    "estuaire-de-la-volta-ada": {
+      name: "Ada Foah e o estuário do Volta",
+      summary: "Onde o Volta encontra o oceano: bancos de areia, ilhas, pirogas e praias.",
+      description:
+        "Em Ada Foah, o rio Volta termina o seu curso no oceano formando um estuário salpicado de ilhas e bancos de areia. Os passeios de piroga dão a conhecer aldeias de pescadores, mangais e praias isoladas entre o rio e o mar. O local é muito apreciado pelos habitantes de Acra ao fim de semana e durante o Asafotufiam, a grande festa de Ada no início de agosto.",
+      tips: "Só tome banho nos locais indicados pelos habitantes: as correntes da foz e do oceano são perigosas. Exija coletes salva-vidas nas pirogas.",
+    },
+    "barrage-d-akosombo": {
+      name: "Barragem de Akosombo e lago Volta",
+      summary: "A barragem hidroelétrica que criou o lago Volta, um dos maiores lagos artificiais do mundo.",
+      description:
+        "Concluída em 1965, a barragem de Akosombo retém as águas do Volta e deu origem ao lago Volta, que se estende por centenas de quilómetros para norte e figura entre os maiores lagos artificiais do mundo em superfície. A barragem, símbolo da industrialização desejada por Kwame Nkrumah, fornece grande parte da eletricidade do país. Dos arredores desfruta-se de vistas sobre o lago e as suas colinas, e há passeios de barco na albufeira.",
+      tips: "A barragem é um local sensível: fotografe apenas onde for permitido e informe-se no local sobre as condições de visita.",
+    },
+    "pont-d-adomi": {
+      name: "Ponte de Adomi",
+      summary: "Elegante ponte em arco metálico sobre o Volta em Atimpoku.",
+      description:
+        "A jusante da barragem, a ponte de Adomi atravessa o Volta com um único arco de aço, no meio de colinas arborizadas. Aberta no final dos anos 1950, liga Acra à região do Volta e continua a ser uma das imagens mais conhecidas do país. As margens de Atimpoku, ao pé da ponte, são animadas pelas vendedoras de camarão e peixe do rio.",
+      tips: "Pare de dia nas margens para apreciar a vista; não estacione na própria ponte.",
+    },
+    "perles-de-krobo": {
+      name: "Contas de vidro krobo (Odumase-Krobo)",
+      summary: "A terra krobo, berço das contas de vidro reciclado, usadas nas grandes cerimónias.",
+      description:
+        "Em redor de Odumase-Krobo e Somanya, os krobo fabricam há gerações contas de vidro reciclado, moído e cozido em moldes de barro e decorado à mão. Estas contas, usadas sobretudo durante o Dipo, rito de passagem das raparigas, e o Ngmayem, vendem-se nas oficinas e nos mercados da região, entre eles o de Koforidua. Uma visita a uma oficina permite acompanhar todas as etapas do fabrico.",
+      tips: "As contas antigas atingem preços elevados: peça conselho e desconfie das imitações. Compre de preferência diretamente aos artesãos.",
+    },
+    "chutes-de-boti": {
+      name: "Cascatas de Boti",
+      summary: "Duas cascatas gémeas que mergulham num anfiteatro rochoso no meio da floresta.",
+      description:
+        "A cerca de vinte quilómetros de Koforidua, as cascatas de Boti caem em dois braços paralelos, que a tradição local chama «macho» e «fêmea», num circo de rocha no meio da floresta. Uma longa escadaria desce até ao lago. O local faz parte de uma reserva florestal onde trilhos levam também à Umbrella Rock e a uma palmeira de três cabeças.",
+      tips: "A escadaria é íngreme e escorregadia com tempo húmido; leve bom calçado e água.",
+      bestPeriod: "Durante e logo após a época das chuvas (caudal mais forte)",
+    },
+    "umbrella-rock-boti": {
+      name: "Umbrella Rock",
+      summary: "Uma enorme rocha em forma de guarda-sol pousada num pedestal, com vista sobre a floresta.",
+      description:
+        "A uma curta caminhada das cascatas de Boti, a Umbrella Rock é um grande bloco de arenito em consola, pousado sobre uma base rochosa como um guarda-sol gigante. Pode subir-se ao topo por uma escada para uma vista ampla sobre as colinas arborizadas. O trilho passa por plantações e aldeias e combina-se facilmente com a visita às cascatas.",
+      tips: "Faça-se acompanhar por um guia do local; a subida pela escada é desaconselhada com chuva.",
+    },
+    "plateau-de-kwahu": {
+      name: "Planalto de Kwahu e monte Odweanoma",
+      summary: "Falésias espetaculares, cidades empoleiradas e, na Páscoa, o festival de parapente.",
+      description:
+        "O planalto de Kwahu domina a planície com as suas escarpas arborizadas, a norte de Nkawkaw. O monte Odweanoma, perto de Atibie e Mpraeso, serve de descolagem ao festival de parapente organizado todos os fins de semana de Páscoa pela Autoridade de Turismo do Gana, com voos em tandem para o público. No resto do ano, a frescura das alturas, os miradouros e aldeias como Abetifi, uma das cidades mais altas do país, convidam ao passeio.",
+      tips: "Na Páscoa a afluência é enorme: reserve o alojamento muito cedo e conte com engarrafamentos na estrada de Nkawkaw.",
+      bestPeriod: "O fim de semana da Páscoa pelo ambiente; a época seca pelas vistas",
+    },
+    "chutes-de-kintampo": {
+      name: "Cascatas de Kintampo",
+      summary: "Uma cascata em degraus no meio da floresta, paragem clássica na estrada para norte.",
+      description:
+        "Logo a norte da cidade de Kintampo, o rio Pumpum desce uma sucessão de degraus rochosos antes de mergulhar num lago rodeado de floresta. Uma escadaria leva ao pé das cascatas, onde é possível refrescar-se, e foi instalado no local um passadiço entre as árvores. É uma das paragens mais populares entre Kumasi e Tamale.",
+      tips: "O local é muito frequentado aos fins de semana e feriados; venha cedo. As rochas junto à água são escorregadias.",
+      bestPeriod: "Durante e logo após a época das chuvas",
+    },
+    "sanctuaire-de-boabeng-fiema": {
+      name: "Santuário de macacos de Boabeng-Fiema",
+      summary: "Floresta sagrada onde colobos preto e branco e macacos-mona vivem sob a proteção dos aldeões.",
+      description:
+        "Entre as aldeias gémeas de Boabeng e Fiema, perto de Nkoranza, uma floresta abriga colobos preto e branco e macacos-mona que os habitantes consideram sagrados: a tradição proíbe caçá-los, e os macacos mortos são até enterrados num cemitério que lhes é reservado. O santuário, gerido com a comunidade, visita-se com um guia que conta estas crenças e ajuda a localizar os animais.",
+      tips: "Respeite as regras locais e as indicações do guia; não alimente os macacos e faça silêncio para os observar.",
+      bestPeriod: "De manhã cedo ou ao fim da tarde",
+    },
+    "mosquee-centrale-de-tamale": {
+      name: "Mesquita central de Tamale",
+      summary: "A grande mesquita do centro, referência da vida religiosa de Tamale.",
+      description:
+        "No coração de Tamale, perto do mercado central, a mesquita central ergue os seus minaretes acima das ruas comerciais. É um dos principais locais de oração da cidade, muito frequentado à sexta-feira e durante as grandes festas muçulmanas, quando os fiéis transbordam para as ruas vizinhas. Aprecia-se do exterior, respeitando as horas de oração.",
+      tips: "Local de culto ativo: roupa que cubra, nenhuma visita durante as orações, e peça autorização antes de entrar ou fotografar os fiéis.",
+    },
+    "village-sur-pilotis-de-nzulezo": {
+      name: "Aldeia sobre estacas de Nzulezo",
+      summary: "Uma aldeia inteiramente construída sobre estacas no meio do lago Amansuri, acessível de piroga.",
+      description:
+        "No fim de uma travessia de piroga por pântanos de ráfia e canais, Nzulezo surge no meio do lago Amansuri: casas, escola e igreja estão todas construídas sobre estacas e ligadas por um longo passadiço de madeira. Segundo a tradição, os antepassados dos habitantes terão vindo do oeste, guiados por um caracol. A aldeia consta da lista indicativa do Gana para o Património Mundial da UNESCO.",
+      tips: "Reserve a piroga e o guia no posto de acolhimento de Beyin, conte com meio dia e leve água e proteção solar. Peça autorização antes de fotografar os habitantes.",
+    },
+    "fort-apollonia-beyin": {
+      name: "Forte Apollonia",
+      summary: "Forte britânico do final do século XVIII virado para o oceano, Património Mundial.",
+      description:
+        "Construído pelos britânicos em Beyin entre 1768 e 1770, o forte Apollonia é o mais ocidental dos fortes do Gana inscritos no Património Mundial da UNESCO. Restaurado, domina a praia e os coqueiros e acolhe os visitantes que vêm conhecer a história da costa nzema antes de partirem para Nzulezo.",
+      tips: "Visita guiada no local; combine-a com a excursão a Nzulezo, que parte da mesma aldeia.",
+    },
+    "aire-de-conservation-d-ankasa": {
+      name: "Área de conservação de Ankasa",
+      summary: "Floresta tropical húmida sempre-verde entre as mais ricas do Gana, para caminhantes e observadores de aves.",
+      description:
+        "No extremo sudoeste do país, a área de conservação de Ankasa, que reúne a reserva de Ankasa e o parque nacional de Nini-Suhien, protege uma floresta tropical húmida sempre-verde de uma biodiversidade excecional para o Gana. Trilhos levam a ribeiros e piscinas naturais sob as grandes árvores; observam-se sobretudo aves, borboletas e plantas, pois os mamíferos são muito discretos.",
+      tips: "Acesso por uma pista por vezes difícil na época das chuvas: veículo adequado e guia indispensáveis. Leve repelente e roupa comprida.",
+      bestPeriod: "Época seca, de dezembro a março",
+    },
   },
   circuits: {
     "ghana-essentiel-8-jours": {
@@ -621,6 +1111,48 @@ const AR: SeedI18n = {
       summary: "أكبر حديقة في غانا: رحلات سفاري سيرًا على الأقدام بين الفيلة في سافانا الشمال.",
       description:
         "حديقة مولي الوطنية أوسع منطقة محمية في البلاد، وتغطي سافانا مشجّرة تعيش فيها الفيلة والظباء والخنازير الثؤلولية وقرود البابون وطيور كثيرة. وتشتهر برحلات السفاري سيرًا على الأقدام برفقة حرّاس مسلّحين، تتيح غالبًا الاقتراب من الفيلة. يُوصل إليها من تامالي التي تخدمها رحلات جوية من أكرا. لا تقع الحديقة في منطقة تنصح السلطات الفرنسية أو البريطانية بتجنّبها، لكن شمال البلاد يستدعي يقظة مشدّدة: راجع نصائح السفر قبل الانطلاق.",
+    },
+    keta: {
+      name: "كيتا ومصب نهر الفولتا",
+      region: "فولتا",
+      summary: "بحيرات ساحلية وشريط رملي وحصن دنماركي ومصب نهر الفولتا، في موطن شعب إيوي أنلو.",
+      description:
+        "في أقصى جنوب شرق البلاد، يمتد ساحل إقليم فولتا شريطًا رمليًا ضيقًا بين المحيط وبحيرة كيتا الكبيرة الغنية بالطيور. وتحتفظ بلدة كيتا الصغيرة بأطلال حصن برينزنشتاين الدنماركي، وتستضيف أنلوغا القريبة كل نوفمبر مهرجان هوغبيتسوتسو الكبير. وإلى الغرب، تقع أدا فوا عند مصب نهر الفولتا بضفافها الرملية ونزهات القوارب. إنه ساحل هادئ بعيد عن صخب أكرا.",
+    },
+    akosombo: {
+      name: "أكوسومبو وبحيرة فولتا",
+      region: "الإقليم الشرقي",
+      summary: "السد الكبير وبحيرة فولتا وجسر أدومي وبلاد الكروبو موطن الخرز الزجاجي.",
+      description:
+        "على بعد نحو ساعتين شمال شرق أكرا، تُعد أكوسومبو بوابة بحيرة فولتا، الخزان الهائل الذي أنشأه السد المكتمل عام 1965. وتجعل التلال المكسوة بالغابات المحيطة بالنهر وجسر أدومي والرحلات البحرية في البحيرة من المنطقة وجهة مفضلة للهروب من العاصمة. وعلى مقربة منها، تحافظ بلاد الكروبو حول أودوماسي وسومانيا على فن الخرز الزجاجي وتحتفل كل خريف بمهرجان نغمايم.",
+    },
+    "koforidua-kwahu": {
+      name: "كوفوريدوا وبوتي وهضبة كواهو",
+      region: "الإقليم الشرقي",
+      summary: "شلالات توأم وصخور مدهشة ومنحدرات كواهو، وجهة الطيران الشراعي في عيد الفصح.",
+      description:
+        "تحيط بكوفوريدوا، عاصمة الإقليم الشرقي، تلال مكسوة بالغابات تختبئ فيها شلالات بوتي التوأم وصخرة المظلة المدهشة. وإلى الشمال الغربي، ترفع هضبة كواهو منحدراتها فوق السهل، وتدب الحياة في بلداتها المرتفعة مثل أبيتيفي ومبرايسو خاصة في عيد الفصح، حين يعود أبناء كواهو المغتربون إلى ديارهم ويجذب مهرجان الطيران الشراعي في أودويانوما آلاف الزوار.",
+    },
+    kintampo: {
+      name: "كينتامبو وبونو الشرقية",
+      region: "بونو الشرقية",
+      summary: "شلالات متدرجة وغابة مقدسة للقرود، في منتصف الطريق بين كوماسي وتامالي.",
+      description:
+        "على الطريق الرئيسي الذي يربط كوماسي بتامالي، يمثل إقليم بونو الشرقية منطقة الانتقال بين الغابة والسافانا. وتوفر شلالات كينتامبو المتدرجة على نهر بومبوم محطة منعشة، فيما يحمي ملاذ بوابينغ-فييما قرب نكورانزا قرودًا يعدّها القرويون مقدسة. وتُعد تيشيمان، بسوقها الزراعي الكبير، المدينة الرئيسية في المنطقة.",
+    },
+    tamale: {
+      name: "تامالي",
+      region: "الإقليم الشمالي",
+      summary: "المدينة الكبرى في الشمال، بوابة حديقة مول وقلب مملكة الداغومبا.",
+      description:
+        "تامالي عاصمة الإقليم الشمالي وأكبر مدن شمال غانا، وهي بوابة الدخول إلى حديقة مول الوطنية، وتربطها رحلات جوية بأكرا. وهي مدينة غالبية سكانها من المسلمين، ذات شوارع واسعة تجوبها الدراجات النارية، وتُعد المركز الثقافي لشعب الداغومبا: فترى فيها السترات المنسوجة على شرائط («سموك» أو «فوغو»)، ويمكن حضور مهرجان الدامبا أو عيد النار (بوغوم). ويجب تجنب المناطق القريبة من الحدود الشمالية، لكن تامالي نفسها ليست في منطقة يُنصح بعدم زيارتها؛ ومع ذلك راجع نصائح السفر.",
+    },
+    "beyin-nzulezo": {
+      name: "بيين ونزوليزو وأنكاسا",
+      region: "الإقليم الغربي",
+      summary: "قرية على ركائز وحصن بريطاني على المحيط وغابة استوائية بكر في أقصى الغرب.",
+      description:
+        "في الطرف الغربي من الساحل، قرب كوت ديفوار، تقدم بلاد النزيما محطة بعيدة عن المسارات المعتادة. فمن بيين، التي يشرف عليها حصن أبولونيا، يصعد قارب عبر مستنقعات نخيل الرافيا حتى نزوليزو، القرية المبنية بالكامل على ركائز وسط بحيرة أمانسوري. وإلى الشمال، تحمي منطقة أنكاسا للحفاظ على الطبيعة واحدة من أغنى الغابات الاستوائية المطيرة في البلاد. والطرق طويلة: خصص يومين على الأقل انطلاقًا من بوسوا أو تاكورادي.",
     },
   },
   places: {
@@ -780,6 +1312,209 @@ const AR: SeedI18n = {
       description:
         "على بعد بضعة كيلومترات من مدخل الحديقة، تضم قرية لارابانغا مسجدًا أبيض صغيرًا من الطين تبرز منه عوارض خشبية، على الطراز السوداني الساحلي. ويُرجع الموروث تاريخه إلى عدة قرون، ما يجعله من أقدم المساجد في غانا. يُشاهَد من الخارج برفقة مرشد من القرية.",
       tips: "مكان عبادة قائم: ارتدِ ملابس ساترة، واكتفِ بالزيارة من الخارج، ولا تأتِ في أوقات الصلاة. استعن بالمرشد الرسمي للقرية.",
+    },
+    "place-de-l-independance-accra": {
+      name: "ساحة الاستقلال (ساحة النجمة السوداء)",
+      summary: "ساحة فسيحة مطلة على المحيط، تضم قوس الاستقلال والنجمة السوداء.",
+      description:
+        "أُنشئت هذه الساحة الواسعة للاستعراضات في مطلع ستينيات القرن العشرين في عهد الرئيس كوامي نكروما، وهي تمتد على طول المحيط على بعد دقائق من الحديقة التذكارية. ويُذكّر قوس الاستقلال والنجمة السوداء رمز البلاد وشعلة الجندي المجهول بميلاد الأمة. وتُقام فيها الاستعراضات الرسمية الكبرى، ولا سيما استعراض عيد الاستقلال في 6 مارس.",
+      tips: "يحيط بالموقع عدد من المباني الرسمية: استأذن قبل تصوير العسكريين والحراس، وتجنّب ساعات الحر الشديد.",
+    },
+    "musee-national-du-ghana": {
+      name: "المتحف الوطني الغاني",
+      summary: "آثار وإثنوغرافيا وفنون غانا في متحف مُجدَّد بحي أدابراكا.",
+      description:
+        "افتُتح المتحف الوطني عام 1957، عام الاستقلال، وتديره هيئة المتاحف والمعالم الغانية. وقد أُغلق عدة سنوات للأشغال ثم أُعيد افتتاحه عام 2022 بعد تجديد شامل. وتعرض مجموعاته الآثار وأدوات البلاط والآلات الموسيقية والمنسوجات وفنون البلاد، فهو مدخل جيد قبل التوجه إلى كوماسي أو الساحل.",
+      tips: "استعلم عن شروط الزيارة قبل الذهاب، فقد يكون التصوير مقيَّدًا في القاعات.",
+    },
+    "centre-national-de-culture-accra": {
+      name: "المركز الوطني للثقافة (مركز الفنون)",
+      summary: "سوق الحرف الكبير في أكرا: أقمشة الكنتي والأقنعة والطبول والخرز والمنحوتات.",
+      description:
+        "بالقرب من الواجهة البحرية، بين جيمستاون وساحة الاستقلال، يضم المركز الوطني للثقافة، الذي يسميه الجميع «مركز الفنون»، عشرات الأكشاك للحرفيين والباعة. وتجد فيه أقمشة الكنتي والأدينكرا والخرز والطبول والأقنعة والمنحوتات والسلال القادمة من أنحاء البلاد كافة. وهو محطة عملية لشراء الهدايا في نهاية الرحلة.",
+      tips: "الأسعار الأولى مرتفعة: قارن بين عدة أكشاك وفاوض بابتسامة، وكن حازمًا مع الباعة الملحّين.",
+    },
+    "plage-de-labadi": {
+      name: "شاطئ لاباديه (لا بلجر بيتش)",
+      summary: "أكثر شواطئ أكرا حيوية: موسيقى ورقص وجولات على الخيل وسهرات نهاية الأسبوع.",
+      description:
+        "شرق وسط المدينة، يُعد شاطئ لاباديه، أو «لا بلجر بيتش»، ملتقى سكان أكرا في عطلات نهاية الأسبوع والأعياد. وتتوالى على الرمال مكبرات الصوت وقارعو الطبول والبهلوانيون والفرسان وباعة جوز الهند والسمك المشوي، ويمتد الصخب إلى المساء، ولا سيما في ديسمبر وعيد الفصح. إنه انغماس في أجواء الترفيه في العاصمة أكثر منه شاطئًا للسباحة.",
+      tips: "السباحة خطرة بسبب الأمواج العالية والتيارات: ابقَ على حافة الماء. لا تحمل كثيرًا من الأغراض الثمينة، وغادر قبل حلول الظلام التام إن كنت وحدك.",
+    },
+    "plage-de-kokrobite": {
+      name: "شاطئ كوكروبايت",
+      summary: "قرية صيادين وشاطئ طويل غرب أكرا، ووجهة مفضلة في عطلات نهاية الأسبوع.",
+      description:
+        "على بعد نحو ثلاثين كيلومترًا غرب وسط أكرا، تقع كوكروبايت، وهي قرية صيادين من شعب الغا يجذب شاطئها الطويل، المحفوف بالقوارب وأشجار جوز الهند، سكان المدينة والمسافرين الباحثين عن الهدوء. ويأتيها الزوار للتنزه على حافة الماء ومشاهدة عودة الصيادين والاستمتاع بأجواء مسترخية تصاحبها غالبًا الموسيقى والطبول.",
+      tips: "التيارات خطرة: استعلم قبل السباحة. لا تنفرد بنفسك على الشاطئ، خاصة في المساء، ورتّب وسيلة نقل موثوقة للعودة.",
+    },
+    "jardins-botaniques-d-aburi": {
+      name: "حدائق أبوري النباتية",
+      summary: "حديقة أُنشئت عام 1890 على تلال أكوابيم المنعشة، على بعد ساعة من أكرا.",
+      description:
+        "على قمة سلسلة أكوابيم شمال أكرا، افتُتحت حدائق أبوري النباتية عام 1890. وتجعل منها ممرات النخيل الملكي والأشجار العملاقة والنباتات الطبية والمروج الظليلة مكانًا محببًا للتنزه، بنسماته المنعشة. ويصطف على الطريق الصاعد إليها عدد من ورش النحت على الخشب، وتستضيف مدينة أكروبونغ المجاورة كل خريف مهرجان أودويرا.",
+      tips: "تعال في أيام الأسبوع لمزيد من الهدوء، واصطحب سترة خفيفة في موسم الأمطار لأن التلال أبرد من الساحل.",
+    },
+    "reserve-de-shai-hills": {
+      name: "محمية تلال شاي",
+      summary: "سافانا وتلال صخرية وكهوف وقرود البابون على بعد ساعة شرق أكرا.",
+      description:
+        "شمال شرق أكرا، تحمي محمية تلال شاي سافانا تتخللها تلال صخرية منعزلة سكنها قديمًا شعب الشاي. وتتيح الممرات والمسالك مشاهدة قرود البابون والظباء والطيور الكثيرة، والصعود إلى كهوف ونقاط مطلة على سهول أكرا. وهي نزهة طبيعية سهلة يمكن الجمع بينها وبين طريق أكوسومبو.",
+      tips: "انطلق في الصباح الباكر حين تكون الحيوانات نشطة والحر محتملًا. لا تطعم قرود البابون وأبقِ حقائبك مغلقة.",
+    },
+    "fort-william-anomabo": {
+      name: "حصن ويليام في أنومابو",
+      summary: "حصن بريطاني من القرن الثامن عشر على شاطئ المحيط، مدرج في قائمة التراث العالمي.",
+      description:
+        "على بعد نحو خمسة عشر كيلومترًا شرق كيب كوست، شيّد البريطانيون حصن ويليام في منتصف القرن الثامن عشر في أنومابو، التي كانت آنذاك من أهم موانئ تجارة الرقيق على ساحل الذهب. وهو من حصون غانا وقلاعها المدرجة في قائمة اليونسكو للتراث العالمي. وهو أقل ازدحامًا من قلعتي كيب كوست وإلمينا، فيتيح زيارة أكثر هدوءًا لساحاته وزنازينه وأسواره المطلة على البحر.",
+      tips: "محطة سهلة على طريق أكرا–كيب كوست؛ قم بالزيارة برفقة مرشد الموقع.",
+    },
+    "marche-de-kejetia": {
+      name: "سوق كيجيتيا (السوق المركزي في كوماسي)",
+      summary: "من أكبر أسواق غرب أفريقيا، متاهة من آلاف الأكشاك.",
+      description:
+        "في قلب كوماسي، يضم سوق كيجيتيا المركزي آلاف المتاجر والأكشاك، ويُعد من أكبر أسواق غرب أفريقيا. وتتجاور فيه الأقمشة والخرز والأحذية والأواني والبطاطا الحلوة (اليام) والتوابل والحلزون العملاق والنباتات الطبية في متاهة من الممرات. وقد أُعيد بناء جزء من الموقع في أواخر العقد الثاني من القرن الحادي والعشرين حول محطة حافلات جديدة.",
+      tips: "تعال صباحًا برفقة مرشد أو أحد السكان حتى لا تضل طريقك، وأبقِ أغراضك قريبة منك وسط الزحام.",
+    },
+    "batiments-traditionnels-ashanti": {
+      name: "المباني الأشانتية التقليدية (مزار بيسياسي)",
+      summary: "مزارات مزينة بنقوش بارزة، هي آخر شواهد العمارة الأشانتية، مدرجة لدى اليونسكو.",
+      description:
+        "حول كوماسي ما تزال بعض المزارات التقليدية قائمة، وقد أُدرجت معًا في قائمة اليونسكو للتراث العالمي باسم «المباني الأشانتية التقليدية». وهي مبنية من الطين والخشب والقش، ومزينة بنقوش بارزة ذات زخارف رمزية. ويُعد مزار بيسياسي قرب إيجيسو، الذي رُمّم وزُوّد بمساحة صغيرة لاستقبال الزوار، أيسرها لفهم فن البناء هذا ودوره الديني.",
+      tips: "ما تزال هذه الأماكن مواقع عبادة محترمة: اتبع تعليمات الحارس واستأذن قبل تصوير الداخل.",
+    },
+    "ntonso-adinkra": {
+      name: "نتونسو، قرية الأدينكرا",
+      summary: "طابعو أقمشة الأدينكرا أثناء العمل، بأختام من القرع وصبغة من لحاء الأشجار.",
+      description:
+        "شمال كوماسي، تشتهر قرية نتونسو بطباعة أقمشة الأدينكرا. إذ ينحت الحرفيون أختامًا من ثمار القرع ويحضّرون صبغة سوداء من لحاء الأشجار، ثم يطبعون يدويًا رموز الأدينكرا التي يحمل كل منها مثلًا أو قيمة. ويمكن مشاهدة مراحل الصنع، بل وتجربة الطباعة أحيانًا.",
+      tips: "خصص وقتًا لورشة الطباعة واشترِ مباشرة من الحرفيين، واجمع بين هذه الزيارة وزيارة بونواير وأهوييا.",
+    },
+    "ahwiaa-sculpture-sur-bois": {
+      name: "أهوييا، قرية النحت على الخشب",
+      summary: "مقاعد وأقنعة وطبول منحوتة في ورش قرية قريبة من كوماسي.",
+      description:
+        "على طريق مامبونغ، على بعد بضعة كيلومترات شمال كوماسي، تصطف في قرية أهوييا ورش النحاتين على الخشب ومتاجرهم. ويمكن مشاهدة صنع المقاعد الأشانتية ودمى الأكوابا والأقنعة والتماثيل الصغيرة وطبول الجيمبي التي تُباع في المكان. وهي محطة سهلة في جولة قرى الحرفيين مع بونواير ونتونسو.",
+      tips: "تحقق من جودة الخشب والتشطيب قبل الشراء وفاوض بلباقة، وتجنب القطع الأثرية أو ما يُعرض على أنه كذلك.",
+    },
+    "chutes-de-tagbo": {
+      name: "شلالات تاغبو",
+      summary: "شلال وسط الغابة عند سفح جبل أفادجاتو، يُبلغ سيرًا على الأقدام من ليياتي ووتي.",
+      description:
+        "انطلاقًا من قرية ليياتي ووتي، يعبر درب مزارع الكاكاو والغابة حتى شلالات تاغبو التي تنحدر على جدار صخري مكسو بالنباتات عند سفح جبل أفادجاتو. ويمكن بسهولة الجمع بين هذه المسيرة، التي تستغرق نحو ثلاثة أرباع الساعة، وصعود الجبل في اليوم نفسه، في إطار مشروع السياحة البيئية المجتمعية في القرية.",
+      tips: "قد يكون الدرب موحلًا وزلقًا: الأحذية المغلقة ضرورية. مرّ بمكتب الاستقبال في القرية للحصول على مرشد.",
+      bestPeriod: "أثناء موسم الأمطار وبعده، حين يكون تدفق المياه قويًا",
+    },
+    "fort-prinzenstein-keta": {
+      name: "حصن برينزنشتاين",
+      summary: "أطلال حصن دنماركي من أواخر القرن الثامن عشر نخرها المحيط.",
+      description:
+        "شيّد الدنماركيون حصن برينزنشتاين عام 1784 في كيتا، واستُخدم مركزًا تجاريًا ومكانًا لاحتجاز الأسرى خلال تجارة الرقيق عبر الأطلسي. وهو من حصون غانا وقلاعها المدرجة في قائمة اليونسكو للتراث العالمي. وقد جرف التآكل الساحلي جزءًا كبيرًا منه، ولم يبقَ إلا أجزاء من الأسوار وزنازين ومبانٍ متهدمة على حافة المحيط، شاهدة على تاريخ هذا الساحل وهشاشته.",
+      tips: "الأطلال هشة: ابقَ في المناطق المتاحة للزوار واصطحب مرشدًا محليًا.",
+    },
+    "lagune-de-keta": {
+      name: "بحيرة كيتا",
+      summary: "أكبر بحيرة ساحلية في غانا، وأرض رطبة محمية غنية بالطيور المائية.",
+      description:
+        "تفصل بحيرة كيتا عن المحيط شريط رملي ضيق، وهي أكبر بحيرة ساحلية في البلاد. وقد صُنّفت أرضًا رطبة ذات أهمية دولية (موقع رامسار)، وتستقبل طيورًا مائية كثيرة مقيمة ومهاجرة، ويعيش منها الصيادون ومنتجو الملح. ويمكن اكتشافها من الطريق الممتد على الشريط الرملي، من قرية إلى أخرى، أو في نزهة بالقارب مع الصيادين.",
+      tips: "الصباح وآخر العصر أفضل الأوقات لمشاهدة الطيور؛ احمل منظارًا ووسائل الوقاية من الشمس.",
+      bestPeriod: "من أكتوبر إلى مارس لمشاهدة الطيور المهاجرة",
+    },
+    "estuaire-de-la-volta-ada": {
+      name: "أدا فوا ومصب نهر الفولتا",
+      summary: "حيث يلتقي نهر الفولتا بالمحيط: ضفاف رملية وجزر وقوارب وشواطئ.",
+      description:
+        "في أدا فوا، يُنهي نهر الفولتا مجراه في المحيط مكوّنًا مصبًا تتناثر فيه الجزر والضفاف الرملية. وتتيح نزهات القوارب اكتشاف قرى الصيادين وأشجار المانغروف والشواطئ المنعزلة بين النهر والبحر. ويحظى المكان بإقبال كبير من سكان أكرا في عطلات نهاية الأسبوع وخلال مهرجان أسافوتوفيام، عيد أدا الكبير في مطلع أغسطس.",
+      tips: "لا تسبح إلا في الأماكن التي يشير إليها السكان، فتيارات المصب والمحيط خطرة. واطلب سترات النجاة في القوارب.",
+    },
+    "barrage-d-akosombo": {
+      name: "سد أكوسومبو وبحيرة فولتا",
+      summary: "السد الكهرومائي الذي أنشأ بحيرة فولتا، إحدى أكبر البحيرات الاصطناعية في العالم.",
+      description:
+        "اكتمل سد أكوسومبو عام 1965، وهو يحجز مياه نهر الفولتا، ومنه نشأت بحيرة فولتا الممتدة مئات الكيلومترات نحو الشمال، وهي من أكبر البحيرات الاصطناعية في العالم مساحةً. ويوفر السد، رمز التصنيع الذي سعى إليه كوامي نكروما، جزءًا كبيرًا من كهرباء البلاد. ومن محيطه يمكن الاستمتاع بإطلالات على البحيرة وتلالها، وتُنظَّم رحلات بالقوارب في الخزان.",
+      tips: "السد موقع حساس: لا تصوّر إلا حيث يُسمح بذلك، واستعلم في المكان عن شروط الزيارة.",
+    },
+    "pont-d-adomi": {
+      name: "جسر أدومي",
+      summary: "جسر أنيق بقوس فولاذي يعبر نهر الفولتا عند أتيمبوكو.",
+      description:
+        "أسفل السد، يعبر جسر أدومي نهر الفولتا بقوس فولاذي واحد وسط تلال مكسوة بالغابات. وقد افتُتح في أواخر خمسينيات القرن العشرين، ويربط أكرا بإقليم فولتا، وما يزال من أشهر المناظر في البلاد. وتعجّ ضفاف أتيمبوكو عند أسفل الجسر ببائعات الروبيان وأسماك النهر.",
+      tips: "توقف نهارًا على الضفاف للاستمتاع بالمنظر، ولا تركن سيارتك على الجسر نفسه.",
+    },
+    "perles-de-krobo": {
+      name: "خرز الكروبو الزجاجي (أودوماسي كروبو)",
+      summary: "بلاد الكروبو، مهد الخرز المصنوع من الزجاج المعاد تدويره والذي يُلبس في المناسبات الكبرى.",
+      description:
+        "حول أودوماسي كروبو وسومانيا، يصنع شعب الكروبو منذ أجيال خرزًا من الزجاج المعاد تدويره، يُطحن ثم يُحمى في قوالب من الطين ويُزخرف يدويًا. ويُلبس هذا الخرز خصوصًا في طقس «ديبو» لعبور الفتيات إلى سن البلوغ وفي مهرجان نغمايم، ويُباع في الورش وأسواق المنطقة، ومنها سوق كوفوريدوا. وتتيح زيارة إحدى الورش متابعة جميع مراحل الصنع.",
+      tips: "يبلغ الخرز القديم أسعارًا مرتفعة: اطلب النصيحة واحذر التقليد، ويُفضَّل الشراء مباشرة من الحرفيين.",
+    },
+    "chutes-de-boti": {
+      name: "شلالات بوتي",
+      summary: "شلالان توأمان ينحدران في مدرج صخري وسط الغابة.",
+      description:
+        "على بعد نحو عشرين كيلومترًا من كوفوريدوا، تنحدر شلالات بوتي في فرعين متوازيين يسميهما التقليد المحلي «الذكر» و«الأنثى»، داخل حوض صخري وسط الغابة. ويهبط درج طويل حتى البركة. والموقع جزء من محمية غابية تقود فيها الممرات أيضًا إلى صخرة المظلة وإلى نخلة ذات ثلاثة رؤوس.",
+      tips: "الدرج شديد الانحدار وزلق في الطقس الرطب؛ احمل حذاءً جيدًا وماءً.",
+      bestPeriod: "أثناء موسم الأمطار وبعده مباشرة (تدفق أقوى)",
+    },
+    "umbrella-rock-boti": {
+      name: "صخرة المظلة",
+      summary: "صخرة ضخمة على شكل مظلة فوق قاعدة، تطل على الغابة.",
+      description:
+        "على مسافة قصيرة سيرًا من شلالات بوتي، تقع صخرة المظلة، وهي كتلة ضخمة من الحجر الرملي البارز ترتكز على قاعدة صخرية كمظلة عملاقة. ويمكن الصعود إلى قمتها بسلّم للتمتع بإطلالة واسعة على التلال المكسوة بالغابات. ويمر الدرب بالمزارع والقرى، ويسهل الجمع بينه وبين زيارة الشلالات.",
+      tips: "اصطحب مرشدًا من الموقع، ولا يُنصح بالصعود على السلّم أثناء المطر.",
+    },
+    "plateau-de-kwahu": {
+      name: "هضبة كواهو وجبل أودويانوما",
+      summary: "منحدرات مذهلة وبلدات مرتفعة، ومهرجان الطيران الشراعي في عيد الفصح.",
+      description:
+        "تشرف هضبة كواهو بمنحدراتها المكسوة بالغابات على السهل شمال نكاوكاو. ويُعد جبل أودويانوما، قرب أتيبي ومبرايسو، نقطة انطلاق مهرجان الطيران الشراعي الذي تنظمه هيئة السياحة الغانية في كل عطلة نهاية أسبوع لعيد الفصح، مع رحلات طيران مزدوجة للجمهور. وفي بقية العام، تدعو برودة المرتفعات والمطلات والقرى مثل أبيتيفي، إحدى أعلى المدن في البلاد، إلى التجوال.",
+      tips: "في عيد الفصح يكون الإقبال هائلًا: احجز مكان إقامتك مبكرًا جدًا وتوقّع ازدحامًا على طريق نكاوكاو.",
+      bestPeriod: "عطلة عيد الفصح للأجواء، والموسم الجاف للمناظر",
+    },
+    "chutes-de-kintampo": {
+      name: "شلالات كينتامبو",
+      summary: "شلال متدرج وسط الغابة، ومحطة تقليدية على طريق الشمال.",
+      description:
+        "شمال مدينة كينتامبو مباشرة، ينحدر نهر بومبوم على سلسلة من الدرجات الصخرية قبل أن يسقط في بركة تحيط بها الغابة. ويقود درج إلى أسفل الشلالات حيث يمكن الانتعاش، وقد أُقيم في الموقع ممر معلّق بين الأشجار. وهو من أكثر المحطات شعبية بين كوماسي وتامالي.",
+      tips: "يزدحم الموقع كثيرًا في عطلات نهاية الأسبوع والأعياد، فتعال مبكرًا. والصخور زلقة قرب الماء.",
+      bestPeriod: "أثناء موسم الأمطار وبعده مباشرة",
+    },
+    "sanctuaire-de-boabeng-fiema": {
+      name: "ملاذ قرود بوابينغ-فييما",
+      summary: "غابة مقدسة تعيش فيها قرود الكولوبس السوداء والبيضاء وقرود المونا تحت حماية القرويين.",
+      description:
+        "بين القريتين التوأمين بوابينغ وفييما، قرب نكورانزا، تأوي غابة قرود الكولوبس السوداء والبيضاء وقرود المونا التي يعدّها السكان مقدسة؛ إذ يحرّم التقليد صيدها، بل تُدفن القرود النافقة في مقبرة خاصة بها. ويُزار الملاذ، الذي يُدار بالتعاون مع المجتمع المحلي، برفقة مرشد يروي هذه المعتقدات ويساعد على رصد الحيوانات.",
+      tips: "احترم القواعد المحلية وتعليمات المرشد، ولا تطعم القرود، والزم الهدوء لمراقبتها.",
+      bestPeriod: "في الصباح الباكر أو آخر العصر",
+    },
+    "mosquee-centrale-de-tamale": {
+      name: "المسجد المركزي في تامالي",
+      summary: "المسجد الكبير في وسط المدينة، معلم الحياة الدينية في تامالي.",
+      description:
+        "في قلب تامالي، قرب السوق المركزي، يرفع المسجد المركزي مآذنه فوق الشوارع التجارية. وهو من أهم أماكن الصلاة في المدينة، ويكتظ بالمصلين أيام الجمعة وفي الأعياد الإسلامية الكبرى حين يمتد المصلون إلى الشوارع المجاورة. ويُشاهَد من الخارج مع احترام أوقات الصلاة.",
+      tips: "مكان عبادة نشط: ارتدِ ملابس محتشمة، ولا تزره أثناء الصلاة، واستأذن قبل الدخول أو تصوير المصلين.",
+    },
+    "village-sur-pilotis-de-nzulezo": {
+      name: "قرية نزوليزو على الركائز",
+      summary: "قرية مبنية بالكامل على ركائز وسط بحيرة أمانسوري، يُوصل إليها بالقارب.",
+      description:
+        "في نهاية رحلة بالقارب عبر مستنقعات نخيل الرافيا والقنوات، تظهر نزوليزو وسط بحيرة أمانسوري، وقد شُيدت منازلها ومدرستها وكنيستها كلها على ركائز وتربطها ممشى خشبي طويل. وتقول الرواية التقليدية إن أجداد السكان قدموا من الغرب يهديهم حلزون. والقرية مدرجة في القائمة التمهيدية لغانا لمواقع التراث العالمي لدى اليونسكو.",
+      tips: "احجز القارب والمرشد في مكتب الاستقبال في بيين، وخصص نصف يوم، واحمل الماء ووسائل الوقاية من الشمس. استأذن قبل تصوير السكان.",
+    },
+    "fort-apollonia-beyin": {
+      name: "حصن أبولونيا",
+      summary: "حصن بريطاني من أواخر القرن الثامن عشر مطل على المحيط، مدرج في قائمة التراث العالمي.",
+      description:
+        "شيّد البريطانيون حصن أبولونيا في بيين بين عامي 1768 و1770، وهو أقصى حصون غانا المدرجة في قائمة اليونسكو للتراث العالمي غربًا. وقد رُمّم، وهو يطل على الشاطئ وأشجار جوز الهند، ويستقبل الزوار الذين يأتون للتعرف إلى تاريخ ساحل النزيما قبل التوجه إلى نزوليزو.",
+      tips: "الزيارة بمرشد في الموقع؛ اجمع بينها وبين رحلة نزوليزو التي تنطلق من القرية نفسها.",
+    },
+    "aire-de-conservation-d-ankasa": {
+      name: "منطقة أنكاسا للحفاظ على الطبيعة",
+      summary: "غابة استوائية مطيرة دائمة الخضرة من أغنى غابات غانا، للمتنزهين ومراقبي الطيور.",
+      description:
+        "في أقصى جنوب غرب البلاد، تحمي منطقة أنكاسا للحفاظ على الطبيعة، التي تضم محمية أنكاسا وحديقة نيني-سوهيين الوطنية، غابة استوائية مطيرة دائمة الخضرة ذات تنوع حيوي استثنائي في غانا. وتقود الممرات إلى جداول وبرك طبيعية تحت الأشجار الشاهقة، وأكثر ما يُشاهد فيها الطيور والفراشات والنباتات، إذ تبقى الثدييات متوارية جدًا.",
+      tips: "الوصول عبر مسلك قد يصعب في موسم الأمطار: لا غنى عن مركبة مناسبة ومرشد. احمل طاردًا للحشرات وملابس طويلة.",
+      bestPeriod: "الموسم الجاف، من ديسمبر إلى مارس",
     },
   },
   circuits: {

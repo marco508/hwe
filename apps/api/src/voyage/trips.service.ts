@@ -9,6 +9,7 @@ import { MEDIA_SELECT, withMediaUrl } from "../common/media.util";
 import { PLACE_TEXT, coverUrl, localize, localized } from "./voyage-content";
 import { addDays, nightsBetween } from "../stays/stays-rules";
 import type { FromCircuitInput, TripInput, TripItemInput } from "./voyage.dto";
+import { VoyageService } from "./voyage.service";
 
 /** Garde-fous : un carnet reste un carnet. */
 export const MAX_TRIPS_PER_USER = 50;
@@ -16,6 +17,7 @@ export const MAX_ITEMS_PER_TRIP = 300;
 export const MAX_TRIP_DAYS = 60;
 
 const DAY_MS = 24 * 3600 * 1000;
+const toIso = (d: Date) => d.toISOString().slice(0, 10);
 
 /** Nombre de jours d'un voyage daté (bornes incluses). */
 export function tripDays(start: Date, end: Date): number {
@@ -42,7 +44,10 @@ type Db = Prisma.TransactionClient | PrismaService;
 
 @Injectable()
 export class TripsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly voyage: VoyageService,
+  ) {}
 
   /** Dates et nombre de jours cohérents (dates prioritaires sur dayCount). */
   private resolveDates(dto: TripInput, cur?: { startDate: Date | null; endDate: Date | null; dayCount: number }) {
@@ -183,7 +188,12 @@ export class TripsService {
         property: { ...b.property, media: b.property.media.map(withMediaUrl) },
       }));
     }
-    return { ...trip, items: shaped, stays };
+    // Fêtes et événements du pays pendant le voyage.
+    const events =
+      trip.startDate && trip.endDate
+        ? await this.voyage.eventsBetween({ country: trip.country }, toIso(trip.startDate), toIso(trip.endDate))
+        : [];
+    return { ...trip, items: shaped, stays, events };
   }
 
   private async nextPosition(tx: Db, tripId: string, day: number) {

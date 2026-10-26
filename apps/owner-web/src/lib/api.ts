@@ -27,6 +27,9 @@ import type {
   HostStayProperty,
   StayBlock,
   StaySettings,
+  VoyageEventKind,
+  VoyageEventOccurrence,
+  VoyageEventRule,
 } from "@hwe/types";
 import type {
   AgencyMine,
@@ -676,6 +679,9 @@ export const api = {
   adminSaveCircuit: (id: string | null, body: Record<string, unknown>) =>
     request<unknown>(id ? `/voyage/admin/circuits/${encodeURIComponent(id)}` : "/voyage/admin/circuits", { method: id ? "PATCH" : "POST", body: JSON.stringify(body) }, true),
   adminDeleteCircuit: (id: string) => request<unknown>(`/voyage/admin/circuits/${encodeURIComponent(id)}`, { method: "DELETE" }, true),
+  adminSaveEvent: (id: string | null, body: Record<string, unknown>) =>
+    request<unknown>(id ? `/voyage/admin/events/${encodeURIComponent(id)}` : "/voyage/admin/events", { method: id ? "PATCH" : "POST", body: JSON.stringify(body) }, true),
+  adminDeleteEvent: (id: string) => request<unknown>(`/voyage/admin/events/${encodeURIComponent(id)}`, { method: "DELETE" }, true),
   adminStaysOverview: () => request<AdminStaysOverview>("/stays/admin/overview", {}, true),
   adminHideReview: (id: string, hidden: boolean) =>
     request<unknown>(`/stays/admin/reviews/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ hidden }) }, true),
@@ -704,7 +710,13 @@ export interface AdminGuide {
   country: string; intro: string; sections: Array<{ title: string; body: string }>; translations: Record<string, { intro?: string; sections?: Array<{ title: string; body: string }> }> | null;
   published: boolean; reviewed: boolean; updatedAt: string;
 }
-export interface AdminVoyageContent { guides: AdminGuide[]; destinations: AdminDestination[]; circuits: AdminCircuit[] }
+export interface AdminEvent {
+  id: string; slug: string; country: string; kind: VoyageEventKind; publicHoliday: boolean; name: string; summary: string; description: string;
+  tips: string | null; where: string | null; dateNote: string | null; rule: VoyageEventRule; destinationId: string | null; placeId: string | null;
+  caution: boolean; cover: string | null; coverUrl: string | null; coverCredit: string | null; sources: string[] | null; position: number;
+  published: boolean; reviewed: boolean; translations: Tr; next: VoyageEventOccurrence | null;
+}
+export interface AdminVoyageContent { guides: AdminGuide[]; destinations: AdminDestination[]; circuits: AdminCircuit[]; events: AdminEvent[] }
 export interface AdminStaysOverview {
   enabledProperties: number;
   byStatus: Array<{ status: BookingStatus; count: number; total: number }>;

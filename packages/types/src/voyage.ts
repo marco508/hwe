@@ -1,3 +1,5 @@
+import type { VoyageEventCard } from "./voyage-events";
+
 /**
  * Espace Voyage : guides (pays, destinations, lieux, circuits), carnets de
  * voyage, séjours courte durée. Types des réponses de l'API (/voyage,
@@ -60,6 +62,8 @@ export interface PlaceDetail extends PlaceCard {
   reviewed: boolean;
   destination: DestinationCard;
   nearby: PlaceCard[];
+  /** Fêtes et événements liés au lieu (prochaine date). */
+  events: VoyageEventCard[];
 }
 
 export interface CircuitCard {
@@ -82,6 +86,16 @@ export interface DestinationDetail extends DestinationCard {
   reviewed: boolean;
   places: PlaceCard[];
   circuits: CircuitCard[];
+  /** Fêtes et événements de la destination et de ses lieux (prochaine date). */
+  events: VoyageEventCard[];
+}
+
+/** GET /voyage/countries/:cc/events — calendrier d'un pays entre deux dates. */
+export interface CountryEvents {
+  country: string;
+  from: string;
+  to: string;
+  events: VoyageEventCard[];
 }
 
 export interface CountryVoyage {
@@ -138,6 +152,8 @@ export interface TripStay {
 export interface TripDetail extends TripSummary {
   items: TripItem[];
   stays: TripStay[];
+  /** Fêtes et événements du pays pendant les dates du voyage. */
+  events: VoyageEventCard[];
   authorFirstName?: string;
 }
 

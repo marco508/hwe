@@ -11,6 +11,8 @@ import {
   BookingBadge,
   CATEGORY_ICON,
   Dialog,
+  EVENT_KIND_ICON,
+  EventRow,
   VoyageCover,
   countryName,
   dayLabel,
@@ -128,6 +130,20 @@ export function TripView({ initial, editable }: { initial: TripDetail; editable:
     trip.startDate && trip.endDate
       ? stayQueryString({ checkIn: trip.startDate.slice(0, 10), checkOut: isoIn(1, trip.endDate.slice(0, 10)), guests: trip.travelers, country: trip.country })
       : stayQueryString({ country: trip.country, guests: trip.travelers });
+
+  // Fêtes à date précise : rappelées sur chaque jour concerné ; toutes listées à côté.
+  const tripEvents = trip.events ?? [];
+  const feastsOn = (day: number) =>
+    tripEvents.flatMap((e) =>
+      e.occurrences
+        .filter((o) => !o.period)
+        .filter((o) => {
+          const a = dayOf(trip, o.start) ?? (o.start < (trip.startDate ?? "") ? 1 : null);
+          const b = dayOf(trip, o.end) ?? (o.end > (trip.endDate ?? "") ? trip.dayCount : null);
+          return a !== null && b !== null && a <= day && day <= b;
+        })
+        .map((o) => ({ e, o })),
+    );
 
   const stayEvents = (day: number) =>
     trip.stays.flatMap((s) => {
@@ -279,7 +295,21 @@ export function TripView({ initial, editable }: { initial: TripDetail; editable:
                     {editable && <BookingBadge status={s.status} />}
                   </Link>
                 ))}
-                {list.length === 0 && events.length === 0 ? (
+                {feastsOn(day).map(({ e, o }) => (
+                  <Link
+                    key={`${e.id}-${o.start}`}
+                    href={`/voyage/fetes/${e.slug}`}
+                    className="mb-2 rounded-2xl border border-accent-200 dark:border-accent-700 bg-accent-50 dark:bg-accent-700/20 p-3 flex items-center gap-3 text-ink hover:text-ink min-w-0"
+                  >
+                    <Icon name={EVENT_KIND_ICON[e.kind]} size={18} className="shrink-0" />
+                    <span className="text-sm min-w-0 [overflow-wrap:anywhere]">
+                      <span className="font-medium">{e.name}</span>
+                      {e.publicHoliday ? ` · ${t("voy.ev.holiday")}` : ""}
+                      {o.approx ? ` · ${t("voy.ev.approxShort")}` : ""}
+                    </span>
+                  </Link>
+                ))}
+                {list.length === 0 && events.length === 0 && feastsOn(day).length === 0 ? (
                   <p className="text-sm text-ink-muted rounded-2xl border border-dashed border-border p-4">{t("voy.trip.emptyDay")}</p>
                 ) : (
                   <ul className="space-y-2">{list.map((it, i) => renderItem(it, list, i))}</ul>
@@ -313,6 +343,30 @@ export function TripView({ initial, editable }: { initial: TripDetail; editable:
               {t("voy.trip.findStay")}
             </Link>
           </div>
+          {trip.startDate && trip.endDate && (
+            <div className="rounded-2xl border border-border bg-surface p-4 space-y-3">
+              <div className="font-semibold flex items-center gap-2">
+                <Icon name="party" size={16} /> {t("voy.trip.events")}
+              </div>
+              {tripEvents.length > 0 ? (
+                <ul className="space-y-2">
+                  {tripEvents.map((e) => (
+                    <li key={e.id} className="min-w-0">
+                      <EventRow e={e} />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-ink-muted">{t("voy.trip.noEvents")}</p>
+              )}
+              <Link
+                href={`/voyage/fetes?pays=${trip.country}&du=${trip.startDate.slice(0, 10)}&au=${trip.endDate.slice(0, 10)}`}
+                className="inline-block text-sm font-medium text-brand-700 dark:text-brand-300 hover:underline"
+              >
+                {t("voy.trip.eventsCalendar")}
+              </Link>
+            </div>
+          )}
           <div className="rounded-2xl border border-border bg-surface p-4 space-y-2">
             <Label htmlFor="trip-notes">{t("voy.trip.notes")}</Label>
             {editable ? (

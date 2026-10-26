@@ -114,6 +114,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 120,
         lat: 6.3726,
         lng: 2.4339,
+        cover: "/images/voyage/lieu-marche-dantokpa",
         en: {
           name: "Dantokpa Market",
           summary: "Huge lagoon-side market: fabrics, spices, crafts and the fetish market.",
@@ -130,8 +131,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Érigée sur le front de mer, la statue de l'Amazone célèbre les Agojié, le corps de guerrières du royaume du Danhomè (Abomey). Le site, aménagé en esplanade, est devenu l'un des symboles du Cotonou d'aujourd'hui et un lieu de promenade en fin de journée.",
         visitMinutes: 45,
-        lat: 6.3536,
-        lng: 2.4143,
+        lat: 6.349,
+        lng: 2.4076,
+        cover: "/images/voyage/lieu-place-de-l-amazone",
         en: {
           name: "Amazon Square",
           summary: "Monumental statue honouring the women warriors of the Kingdom of Dahomey.",
@@ -150,6 +152,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 120,
         lat: 6.3561,
         lng: 2.3655,
+        cover: "/images/voyage/lieu-plage-de-fidjrosse",
         en: {
           name: "Fidjrossè Beach",
           summary: "Long city beach lined with bars, very lively at weekends.",
@@ -166,11 +169,76 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Regroupant de nombreux artisans, le centre de promotion de l'artisanat permet d'acheter sculptures, bronzes, tentures appliquées inspirées des bas-reliefs d'Abomey, masques, vannerie et bijoux, souvent en voyant les artisans travailler. Le marchandage fait partie de l'échange.",
         visitMinutes: 60,
+        lat: 6.3595,
+        lng: 2.419,
+        cover: "/images/voyage/lieu-centre-artisanal-cotonou",
         en: {
           name: "Crafts Promotion Centre",
           summary: "Artisans' workshops and shops: bronzes, appliqué hangings, masks, jewellery.",
           description:
             "Bringing many artisans together, the crafts centre is the place to buy sculptures, bronzes, appliqué hangings inspired by the Abomey bas-reliefs, masks, basketry and jewellery, often while watching the artisans at work. Bargaining is part of the exchange.",
+        },
+      },
+      {
+        slug: "cathedrale-notre-dame-de-misericorde-cotonou",
+        category: "RELIGION",
+        name: "Cathédrale Notre-Dame-de-Miséricorde",
+        summary: "La cathédrale de Cotonou, reconnaissable à ses rayures bordeaux et blanches.",
+        description:
+          "Siège de l'archidiocèse de Cotonou, la cathédrale Notre-Dame-de-Miséricorde se dresse dans le quartier ancien de Ganhi, près de l'ancien pont sur la lagune. Ses façades rayées de bordeaux et de blanc en font l'un des édifices les plus photographiés de la ville. Commencée en 1912, elle reste un lieu de culte très fréquenté, notamment pour les messes dominicales et les fêtes de Noël et de Pâques.",
+        tips: "Tenue correcte exigée ; visitez en dehors des offices et restez discret pendant les célébrations.",
+        visitMinutes: 30,
+        lat: 6.3564,
+        lng: 2.4392,
+        cover: "/images/voyage/lieu-cathedrale-notre-dame-de-misericorde-cotonou",
+        en: {
+          name: "Cathedral of Our Lady of Mercy",
+          summary: "Cotonou's cathedral, recognisable by its burgundy and white stripes.",
+          description:
+            "Seat of the Archdiocese of Cotonou, the Cathedral of Notre-Dame-de-Miséricorde stands in the old Ganhi district, near the old bridge over the lagoon. Its burgundy-and-white striped facades make it one of the most photographed buildings in the city. Begun in 1912, it is still a busy place of worship, especially for Sunday masses and at Christmas and Easter.",
+          tips: "Dress respectfully; visit outside services and stay discreet during celebrations.",
+        },
+      },
+      {
+        slug: "place-de-l-etoile-rouge-cotonou",
+        category: "HISTORY",
+        name: "Place de l'Étoile rouge",
+        summary: "Grand carrefour et monument hérité de la période révolutionnaire des années 1970.",
+        description:
+          "Au cœur de Cotonou, la place de l'Étoile rouge a été aménagée sous le régime du général Mathieu Kérékou, après l'adoption du marxisme-léninisme comme doctrine officielle en 1974, pour accueillir défilés et rassemblements. Son monument central, une haute colonne surmontée d'une statue, reste l'un des grands repères de la ville, au croisement d'axes majeurs. La place est illuminée lors des fêtes de fin d'année.",
+        tips: "Carrefour très fréquenté : admirez le monument depuis les abords, sans traverser n'importe où.",
+        visitMinutes: 20,
+        lat: 6.3715,
+        lng: 2.4098,
+        cover: "/images/voyage/lieu-place-de-l-etoile-rouge-cotonou",
+        en: {
+          name: "Red Star Square",
+          summary: "Major junction and monument inherited from the revolutionary period of the 1970s.",
+          description:
+            "In the heart of Cotonou, Red Star Square was laid out under the regime of General Mathieu Kérékou, after Marxism-Leninism was adopted as official doctrine in 1974, to host parades and rallies. Its central monument, a tall column topped by a statue, remains one of the city's great landmarks, at the crossroads of major roads. The square is lit up for the end-of-year holidays.",
+          tips: "A very busy junction: admire the monument from the edges and cross only where it is safe.",
+        },
+      },
+      {
+        slug: "quartier-haie-vive-cotonou",
+        category: "LEISURE",
+        name: "Cotonou le soir : Haie Vive et Jonquet",
+        summary: "Les quartiers où sortir le soir : restaurants, terrasses, bars et musique.",
+        description:
+          "Le soir venu, la Haie Vive, quartier résidentiel proche de l'aéroport et des ambassades, concentre restaurants de toutes cuisines, terrasses et bars, dans une ambiance plutôt détendue. Les noctambules poursuivent souvent vers Jonquet, au centre-ville, réputé pour ses bars et ses boîtes ouverts tard. Le week-end, les buvettes de la plage de Fidjrossè et les maquis de quartier complètent le tableau, avec poisson braisé et musique.",
+        tips: "La nuit, préférez un taxi ou un chauffeur de confiance au zémidjan, gardez peu d'objets de valeur sur vous et restez vigilant à Jonquet, quartier réputé pour la petite délinquance.",
+        bestPeriod: "Du jeudi au samedi soir ; décembre et janvier pour l'effervescence des fêtes",
+        visitMinutes: 180,
+        lat: 6.3552,
+        lng: 2.3976,
+        cover: "/images/voyage/lieu-quartier-haie-vive-cotonou",
+        en: {
+          name: "Cotonou by night: Haie Vive and Jonquet",
+          summary: "Where to go out at night: restaurants, terraces, bars and music.",
+          description:
+            "When evening comes, Haie Vive, a residential district near the airport and the embassies, is packed with restaurants serving every kind of cuisine, terraces and bars, in a fairly relaxed atmosphere. Night owls often carry on to Jonquet, in the city centre, known for its bars and clubs that stay open late. At weekends, the drinks stalls on Fidjrossè beach and neighbourhood maquis complete the picture, with grilled fish and music.",
+          tips: "At night, take a taxi or a trusted driver rather than a motorbike taxi, carry few valuables and stay alert in Jonquet, an area known for petty crime.",
+          bestPeriod: "Thursday to Saturday evenings; December and January for the festive buzz",
         },
       },
     ],
@@ -182,8 +250,8 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
     summary: "La « Venise de l'Afrique » : un village entier sur pilotis au milieu du lac Nokoué.",
     description:
       "À une vingtaine de kilomètres au nord de Cotonou, Ganvié est l'une des plus grandes cités lacustres d'Afrique. Ses habitants, d'origine tofinu, s'y seraient installés il y a plusieurs siècles pour échapper aux razzias. Maisons sur pilotis, écoles, marché flottant : tout se fait en pirogue. Une excursion d'une demi-journée au départ de l'embarcadère d'Abomey-Calavi.",
-    lat: 6.4669,
-    lng: 2.4167,
+    lat: 6.4677,
+    lng: 2.3913,
     cover: "/images/voyage/ganvie",
     en: {
       region: "Atlantique",
@@ -201,8 +269,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
           "La visite se fait en pirogue motorisée ou à la pagaie depuis l'embarcadère de Calavi. On glisse entre les maisons sur pilotis, les enclos de pêche (acadjas), l'école et le marché flottant où les femmes vendent depuis leurs barques. Les habitants vivent ici au quotidien : la discrétion est de mise.",
         tips: "Négociez le prix de la pirogue à l'embarcadère officiel. Demandez toujours avant de photographier les habitants.",
         visitMinutes: 180,
-        lat: 6.4669,
-        lng: 2.4167,
+        lat: 6.4677,
+        lng: 2.3913,
+        cover: "/images/voyage/lieu-cite-lacustre-de-ganvie",
         en: {
           name: "Ganvié lake village",
           summary: "Pirogue trip among the stilt houses and the floating market.",
@@ -241,6 +310,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 150,
         lat: 6.3497,
         lng: 2.0866,
+        cover: "/images/voyage/lieu-route-des-esclaves",
         en: {
           name: "Slave Route",
           summary: "A 4 km memorial trail between the town and the beach, lined with monuments.",
@@ -257,8 +327,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Au bout de la Route des Esclaves, l'arche monumentale de la Porte du Non-Retour se dresse face à l'Atlantique. Inaugurée dans les années 1990 dans le cadre du projet « La Route de l'esclave » de l'UNESCO, elle rend hommage aux millions d'Africains déportés vers les Amériques. Un lieu de recueillement autant qu'un symbole.",
         visitMinutes: 45,
-        lat: 6.3245,
-        lng: 2.0889,
+        lat: 6.323,
+        lng: 2.0878,
+        cover: "/images/voyage/lieu-porte-du-non-retour",
         en: {
           name: "Door of No Return",
           summary: "Memorial facing the ocean, where captives were shipped.",
@@ -274,8 +345,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Face à la basilique de l'Immaculée Conception, le Temple des Pythons est consacré à Dangbé, divinité protectrice représentée par le python royal. Les serpents, inoffensifs pour l'homme, y sont vénérés ; la visite guidée explique les fondements du vodun et son rôle dans la société béninoise. Le face-à-face entre temple et basilique illustre la cohabitation des cultes à Ouidah.",
         visitMinutes: 45,
-        lat: 6.3667,
-        lng: 2.0853,
+        lat: 6.36,
+        lng: 2.085,
+        cover: "/images/voyage/lieu-temple-des-pythons",
         en: {
           name: "Python Temple",
           summary: "Vodun temple dedicated to the god Dangbé, home to sacred pythons.",
@@ -291,8 +363,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Ouidah fut l'une des premières villes de la région évangélisées. Sa basilique, construite au début du XXe siècle, domine la place principale face au Temple des Pythons. Son architecture coloniale et ses vitraux en font une étape du parcours dans le centre historique.",
         visitMinutes: 30,
-        lat: 6.3669,
-        lng: 2.0858,
+        lat: 6.3606,
+        lng: 2.0849,
+        cover: "/images/voyage/lieu-basilique-de-ouidah",
         en: {
           name: "Basilica of the Immaculate Conception",
           summary: "Large early 20th-century church opposite the Python Temple.",
@@ -308,8 +381,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Selon la tradition, le roi Kpassè, fondateur de Ouidah, s'y serait transformé en arbre pour échapper à ses ennemis. La forêt sacrée abrite cet arbre vénéré et de nombreuses sculptures, dont certaines réalisées pour le festival Ouidah 92, représentant les divinités du vodun. Un lieu ombragé et paisible au cœur de la ville.",
         visitMinutes: 60,
-        lat: 6.3726,
-        lng: 2.0836,
+        lat: 6.3648,
+        lng: 2.0964,
+        cover: "/images/voyage/lieu-foret-sacree-de-kpasse",
         en: {
           name: "Kpassè Sacred Forest",
           summary: "Sacred grove filled with vodun sculptures, linked to the legend of King Kpassè.",
@@ -324,14 +398,17 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         summary: "Installé dans l'ancien fort portugais, il retrace l'histoire de la traite et du royaume.",
         description:
           "Aménagé dans le fort portugais São João Baptista de Ajudá, le musée retrace l'histoire de Ouidah : le commerce européen sur la côte, la traite négrière, les liens avec le Brésil et les Caraïbes, et le royaume du Danhomè. Un bon point de départ pour comprendre la ville avant de suivre la Route des Esclaves.",
+        tips: "Le fort fait l'objet d'importants travaux pour accueillir le futur Musée international de la mémoire et de l'esclavage (MIME) : renseignez-vous sur les espaces ouverts avant de venir.",
         visitMinutes: 75,
-        lat: 6.3606,
-        lng: 2.0889,
+        lat: 6.3589,
+        lng: 2.0902,
+        cover: "/images/voyage/lieu-musee-d-histoire-de-ouidah",
         en: {
           name: "Ouidah History Museum",
           summary: "Housed in the old Portuguese fort, it tells the story of the slave trade and the kingdom.",
           description:
             "Set in the Portuguese fort of São João Baptista de Ajudá, the museum traces Ouidah's history: European trade on the coast, the slave trade, links with Brazil and the Caribbean, and the Kingdom of Danhomè. A good starting point for understanding the town before walking the Slave Route.",
+          tips: "The fort is undergoing major works to house the future International Museum of Memory and Slavery (MIME): check which areas are open before you go.",
         },
       },
       {
@@ -340,19 +417,20 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         name: "Fête du Vodun (Vodun Days)",
         summary: "Chaque mois de janvier, cérémonies, danses et défilés célèbrent les cultes vodun.",
         description:
-          "Le 10 janvier est la journée nationale des religions endogènes au Bénin. À Ouidah, les célébrations prennent l'ampleur d'un grand festival, désormais appelé Vodun Days : cérémonies, danses de masques (dont les Egungun et les Zangbeto), musique et rassemblement sur la plage. Une période très prisée : réservez votre logement longtemps à l'avance.",
+          "Longtemps célébrée le 10 janvier, la fête annuelle des religions traditionnelles a lieu depuis la loi de 2024 le deuxième vendredi de janvier, le jeudi qui précède étant lui aussi férié. À Ouidah, les célébrations prennent l'ampleur d'un grand festival, les Vodun Days : cérémonies, danses de masques (dont les Egungun et les Zangbeto), musique et rassemblement sur la plage, devant la Porte du Non-Retour. Une période très prisée : réservez votre logement longtemps à l'avance.",
         tips: "Les dates précises et le programme sont publiés chaque année par les organisateurs : vérifiez-les avant de réserver.",
-        bestPeriod: "Début janvier (autour du 10 janvier)",
+        bestPeriod: "Début janvier (jeudi et deuxième vendredi de janvier)",
         visitMinutes: 480,
-        lat: 6.3245,
-        lng: 2.0889,
+        lat: 6.323,
+        lng: 2.0878,
+        cover: "/images/voyage/lieu-vodun-days",
         en: {
           name: "Vodun Festival (Vodun Days)",
           summary: "Every January, ceremonies, dances and parades celebrate vodun.",
           description:
-            "10 January is Benin's national day of traditional religions. In Ouidah the celebrations take on the scale of a major festival, now called Vodun Days: ceremonies, masked dances (including Egungun and Zangbeto), music and a gathering on the beach. A very popular time: book your accommodation well in advance.",
+            "Long celebrated on 10 January, the annual festival of traditional religions has, since a 2024 law, been held on the second Friday of January, with the preceding Thursday also a public holiday. In Ouidah the celebrations take on the scale of a major festival, the Vodun Days: ceremonies, masked dances (including Egungun and Zangbeto), music and a gathering on the beach in front of the Door of No Return. A very popular time: book your accommodation well in advance.",
           tips: "Exact dates and the programme are published every year by the organisers: check them before booking.",
-          bestPeriod: "Early January (around 10 January)",
+          bestPeriod: "Early January (Thursday and second Friday of January)",
         },
       },
     ],
@@ -382,8 +460,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Le musée Honmè occupe l'ancienne résidence des rois de Hogbonou (Porto-Novo), dont le roi Toffa. La visite des cours successives fait découvrir l'organisation de la vie royale, les appartements des reines, les objets de culte et de pouvoir. Un témoignage rare d'architecture palatiale.",
         visitMinutes: 60,
-        lat: 6.4969,
-        lng: 2.6036,
+        lat: 6.4693,
+        lng: 2.6252,
+        cover: "/images/voyage/lieu-musee-honme",
         en: {
           name: "Honmè Museum (King Toffa's palace)",
           summary: "Porto-Novo's former royal palace, its courtyards and court objects.",
@@ -400,8 +479,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
           "Construite au début du XXe siècle par des « Agoudas », descendants d'anciens esclaves revenus du Brésil, la Grande Mosquée reprend l'architecture des églises baroques de Bahia, avec sa façade colorée. Elle illustre l'héritage afro-brésilien de la ville. Visite extérieure ; l'intérieur se visite selon les règles de la communauté.",
         tips: "Tenue couvrante ; ne visitez pas pendant les prières.",
         visitMinutes: 30,
-        lat: 6.4983,
-        lng: 2.6078,
+        lat: 6.4717,
+        lng: 2.6281,
+        cover: "/images/voyage/lieu-grande-mosquee-porto-novo",
         en: {
           name: "Great Mosque of Porto-Novo",
           summary: "Colourful Afro-Brazilian facade inspired by the churches of Bahia.",
@@ -418,6 +498,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Installé dans une belle demeure de style afro-brésilien, le musée da Silva évoque l'histoire des familles revenues du Brésil au XIXe siècle et leur influence sur l'architecture, la cuisine et la culture de la côte béninoise. Objets, photographies et mobilier d'époque.",
         visitMinutes: 60,
+        lat: 6.4707,
+        lng: 2.6203,
+        cover: "/images/voyage/lieu-musee-da-silva",
         en: {
           name: "Da Silva Museum",
           summary: "Afro-Brazilian house devoted to the history of returnees from Brazil.",
@@ -435,6 +518,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 120,
         lat: 6.4775,
         lng: 2.6206,
+        cover: "/images/voyage/lieu-centre-songhai",
         en: {
           name: "Songhaï Centre",
           summary: "Pioneering sustainable-farming school with a shop and restaurant.",
@@ -450,6 +534,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Au centre de Porto-Novo, ce jardin préserve un morceau de forêt où vivent des singes et des oiseaux, ainsi qu'une petite forêt sacrée. Une pause verte et fraîche entre deux visites.",
         visitMinutes: 45,
+        lat: 6.4745,
+        lng: 2.6152,
+        cover: "/images/voyage/lieu-jardin-des-plantes-porto-novo",
         en: {
           name: "Botanical and Nature Garden",
           summary: "Shady park in the centre of town, with a sacred grove and monkeys.",
@@ -468,6 +555,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
       "Du XVIIe au XIXe siècle, douze rois se sont succédé à Abomey, capitale du puissant royaume du Danhomè. Chacun fit bâtir son palais : l'ensemble des palais royaux, aux murs ornés de bas-reliefs racontant l'histoire du royaume, est inscrit au patrimoine mondial de l'UNESCO. Abomey est aussi réputée pour ses tentures appliquées et son artisanat. À environ 2 h 30 de route de Cotonou.",
     lat: 7.1829,
     lng: 1.9912,
+    cover: "/images/voyage/abomey",
     en: {
       region: "Zou",
       summary: "Former capital of the Kingdom of Dahomey and its UNESCO-listed royal palaces.",
@@ -484,8 +572,9 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
           "Les palais royaux d'Abomey couvrent un vaste domaine entouré de murs de terre. Les bas-reliefs polychromes de leurs façades racontent les hauts faits des rois du Danhomè et constituent un véritable livre d'histoire. Le site est inscrit au patrimoine mondial de l'UNESCO depuis 1985 et fait l'objet de grands travaux de valorisation.",
         tips: "Des travaux de rénovation et un nouveau musée sont en cours : renseignez-vous sur les parties ouvertes avant de venir.",
         visitMinutes: 120,
-        lat: 7.1856,
-        lng: 1.9881,
+        lat: 7.1865,
+        lng: 1.994,
+        cover: "/images/voyage/lieu-palais-royaux-d-abomey",
         en: {
           name: "Royal Palaces of Abomey",
           summary: "Royal palace complex listed as a UNESCO World Heritage Site.",
@@ -502,11 +591,50 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Les familles d'artisans d'Abomey perpétuent des savoir-faire autrefois au service des rois : tentures appliquées aux motifs symboliques, fonte du bronze à la cire perdue, forge. Plusieurs ateliers se visitent et vendent directement leurs créations.",
         visitMinutes: 60,
+        cover: "/images/voyage/lieu-artisans-d-abomey",
         en: {
           name: "Abomey artisans",
           summary: "Appliqué hangings, bronzes and blacksmiths, heirs of the royal guilds.",
           description:
             "Abomey's artisan families carry on skills that once served the kings: appliqué hangings with symbolic motifs, lost-wax bronze casting, blacksmithing. Several workshops welcome visitors and sell their work directly.",
+        },
+      },
+      {
+        slug: "place-goho-abomey",
+        category: "HISTORY",
+        name: "Place Goho et statue de Béhanzin",
+        summary: "Place historique dominée par la statue du roi Béhanzin, figure de la résistance à la conquête coloniale.",
+        description:
+          "À l'est du centre, sur la route de Bohicon, la place Goho rend hommage à Béhanzin, dernier roi indépendant du Danhomè, qui mena la résistance contre les troupes françaises de 1890 à 1894 avant d'être exilé en Martinique puis en Algérie. Sa statue, dressée sous un portique, porte une inscription rappelant son refus de céder l'indépendance du royaume. Les murs de la place sont ornés des emblèmes des rois d'Abomey : un bon point de départ avant la visite des palais.",
+        visitMinutes: 30,
+        lat: 7.1844,
+        lng: 2.0076,
+        cover: "/images/voyage/lieu-place-goho-abomey",
+        en: {
+          name: "Goho Square and Béhanzin statue",
+          summary: "Historic square dominated by the statue of King Béhanzin, a figure of resistance to colonial conquest.",
+          description:
+            "East of the centre, on the road to Bohicon, Goho Square honours Béhanzin, the last independent king of Danhomè, who led the resistance against French troops from 1890 to 1894 before being exiled to Martinique and then Algeria. His statue, standing beneath a portico, bears an inscription recalling his refusal to give up the kingdom's independence. The walls of the square are decorated with the emblems of the kings of Abomey: a good starting point before visiting the palaces.",
+        },
+      },
+      {
+        slug: "village-souterrain-d-agongointo",
+        category: "HISTORY",
+        name: "Village souterrain d'Agongointo-Zoungoudo",
+        summary: "Réseau d'habitations creusées sous terre, découvert en 1998 près de Bohicon.",
+        description:
+          "Mis au jour en 1998 lors de travaux routiers près de Bohicon, à une dizaine de kilomètres d'Abomey, ce site rassemble des dizaines de cavités creusées à une dizaine de mètres sous la surface, dans la terre rouge du plateau : pièces d'habitation, cuisines, puits et refuges de guerriers. Selon la tradition, elles remonteraient à l'époque des premiers rois du Danhomè, au XVIIe siècle. Le site figure sur la liste indicative du Bénin au patrimoine mondial de l'UNESCO, et la visite guidée permet de descendre dans un abri aménagé.",
+        tips: "Accès par des puits étroits et pentus : déconseillé aux personnes claustrophobes ou à mobilité réduite ; prévoyez des chaussures fermées.",
+        visitMinutes: 60,
+        lat: 7.1891,
+        lng: 2.084,
+        cover: "/images/voyage/lieu-village-souterrain-d-agongointo",
+        en: {
+          name: "Agongointo-Zoungoudo underground village",
+          summary: "A network of dwellings dug underground, discovered in 1998 near Bohicon.",
+          description:
+            "Uncovered in 1998 during roadworks near Bohicon, about ten kilometres from Abomey, this site brings together dozens of cavities dug some ten metres below the surface in the plateau's red earth: living rooms, kitchens, wells and warriors' refuges. According to tradition, they date back to the time of the first kings of Danhomè, in the 17th century. The site is on Benin's UNESCO World Heritage tentative list, and the guided tour lets you go down into a fitted-out shelter.",
+          tips: "Access is through narrow, steep shafts: not advisable for claustrophobic people or those with reduced mobility; wear closed shoes.",
         },
       },
     ],
@@ -539,6 +667,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 240,
         lat: 6.2789,
         lng: 1.8238,
+        cover: "/images/voyage/lieu-plage-de-grand-popo",
         en: {
           name: "Grand-Popo Beach",
           summary: "Long, wild beach, ideal for relaxing in the shade of the palms.",
@@ -557,6 +686,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 180,
         lat: 6.2586,
         lng: 1.9128,
+        cover: "/images/voyage/lieu-bouche-du-roy",
         en: {
           name: "Bouche du Roy",
           summary: "Mouth of the Mono river, mangroves and fishing villages, explored by pirogue.",
@@ -594,6 +724,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 180,
         lat: 6.5,
         lng: 1.97,
+        cover: "/images/voyage/lieu-lac-aheme",
         en: {
           name: "Lake Ahémé",
           summary: "Large, peaceful lake: pirogue outings with fishermen, lakeside villages.",
@@ -626,17 +757,18 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         name: "Grotte Notre-Dame d'Arigbo",
         summary: "Sanctuaire marial au pied des collines, grand pèlerinage chaque mois d'août.",
         description:
-          "Le sanctuaire marial d'Arigbo s'est développé autour d'une grotte au pied des collines. Le pèlerinage annuel, fin août, rassemble des dizaines de milliers de fidèles venus du Bénin et des pays voisins. Le reste de l'année, le site est calme et se visite librement.",
-        bestPeriod: "Pèlerinage fin août ; site calme le reste de l'année",
+          "Le sanctuaire marial d'Arigbo s'est développé autour d'une grotte au pied des collines, devenue lieu de pèlerinage en 1954. Le pèlerinage marial national, un week-end de la seconde moitié d'août, rassemble des centaines de milliers de fidèles venus de tous les diocèses du Bénin et des pays voisins. Le reste de l'année, le site est calme et se visite librement.",
+        bestPeriod: "Pèlerinage national un week-end de la seconde moitié d'août ; site calme le reste de l'année",
         visitMinutes: 60,
-        lat: 7.7517,
-        lng: 2.1725,
+        lat: 7.7738,
+        lng: 2.1839,
+        cover: "/images/voyage/lieu-grotte-notre-dame-d-arigbo",
         en: {
           name: "Our Lady of Arigbo Grotto",
           summary: "Marian shrine at the foot of the hills, with a major pilgrimage every August.",
           description:
-            "The Marian shrine of Arigbo grew up around a grotto at the foot of the hills. The annual pilgrimage, in late August, gathers tens of thousands of faithful from Benin and neighbouring countries. The rest of the year the site is quiet and open to visitors.",
-          bestPeriod: "Pilgrimage in late August; quiet the rest of the year",
+            "The Marian shrine of Arigbo grew up around a grotto at the foot of the hills, which became a place of pilgrimage in 1954. The national Marian pilgrimage, held over a weekend in the second half of August, gathers hundreds of thousands of faithful from all of Benin's dioceses and from neighbouring countries. The rest of the year the site is quiet and open to visitors.",
+          bestPeriod: "National pilgrimage over a weekend in the second half of August; quiet the rest of the year",
         },
       },
       {
@@ -647,6 +779,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Les collines rocheuses qui entourent Dassa-Zoumè se prêtent à de courtes randonnées. Certaines abritent des sites sacrés et d'anciens refuges des populations locales. Partez tôt le matin avec un guide local, de bonnes chaussures et de l'eau.",
         visitMinutes: 150,
+        cover: "/images/voyage/lieu-collines-de-dassa",
         en: {
           name: "Dassa hills",
           summary: "Hikes on the granite hills and views over the region.",
@@ -665,6 +798,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
       "Capitale du nord-ouest, Natitingou est la porte de l'Atacora, région de reliefs et de vallées où vivent notamment les Batammariba. Leurs maisons-forteresses à tourelles, les Tata Somba, comptent parmi les architectures de terre les plus étonnantes d'Afrique, et cascades, marchés et randonnées complètent la découverte. Le département de l'Atacora fait toutefois aujourd'hui l'objet d'avertissements officiels liés au risque terroriste (voir la rubrique Sécurité) : renseignez-vous avant tout projet.",
     lat: 10.3042,
     lng: 1.3796,
+    cover: "/images/voyage/natitingou",
     en: {
       name: "Natitingou and the Atacora",
       region: "Atacora",
@@ -684,6 +818,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 180,
         lat: 10.18,
         lng: 1.1,
+        cover: "/images/voyage/lieu-tata-somba",
         en: {
           summary: "Turreted earthen fortress houses, in the Boukoumbé area.",
           description:
@@ -702,6 +837,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 120,
         lat: 10.2,
         lng: 1.45,
+        cover: "/images/voyage/lieu-cascade-de-kota",
         en: {
           name: "Kota Waterfall",
           summary: "Waterfall and natural pool some fifteen kilometres from Natitingou.",
@@ -718,6 +854,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         description:
           "Le musée régional présente les cultures de l'Atacora : habitat traditionnel (dont des maquettes de tata), objets du quotidien, instruments de musique, parures. Une bonne introduction avant de partir à la rencontre des villages.",
         visitMinutes: 60,
+        cover: "/images/voyage/lieu-musee-regional-natitingou",
         en: {
           name: "Natitingou Regional Museum",
           summary: "An introduction to the peoples and architecture of north-west Benin.",
@@ -736,6 +873,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
       "Au nord-ouest du pays, le parc national de la Pendjari fait partie du complexe W-Arly-Pendjari, inscrit au patrimoine mondial de l'UNESCO. Savanes, forêts galeries et mares y abritent éléphants, buffles, hippopotames, antilopes et, plus discrets, lions et autres grands félins. Le parc et ses abords sont actuellement formellement déconseillés par plusieurs gouvernements en raison du risque terroriste : cette fiche présente le site pour le jour où les conditions permettront à nouveau de le visiter.",
     lat: 11.1,
     lng: 1.5,
+    cover: "/images/voyage/pendjari",
     en: {
       name: "Pendjari National Park",
       region: "Atacora",
@@ -756,6 +894,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 480,
         lat: 11.1,
         lng: 1.5,
+        cover: "/images/voyage/lieu-safari-pendjari",
         en: {
           name: "Pendjari safari",
           summary: "Wildlife viewing by vehicle, around the waterholes and along the river.",
@@ -776,6 +915,7 @@ export const BENIN_DESTINATIONS: SeedDestination[] = [
         visitMinutes: 120,
         lat: 10.8,
         lng: 1.43,
+        cover: "/images/voyage/lieu-cascades-de-tanougou",
         en: {
           name: "Tanougou Falls",
           summary: "Waterfalls and pools at the foot of the Atacora range, near the park.",

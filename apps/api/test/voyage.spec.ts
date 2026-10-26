@@ -19,6 +19,9 @@ import { tripDays } from "../src/voyage/trips.service";
 import * as mail from "../src/mail/templates";
 import { SEED_COUNTRIES } from "../src/voyage/seed";
 import { VOYAGE_COUNTRIES } from "../../../packages/types/src/voyage";
+import { easterSunday, eventOccurrences, isValidEventRule, nextOccurrence } from "../../../packages/types/src/voyage-events";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 const D = (s: string) => new Date(`${s}T00:00:00Z`);
 
@@ -200,6 +203,73 @@ test("guides de départ : un par pays de VOYAGE_COUNTRIES, identifiants uniques,
         }),
       );
     }
+  }
+});
+
+test("fêtes : dates calculées (fixe, Pâques, hégire, n-ième jour, période)", () => {
+  assert.equal(easterSunday(2026).toISOString().slice(0, 10), "2026-04-05");
+  assert.equal(easterSunday(2027).toISOString().slice(0, 10), "2027-03-28");
+  assert.equal(easterSunday(2030).toISOString().slice(0, 10), "2030-04-21");
+  const y = (r: Parameters<typeof eventOccurrences>[0], from = "2026-01-01", to = "2026-12-31") => eventOccurrences(r, from, to);
+  assert.deepEqual(y({ type: "fixed", month: 8, day: 1 }), [{ start: "2026-08-01", end: "2026-08-01" }]);
+  assert.deepEqual(y({ type: "fixed", month: 2, day: 29 }), []); // 2026 n'est pas bissextile
+  assert.deepEqual(y({ type: "easter", offset: 1 }), [{ start: "2026-04-06", end: "2026-04-06" }]);
+  assert.deepEqual(y({ type: "easter", offset: 39 }), [{ start: "2026-05-14", end: "2026-05-14" }]);
+  assert.deepEqual(y({ type: "easter", offset: 50 }), [{ start: "2026-05-25", end: "2026-05-25" }]);
+  // Hégire (Umm al-Qura) : Aïd el-Fitr 1447 = 20 mars 2026, Tabaski 1447 = 27 mai 2026.
+  assert.deepEqual(y({ type: "hijri", month: 10, day: 1 }), [{ start: "2026-03-20", end: "2026-03-20", approx: true }]);
+  assert.deepEqual(y({ type: "hijri", month: 12, day: 10 }), [{ start: "2026-05-27", end: "2026-05-27", approx: true }]);
+  // Une date hégire peut tomber deux fois dans la même année grégorienne (2033 : Aïd el-Fitr le 3 janvier et le 23 décembre).
+  assert.equal(y({ type: "hijri", month: 10, day: 1 }, "2033-01-01", "2033-12-31").length, 2);
+  assert.deepEqual(y({ type: "nth-weekday", month: 8, weekday: 6, nth: 1 }), [{ start: "2026-08-01", end: "2026-08-01" }]);
+  assert.deepEqual(y({ type: "nth-weekday", month: 11, weekday: 5, nth: -1 }), [{ start: "2026-11-27", end: "2026-11-27" }]);
+  assert.deepEqual(y({ type: "nth-weekday", month: 2, weekday: 0, nth: 5 }), []); // pas de 5e dimanche en février 2026
+  // Période à cheval sur deux années, durée sur plusieurs jours, occurrence en cours.
+  assert.deepEqual(y({ type: "period", from: 12, to: 1 }, "2026-10-26", "2027-10-26"), [{ start: "2026-12-01", end: "2027-01-31", period: true }]);
+  assert.deepEqual(y({ type: "fixed", month: 1, day: 8, days: 3 }, "2027-01-09", "2027-01-09"), [{ start: "2027-01-08", end: "2027-01-10" }]);
+  assert.deepEqual(nextOccurrence({ type: "fixed", month: 1, day: 10 }, "2026-10-26"), { start: "2027-01-10", end: "2027-01-10" });
+  assert.equal(isValidEventRule({ type: "fixed", month: 13, day: 1 }), false);
+  assert.equal(isValidEventRule({ type: "hijri", month: 9, day: 1, days: 30 }), true);
+  assert.equal(isValidEventRule({ type: "other" }), false);
+});
+
+test("fêtes de départ : règles valides, liens résolus, sources, 5 langues complètes, une date dans les 3 ans", () => {
+  const slugs = SEED_COUNTRIES.flatMap((c) => c.events.map((e) => e.slug));
+  assert.equal(new Set(slugs).size, slugs.length, "slug d'événement en double");
+  for (const c of SEED_COUNTRIES) {
+    const dest = new Set(c.destinations.map((d) => d.slug));
+    const places = new Set(c.destinations.flatMap((d) => d.places.map((p) => p.slug)));
+    for (const e of c.events) {
+      const w = `${c.guide.country} ${e.slug}`;
+      assert.ok(isValidEventRule(e.rule), `${w} : règle invalide`);
+      assert.ok(nextOccurrence(e.rule, "2026-10-26"), `${w} : aucune date`);
+      if (e.destination) assert.ok(dest.has(e.destination), `${w} : destination ${e.destination}`);
+      if (e.place) assert.ok(places.has(e.place), `${w} : lieu ${e.place}`);
+      assert.ok(e.sources.length > 0 && e.sources.every((s) => /^https?:\/\//.test(s)), `${w} : sources`);
+      for (const tr of [e.en, e.i18n.es, e.i18n.pt, e.i18n.ar]) {
+        assert.ok(tr?.name?.trim() && tr.summary?.trim() && tr.description?.trim(), `${w} : traduction incomplète`);
+        for (const k of ["tips", "where", "dateNote"] as const) if (e[k]) assert.ok(tr[k]?.trim(), `${w} : ${k} non traduit`);
+      }
+    }
+  }
+});
+
+test("photos du contenu de départ : chaque image existe (480 et 1200) et a son crédit", () => {
+  // HWE_ROOT : dépôt complet quand les tests tournent sur une copie sans les images.
+  const root = process.env.HWE_ROOT ?? path.resolve(__dirname, "../../..");
+  const dirs = ["apps/tenant-web/public/images/voyage", "apps/landing/public/images/voyage"].map((d) => path.join(root, d));
+  const credits = fs.readFileSync(path.join(root, "apps/tenant-web/public/images/CREDITS.md"), "utf8");
+  const covers = SEED_COUNTRIES.flatMap((c) => [
+    ...c.destinations.flatMap((d) => [d.cover, ...d.places.map((p) => p.cover)]),
+    ...c.circuits.map((x) => x.cover),
+    ...c.events.map((e) => e.cover),
+  ]).filter((x): x is string => !!x);
+  for (const cover of new Set(covers)) {
+    const name = cover.replace("/images/voyage/", "");
+    for (const size of [480, 1200]) {
+      assert.ok(dirs.some((d) => fs.existsSync(path.join(d, `${name}-${size}.webp`))), `${name}-${size}.webp absent`);
+    }
+    assert.ok(credits.includes(`voyage/${name}-{480,1200}.webp`), `crédit absent : ${name}`);
   }
 });
 
