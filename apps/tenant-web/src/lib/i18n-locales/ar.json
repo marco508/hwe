@@ -1211,5 +1211,7 @@
   "voy.ev.seeCalendar": "عرض التقويم كاملًا",
   "voy.ev.seeCalendarText": "الأعياد والفعاليات: {country}",
   "voy.ev.indicative": "معلومات إرشادية: تحقق من التواريخ لدى المنظمين أو مكتب السياحة قبل السفر.",
-  "voy.ev.sameTime": "في الفترة نفسها"
+  "voy.ev.sameTime": "في الفترة نفسها",
+  "voy.home.eventsTitle": "الأعياد والفعاليات",
+  "voy.home.eventsText": "العطل والأعياد والمهرجانات والسهرات: ماذا يجري خلال إقامتك؟"
 }

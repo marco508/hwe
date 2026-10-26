@@ -103,9 +103,10 @@ function VoyageHome() {
       ) : (
         <>
           {/* ── Raccourcis ── */}
-          <section className="grid sm:grid-cols-3 gap-3">
+          <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
               { href: user ? "/voyage/mes-voyages" : "/login?next=/voyage/mes-voyages", icon: "calendar" as const, title: t("voy.home.planTitle"), text: t("voy.home.planText") },
+              { href: `/voyage/fetes?pays=${cc}`, icon: "party" as const, title: t("voy.home.eventsTitle"), text: t("voy.home.eventsText") },
               { href: `/voyage/sejours?pays=${cc}`, icon: "bed" as const, title: t("voy.home.staysTitle"), text: t("voy.home.staysText") },
               { href: "/voyage/reservations", icon: "calendarCheck" as const, title: t("voy.home.bookingsTitle"), text: t("voy.home.bookingsText") },
             ].map((c) => (

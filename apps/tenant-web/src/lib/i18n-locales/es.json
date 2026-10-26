@@ -1083,5 +1083,7 @@
   "voy.ev.seeCalendar": "Ver todo el calendario",
   "voy.ev.seeCalendarText": "Fiestas y eventos: {country}",
   "voy.ev.indicative": "Información orientativa: compruebe las fechas con los organizadores o la oficina de turismo antes de viajar.",
-  "voy.ev.sameTime": "Al mismo tiempo"
+  "voy.ev.sameTime": "Al mismo tiempo",
+  "voy.home.eventsTitle": "Fiestas y eventos",
+  "voy.home.eventsText": "Festivos, fiestas, festivales y noches: ¿qué pasa durante su estancia?"
 }
