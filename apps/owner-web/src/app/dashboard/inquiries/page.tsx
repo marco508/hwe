@@ -24,11 +24,12 @@ import {
   IconBadge,
   type IconName,
 } from "@hwe/ui";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
 import { isPro, loadPortfolio } from "../../../lib/pro";
+import { refreshNavCounts, useBienParam, withParams } from "../../../lib/nav";
 import { ConfirmDialog, LockedNote, WarningNote } from "../../../components/pro/ProUi";
 import { Label, ManagedByBadge, Textarea } from "@hwe/ui";
 import type { Inquiry, InquiryStatus, Property } from "@hwe/types";
@@ -423,7 +424,7 @@ function InquiryDetailModal({
               </div>
               {inquiry.property && (
                 <Link
-                  href={`/properties/${inquiry.property.id}`}
+                  href={`/dashboard/${encodeURIComponent(inquiry.property.id)}`}
                   className="font-medium text-ink hover:text-brand-700 transition-colors [overflow-wrap:anywhere]"
                 >
                   {inquiry.property.title}
@@ -556,13 +557,24 @@ function InquiryDetailModal({
                 {" "}
                 {t("com.buyerAcceptedBody2")}
               </p>
-              <Link
-                href={chatHref(inquiry)}
-                className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-xs font-medium hover:opacity-90 transition-opacity"
-              >
-                <Icon name="message" size={14} />
-                {t("com.openDiscussion")}
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={chatHref(inquiry)}
+                  className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-xs font-medium hover:opacity-90 transition-opacity"
+                >
+                  <Icon name="message" size={14} />
+                  {t("com.openDiscussion")}
+                </Link>
+                {inquiry.property?.status !== "SOLD" && (
+                  <Link
+                    href={`/dashboard/${encodeURIComponent(inquiry.propertyId)}`}
+                    className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full border border-border bg-surface text-ink text-xs font-medium hover:border-ink/30"
+                  >
+                    <Icon name="party" size={14} />
+                    {t("pro.hub.markSold")}
+                  </Link>
+                )}
+              </div>
             </div>
           ) : null}
         </div>
@@ -620,8 +632,9 @@ function InquiryCard({
               {isSale ? t("com.saleBadge") : t("com.rentalBadge")}
             </Badge>
             <Link
-              href={`/properties/${i.property?.id}`}
+              href={`/dashboard/${encodeURIComponent(i.propertyId)}`}
               className="text-sm font-medium hover:underline truncate max-w-[180px]"
+              title={i.property?.title}
             >
               {i.property?.title}
             </Link>
@@ -698,9 +711,14 @@ function InquiryCard({
             {isPending ? (
               <InquiryActions i={i} ctx={ctx} busy={isLoading} size="sm" onAct={onAct} />
             ) : i.status === "ACCEPTED" && !isSale && i.leaseId ? (
-              <Link href={`/dashboard/${i.propertyId}/lease`} className={LINK_GRADIENT}>
+              <Link href={`/dashboard/${encodeURIComponent(i.propertyId)}/lease`} className={LINK_GRADIENT}>
                 <Icon name="clipboard" size={15} className="me-1.5" />
                 {t("com.contract")}
+              </Link>
+            ) : i.status === "ACCEPTED" && isSale && i.property?.status !== "SOLD" ? (
+              <Link href={`/dashboard/${encodeURIComponent(i.propertyId)}`} className={LINK_GRADIENT}>
+                <Icon name="party" size={15} className="me-1.5" />
+                {t("pro.hub.markSold")}
               </Link>
             ) : null}
           </div>
@@ -731,8 +749,17 @@ export default function ReceivedInquiriesPage() {
   );
 }
 
+type TabKey = InquiryStatus | "ALL" | "PROPOSED";
+/** Onglet ↔ paramètre `?tab=` (adresse partageable, retour arrière fidèle). */
+const tabFromParam = (v: string | null): TabKey => {
+  const k = (v ?? "").toUpperCase();
+  return (["PENDING", "ACCEPTED", "REJECTED", "CANCELLED", "PROPOSED"] as const).find((x) => x === k) ?? "ALL";
+};
+
 function ReceivedInquiriesInner() {
   const search = useSearchParams();
+  const router = useRouter();
+  const bien = useBienParam();
   // Session/rôle : dashboard/layout.tsx.
   const { user } = useAuth();
   const { data, setData, error, loading: working, reload } = useAsync(
@@ -740,12 +767,15 @@ function ReceivedInquiriesInner() {
     [user?.id],
     { enabled: !!user },
   );
-  const items: Inquiry[] = data ?? [];
+  // Filtre « par bien » (?bien=<id>) : côté client, l'API renvoie tout.
+  const items: Inquiry[] = (data ?? []).filter((i) => !bien || i.propertyId === bien);
   const setItems = (fn: (prev: Inquiry[]) => Inquiry[]) => setData((cur) => fn(cur ?? []));
   const [processing, setProcessing] = React.useState<string | null>(null);
-  const [activeTab, setActiveTab] = React.useState<InquiryStatus | "ALL" | "PROPOSED">(
-    search.get("tab") === "proposed" ? "PROPOSED" : "ALL",
-  );
+  const activeTab = tabFromParam(search.get("tab"));
+  const setActiveTab = (k: TabKey) =>
+    router.replace(withParams("/dashboard/inquiries", search as unknown as URLSearchParams, { tab: k === "ALL" ? null : k.toLowerCase() }), {
+      scroll: false,
+    });
   const pro = isPro(user);
   // Pro : droits et propriétaire (activé ou non) de chaque bien du portefeuille.
   const portfolio = useAsync(() => loadPortfolio(user!.id), [user?.id], { enabled: pro && !!user });
@@ -774,6 +804,7 @@ function ReceivedInquiriesInner() {
       const updated = await api.respondToInquiry(id, decision);
       setItems((prev) => prev.map((i) => (i.id === updated.id ? { ...i, ...updated } : i)));
       toast.success(decision === "ACCEPTED" ? t("com.accepted") : t("com.rejected"));
+      void refreshNavCounts(user);
       // Les autres demandes du bien ont pu être déclinées côté API : on recharge.
       if (decision === "ACCEPTED") reload();
     } catch (e) {
@@ -812,6 +843,7 @@ function ReceivedInquiriesInner() {
       setItems((prev) => prev.map((x) => (x.id === updated.id ? { ...x, ...updated } : x)));
       setDialog(null);
       reload();
+      void refreshNavCounts(user);
     } catch (e) {
       toast.error(e);
     } finally {
@@ -833,7 +865,7 @@ function ReceivedInquiriesInner() {
     );
   }
 
-  const countByStatus = (key: InquiryStatus | "ALL" | "PROPOSED") =>
+  const countByStatus = (key: TabKey) =>
     key === "ALL"
       ? items.length
       : key === "PROPOSED"
@@ -901,7 +933,7 @@ function ReceivedInquiriesInner() {
       <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
         {[...TABS.slice(0, 2), { key: "PROPOSED" as const, labelKey: "pro.inq.tabProposed", icon: "handshake" as IconName }, ...TABS.slice(2)].map(({ key, labelKey, icon }) => {
           const count = countByStatus(key);
-          if (key !== "ALL" && count === 0) return null;
+          if (key !== "ALL" && count === 0 && key !== activeTab) return null;
           const isActive = activeTab === key;
           return (
             <button
@@ -938,8 +970,8 @@ function ReceivedInquiriesInner() {
           title={t("com.emptyTitle")}
           description={t("com.emptyDesc")}
           action={
-            <Link href="/dashboard" className={LINK_GRADIENT}>
-              {t("vis.seeListings")}
+            <Link href={bien ? `/dashboard/${encodeURIComponent(bien)}` : pro ? "/pro/biens" : "/dashboard"} className={LINK_GRADIENT}>
+              {bien ? t("prop.backToProperty") : t("vis.seeListings")}
             </Link>
           }
         />

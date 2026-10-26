@@ -53,6 +53,38 @@ const STATUS_BOX: Record<InquiryStatus, string> = {
 const chatHref = (i: Inquiry) =>
   i.conversationId ? `/messages?c=${encodeURIComponent(i.conversationId)}` : "/messages";
 
+/** Message de statut : une offre d'achat acceptée ne génère pas de bail. */
+const statusMsg = (i: Inquiry) =>
+  t(i.status === "ACCEPTED" && i.property?.listingType === "SALE" ? "com.statusMsg.ACCEPTED_SALE" : "com.statusMsg." + i.status);
+
+/**
+ * Suite d'une demande acceptée : location → voir et signer le bail ;
+ * achat → écrire au vendeur. Sinon : « Discuter ».
+ */
+function NextActions({ i }: { i: Inquiry }) {
+  const accepted = i.status === "ACCEPTED";
+  const sale = i.property?.listingType === "SALE";
+  return (
+    <>
+      {accepted && !sale && (
+        <Link
+          href="/ma-location"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-600 text-white hover:text-white hover:bg-brand-700 text-sm font-medium"
+        >
+          <Icon name="signature" size={15} />
+          {t("com.inq.seeLease")}
+        </Link>
+      )}
+      <Link href={chatHref(i)}>
+        <Button size="sm" variant={accepted && !sale ? "secondary" : "gradient"}>
+          <Icon name="message" size={15} className="me-1.5" />
+          {accepted && sale ? t("com.inq.writeSeller") : t("com.chat")}
+        </Button>
+      </Link>
+    </>
+  );
+}
+
 const TABS: { key: InquiryStatus | "ALL"; icon: IconName }[] = [
   { key: "ALL",       icon: "layers" },
   { key: "PENDING",   icon: "hourglass" },
@@ -249,7 +281,7 @@ function InquiryDetailModal({
           {/* Status message */}
           <div className={`rounded-lg px-4 py-3 text-sm flex items-start gap-2 ${STATUS_BOX[inquiry.status]}`}>
             <Icon name={STATUS_ICONS[inquiry.status]} size={18} className="mt-px" />
-            <span>{t("com.statusMsg." + inquiry.status)}</span>
+            <span>{statusMsg(inquiry)}</span>
           </div>
 
           {/* Timestamps */}
@@ -274,9 +306,9 @@ function InquiryDetailModal({
               <div className="text-xs text-brand-700 dark:text-brand-300 font-medium">
                 {t("com.inq.acceptedNote", { email: inquiry.contactEmail ?? "" })}
               </div>
-              <Link href={chatHref(inquiry)}>
-                <Button size="sm" variant="gradient"><Icon name="message" size={15} className="me-1.5" />{t("com.chat")}</Button>
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <NextActions i={inquiry} />
+              </div>
             </div>
           )}
         </div>
@@ -349,7 +381,7 @@ function InquiryCard({
 
         <div className={`rounded-lg px-4 py-3 text-sm flex items-start gap-2 mb-3 ${STATUS_BOX[i.status]}`}>
           <Icon name={STATUS_ICONS[i.status]} size={18} className="mt-px" />
-          <span>{t("com.statusMsg." + i.status)}</span>
+          <span>{statusMsg(i)}</span>
         </div>
 
         <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
@@ -362,11 +394,7 @@ function InquiryCard({
             <Button size="sm" variant="secondary" onClick={() => onViewDetails(i)}>
               <Icon name="eye" size={15} className="me-1.5" />{t("com.details")}
             </Button>
-            <Link href={chatHref(i)}>
-              <Button size="sm" variant="gradient">
-                <Icon name="message" size={15} className="me-1.5" />{t("com.chat")}
-              </Button>
-            </Link>
+            <NextActions i={i} />
             {i.status === "PENDING" && (
               <Button
                 size="sm"
@@ -437,8 +465,8 @@ export default function SentInquiriesPage() {
         {t("com.inq.sub")}
       </p>
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
+      {/* Filtres par statut (pastilles : distincts des onglets de la rubrique) */}
+      <div role="group" aria-label={t("com.inq.filter")} className="flex gap-2 mb-6 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
         {TABS.map(({ key, icon }) => {
           const count = countByStatus(key);
           if (key !== "ALL" && count === 0) return null;
@@ -449,19 +477,15 @@ export default function SentInquiriesPage() {
               type="button"
               aria-pressed={isActive}
               onClick={() => setActiveTab(key)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+              className={`shrink-0 inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium whitespace-nowrap border transition-colors ${
                 isActive
-                  ? "border-brand-600 text-brand-700 dark:text-brand-300"
-                  : "border-transparent text-ink-muted hover:text-ink hover:border-border"
+                  ? "border-brand-600 bg-brand-50 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300 dark:border-brand-400"
+                  : "border-border text-ink-muted hover:text-ink hover:border-brand-300"
               }`}
             >
               <Icon name={icon} size={15} />
               <span>{t("com.tab." + key)}</span>
-              <span className={`ms-1 rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-                isActive ? "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300" : "bg-cream-100 dark:bg-white/5 text-ink-muted"
-              }`}>
-                {count}
-              </span>
+              <span className="tabular-nums text-xs opacity-80">{count}</span>
             </button>
           );
         })}

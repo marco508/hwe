@@ -103,7 +103,9 @@ function RegisterInner() {
             </Button>
             <p className="text-sm text-ink-muted text-center">
               {t("register.already")}{" "}
-              <Link href="/login" className="font-medium">{t("register.login")}</Link>
+              <Link href={next !== "/" ? `/login?next=${encodeURIComponent(next)}` : "/login"} className="font-medium">
+                {t("register.login")}
+              </Link>
             </p>
           </form>
         </CardBody>

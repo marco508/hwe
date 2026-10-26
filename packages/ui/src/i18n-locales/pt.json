@@ -236,5 +236,11 @@
   "ui.plat.paidPlans": "atualmente {names}, a partir de {price} por mês",
   "ui.plat.paidPlansNone": "conforme a tabela publicada no site",
   "ui.file.choose": "Escolher um ficheiro",
-  "ui.file.none": "Nenhum ficheiro escolhido"
+  "ui.file.none": "Nenhum ficheiro escolhido",
+  "ui.nav.main": "Navegação principal",
+  "ui.nav.account": "A minha conta",
+  "ui.nav.signedInAs": "Sessão iniciada como",
+  "ui.nav.preferences": "Idioma, moeda e visualização",
+  "ui.nav.logout": "Terminar sessão",
+  "ui.nav.breadcrumb": "Trilho de navegação"
 }

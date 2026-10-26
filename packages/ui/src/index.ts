@@ -7,6 +7,17 @@ export { Select } from "./components/Select";
 export { Card, CardHeader, CardBody, CardFooter } from "./components/Card";
 export { Badge } from "./components/Badge";
 export { Navbar } from "./components/Navbar";
+export {
+  AppNav,
+  SectionTabs,
+  Breadcrumbs,
+  navMatch,
+  type AppNavProps,
+  type NavItem,
+  type AccountMenuLink,
+  type SectionTab,
+  type NavLinkComponent,
+} from "./components/AppNav";
 export { PropertyCard } from "./components/PropertyCard";
 export { Label } from "./components/Label";
 export { EmptyState } from "./components/EmptyState";

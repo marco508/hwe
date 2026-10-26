@@ -18,6 +18,7 @@ import { api } from "../../lib/api";
 import { ActionCenter } from "../../components/ActionCenter";
 import { t } from "../../lib/i18n";
 import { IlloManage, Icon, IconBadge, ManagedByBadge, type IconName } from "@hwe/ui";
+import { LINK_SM } from "../../components/pro/ProUi";
 import type { Property } from "@hwe/types";
 
 // Lien stylé en bouton (évite <button> dans <a>, HTML invalide — M3).
@@ -87,6 +88,7 @@ export default function DashboardPage() {
 
   // Stats simples calculées localement
   const totalCount = items.length;
+  const publishedCount = items.filter((p) => p.status === "PUBLISHED").length;
   const rentCount = items.filter((p) => p.listingType === "RENT").length;
   const saleCount = items.filter((p) => p.listingType === "SALE").length;
   // Moyenne convertie dans la devise d'affichage, sur les seuls biens
@@ -129,7 +131,7 @@ export default function DashboardPage() {
         {/* Mini stats */}
         {totalCount > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 stagger">
-            <StatCard icon="home" value={totalCount} label={t("dash.stat.published")} />
+            <StatCard icon="home" value={publishedCount} label={t("dash.stat.published")} />
             <StatCard icon="key" value={rentCount} label={t("dash.stat.rent")} />
             <StatCard icon="tag" value={saleCount} label={t("dash.stat.sale")} />
             <StatCard
@@ -142,7 +144,7 @@ export default function DashboardPage() {
         )}
       </AnimatedBackground>
 
-      <ActionCenter />
+      <ActionCenter properties={items} />
 
       {items.length === 0 ? (
         <EmptyState
@@ -180,48 +182,29 @@ export default function DashboardPage() {
               displayPrice={(p.displayPrice ?? p.price) > 0 ? format(p.displayPrice ?? p.price, p.currency) : "—"}
               priceUnit={p.priceUnit}
               status={p.status}
-              href={`/properties/${p.id}`}
+              href={`/dashboard/${encodeURIComponent(p.id)}`}
               footer={
                 <div className="space-y-2">
                 {p.managedBy && <ManagedByBadge name={p.managedBy.name} logoUrl={p.managedBy.logoUrl} />}
-                <div className="flex gap-2 flex-wrap">
+                {/* Toute la carte mène à la fiche du bien ; ici, les raccourcis. */}
+                <Link href={`/dashboard/${encodeURIComponent(p.id)}`} className={`${LINK_SM} w-full`}>
+                  {t("pro.hub.manage")} <Icon name="arrowRight" size={14} />
+                </Link>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <Link
-                    href={`/dashboard/${p.id}`}
-                    className={`${linkBtn} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}
-                    title={t("pro.hub.manage")}
-                    aria-label={t("pro.hub.manage")}
+                    href={`/properties/${encodeURIComponent(p.id)}`}
+                    className={`${linkBtn} gap-1.5 text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}
                   >
-                    <Icon name="layers" size={16} />
+                    <Icon name="eye" size={15} /> {t("pro.hub.preview")}
                   </Link>
-                  <Link
-                    href={`/dashboard/${p.id}/edit`}
-                    className={`${linkBtn} flex-1 bg-surface text-ink border border-border hover:border-ink/30`}
-                  >
-                    {t("acc.edit")}
-                  </Link>
-                  <Link
-                    href={`/dashboard/${p.id}/documents`}
-                    className={`${linkBtn} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}
-                    title={t("acc.docs.title")}
-                    aria-label={t("acc.docs.title")}
-                  >
-                    <Icon name="folder" size={16} />
-                  </Link>
-                  {p.listingType === "RENT" && (
-                    <Link
-                      href={`/dashboard/${p.id}/lease`}
-                      className={`${linkBtn} text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40`}
-                      title={t("acc.dash.leases")}
-                      aria-label={t("acc.dash.leases")}
-                    >
-                      <Icon name="clipboard" size={16} />
-                    </Link>
-                  )}
                   <Button
-                    variant="danger"
+                    variant="ghost"
                     size="sm"
+                    className="text-danger dark:text-red-300"
                     onClick={() => onDelete(p.id)}
+                    aria-label={t("dash.deleteAria", { title: p.title })}
                   >
+                    <Icon name="trash" size={15} className="me-1.5" />
                     {t("acc.delete")}
                   </Button>
                 </div>

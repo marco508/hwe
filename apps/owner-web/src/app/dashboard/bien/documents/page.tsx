@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useShellParams } from "../../../../lib/route-params";
+import { loadProperty } from "../../../../lib/nav";
 import {
   Button,
   Input,
@@ -73,7 +73,7 @@ export default function DocumentsPage() {
     let cancelled = false;
     setWorking(true);
     setLoadError(null);
-    Promise.all([api.getProperty(params.id), api.listDocuments(params.id)])
+    Promise.all([loadProperty(params.id), api.listDocuments(params.id)])
       .then(([prop, documents]) => {
         if (cancelled) return;
         setProperty(prop);
@@ -191,11 +191,6 @@ export default function DocumentsPage() {
 
   return (
     <section className="min-w-0">
-      <div className="mb-2">
-        <Link href={`/dashboard/${params?.id}/edit`} className="text-sm text-ink-muted hover:underline">
-          <span className="inline-block rtl:rotate-180">←</span> {t("acc.docs.back")}
-        </Link>
-      </div>
       <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
         <div className="min-w-0">
           <h1 className="font-display text-3xl mb-1">{t("acc.docs.title")}</h1>
@@ -346,23 +341,6 @@ export default function DocumentsPage() {
         </ul>
       )}
 
-      <div className="mt-10 pt-6 border-t border-border flex gap-4 flex-wrap">
-        {/* F22 : pas de baux pour un bien en vente. */}
-        {property?.listingType === "RENT" && (
-          <Link
-            href={`/dashboard/${params?.id}/lease`}
-            className="inline-flex items-center h-10 px-4 rounded-md text-sm font-medium bg-surface text-ink border border-border hover:border-ink/30"
-          >
-            <Icon name="clipboard" size={16} className="me-1.5" /> {t("acc.docs.manageLeases")}
-          </Link>
-        )}
-        <Link
-          href={`/dashboard/${params?.id}/edit`}
-          className="inline-flex items-center h-10 px-4 rounded-md text-sm font-medium text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40"
-        >
-          {t("acc.docs.back")}
-        </Link>
-      </div>
     </section>
   );
 }

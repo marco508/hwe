@@ -236,5 +236,11 @@
   "ui.plat.paidPlans": "à ce jour {names}, à partir de {price} par mois",
   "ui.plat.paidPlansNone": "selon la grille affichée sur le site",
   "ui.file.choose": "Choisir un fichier",
-  "ui.file.none": "Aucun fichier choisi"
+  "ui.file.none": "Aucun fichier choisi",
+  "ui.nav.main": "Navigation principale",
+  "ui.nav.account": "Mon compte",
+  "ui.nav.signedInAs": "Connecté en tant que",
+  "ui.nav.preferences": "Langue, devise et affichage",
+  "ui.nav.logout": "Se déconnecter",
+  "ui.nav.breadcrumb": "Fil d'Ariane"
 }

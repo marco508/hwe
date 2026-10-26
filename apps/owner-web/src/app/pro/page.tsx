@@ -56,9 +56,9 @@ export default function ProDashboardPage() {
             <StatTile icon="hourglass" tone="accent" label={t("pro.stat.pendingMandates")} value={o.pendingMandates} hint={t("pro.stat.pendingHint")} href="/pro/mandats?status=PENDING_OWNER" highlight={o.pendingMandates > 0} />
             <StatTile icon="wallet" tone="accent" label={t("pro.stat.rentsToVerify")} value={o.rentsToVerify} hint={t("pro.stat.rentsHint")} href="/dashboard/loyers" highlight={o.rentsToVerify > 0} />
             <StatTile icon="alarm" tone="danger" label={t("pro.stat.lateRents")} value={o.lateRents} hint={t("pro.stat.lateHint")} href="/dashboard/loyers" highlight={o.lateRents > 0} />
-            <StatTile icon="wrench" tone="neutral" label={t("pro.stat.tickets")} value={o.openTickets} hint={t("pro.stat.ticketsHint")} href="/dashboard/tickets" />
+            <StatTile icon="wrench" tone="neutral" label={t("pro.stat.tickets")} value={o.openTickets} hint={t("pro.stat.ticketsHint")} href="/dashboard/tickets?filtre=todo" />
             <StatTile icon="calendar" tone="ocean" label={t("pro.stat.visits")} value={o.upcomingVisits} hint={t("pro.stat.visitsHint")} href="/dashboard/visites" />
-            <StatTile icon="handshake" tone="brand" label={t("pro.stat.proposals")} value={o.pendingProposals} hint={t("pro.stat.proposalsHint")} href="/dashboard/inquiries" highlight={o.pendingProposals > 0} />
+            <StatTile icon="handshake" tone="brand" label={t("pro.stat.proposals")} value={o.pendingProposals} hint={t("pro.stat.proposalsHint")} href="/dashboard/inquiries?tab=proposed" highlight={o.pendingProposals > 0} />
             <StatTile
               icon="coins"
               tone="success"

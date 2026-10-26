@@ -3,8 +3,8 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext, AuthSplit } from "@hwe/ui";
-import { useAuth } from "../../lib/auth-context";
+import { Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext, AuthSplit, OWNER_URL } from "@hwe/ui";
+import { useAuth, WRONG_ROLE } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 
 // useSearchParams exige une frontière Suspense au prérendu.
@@ -25,16 +25,24 @@ function LoginInner() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
+  // Compte professionnel (agence) : il se connecte dans l'espace pro.
+  const [proAccount, setProAccount] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setProAccount(false);
     setLoading(true);
     try {
       await login(email, password);
       router.push(next);
     } catch (err) {
+      if (isApiError(err) && err.code === WRONG_ROLE) {
+        setProAccount(true);
+        setLoading(false);
+        return;
+      }
       // A5 : seul un 401 signifie « identifiants invalides ».
       setError(isApiError(err) && err.status === 401 ? t("login.errCreds") : errorText(err));
       setLoading(false);
@@ -89,6 +97,18 @@ function LoginInner() {
               />
             </div>
             {error && <p role="alert" className="text-sm text-danger [overflow-wrap:anywhere]">{error}</p>}
+            {proAccount && (
+              <div role="alert" className="rounded-lg border border-brand-200 bg-brand-50/70 dark:border-brand-800 dark:bg-brand-900/25 px-4 py-3 text-sm space-y-2">
+                <p className="font-medium text-ink">{t("login.proTitle")}</p>
+                <p className="text-ink-muted">{t("login.proText")}</p>
+                <a
+                  href={`${OWNER_URL}/login`}
+                  className="inline-flex items-center h-9 px-4 rounded-full bg-brand-600 text-white hover:text-white hover:bg-brand-700 text-sm font-medium"
+                >
+                  {t("login.proCta")}
+                </a>
+              </div>
+            )}
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? t("login.submitting") : t("login.submit")}
             </Button>

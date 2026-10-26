@@ -7,6 +7,7 @@ import Link from "next/link";
 import { api } from "../../../../lib/api";
 import { useAuth } from "../../../../lib/auth-context";
 import { t } from "../../../../lib/i18n";
+import { invalidateProperty } from "../../../../lib/nav";
 import { PropertyForm, PropertyFormValue, toPropertyBody } from "../../../../components/PropertyForm";
 import { tUi, countryLabel, AnimatedBackground, ErrorState, isNotFound, toast, EmptyState } from "@hwe/ui";
 import type { Property, PricingRate, LeaseDurationUnit } from "@hwe/types";
@@ -94,7 +95,9 @@ export default function EditPropertyPage() {
       );
 
       toast.success(t("pf.saved"));
-      router.push(user?.role === "AGENT" ? `/dashboard/${property.id}` : "/dashboard");
+      // Retour à la fiche du bien (titre, photos… à jour dans le fil d'Ariane).
+      invalidateProperty(property.id);
+      router.push(`/dashboard/${encodeURIComponent(property.id)}`);
     } catch (e) {
       toast.error(e);
       setSubmitting(false);
@@ -116,15 +119,6 @@ export default function EditPropertyPage() {
         variant="blobs"
         className="rounded-2xl border border-border/60 px-5 sm:px-8 py-8 mb-8"
       >
-        <Link
-          href={user?.role === "AGENT" ? `/dashboard/${property.id}` : "/dashboard"}
-          className="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink mb-3 transition-colors"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-          {t("pf.back")}
-        </Link>
         <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
           {property.status === "PUBLISHED"
             ? t("pf.edit.published")
@@ -140,19 +134,8 @@ export default function EditPropertyPage() {
         </p>
 
         <div className="flex flex-wrap gap-2 mt-5">
-          <Link href={`/dashboard/${property.id}/documents`} className={secondaryLink}>
-            {t("pf.edit.docs")}
-          </Link>
-          {property.listingType === "RENT" && (
-            <Link href={`/dashboard/${property.id}/lease`} className={secondaryLink}>
-              {t("pf.edit.leases")}
-            </Link>
-          )}
-          <Link
-            href={`/properties/${property.id}`}
-            className="inline-flex items-center h-8 px-3 rounded-md text-sm font-medium text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40"
-          >
-            {t("pf.edit.preview")}
+          <Link href={`/properties/${property.id}`} className={secondaryLink}>
+            {t("pro.hub.preview")}
           </Link>
         </div>
       </AnimatedBackground>

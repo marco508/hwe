@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Badge, Button, Input, Select, ErrorState, toast, fmtDate as fmtDateShared, Icon } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
@@ -80,12 +82,34 @@ function StatTile({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+type AdminTab = "users" | "properties" | "agencies" | "subscriptions" | "voyage";
+/** Onglet ↔ `?onglet=` (adresse partageable, retour arrière fidèle). */
+const TAB_PARAM: Record<AdminTab, string> = {
+  users: "comptes",
+  properties: "annonces",
+  agencies: "agences",
+  subscriptions: "abonnements",
+  voyage: "voyage",
+};
+const tabOf = (v: string | null): AdminTab =>
+  (Object.keys(TAB_PARAM) as AdminTab[]).find((k) => TAB_PARAM[k] === v) ?? "users";
+
 export default function AdminPage() {
+  // useSearchParams (onglet dans l'adresse) exige une frontière Suspense.
+  return (
+    <React.Suspense fallback={null}>
+      <AdminInner />
+    </React.Suspense>
+  );
+}
+
+function AdminInner() {
   // Accès réservé ADMIN : garde dans dashboard/layout.tsx.
   const { user } = useAuth();
+  const search = useSearchParams();
   const [error, setError] = React.useState<unknown>(null);
   const [overview, setOverview] = React.useState<Overview | null>(null);
-  const [tab, setTab] = React.useState<"users" | "properties" | "agencies" | "subscriptions" | "voyage">("users");
+  const tab = tabOf(search.get("onglet"));
   const [agencies, setAgencies] = React.useState<AdminAgency[]>([]);
   const [q, setQ] = React.useState("");
   const [users, setUsers] = React.useState<AdminUser[]>([]);
@@ -164,78 +188,42 @@ export default function AdminPage() {
       </div>
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <div className="flex gap-2">
-          <button
-            type="button"
-            aria-pressed={tab === "users"}
-            onClick={() => setTab("users")}
-            className={`px-3 py-1.5 rounded-full text-sm border ${
-              tab === "users"
-                ? "bg-brand-600 text-white border-brand-600"
-                : "border-border text-ink-muted"
-            }`}
-          >
-            {t("ops.admin.tabUsers")} ({totalUsers})
-          </button>
-          <button
-            type="button"
-            aria-pressed={tab === "properties"}
-            onClick={() => setTab("properties")}
-            className={`px-3 py-1.5 rounded-full text-sm border ${
-              tab === "properties"
-                ? "bg-brand-600 text-white border-brand-600"
-                : "border-border text-ink-muted"
-            }`}
-          >
-            {t("ops.admin.tabProperties")}
-          </button>
-          <button
-            type="button"
-            aria-pressed={tab === "agencies"}
-            onClick={() => setTab("agencies")}
-            className={`px-3 py-1.5 rounded-full text-sm border ${
-              tab === "agencies"
-                ? "bg-brand-600 text-white border-brand-600"
-                : "border-border text-ink-muted"
-            }`}
-          >
-            {t("pro.admin.tabAgencies")} ({agencies.length})
-          </button>
-          <button
-            type="button"
-            aria-pressed={tab === "subscriptions"}
-            onClick={() => setTab("subscriptions")}
-            data-tab="subscriptions"
-            className={`px-3 py-1.5 rounded-full text-sm border ${
-              tab === "subscriptions"
-                ? "bg-brand-600 text-white border-brand-600"
-                : "border-border text-ink-muted"
-            }`}
-          >
-            {t("sub.admin.tab")}
-          </button>
-          <button
-            type="button"
-            aria-pressed={tab === "voyage"}
-            onClick={() => setTab("voyage")}
-            data-tab="voyage"
-            className={`px-3 py-1.5 rounded-full text-sm border ${
-              tab === "voyage"
-                ? "bg-brand-600 text-white border-brand-600"
-                : "border-border text-ink-muted"
-            }`}
-          >
-            {t("voyAdmin.tab")}
-          </button>
-        </div>
-        <Input
-          className="w-full sm:max-w-xs"
-          type="search"
-          aria-label={t("ops.admin.searchPlaceholder")}
-          placeholder={t("ops.admin.searchPlaceholder")}
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <nav aria-label={t("ops.admin.title")} className="flex gap-2 flex-wrap">
+          {(
+            [
+              ["users", `${t("ops.admin.tabUsers")} (${totalUsers})`],
+              ["properties", t("ops.admin.tabProperties")],
+              ["agencies", `${t("pro.admin.tabAgencies")} (${agencies.length})`],
+              ["subscriptions", t("sub.admin.tab")],
+              ["voyage", t("voyAdmin.tab")],
+            ] as [AdminTab, string][]
+          ).map(([k, label]) => (
+            <Link
+              key={k}
+              href={`/dashboard/admin?onglet=${TAB_PARAM[k]}`}
+              scroll={false}
+              replace
+              aria-current={tab === k ? "page" : undefined}
+              data-tab={k}
+              className={`px-3 py-1.5 rounded-full text-sm border ${
+                tab === k ? "bg-brand-600 text-white border-brand-600 hover:text-white" : "border-border text-ink-muted hover:text-ink"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+        {/* L'onglet Voyage a ses propres outils : pas de recherche globale. */}
+        {tab !== "voyage" && (
+          <Input
+            className="w-full sm:max-w-xs"
+            type="search"
+            aria-label={t("ops.admin.searchPlaceholder")}
+            placeholder={t("ops.admin.searchPlaceholder")}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        )}
       </div>
 
       {tab === "voyage" ? (
@@ -353,7 +341,9 @@ export default function AdminPage() {
               {properties.map((p) => (
                 <tr key={p.id} className="border-t border-border">
                   <td className="px-4 py-3">
-                    <p className="font-medium max-w-[16rem] [overflow-wrap:anywhere]">{p.title}</p>
+                    <Link href={`/dashboard/${encodeURIComponent(p.id)}`} className="block font-medium text-ink hover:underline max-w-[16rem] [overflow-wrap:anywhere]">
+                      {p.title}
+                    </Link>
                     <p className="text-ink-muted">{p.city}</p>
                   </td>
                   <td className="px-4 py-3 text-ink-muted">{p.owner.email}</td>

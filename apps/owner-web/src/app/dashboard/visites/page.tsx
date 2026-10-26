@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Badge, Button, Input, EmptyState, ErrorState, toast, intlLocale, useAsync } from "@hwe/ui";
+import { Badge, Button, Icon, Input, EmptyState, ErrorState, toast, intlLocale, useAsync } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
-import { useActorLabel } from "../../../lib/pro";
+import { isPro, useActorLabel } from "../../../lib/pro";
+import { refreshNavCounts, useBienParam, useChatFinder } from "../../../lib/nav";
 import type { Visit, VisitStatus } from "@hwe/types";
 
 const TONE: Record<VisitStatus, "accent" | "success" | "danger" | "neutral"> = {
@@ -26,7 +27,19 @@ function fmtSlot(iso: string) {
   });
 }
 
-function VisitCard({ visit, onUpdate, actor }: { visit: Visit; onUpdate: (v: Visit) => void; actor?: string | null }) {
+function VisitCard({
+  visit,
+  onUpdate,
+  actor,
+  chatHref,
+}: {
+  visit: Visit;
+  onUpdate: (v: Visit) => void;
+  actor?: string | null;
+  /** Conversation avec le demandeur, si elle existe. */
+  chatHref?: string | null;
+}) {
+  const { user } = useAuth();
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState(false);
 
@@ -35,6 +48,7 @@ function VisitCard({ visit, onUpdate, actor }: { visit: Visit; onUpdate: (v: Vis
     try {
       onUpdate(await api.answerVisit(visit.id, { status, ownerNote: note || undefined }));
       toast.success(t("ops.visits.answered"));
+      void refreshNavCounts(user);
     } catch (e) {
       toast.error(e);
     } finally {
@@ -51,7 +65,10 @@ function VisitCard({ visit, onUpdate, actor }: { visit: Visit; onUpdate: (v: Vis
             <Badge tone={TONE[visit.status]}>{t("ops.visitStatus." + visit.status)}</Badge>
           </div>
           <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">
-            {visit.property?.title} — {visit.property?.addressLine}, {visit.property?.city}
+            <Link href={`/dashboard/${encodeURIComponent(visit.property?.id ?? visit.propertyId)}`} className="font-medium text-ink hover:underline">
+              {visit.property?.title}
+            </Link>{" "}
+            — {visit.property?.addressLine}, {visit.property?.city}
           </p>
           <p className="text-sm mt-1 [overflow-wrap:anywhere]">
             {visit.requester
@@ -63,6 +80,14 @@ function VisitCard({ visit, onUpdate, actor }: { visit: Visit; onUpdate: (v: Vis
             <p className="text-sm text-ink-muted mt-1 [overflow-wrap:anywhere]">{t("ops.visits.yourReply")} {visit.ownerNote}{actor ? ` (${actor})` : ""}</p>
           )}
         </div>
+        {chatHref && (
+          <Link
+            href={chatHref}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-sm font-medium text-ink border border-border bg-surface hover:border-ink/30 shrink-0"
+          >
+            <Icon name="message" size={15} /> {t("com.discuss")}
+          </Link>
+        )}
       </div>
 
       {visit.status === "REQUESTED" && (
@@ -87,18 +112,32 @@ function VisitCard({ visit, onUpdate, actor }: { visit: Visit; onUpdate: (v: Vis
 }
 
 export default function VisitesPage() {
+  // useSearchParams (filtre ?bien=) exige une frontière Suspense.
+  return (
+    <React.Suspense fallback={null}>
+      <VisitesInner />
+    </React.Suspense>
+  );
+}
+
+function VisitesInner() {
   // Session/rôle : dashboard/layout.tsx. Erreur ≠ liste vide (L2).
   const { user } = useAuth();
+  const pro = isPro(user);
+  const bien = useBienParam();
+  const chatFor = useChatFinder();
   const actorLabel = useActorLabel();
   const [filter, setFilter] = React.useState<VisitStatus | "ALL">("REQUESTED");
-  const { data: visits, setData: setVisits, error, reload } = useAsync(
+  const { data, setData: setVisits, error, reload } = useAsync(
     () => api.ownerVisits(),
     [user?.id],
     { enabled: !!user },
   );
 
-  if (error && !visits) return <ErrorState error={error} title={t("ops.visits.loadError")} onRetry={reload} />;
-  if (!visits) return <p className="text-ink-muted">{t("ops.loading")}</p>;
+  if (error && !data) return <ErrorState error={error} title={t("ops.visits.loadError")} onRetry={reload} />;
+  if (!data) return <p className="text-ink-muted">{t("ops.loading")}</p>;
+  // Filtre « par bien » (?bien=<id>), côté client.
+  const visits = data.filter((v) => !bien || (v.property?.id ?? v.propertyId) === bien);
 
   const shown = filter === "ALL" ? visits : visits.filter((v) => v.status === filter);
 
@@ -134,8 +173,8 @@ export default function VisitesPage() {
           title={t("ops.visits.emptyTitle")}
           description={t("ops.emptyDesc")}
           action={
-            <Link href="/dashboard" className="text-sm font-medium">
-              {t("vis.backDashboard")}
+            <Link href={bien ? `/dashboard/${encodeURIComponent(bien)}` : pro ? "/pro" : "/dashboard"} className="text-sm font-medium">
+              {bien ? t("prop.backToProperty") : t("vis.backDashboard")}
             </Link>
           }
         />
@@ -146,6 +185,7 @@ export default function VisitesPage() {
               key={v.id}
               visit={v}
               actor={actorLabel(v.answeredById, v.property?.id ?? v.propertyId)}
+              chatHref={chatFor(v.property?.id ?? v.propertyId, v.requesterId)}
               onUpdate={(u) =>
                 setVisits((arr) => (arr ?? []).map((x) => (x.id === u.id ? { ...x, ...u } : x)))
               }

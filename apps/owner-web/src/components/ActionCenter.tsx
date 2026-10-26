@@ -6,7 +6,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../lib/auth-context";
 import { t as tr } from "../lib/i18n";
 import { AgencyLogo, Icon, IconBadge, type IconName } from "@hwe/ui";
-import type { Inquiry } from "@hwe/types";
+import type { Inquiry, LeaseContract, Property } from "@hwe/types";
 
 type Alert = { key: string; href: string; text: string; agency: { name: string; logoUrl: string | null } | null };
 
@@ -17,12 +17,26 @@ type Counts = {
   visits: number | null;
   rents: number | null;
   tickets: number | null;
+  stays: number | null;
   unread: number | null;
 };
 
+/** Baux et avenants préparés par l'agence, en attente de la signature du propriétaire. */
+function toSign(leases: LeaseContract[]): number {
+  let n = 0;
+  for (const l of leases) {
+    if (l.status === "EXPIRED" || l.status === "TERMINATED") continue;
+    if (l.preparedById && !l.ownerSignedAt) n++;
+    n += (l.amendments ?? []).filter((a) => !a.ownerSignedAt && !a.appliedAt && !!a.createdById).length;
+  }
+  return n;
+}
+
 /** Ce qui attend une action du propriétaire, en tête de tableau de bord.
- * Chaque tuile mène à l'écran concerné ; le badge indique le nombre à traiter. */
-export function ActionCenter() {
+ * Chaque tuile mène à la liste déjà filtrée sur ce qui est à traiter ; le
+ * badge indique le nombre. `properties` (Mes biens) : baux préparés par une
+ * agence à signer (biens sous mandat, sans nouvel appel global). */
+export function ActionCenter({ properties }: { properties?: Property[] }) {
   const { user } = useAuth();
   const [counts, setCounts] = React.useState<Counts | null>(null);
   const [alerts, setAlerts] = React.useState<Alert[]>([]);
@@ -37,7 +51,8 @@ export function ActionCenter() {
       api.unreadMessagesCount(),
       api.listMandates({ status: "PENDING_OWNER" }),
       api.mandateRequests(),
-    ]).then(([inq, vis, rents, tick, unread, mand, reqs]) => {
+      api.stayBookings({ status: "REQUESTED" }),
+    ]).then(([inq, vis, rents, tick, unread, mand, reqs, stays]) => {
       // Encarts : candidats proposés par l'agence, mandats à accepter.
       const next: Alert[] = [];
       if (inq.status === "fulfilled") {
@@ -82,24 +97,67 @@ export function ActionCenter() {
           tick.status === "fulfilled"
             ? tick.value.filter((t) => t.status !== "RESOLVED").length
             : null,
+        stays: stays.status === "fulfilled" ? stays.value.filter((b) => b.status === "REQUESTED").length : null,
         unread: unread.status === "fulfilled" ? unread.value.count : null,
       });
     });
   }, [user]);
 
+  // Biens en location confiés à une agence : baux / avenants préparés à signer.
+  const managedIds = (properties ?? [])
+    .filter((p) => p.managedBy && p.listingType === "RENT")
+    .slice(0, 10)
+    .map((p) => p.id)
+    .join(",");
+  const [sign, setSign] = React.useState<{ count: number; propertyId: string; agency: { name: string; logoUrl: string | null } | null } | null>(null);
+  React.useEffect(() => {
+    if (!user || !managedIds) return setSign(null);
+    let cancelled = false;
+    const ids = managedIds.split(",");
+    Promise.allSettled(ids.map((id) => api.listLeases(id))).then((res) => {
+      if (cancelled) return;
+      let count = 0;
+      let first: string | null = null;
+      res.forEach((r, i) => {
+        if (r.status !== "fulfilled") return;
+        const n = toSign(r.value);
+        if (n > 0 && !first) first = ids[i]!;
+        count += n;
+      });
+      const prop = (properties ?? []).find((p) => p.id === first);
+      setSign(count > 0 && first ? { count, propertyId: first, agency: prop?.managedBy ? { name: prop.managedBy.name, logoUrl: prop.managedBy.logoUrl ?? null } : null } : null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, managedIds]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const allAlerts: Alert[] = sign
+    ? [
+        ...alerts,
+        {
+          key: "sign",
+          href: `/dashboard/${encodeURIComponent(sign.propertyId)}/lease`,
+          text: tr("action.toSign", { count: sign.count }),
+          agency: sign.agency,
+        },
+      ]
+    : alerts;
+
   const tiles = [
-    { href: "/dashboard/inquiries", icon: "inbox" as IconName, tone: "brand" as const, label: tr("action.requests"), count: counts?.inquiries, hint: tr("action.requestsHint") },
+    { href: "/dashboard/inquiries?tab=pending", icon: "inbox" as IconName, tone: "brand" as const, label: tr("action.requests"), count: counts?.inquiries, hint: tr("action.requestsHint") },
     { href: "/dashboard/visites", icon: "calendar" as IconName, tone: "ocean" as const, label: tr("action.visits"), count: counts?.visits, hint: tr("action.visitsHint") },
     { href: "/dashboard/loyers", icon: "wallet" as IconName, tone: "accent" as const, label: tr("action.rents"), count: counts?.rents, hint: tr("action.rentsHint") },
-    { href: "/dashboard/tickets", icon: "wrench" as IconName, tone: "neutral" as const, label: tr("action.tickets"), count: counts?.tickets, hint: tr("action.ticketsHint") },
+    { href: "/dashboard/tickets?filtre=todo", icon: "wrench" as IconName, tone: "neutral" as const, label: tr("action.tickets"), count: counts?.tickets, hint: tr("action.ticketsHint") },
+    { href: "/dashboard/sejours", icon: "bed" as IconName, tone: "ocean" as const, label: tr("action.stays"), count: counts?.stays, hint: tr("action.staysHint") },
     { href: "/dashboard/messages", icon: "messages" as IconName, tone: "brand" as const, label: tr("action.messages"), count: counts?.unread, hint: tr("action.messagesHint") },
   ];
 
   return (
     <>
-    {alerts.length > 0 && (
+    {allAlerts.length > 0 && (
       <div className="space-y-3 mb-6">
-        {alerts.map((a) => (
+        {allAlerts.map((a) => (
           <Link
             key={a.key}
             href={a.href}
@@ -113,7 +171,7 @@ export function ActionCenter() {
         ))}
       </div>
     )}
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
       {tiles.map((t) => (
         <Link
           key={t.href}

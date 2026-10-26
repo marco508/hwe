@@ -97,15 +97,6 @@ export default function StaySettingsPage() {
 
   return (
     <section className="space-y-8 min-w-0">
-      <div className="flex items-center gap-2 text-sm text-ink-muted flex-wrap">
-        <Link href="/dashboard/sejours" className="hover:text-ink inline-flex items-center gap-1">
-          <Icon name="arrowLeft" size={14} className="rtl:rotate-180" /> {t("stays.title")}
-        </Link>
-        <span>·</span>
-        <Link href={`/dashboard/${id}`} className="hover:text-ink [overflow-wrap:anywhere]">
-          {property.title}
-        </Link>
-      </div>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-display text-3xl">{t("stays.settings.title")}</h1>
@@ -366,10 +357,10 @@ function HostCalendar({ propertyId }: { propertyId: string }) {
         <h2 className="font-display text-xl">{t("stays.cal.title")}</h2>
         <div className="flex gap-1">
           <Button size="sm" variant="secondary" disabled={offset <= 0} onClick={() => setOffset((o) => Math.max(0, o - 3))} aria-label={t("stays.cal.prev")}>
-            <Icon name="chevronLeft" size={14} className="rtl:rotate-180" />
+            <Icon name="chevronLeft" size={14} />
           </Button>
           <Button size="sm" variant="secondary" disabled={offset >= 15} onClick={() => setOffset((o) => o + 3)} aria-label={t("stays.cal.next")}>
-            <Icon name="chevronRight" size={14} className="rtl:rotate-180" />
+            <Icon name="chevronRight" size={14} />
           </Button>
         </div>
       </div>

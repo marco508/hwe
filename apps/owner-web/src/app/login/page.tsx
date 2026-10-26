@@ -12,7 +12,7 @@ import {
   AuthSplit,
 } from "@hwe/ui";
 import { useAuth, WRONG_ROLE } from "../../lib/auth-context";
-import { errorText, isApiError, safeNext } from "@hwe/ui";
+import { Icon, TENANT_URL, errorText, isApiError, safeNext } from "@hwe/ui";
 import { t } from "../../lib/i18n";
 
 export default function LoginPage() {
@@ -31,11 +31,14 @@ function LoginInner() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
+  // Compte locataire : bouton vers l'espace locataire sous le message.
+  const [wrongRole, setWrongRole] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setWrongRole(false);
     setLoading(true);
     try {
       // Le rôle est vérifié avant tout stockage du jeton (F4).
@@ -45,7 +48,10 @@ function LoginInner() {
       router.push(u.role === "AGENT" ? (next && next !== "/dashboard" ? next : "/pro") : next || "/dashboard");
     } catch (err) {
       // A5 : message adapté à la cause réelle de l'échec.
-      if (isApiError(err) && err.code === WRONG_ROLE) setError(t("login.errRole"));
+      if (isApiError(err) && err.code === WRONG_ROLE) {
+        setError(t("login.errRole"));
+        setWrongRole(true);
+      }
       else if (isApiError(err) && (err.status === 401 || err.status === 400)) setError(t("login.errCreds"));
       else setError(errorText(err));
       setLoading(false);
@@ -110,6 +116,14 @@ function LoginInner() {
               {error && (
                 <div role="alert" className="rounded-md border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-900/40 text-danger dark:text-red-300 text-sm px-3 py-2">
                   {error}
+                  {wrongRole && (
+                    <a
+                      href={`${TENANT_URL}/login`}
+                      className="mt-2 flex w-full items-center justify-center gap-1.5 h-10 px-4 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90"
+                    >
+                      {t("guard.tenantSpace")} <Icon name="arrowRight" size={15} />
+                    </a>
+                  )}
                 </div>
               )}
               <Button

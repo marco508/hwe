@@ -413,10 +413,10 @@ export function RangeCalendar({
     <div className="min-w-0">
       <div className="flex items-center justify-between mb-2">
         <button type="button" className="h-8 w-8 rounded-full hover:bg-cream-100 dark:hover:bg-white/5 disabled:opacity-30 flex items-center justify-center" onClick={() => setOffset((o) => o - 1)} disabled={offset <= 0} aria-label={t("voy.cal.prev")}>
-          <Icon name="chevronLeft" size={16} className="rtl:rotate-180" />
+          <Icon name="chevronLeft" size={16} />
         </button>
         <button type="button" className="h-8 w-8 rounded-full hover:bg-cream-100 dark:hover:bg-white/5 disabled:opacity-30 flex items-center justify-center" onClick={() => setOffset((o) => o + 1)} disabled={offset >= 16} aria-label={t("voy.cal.next")}>
-          <Icon name="chevronRight" size={16} className="rtl:rotate-180" />
+          <Icon name="chevronRight" size={16} />
         </button>
       </div>
       <div className="grid sm:grid-cols-2 gap-6">
@@ -635,7 +635,7 @@ export function VoyageCrumbs({ items }: { items: Array<{ href?: string; label: s
     <nav aria-label={t("voy.crumbs")} className="text-sm text-ink-muted mb-4 flex items-center gap-1.5 flex-wrap min-w-0">
       {items.map((it, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <Icon name="chevronRight" size={12} className="rtl:rotate-180 shrink-0" />}
+          {i > 0 && <Icon name="chevronRight" size={12} className="shrink-0" />}
           {it.href ? (
             <Link href={it.href} className="hover:text-ink [overflow-wrap:anywhere]">
               {it.label}

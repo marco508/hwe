@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AnimatedBackground, EmailVerifyNotice, toast, Icon, type IconName } from "@hwe/ui";
+import { AnimatedBackground, Breadcrumbs, EmailVerifyNotice, toast, Icon, type IconName } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -52,8 +52,9 @@ export default function NewPropertyPage() {
         return;
       }
     }
-    toast.success(t("pf.created"));
-    router.push(`/properties/${createdId}`);
+    // Fiche du bien : résumé + « Prochaines étapes » (documents, bail, séjours…).
+    toast.success(t("pf.createdNext"), { durationMs: 6000 });
+    router.push(`/dashboard/${encodeURIComponent(createdId)}`);
   };
 
   return (
@@ -65,15 +66,7 @@ export default function NewPropertyPage() {
       >
         <div className="flex items-start justify-between gap-6 flex-wrap">
           <div className="max-w-2xl min-w-0">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink mb-3 transition-colors"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              {t("pf.back")}
-            </Link>
+            <Breadcrumbs items={[{ href: "/dashboard", label: t("nav.myProperties") }, { label: t("nav.addProperty") }]} Link={Link} className="mb-3" />
             <span className="inline-flex items-center gap-1.5 mb-3 px-2.5 py-0.5 rounded-full text-[11px] font-medium glass">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-500 pulse-dot" />
               {t("pf.new.badge")}

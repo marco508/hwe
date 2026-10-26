@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useShellParams } from "../../../../lib/route-params";
+import { loadProperty } from "../../../../lib/nav";
 import {
   Button,
   Input,
@@ -95,7 +96,7 @@ export default function LeasePage() {
     let cancelled = false;
     setWorking(true);
     setLoadError(null);
-    Promise.all([api.getProperty(params.id), api.listLeases(params.id)])
+    Promise.all([loadProperty(params.id), api.listLeases(params.id)])
       .then(([prop, ls]) => {
         if (cancelled) return;
         setProperty(prop);
@@ -589,14 +590,6 @@ export default function LeasePage() {
   // ── List view ─────────────────────────────────────────────────────────────────
   return (
     <section>
-      <div className="mb-2">
-        <Link
-          href={`/dashboard/${params?.id}/edit`}
-          className="text-sm text-ink-muted hover:underline"
-        >
-          {t("lease.backToProperty")}
-        </Link>
-      </div>
       <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
         <div className="min-w-0">
           <h1 className="font-display text-3xl mb-1">{t("lease.title")}</h1>
@@ -604,7 +597,7 @@ export default function LeasePage() {
             {property?.title} — {property?.addressLine}, {property?.city}
           </p>
           <Link
-            href="/dashboard/loyers"
+            href={`/dashboard/loyers?bien=${encodeURIComponent(params?.id ?? "")}`}
             className="inline-block mt-1 text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
           >
             {t("lease.trackRents")}
@@ -749,20 +742,6 @@ export default function LeasePage() {
         </div>
       )}
 
-      <div className="mt-10 pt-6 border-t border-border flex gap-4 flex-wrap">
-        <Link
-          href={`/dashboard/${params?.id}/documents`}
-          className="inline-flex items-center h-10 px-4 rounded-md text-sm font-medium bg-surface text-ink border border-border hover:border-ink/30"
-        >
-          {t("lease.legalDocs")}
-        </Link>
-        <Link
-          href={`/dashboard/${params?.id}/edit`}
-          className="inline-flex items-center h-10 px-4 rounded-md text-sm font-medium text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40"
-        >
-          {t("lease.backToPropertyBtn")}
-        </Link>
-      </div>
     </section>
   );
 }

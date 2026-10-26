@@ -18,12 +18,12 @@ import {
   loginHref,
   toast,
   Icon,
-  IconBadge,
   CityCard,
   FEATURED_CITIES,
-  type IconName,
   announceCountryChoice,
 } from "@hwe/ui";
+import { useRouter } from "next/navigation";
+import { HomeTodo } from "../components/HomeTodo";
 import { api } from "../lib/api";
 import { useCurrency } from "../lib/currency-context";
 import { useAuth } from "../lib/auth-context";
@@ -31,6 +31,47 @@ import { t } from "../lib/i18n";
 import type { Property, PropertyQuery } from "@hwe/types";
 
 const PAGE_SIZE = 24;
+
+/**
+ * Critères de recherche dans l'URL (« /?ville=Cotonou&prixmax=500 ») : un
+ * retour depuis une annonce retrouve la même recherche.
+ */
+const URL_KEYS = {
+  listingType: "type",
+  propertyType: "bien",
+  country: "pays",
+  city: "ville",
+  maxPrice: "prixmax",
+  minSurface: "surfacemin",
+} as const;
+type UrlKey = keyof typeof URL_KEYS;
+const NUMERIC: UrlKey[] = ["maxPrice", "minSurface"];
+
+function filtersFromUrl(search: string): PropertyQuery {
+  const sp = new URLSearchParams(search);
+  const out: Record<string, string | number> = {};
+  for (const [k, name] of Object.entries(URL_KEYS) as [UrlKey, string][]) {
+    const v = sp.get(name)?.trim();
+    if (!v) continue;
+    if (NUMERIC.includes(k)) {
+      const n = Number(v);
+      if (Number.isFinite(n) && n >= 0) out[k] = n;
+    } else {
+      out[k] = v;
+    }
+  }
+  return out as PropertyQuery;
+}
+
+function filtersToUrl(f: PropertyQuery): string {
+  const sp = new URLSearchParams();
+  for (const [k, name] of Object.entries(URL_KEYS) as [UrlKey, string][]) {
+    const v = (f as Record<string, unknown>)[k];
+    if (v !== undefined && v !== null && v !== "") sp.set(name, String(v));
+  }
+  const q = sp.toString();
+  return q ? `/?${q}` : "/";
+}
 
 function HeartButton({
   propertyId,
@@ -74,16 +115,35 @@ export default function HomePage() {
   const [favIds, setFavIds] = React.useState<Set<string>>(new Set());
   const [tick, setTick] = React.useState(0);
   const abortRef = React.useRef<AbortController | null>(null);
+  const router = useRouter();
+  // Critères lus dans l'URL au chargement (aucune requête avant).
+  const [ready, setReady] = React.useState(false);
+
+  React.useEffect(() => {
+    const initial = filtersFromUrl(window.location.search);
+    setDraft(initial);
+    setFilters(initial);
+    setReady(true);
+  }, []);
+
+  // Critères appliqués → URL (remplacement : pas d'entrée d'historique par frappe).
+  React.useEffect(() => {
+    if (!ready) return;
+    const target = filtersToUrl(filters);
+    if (target !== window.location.pathname + window.location.search) router.replace(target, { scroll: false });
+  }, [filters, ready, router]);
 
   // Saisie : application automatique après 400 ms sans frappe (debounce).
   React.useEffect(() => {
-    const id = setTimeout(() => setFilters(draft), 400);
+    // Mêmes critères → même objet : pas de rechargement inutile.
+    const id = setTimeout(() => setFilters((prev) => (JSON.stringify(prev) === JSON.stringify(draft) ? prev : draft)), 400);
     return () => clearTimeout(id);
   }, [draft]);
 
   // Chargement de la page 1 à chaque changement de critères ; la requête
   // précédente est annulée → jamais de réponse hors ordre.
   React.useEffect(() => {
+    if (!ready) return;
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -104,7 +164,7 @@ export default function HomePage() {
         if (!ctrl.signal.aborted) setLoading(false);
       });
     return () => ctrl.abort();
-  }, [filters, tick]);
+  }, [filters, tick, ready]);
 
   const loadMore = async () => {
     const ctrl = abortRef.current;
@@ -181,31 +241,8 @@ export default function HomePage() {
         </p>
       </header>
 
-      {/* Mon espace : tout ce que le locataire peut faire, en un coup d'œil */}
-      {user && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
-          {[
-            { href: "/ma-location", icon: "home" as IconName, label: t("home.tile.rental"), hint: t("home.tile.rentalHint") },
-            { href: "/mes-loyers", icon: "wallet" as IconName, label: t("home.tile.rents"), hint: t("home.tile.rentsHint") },
-            { href: "/mes-visites", icon: "calendar" as IconName, label: t("home.tile.visits"), hint: t("home.tile.visitsHint") },
-            { href: "/inquiries", icon: "inbox" as IconName, label: t("home.tile.requests"), hint: t("home.tile.requestsHint") },
-            { href: "/messages", icon: "messages" as IconName, label: t("home.tile.messages"), hint: t("home.tile.messagesHint") },
-            { href: "/profile", icon: "folder" as IconName, label: t("home.tile.dossier"), hint: t("home.tile.dossierHint") },
-          ].map((t) => (
-            <Link
-              key={t.href}
-              href={t.href}
-              className="group min-w-0 rounded-2xl border border-border bg-surface p-4 hover:border-brand-400 transition-colors"
-            >
-              <IconBadge name={t.icon} size="sm" />
-              <p className="mt-2 font-medium text-ink group-hover:text-brand-600 dark:group-hover:text-brand-300 [overflow-wrap:anywhere]">
-                {t.label}
-              </p>
-              <p className="text-xs text-ink-muted [overflow-wrap:anywhere]">{t.hint}</p>
-            </Link>
-          ))}
-        </div>
-      )}
+      {/* À faire : ce qui attend le locataire / voyageur (seulement ce qui existe). */}
+      {user && <HomeTodo user={user} />}
 
       <Card className="mb-8">
         <CardBody>
@@ -281,8 +318,8 @@ export default function HomePage() {
                 min={0}
                 value={draft.maxPrice ?? ""}
                 onChange={(e) =>
-                  setFilters({
-                    ...filters,
+                  setDraft({
+                    ...draft,
                     maxPrice: e.target.value === "" ? undefined : Number(e.target.value),
                   })
                 }
@@ -296,8 +333,8 @@ export default function HomePage() {
                 min={0}
                 value={draft.minSurface ?? ""}
                 onChange={(e) =>
-                  setFilters({
-                    ...filters,
+                  setDraft({
+                    ...draft,
                     minSurface: e.target.value === "" ? undefined : Number(e.target.value),
                   })
                 }
@@ -402,7 +439,7 @@ export default function HomePage() {
                       onToggle={toggleFav}
                     />
                   ) : (
-                    <Link href={loginHref("/")} className="text-sm text-ink-muted hover:underline">
+                    <Link href={loginHref(filtersToUrl(filters))} className="text-sm text-ink-muted hover:underline">
                       <Icon name="heart" size={16} className="me-1" />
                       {t("acc.fav.save")}
                     </Link>

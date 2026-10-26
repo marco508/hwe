@@ -7,10 +7,13 @@ import type { Booking, HostStayProperty } from "@hwe/types";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
 import { HostBookingCard } from "../../../components/stays/StaysKit";
+import { useAuth } from "../../../lib/auth-context";
+import { refreshNavCounts } from "../../../lib/nav";
 
 type Tab = "requests" | "upcoming" | "history";
 
 export default function StaysDashboardPage() {
+  const { user } = useAuth();
   const { data: props, error: pErr, reload: pReload } = useAsync<HostStayProperty[]>(() => api.stayProperties(), []);
   const { data: bookings, setData, error, reload } = useAsync<Booking[]>(() => api.stayBookings(), []);
   const [tab, setTab] = React.useState<Tab>("requests");
@@ -18,6 +21,7 @@ export default function StaysDashboardPage() {
 
   const update = (b: Booking) => {
     setData((arr) => (arr ?? []).map((x) => (x.id === b.id ? { ...x, ...b } : x)));
+    void refreshNavCounts(user);
     // Une acceptation peut refuser d'autres demandes sur les mêmes dates.
     if (b.status === "ACCEPTED" || b.status === "CONFIRMED") void reload();
   };

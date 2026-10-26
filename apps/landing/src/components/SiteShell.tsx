@@ -40,7 +40,7 @@ export interface NavLink {
 
 /**
  * En-tête : liens d'ancre (desktop), contrôles à droite. Sous `sm`, la
- * langue, la devise et le lien « Propriétaire » passent dans un tiroir
+ * langue, la devise et le choix de l'espace de connexion passent dans un tiroir
  * ouvert par un bouton menu accessible (M4).
  */
 export function SiteHeader({
@@ -84,12 +84,7 @@ export function SiteHeader({
           <LangSwitch className="hidden sm:inline-flex" />
           <CurrencySwitch className="hidden md:inline-flex" />
           <ThemeToggle />
-          <a
-            href={`${OWNER_URL}/login`}
-            className="hidden sm:inline-flex items-center justify-center h-9 px-4 rounded-full text-sm font-medium bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 hover:opacity-90 transition-opacity"
-          >
-            {t("nav.owner")}
-          </a>
+          <SignInMenu className="hidden sm:block" />
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -129,18 +124,17 @@ export function SiteHeader({
                 {l.label}
               </a>
             ))}
-            <a
-              href={`${OWNER_URL}/login`}
-              className="block px-3 py-2.5 rounded-lg text-sm text-ink hover:bg-cream-100 dark:hover:bg-white/[0.04]"
-            >
-              {t("nav.owner")}
-            </a>
-            <a
-              href={`${TENANT_URL}/login`}
-              className="block px-3 py-2.5 rounded-lg text-sm text-ink hover:bg-cream-100 dark:hover:bg-white/[0.04]"
-            >
-              {t("footer.tenant")}
-            </a>
+            <p className="px-3 pt-3 pb-1 text-xs text-ink-muted">{t("nav.signIn")}</p>
+            {spaces().map((sp) => (
+              <a
+                key={sp.key}
+                href={sp.href}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink hover:bg-cream-100 dark:hover:bg-white/[0.04]"
+              >
+                <span className="font-medium">{sp.label}</span>
+                <span className="text-ink-muted text-xs">{sp.hint}</span>
+              </a>
+            ))}
             <div className="flex flex-wrap items-center gap-2 pt-3 mt-1 border-t border-border/60">
               <LangSwitch />
               <CurrencySwitch />
@@ -149,6 +143,79 @@ export function SiteHeader({
         </div>
       )}
     </header>
+  );
+}
+
+/** Les trois espaces : à qui ils s'adressent et où l'on se connecte. */
+function spaces() {
+  return [
+    { key: "tenant", label: t("nav.space.tenant"), hint: t("nav.space.tenantHint"), href: `${TENANT_URL}/login`, signup: `${TENANT_URL}/register` },
+    { key: "owner", label: t("nav.space.owner"), hint: t("nav.space.ownerHint"), href: `${OWNER_URL}/login`, signup: `${OWNER_URL}/register` },
+    { key: "pro", label: t("nav.space.pro"), hint: t("nav.space.proHint"), href: `${OWNER_URL}/login`, signup: `${OWNER_URL}/register?type=pro` },
+  ];
+}
+
+/**
+ * « Se connecter » : chacun choisit son espace (locataire, propriétaire, pro)
+ * au lieu d'un unique bouton « Propriétaire » ; création de compte au même endroit.
+ */
+function SignInMenu({ className = "" }: { className?: string }) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  const menuId = React.useId();
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+  return (
+    <div ref={ref} className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
+        className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-sm font-medium bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 hover:opacity-90 transition-opacity"
+      >
+        {t("nav.signIn")}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          id={menuId}
+          role="menu"
+          className="absolute end-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border bg-surface shadow-xl z-50 overflow-hidden"
+        >
+          <p className="px-4 pt-3 pb-1 text-xs text-ink-muted">{t("nav.signInWhich")}</p>
+          {spaces().map((sp) => (
+            <a key={sp.key} role="menuitem" href={sp.href} className="block px-4 py-2.5 hover:bg-cream-100 dark:hover:bg-white/[0.05]">
+              <span className="block text-sm font-medium text-ink">{sp.label}</span>
+              <span className="block text-xs text-ink-muted">{sp.hint}</span>
+            </a>
+          ))}
+          <div className="px-4 py-3 border-t border-border/70 text-xs text-ink-muted">
+            {t("nav.noAccount")}{" "}
+            {spaces().map((sp, i) => (
+              <React.Fragment key={sp.key}>
+                {i > 0 && " · "}
+                <a href={sp.signup} className="text-brand-700 dark:text-brand-300 hover:underline">
+                  {sp.label}
+                </a>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -177,9 +244,12 @@ export function SiteFooter({ exploreLinks }: { exploreLinks?: NavLink[] }) {
           <FooterCol
             title={t("footer.account")}
             links={[
-              { label: t("footer.tenant"), href: `${TENANT_URL}` },
-              { label: t("footer.owner"), href: `${OWNER_URL}` },
-              { label: t("footer.signup"), href: `${TENANT_URL}/register` },
+              { label: t("footer.tenant"), href: `${TENANT_URL}/login` },
+              { label: t("footer.owner"), href: `${OWNER_URL}/login` },
+              { label: t("footer.pro"), href: `${OWNER_URL}/login` },
+              { label: t("footer.signupTenant"), href: `${TENANT_URL}/register` },
+              { label: t("footer.signupOwner"), href: `${OWNER_URL}/register` },
+              { label: t("footer.signupPro"), href: `${OWNER_URL}/register?type=pro` },
             ]}
           />
           <FooterCol

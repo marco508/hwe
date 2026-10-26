@@ -272,5 +272,11 @@
   "ui.plat.paidPlans": "حاليًا {names}، ابتداءً من {price} شهريًا",
   "ui.plat.paidPlansNone": "وفق الأسعار المعروضة على الموقع",
   "ui.file.choose": "اختيار ملف",
-  "ui.file.none": "لم يُختَر أي ملف"
+  "ui.file.none": "لم يُختَر أي ملف",
+  "ui.nav.main": "التنقل الرئيسي",
+  "ui.nav.account": "حسابي",
+  "ui.nav.signedInAs": "تم تسجيل الدخول باسم",
+  "ui.nav.preferences": "اللغة والعملة والعرض",
+  "ui.nav.logout": "تسجيل الخروج",
+  "ui.nav.breadcrumb": "مسار التنقل"
 }

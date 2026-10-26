@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Badge, Button, EmptyState, ErrorState, intlLocale, toast, useAsync, useLoginRedirect } from "@hwe/ui";
+import { Badge, Button, EmptyState, ErrorState, Icon, intlLocale, toast, useAsync, useLoginRedirect } from "@hwe/ui";
+import { useLandlordChat } from "../../lib/landlord-chat";
 import { useAuth } from "../../lib/auth-context";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
@@ -28,6 +29,7 @@ export default function MesVisitesPage() {
   const { user, loading } = auth;
   const router = useRouter();
   useLoginRedirect(auth, router);
+  const chat = useLandlordChat();
   const { data: visits, setData: setVisits, error, reload } = useAsync<Visit[]>(
     () => api.myVisits(),
     [user?.id],
@@ -102,6 +104,22 @@ export default function MesVisitesPage() {
                   <Button size="sm" variant="secondary" onClick={() => cancel(v.id)}>
                     {t("com.cancel")}
                   </Button>
+                )}
+                {/* Visite confirmée : étape suivante (candidater) ou question au propriétaire. */}
+                {v.status === "CONFIRMED" && (
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/properties/${v.propertyId}?etape=candidature`}
+                      className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-600 text-white hover:text-white hover:bg-brand-700 text-sm font-medium"
+                    >
+                      <Icon name="send" size={15} />
+                      {t("com.visits.apply")}
+                    </Link>
+                    <Button size="sm" variant="secondary" disabled={chat.busy} onClick={() => chat.open(v.propertyId)}>
+                      <Icon name="message" size={15} className="me-1.5" />
+                      {t("com.visits.writeOwner")}
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>

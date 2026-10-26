@@ -136,7 +136,10 @@ function Inner() {
           ))}
         </div>
       ) : items.length === 0 ? (
-        <EmptyState illustration="inbox" title={t("pro.mlist.empty")} description={t("pro.mlist.emptySub")} />
+        // « En attente » : les invitations envoyées (ci-dessus) suffisent à remplir la liste.
+        status === "PENDING_OWNER" && pendingReq.length > 0 ? null : (
+          <EmptyState illustration="inbox" title={t("pro.mlist.empty")} description={t("pro.mlist.emptySub")} />
+        )
       ) : (
         <ul className="space-y-3">
           {items.map((m) => (

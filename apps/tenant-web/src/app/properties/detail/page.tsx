@@ -48,6 +48,7 @@ import type {
 } from "@hwe/types";
 import { computeRentalTotal, type StayPublicInfo } from "@hwe/types";
 import { StayBooking, StayReviews } from "../../../components/voyage/StayBooking";
+import { cameFromThisSite } from "../../../lib/nav-history";
 
 type DurationUnit = "DAYS" | "WEEKS" | "MONTHS" | "YEARS";
 
@@ -231,10 +232,67 @@ function PropertyDetailInner({
     return base;
   }, [isSale, isOwner, isOpen, lang, stay]);
 
-  // Arrivée depuis une recherche datée : directement sur le calendrier.
-  const [activeStep, setActiveStep] = React.useState<string>(() =>
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("arrivee") ? "book" : "overview",
+  // Arrivée depuis une recherche datée : directement sur le calendrier ;
+  // « ?etape=candidature » (depuis Mes visites) : directement la candidature.
+  const [activeStep, setActiveStep] = React.useState<string>(() => {
+    if (typeof window === "undefined") return "overview";
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.has("arrivee")) return "book";
+    if (sp.get("etape") === "candidature") return "contact";
+    return "overview";
+  });
+  React.useEffect(() => {
+    // Étape demandée mais indisponible (bien loué, séjour, propriétaire) → aperçu.
+    if (activeStep === "contact" && stay !== undefined && !STEPS.some((s) => s.id === "contact")) setActiveStep("overview");
+  }, [STEPS, activeStep, stay]);
+
+  // « Demander une visite » depuis l'aperçu (« ?visite=1 » au retour de la connexion).
+  const router = useRouter();
+  const [visitOpen, setVisitOpen] = React.useState(
+    () => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("visite") === "1",
   );
+  const [chatVerify, setChatVerify] = React.useState(false);
+  const [chatBusy, setChatBusy] = React.useState(false);
+  // Visite : location ou vente encore ouverte, pas pour un séjour réservable.
+  const visitable = isOpen && !isOwner && stay === null;
+  const askVisit = () => {
+    if (!currentUser) {
+      router.push(loginHref(`/properties/${p.id}?visite=1`));
+      return;
+    }
+    setVisitOpen(true);
+  };
+  // « Contacter » : discussion directe avec le propriétaire / l'agence (mêmes
+  // règles que la candidature : connexion, puis e-mail confirmé).
+  const openChat = async () => {
+    if (!currentUser) {
+      router.push(loginHref(`/properties/${p.id}`));
+      return;
+    }
+    if (!currentUser.emailVerifiedAt) {
+      setChatVerify(true);
+      return;
+    }
+    setChatBusy(true);
+    try {
+      const convo = await api.startConversation(p.id);
+      router.push(`/messages?c=${encodeURIComponent(convo.id)}`);
+    } catch (e) {
+      toast.error(e);
+      setChatBusy(false);
+    }
+  };
+
+  // « Retour » : page précédente si elle est sur ce site (la recherche et ses
+  // filtres sont retrouvés), sinon le catalogue — ou les séjours pour un
+  // logement réservable (espace Voyage).
+  const backHref = stay ? "/voyage/sejours" : "/";
+  const onBack = (e: React.MouseEvent) => {
+    if (cameFromThisSite()) {
+      e.preventDefault();
+      router.back();
+    }
+  };
   React.useEffect(() => {
     if (activeStep === "book" && stay === null) setActiveStep("overview");
   }, [stay, activeStep]);
@@ -265,7 +323,8 @@ function PropertyDetailInner({
       <header className="mb-6">
         <div className="flex items-center justify-between gap-4 mb-4">
           <Link
-            href="/"
+            href={backHref}
+            onClick={onBack}
             className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors"
           >
             <svg
@@ -277,6 +336,8 @@ function PropertyDetailInner({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="rtl:rotate-180"
+              aria-hidden="true"
             >
               <polyline points="15 18 9 12 15 6" />
             </svg>
@@ -421,7 +482,20 @@ function PropertyDetailInner({
             mainPrice={mainPrice}
             unitSuffix={unitSuffix}
             onContact={isOpen && !isOwner ? () => setActiveStep(stay ? "book" : "contact") : undefined}
+            onChat={isOpen && !isOwner ? openChat : undefined}
+            chatBusy={chatBusy}
+            chatVerify={chatVerify}
             stay={stay}
+            visit={
+              visitable
+                ? {
+                    open: visitOpen,
+                    onAsk: askVisit,
+                    onClose: () => setVisitOpen(false),
+                    verified: !!currentUser?.emailVerifiedAt,
+                  }
+                : undefined
+            }
           />
         )}
         {activeStep === "book" && stay && isOpen && (
@@ -523,7 +597,11 @@ function StepOverview({
   mainPrice,
   unitSuffix,
   onContact,
+  onChat,
+  chatBusy,
+  chatVerify,
   stay,
+  visit,
 }: {
   property: Property;
   fmtPrice: (n: number, currency?: string) => string;
@@ -531,7 +609,14 @@ function StepOverview({
   mainPrice: number;
   unitSuffix: string;
   onContact?: () => void;
+  /** Discussion directe avec le propriétaire / l'agence. */
+  onChat?: () => void;
+  chatBusy?: boolean;
+  /** E-mail non confirmé : encart de vérification à la place de la discussion. */
+  chatVerify?: boolean;
   stay?: StayPublicInfo | null;
+  /** Demande de visite (absent : bien non visitable). */
+  visit?: { open: boolean; onAsk: () => void; onClose: () => void; verified: boolean };
 }) {
   return (
     <div className="grid lg:grid-cols-3 gap-6 min-w-0">
@@ -594,14 +679,27 @@ function StepOverview({
                 {stay ? t("voy.book.step") : isSale ? t("prop.step.offer") : t("prop.step.apply")}
               </Button>
             )}
+            {visit && !visit.open && (
+              <Button variant="secondary" className="w-full" onClick={visit.onAsk}>
+                <Icon name="calendar" size={16} className="me-1.5" />
+                {t("prop.visit.cta")}
+              </Button>
+            )}
+            {visit?.open &&
+              (visit.verified ? (
+                <VisitRequest propertyId={p.id} defaultOpen onClose={visit.onClose} />
+              ) : (
+                <EmailVerifyNotice />
+              ))}
           </CardBody>
         </Card>
 
         {p.managedBy ? (
-          <AgencyCard agency={p.managedBy} onContact={onContact} />
+          <AgencyCard agency={p.managedBy} onContact={onChat} busy={chatBusy} />
         ) : (
-          p.owner && <OwnerCard owner={p.owner} onContact={onContact} />
+          p.owner && <OwnerCard owner={p.owner} onContact={onChat} busy={chatBusy} />
         )}
+        {chatVerify && <EmailVerifyNotice />}
 
         <Card>
           <CardHeader>
@@ -641,9 +739,11 @@ function StepOverview({
 function AgencyCard({
   agency,
   onContact,
+  busy,
 }: {
   agency: NonNullable<Property["managedBy"]>;
   onContact?: () => void;
+  busy?: boolean;
 }) {
   return (
     <Card className="overflow-hidden" data-agency-card>
@@ -663,7 +763,7 @@ function AgencyCard({
       </CardBody>
       {onContact && (
         <div className="px-5 pb-5 -mt-1">
-          <Button variant="secondary" className="w-full" onClick={onContact}>
+          <Button variant="secondary" className="w-full" onClick={onContact} disabled={busy}>
             <Icon name="message" size={16} className="me-1.5" />
             {t("pro.contactAgency")}
           </Button>
@@ -674,7 +774,15 @@ function AgencyCard({
 }
 
 /** Propriétaire mis en avant : avatar (ou initiales), nom, statut particulier. */
-function OwnerCard({ owner, onContact }: { owner: NonNullable<Property["owner"]>; onContact?: () => void }) {
+function OwnerCard({
+  owner,
+  onContact,
+  busy,
+}: {
+  owner: NonNullable<Property["owner"]>;
+  onContact?: () => void;
+  busy?: boolean;
+}) {
   const initials = `${owner.firstName?.[0] ?? ""}${owner.lastName?.[0] ?? ""}`.toUpperCase();
   const lastInitial = owner.lastName ? ` ${owner.lastName.charAt(0).toUpperCase()}.` : "";
   return (
@@ -703,7 +811,7 @@ function OwnerCard({ owner, onContact }: { owner: NonNullable<Property["owner"]>
       </CardBody>
       {onContact && (
         <div className="px-5 pb-5 -mt-1">
-          <Button variant="secondary" className="w-full" onClick={onContact}>
+          <Button variant="secondary" className="w-full" onClick={onContact} disabled={busy}>
             <Icon name="message" size={16} className="me-1.5" />
             {t("vis.owner.contact")}
           </Button>
@@ -1651,8 +1759,17 @@ function FinanceLine({
 
 // ─── Demande de visite ─────────────────────────────────────────────────
 
-function VisitRequest({ propertyId }: { propertyId: string }) {
-  const [open, setOpen] = React.useState(false);
+function VisitRequest({
+  propertyId,
+  defaultOpen = false,
+  onClose,
+}: {
+  propertyId: string;
+  /** Formulaire ouvert d'emblée (bouton « Demander une visite » de l'aperçu). */
+  defaultOpen?: boolean;
+  onClose?: () => void;
+}) {
+  const [open, setOpen] = React.useState(defaultOpen);
   const [slot, setSlot] = React.useState("");
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -1724,7 +1841,7 @@ function VisitRequest({ propertyId }: { propertyId: string }) {
         <Button type="button" size="sm" disabled={busy || !slot} onClick={submit}>
           {busy ? t("prop.form.sending") : t("prop.visit.submit")}
         </Button>
-        <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>
+        <Button type="button" size="sm" variant="ghost" onClick={() => (onClose ? onClose() : setOpen(false))}>
           {t("prop.visit.cancel")}
         </Button>
       </div>

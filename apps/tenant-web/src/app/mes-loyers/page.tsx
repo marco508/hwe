@@ -27,6 +27,7 @@ import {
   errorText as errorTextOf,
   useAsync,
   useLoginRedirect,
+  Icon,
   IconBadge,
   type IconName,
   Approx,
@@ -37,6 +38,7 @@ import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 import { api } from "../../lib/api";
 import { payDayText } from "../../lib/rent-format";
+import { useLandlordChat } from "../../lib/landlord-chat";
 import type { OwnerPaymentMethod, RentPeriod, RentStatus, TenantRentBundle } from "../../lib/api";
 
 /** Devise d'une échéance : figée sur la période, sinon celle du bail (F2, contrat §9). */
@@ -136,14 +138,24 @@ function HowItWorks() {
 
 // ── Coordonnées de paiement du propriétaire ─────────────────────────────────
 
-function PaymentMethods({ methods }: { methods: OwnerPaymentMethod[] }) {
+function PaymentMethods({ methods, propertyId }: { methods: OwnerPaymentMethod[]; propertyId: string }) {
   const [copied, setCopied] = React.useState<string | null>(null);
+  const chat = useLandlordChat();
 
   if (methods.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-cream-50 dark:bg-white/[0.03] px-4 py-4 text-sm text-ink-muted">
         {t("rent.methods.empty")}{" "}
-        <Link href="/messages" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">{t("rent.methods.emptyLink")}</Link>.
+        {/* Discussion avec le bailleur (retrouvée ou ouverte), pas la messagerie en général. */}
+        <button
+          type="button"
+          disabled={chat.busy}
+          onClick={() => chat.open(propertyId)}
+          className="font-medium text-brand-600 dark:text-brand-300 hover:underline disabled:opacity-60"
+        >
+          {t("rent.methods.emptyLink")}
+        </button>
+        .
       </div>
     );
   }
@@ -522,6 +534,13 @@ export default function MesLoyersPage() {
                     <p className="text-sm text-ink-muted mt-0.5 [overflow-wrap:anywhere]">
                       {b.lease.property.addressLine}, {b.lease.property.city}
                     </p>
+                    <Link
+                      href="/ma-location"
+                      className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline"
+                    >
+                      {t("rent.page.seeLease")}
+                      <Icon name="arrowRight" size={14} />
+                    </Link>
                   </div>
                   {b.lease.shortStay ? (
                     // Séjour courte durée : une seule échéance du montant total (contrat §9).
@@ -556,7 +575,7 @@ export default function MesLoyersPage() {
                       {t("pro.rents.payAgency", { name: agencyNameOf(b.paymentMethods[0]) ?? "" })}
                     </p>
                   )}
-                  <PaymentMethods methods={b.paymentMethods} />
+                  <PaymentMethods methods={b.paymentMethods} propertyId={b.lease.property.id} />
                 </section>
 
                 <section>

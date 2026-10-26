@@ -319,6 +319,7 @@ function LandingInner() {
     { label: t("nav.catalog"), href: "#catalogue" },
     { label: t("nav.how"), href: "#etapes" },
     { label: t("nav.voyage"), href: "#voyage" },
+    { label: t("nav.pros"), href: "#professionnels" },
   ];
 
   return (
@@ -816,6 +817,8 @@ function LandingInner() {
           ...(destinations.length > 0 ? [{ label: t("nav.destinations"), href: "#destinations" }] : []),
           { label: t("nav.catalog"), href: "#catalogue" },
           { label: t("nav.how"), href: "#etapes" },
+          { label: t("nav.voyage"), href: "#voyage" },
+          { label: t("nav.pros"), href: "#professionnels" },
         ]}
       />
     </div>

@@ -7,6 +7,7 @@ import { tUi, TENANT_URL, useLoginRedirect, Icon } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 import { OwnerAgencyAlerts } from "../../components/OwnerAgencyAlerts";
+import { SectionNav } from "../../components/SectionNav";
 
 /**
  * Garde de rôle côté client pour tout /dashboard (F4, A4) — sans middleware :
@@ -72,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
           {role === "TENANT" && (
             <a
-              href={TENANT_URL}
+              href={`${TENANT_URL}/login`}
               className="inline-flex items-center h-11 px-6 rounded-full bg-brand-950 text-cream-50 dark:bg-cream-100 dark:text-brand-950 text-sm font-medium hover:opacity-90"
             >
               {t("guard.tenantSpace")}
@@ -83,9 +84,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  // Propriétaire : agence mandataire suspendue ou hors limite → bandeau.
+  // Onglets de la rubrique (ou du bien), puis, propriétaire : agence
+  // mandataire suspendue ou hors limite → bandeau.
   return (
     <>
+      <SectionNav />
       {role === "OWNER" && !adminOnly && <OwnerAgencyAlerts />}
       {children}
     </>

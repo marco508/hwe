@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Badge,
   Button,
@@ -204,7 +205,7 @@ function InspectionView({
 
 // ─── Incidents ──────────────────────────────────────────────────────────────
 
-function TicketForm({
+export function TicketForm({
   leaseId,
   onCreated,
 }: {
@@ -289,6 +290,32 @@ function TicketForm({
   );
 }
 
+
+/** Une ligne d'incident : statut, titre, date, photo, réponse du propriétaire. */
+export function TicketRow({ ticket, place }: { ticket: Ticket; place?: string }) {
+  return (
+    <li className="text-sm flex flex-wrap items-center gap-2 min-w-0">
+      <Badge tone={TICKET_TONE[ticket.status]}>{t("rental.ticket." + ticket.status)}</Badge>
+      <span className="font-medium min-w-0 [overflow-wrap:anywhere]">{ticket.title}</span>
+      {place && <span className="text-ink-muted min-w-0 [overflow-wrap:anywhere]">· {place}</span>}
+      <span className="text-ink-muted">· {fmtDate(ticket.createdAt)}</span>
+      {ticket.photoDataUrl && (
+        <button
+          type="button"
+          className="underline text-ink-muted"
+          onClick={() => {
+            if (!openDataUrl(ticket.photoDataUrl, "incident")) toast.error(t("fix.file.openError"));
+          }}
+        >
+          {t("fix.ticket.photo")}
+        </button>
+      )}
+      {ticket.status === "RESOLVED" && ticket.resolutionNote && (
+        <span className="text-ink-muted min-w-0 [overflow-wrap:anywhere]">— {ticket.resolutionNote}</span>
+      )}
+    </li>
+  );
+}
 
 // ─── Préavis ──────────────────────────────────────────────────────
 
@@ -611,7 +638,6 @@ export function LeaseTenantExtras({
 }) {
   const [inspections, setInspections] = React.useState<Inspection[] | null>(null);
   const [tickets, setTickets] = React.useState<Ticket[] | null>(null);
-  const [showForm, setShowForm] = React.useState(false);
 
   React.useEffect(() => {
     api.listInspections(lease.id).then(setInspections).catch(() => setInspections([]));
@@ -636,7 +662,7 @@ export function LeaseTenantExtras({
         <DepositInfo lease={lease} />
       </section>
 
-      <section>
+      <section id={`bail-${lease.id}-inspections`} className="scroll-mt-28">
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.inspections")}
         </h3>
@@ -669,7 +695,7 @@ export function LeaseTenantExtras({
         </div>
       )}
 
-      <section>
+      <section id={`bail-${lease.id}-fin`} className="scroll-mt-28">
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.notice")}
         </h3>
@@ -680,7 +706,7 @@ export function LeaseTenantExtras({
         )}
       </section>
 
-      <section>
+      <section id={`bail-${lease.id}-avenants`} className="scroll-mt-28">
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.amendments")}
         </h3>
@@ -701,62 +727,32 @@ export function LeaseTenantExtras({
         <ChargeRegsBlock lease={lease} />
       </section>
 
-      <section>
+      <section id={`bail-${lease.id}-assurance`} className="scroll-mt-28">
         <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
           {t("rental.section.insurance")}
         </h3>
         <InsuranceBlock lease={lease} onMerge={onLeaseUpdate} />
       </section>
 
-      <section>
-        <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
-          <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
-            {t("rental.section.tickets")}
-          </h3>
-          <Button size="sm" variant="secondary" onClick={() => setShowForm((s) => !s)}>
-            {showForm ? t("rental.ticket.close") : t("rental.ticket.report")}
-          </Button>
-        </div>
-        {showForm && (
-          <div className="mb-4">
-            <TicketForm
-              leaseId={lease.id}
-              onCreated={(t) => {
-                setTickets((arr) => [t, ...(arr ?? [])]);
-                setShowForm(false);
-              }}
-            />
-          </div>
-        )}
-        {tickets === null ? (
-          <p className="text-sm text-ink-muted">{t("rental.loading")}</p>
-        ) : tickets.length === 0 ? (
-          <p className="text-sm text-ink-muted">{t("rental.ticket.empty")}</p>
-        ) : (
-          <ul className="space-y-2">
-            {tickets.map((ticket) => (
-              <li key={ticket.id} className="text-sm flex flex-wrap items-center gap-2 min-w-0">
-                <Badge tone={TICKET_TONE[ticket.status]}>{t("rental.ticket." + ticket.status)}</Badge>
-                <span className="font-medium min-w-0 [overflow-wrap:anywhere]">{ticket.title}</span>
-                <span className="text-ink-muted">· {fmtDate(ticket.createdAt)}</span>
-                {ticket.photoDataUrl && (
-                  <button
-                    type="button"
-                    className="underline text-ink-muted"
-                    onClick={() => {
-                      if (!openDataUrl(ticket.photoDataUrl, "incident")) toast.error(t("fix.file.openError"));
-                    }}
-                  >
-                    {t("fix.ticket.photo")}
-                  </button>
-                )}
-                {ticket.status === "RESOLVED" && ticket.resolutionNote && (
-                  <span className="text-ink-muted min-w-0 [overflow-wrap:anywhere]">— {ticket.resolutionNote}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
+      {/* Incidents : gérés dans l'onglet dédié (tous baux) ; ici un simple résumé. */}
+      <section id={`bail-${lease.id}-incidents`} className="scroll-mt-28">
+        <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-2">
+          {t("rental.section.tickets")}
+        </h3>
+        <Link
+          href="/mes-incidents"
+          className="flex items-center justify-between gap-3 rounded-xl border border-border px-4 py-3 text-sm hover:border-brand-400 transition-colors"
+        >
+          <span className="min-w-0">
+            {tickets === null
+              ? t("rental.loading")
+              : t("rental.tickets.open", { count: tickets.filter((x) => x.status !== "RESOLVED").length })}
+          </span>
+          <span className="shrink-0 inline-flex items-center gap-1 font-medium text-brand-600 dark:text-brand-300">
+            {t("rental.tickets.manage")}
+            <Icon name="arrowRight" size={14} />
+          </span>
+        </Link>
       </section>
     </>
   );

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Badge,
+  Button,
   Card,
   CardBody,
   CardHeader,
@@ -26,6 +27,7 @@ import { api } from "../../lib/api";
 import { t, useLang } from "../../lib/i18n";
 import { payDayText } from "../../lib/rent-format";
 import { LeaseTenantExtras } from "../../components/LeaseTenantExtras";
+import { useLandlordChat } from "../../lib/landlord-chat";
 import type { LeaseContract, LeaseStatus } from "@hwe/types";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
@@ -162,9 +164,12 @@ function LeaseProgress({ startDate, endDate }: { startDate: string; endDate: str
 function LeaseCard({
   lease,
   onUpdate,
+  rentDue,
 }: {
   lease: LeaseContract;
   onUpdate: (updated: LeaseContract) => void;
+  /** Une échéance de ce bail est à régler (ou en retard). */
+  rentDue?: boolean;
 }) {
   // F2 : montants toujours dans la devise du bail (jamais d'EUR implicite).
   const currency = leaseCurrency(lease);
@@ -175,6 +180,24 @@ function LeaseCard({
   const isActive = lease.status === "ACTIVE" || lease.status === "SIGNED";
   const [showContract, setShowContract] = React.useState(false);
   const [signing, setSigning] = React.useState(false);
+  const chat = useLandlordChat();
+  const propertyId = property?.id ?? lease.propertyId;
+  const anchor = (s: string) => `bail-${lease.id}-${s}`;
+  // Sommaire du bail : accès direct aux sections (ancres).
+  const toc = [
+    { id: anchor("contrat"), label: t("rental.toc.contract") },
+    { id: anchor("paiement"), label: t("rental.toc.payment") },
+    { id: anchor("inspections"), label: t("rental.toc.inspections") },
+    { id: anchor("fin"), label: t("rental.toc.end") },
+    { id: anchor("incidents"), label: t("rental.toc.incidents") },
+  ];
+  // « Écrire à mon propriétaire » (ou à l'agence mandataire) : discussion existante ou nouvelle.
+  const writeButton = propertyId ? (
+    <Button size="sm" variant="secondary" disabled={chat.busy} onClick={() => chat.open(propertyId)}>
+      <Icon name="message" size={15} className="me-1.5" />
+      {lease.managedBy ? t("rental.writeAgency") : t("rental.writeOwner")}
+    </Button>
+  ) : null;
 
   const { user } = useAuth();
   // Principal = e-mail du bail ; sinon colocataire (signe via /cotenants/sign).
@@ -225,6 +248,32 @@ function LeaseCard({
       </CardHeader>
 
       <CardBody className="space-y-6">
+        <nav aria-label={t("rental.toc.label")} className="-mt-1 flex flex-wrap gap-x-1 gap-y-1 text-sm print:hidden">
+          {toc.map((s) => (
+            <a
+              key={s.id}
+              href={`#${s.id}`}
+              className="inline-flex items-center h-8 px-3 rounded-full border border-border text-ink-muted hover:text-ink hover:border-brand-400 transition-colors"
+            >
+              {s.label}
+            </a>
+          ))}
+        </nav>
+
+        {/* Bail signé et loyer à régler : accès direct au paiement. */}
+        {hasTenantSigned && rentDue && (
+          <div className="flex items-center justify-between gap-3 flex-wrap rounded-xl border border-accent-500/30 bg-accent-500/10 px-4 py-3">
+            <p className="text-sm text-ink min-w-0">{t("rental.rentDue")}</p>
+            <Link
+              href="/mes-loyers"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-600 text-white hover:text-white hover:bg-brand-700 text-sm font-medium shrink-0"
+            >
+              <Icon name="wallet" size={15} />
+              {t("rental.payRent")}
+            </Link>
+          </div>
+        )}
+
       {/* Bandeau informatif pour les baux en attente de finalisation */}
         {lease.status === "DRAFT" && (
           <div className="rounded-lg border border-accent-500/30 bg-accent-500/10 dark:bg-accent-500/10 px-4 py-3 text-sm text-ink">
@@ -234,7 +283,7 @@ function LeaseCard({
         )}
 
         {/* Section contrat + signature */}
-        <section className="space-y-3">
+        <section id={anchor("contrat")} className="space-y-3 scroll-mt-28">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
               {t("rental.contract.title")}
@@ -369,7 +418,7 @@ function LeaseCard({
         </section>
 
         {/* Financier */}
-        <section>
+        <section id={anchor("paiement")} className="scroll-mt-28">
           <h3 className="text-xs font-semibold text-ink-muted uppercase tracking-wide mb-3">
             {t("rental.section.finance")}
           </h3>
@@ -449,12 +498,15 @@ function LeaseCard({
                   .join(" · ")}
               </div>
             </div>
-            <Link
-              href={`/agences/${encodeURIComponent(lease.managedBy.slug)}`}
-              className="ms-auto shrink-0 text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
-            >
-              {t("pro.seeAgency")}
-            </Link>
+            <div className="ms-auto shrink-0 flex flex-col items-end gap-1.5">
+              <Link
+                href={`/agences/${encodeURIComponent(lease.managedBy.slug)}`}
+                className="text-xs font-medium text-brand-700 dark:text-brand-300 hover:underline"
+              >
+                {t("pro.seeAgency")}
+              </Link>
+              {!property?.owner && writeButton}
+            </div>
           </section>
         )}
 
@@ -476,6 +528,7 @@ function LeaseCard({
                 <Detail label={t("rental.owner.phone")} value={property.owner.phone} />
               )}
             </div>
+            {writeButton && <div className="mt-3">{writeButton}</div>}
           </section>
         )}
 
@@ -520,6 +573,18 @@ export default function MaLocationPage() {
     enabled: !!user,
   });
   const leases = data ?? [];
+  // Baux avec une échéance à régler (bouton « Payer mon loyer ») : chargement
+  // non bloquant, une erreur n'affiche simplement pas le bouton.
+  const { data: rents } = useAsync(() => api.myRents(), [user?.id], { enabled: !!user });
+  const dueLeases = React.useMemo(
+    () =>
+      new Set(
+        (rents ?? [])
+          .filter((b) => b.periods.some((p) => p.status === "DUE" || p.status === "LATE"))
+          .map((b) => b.lease.id),
+      ),
+    [rents],
+  );
 
   if (error && !data) return <ErrorState error={error} onRetry={reload} />;
   if (loading || !user || !data) return <p className="text-ink-muted">{t("rental.loading")}</p>;
@@ -548,6 +613,7 @@ export default function MaLocationPage() {
             <LeaseCard
               key={lease.id}
               lease={lease}
+              rentDue={dueLeases.has(lease.id)}
               onUpdate={(updated) =>
                 // F8 : fusion (une réponse partielle n'efface pas assurances/avenants).
                 setData((prev) => (prev ?? []).map((l) => (l.id === updated.id ? { ...l, ...updated } : l)))

@@ -371,3 +371,27 @@
 :lang(ar) * {
   letter-spacing: normal !important;
 }
+
+/* Navigation : barre d'onglets fixée en bas sur téléphone (AppNav) — la page
+   garde un espace libre dessous pour que rien ne soit caché. */
+body.hwe-has-tabbar {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  body.hwe-has-tabbar {
+    padding-bottom: 0;
+  }
+}
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Impression : pas de barres de navigation. */
+@media print {
+  body.hwe-has-tabbar {
+    padding-bottom: 0;
+  }
+}

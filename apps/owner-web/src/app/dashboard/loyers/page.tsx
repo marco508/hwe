@@ -28,7 +28,8 @@ import {
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
-import { useActorLabel } from "../../../lib/pro";
+import { isPro, useActorLabel } from "../../../lib/pro";
+import { refreshNavCounts, useBienParam } from "../../../lib/nav";
 import type { OwnerRentPeriod, RentStatus } from "../../../lib/api";
 
 // F2 : chaque échéance est dans la devise de SON bail (montant figé, contrat §9).
@@ -199,6 +200,7 @@ function PeriodCard({
   /** Afficher le destinataire du loyer (cas mixte : agence ou propriétaire). */
   showPayee?: boolean;
 }) {
+  const { user } = useAuth();
   const [showProof, setShowProof] = React.useState(false);
   const [rejecting, setRejecting] = React.useState(false);
   const [reason, setReason] = React.useState("");
@@ -221,6 +223,7 @@ function PeriodCard({
       const updated = await api.reviewRent(period.id, accept, accept ? undefined : reason.trim() || undefined);
       onReviewed(updated);
       toast.success(accept ? t("rent.validated") : t("rent.rejectedToast"));
+      void refreshNavCounts(user);
     } catch (e) {
       toast.error(e);
     } finally {
@@ -391,21 +394,33 @@ function PeriodCard({
 const methodLabel = (m: string) => (m === "OTHER" || m === "Autre" ? t("rent.methodOther") : paymentMethodLabel(m));
 
 export default function LoyersPage() {
+  // useSearchParams (filtre ?bien=) exige une frontière Suspense.
+  return (
+    <React.Suspense fallback={null}>
+      <LoyersInner />
+    </React.Suspense>
+  );
+}
+
+function LoyersInner() {
   // Session/rôle : dashboard/layout.tsx.
   const { user } = useAuth();
+  const pro = isPro(user);
+  const bien = useBienParam();
   const actorLabel = useActorLabel();
   const [filter, setFilter] = React.useState<RentStatus | "ALL">("DECLARED");
   const { data, setData, error, loading: working, reload } = useAsync(
     async () => {
       const r = await api.ownerRents();
       // S'il n'y a rien à vérifier, ouvrir directement sur « Tout ».
-      if (!r.some((p) => p.status === "DECLARED")) setFilter("ALL");
+      if (!r.some((p) => p.status === "DECLARED" && (!bien || p.lease.property.id === bien))) setFilter("ALL");
       return r;
     },
-    [user?.id],
+    [user?.id, bien],
     { enabled: !!user },
   );
-  const periods: OwnerRentPeriod[] = data ?? [];
+  // Filtre « par bien » (?bien=<id>), côté client.
+  const periods: OwnerRentPeriod[] = (data ?? []).filter((p) => !bien || p.lease.property.id === bien);
   const setPeriods = (fn: (prev: OwnerRentPeriod[]) => OwnerRentPeriod[]) => setData((cur) => fn(cur ?? []));
 
   const counts = React.useMemo(() => {
@@ -490,7 +505,10 @@ export default function LoyersPage() {
           illustration="wallet"
           action={
             periods.length === 0 ? (
-              <Link href="/dashboard" className="text-sm font-medium">
+              <Link
+                href={bien ? `/dashboard/${encodeURIComponent(bien)}/lease` : pro ? "/pro/biens" : "/dashboard"}
+                className="text-sm font-medium"
+              >
                 {t("vis.seeLeases")}
               </Link>
             ) : undefined

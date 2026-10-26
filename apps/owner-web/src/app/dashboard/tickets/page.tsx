@@ -2,11 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Badge, Button, Input, EmptyState, ErrorState, SafeImage, toast, fmtDate as fmtDateShared, useAsync } from "@hwe/ui";
+import { useSearchParams } from "next/navigation";
+import { Badge, Button, Icon, Input, EmptyState, ErrorState, SafeImage, toast, fmtDate as fmtDateShared, useAsync } from "@hwe/ui";
 import { useAuth } from "../../../lib/auth-context";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
-import { useActorLabel } from "../../../lib/pro";
+import { isPro, useActorLabel } from "../../../lib/pro";
+import { refreshNavCounts, useBienParam, useChatFinder } from "../../../lib/nav";
 import type { Ticket, TicketStatus } from "@hwe/types";
 
 const TONE: Record<TicketStatus, "accent" | "neutral" | "success"> = {
@@ -21,11 +23,15 @@ function TicketCard({
   ticket,
   onUpdate,
   actor,
+  chatHref,
 }: {
   ticket: Ticket;
   onUpdate: (t: Ticket) => void;
   actor?: string | null;
+  /** Conversation avec le locataire, si elle existe. */
+  chatHref?: string | null;
 }) {
+  const { user } = useAuth();
   const [note, setNote] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [showPhoto, setShowPhoto] = React.useState(false);
@@ -38,6 +44,7 @@ function TicketCard({
         resolutionNote: status === "RESOLVED" && note ? note : undefined,
       }));
       toast.success(t("ops.tickets.updated"));
+      void refreshNavCounts(user);
     } catch (e) {
       toast.error(e);
     } finally {
@@ -54,7 +61,11 @@ function TicketCard({
             <Badge tone={TONE[ticket.status]}>{t("ops.ticketStatus." + ticket.status)}</Badge>
           </div>
           <p className="text-sm text-ink-muted [overflow-wrap:anywhere]">
-            {ticket.lease?.property?.title}
+            {ticket.lease?.property ? (
+              <Link href={`/dashboard/${encodeURIComponent(ticket.lease.property.id)}`} className="font-medium text-ink hover:underline">
+                {ticket.lease.property.title}
+              </Link>
+            ) : null}
             {ticket.lease?.property?.city ? ` — ${ticket.lease.property.city}` : ""} ·{" "}
             {ticket.author
               ? `${ticket.author.firstName} ${ticket.author.lastName}`
@@ -62,6 +73,14 @@ function TicketCard({
             · {fmtDate(ticket.createdAt)}
           </p>
         </div>
+        {chatHref && (
+          <Link
+            href={chatHref}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-sm font-medium text-ink border border-border bg-surface hover:border-ink/30 shrink-0"
+          >
+            <Icon name="message" size={15} /> {t("com.discuss")}
+          </Link>
+        )}
       </div>
 
       <p className="text-sm whitespace-pre-line [overflow-wrap:anywhere]">{ticket.description}</p>
@@ -116,21 +135,40 @@ function TicketCard({
   );
 }
 
+type Filter = TicketStatus | "ALL" | "TODO";
+const isTodo = (x: Ticket) => x.status !== "RESOLVED";
+
 export default function TicketsPage() {
+  // useSearchParams (filtre ?bien=, ?filtre=todo) exige une frontière Suspense.
+  return (
+    <React.Suspense fallback={null}>
+      <TicketsInner />
+    </React.Suspense>
+  );
+}
+
+function TicketsInner() {
   // Session/rôle : dashboard/layout.tsx. Erreur ≠ liste vide (L2).
   const { user } = useAuth();
+  const pro = isPro(user);
+  const bien = useBienParam();
+  const search = useSearchParams();
+  const chatFor = useChatFinder();
   const actorLabel = useActorLabel();
-  const [filter, setFilter] = React.useState<TicketStatus | "ALL">("ALL");
-  const { data: tickets, setData: setTickets, error, reload } = useAsync(
+  // « À traiter » (ouverts + en cours) depuis le centre d'actions.
+  const [filter, setFilter] = React.useState<Filter>(search.get("filtre") === "todo" ? "TODO" : "ALL");
+  const { data, setData: setTickets, error, reload } = useAsync(
     () => api.ownerTickets(),
     [user?.id],
     { enabled: !!user },
   );
 
-  if (error && !tickets) return <ErrorState error={error} title={t("ops.tickets.loadError")} onRetry={reload} />;
-  if (!tickets) return <p className="text-ink-muted">{t("ops.loading")}</p>;
+  if (error && !data) return <ErrorState error={error} title={t("ops.tickets.loadError")} onRetry={reload} />;
+  if (!data) return <p className="text-ink-muted">{t("ops.loading")}</p>;
+  // Filtre « par bien » (?bien=<id>), côté client.
+  const tickets = data.filter((x) => !bien || x.lease?.property?.id === bien);
 
-  const shown = filter === "ALL" ? tickets : tickets.filter((t) => t.status === filter);
+  const shown = filter === "ALL" ? tickets : filter === "TODO" ? tickets.filter(isTodo) : tickets.filter((t) => t.status === filter);
 
   return (
     <section className="min-w-0">
@@ -140,7 +178,7 @@ export default function TicketsPage() {
       </p>
 
       <div className="flex gap-2 mb-6 flex-wrap">
-        {(["ALL", "OPEN", "IN_PROGRESS", "RESOLVED"] as const).map((f) => (
+        {(["ALL", "TODO", "OPEN", "IN_PROGRESS", "RESOLVED"] as const).map((f) => (
           <button
             key={f}
             type="button"
@@ -152,8 +190,8 @@ export default function TicketsPage() {
                 : "border-ink-subtle text-ink-muted hover:border-brand-400"
             }`}
           >
-            {f === "ALL" ? t("ops.tickets.filterAll") : t("ops.ticketStatus." + f)}
-            {f !== "ALL" && ` (${tickets.filter((t) => t.status === f).length})`}
+            {f === "ALL" ? t("ops.tickets.filterAll") : f === "TODO" ? t("ops.tickets.filterTodo") : t("ops.ticketStatus." + f)}
+            {f !== "ALL" && ` (${(f === "TODO" ? tickets.filter(isTodo) : tickets.filter((t) => t.status === f)).length})`}
           </button>
         ))}
       </div>
@@ -164,8 +202,8 @@ export default function TicketsPage() {
           title={t("ops.tickets.emptyTitle")}
           description={t("ops.emptyDesc")}
           action={
-            <Link href="/dashboard" className="text-sm font-medium">
-              {t("vis.backDashboard")}
+            <Link href={bien ? `/dashboard/${encodeURIComponent(bien)}` : pro ? "/pro" : "/dashboard"} className="text-sm font-medium">
+              {bien ? t("prop.backToProperty") : t("vis.backDashboard")}
             </Link>
           }
         />
@@ -176,6 +214,7 @@ export default function TicketsPage() {
               key={t.id}
               ticket={t}
               actor={actorLabel(t.handledById, t.lease?.property?.id)}
+              chatHref={chatFor(t.lease?.property?.id, t.authorId)}
               onUpdate={(u) =>
                 setTickets((arr) => (arr ?? []).map((x) => (x.id === u.id ? { ...x, ...u } : x)))
               }
