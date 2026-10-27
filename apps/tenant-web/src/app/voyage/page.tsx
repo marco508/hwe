@@ -64,7 +64,7 @@ function VoyageHome() {
               id="voy-country"
               value={cc}
               onChange={(e) => router.replace(`/voyage?pays=${e.target.value}`)}
-              className="!w-auto !h-8 !text-sm !bg-white/90 !text-ink"
+              className="!w-auto !h-8 !text-sm !bg-white/90 !text-ink dark:!bg-black/60 dark:!text-white dark:!border-white/25 backdrop-blur"
             >
               {options.map((c) => (
                 <option key={c} value={c}>
