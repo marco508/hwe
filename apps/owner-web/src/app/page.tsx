@@ -98,7 +98,7 @@ export default function HomePage() {
               onClick={() => setCountry("")}
               className={`h-8 px-3 rounded-full text-xs font-medium transition-all border ${
                 country === ""
-                  ? "bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink border-transparent"
+                  ? "bg-ink text-background border-transparent"
                   : "bg-surface text-ink-muted border-border hover:text-ink"
               }`}
             >
@@ -116,7 +116,7 @@ export default function HomePage() {
                 }}
                 className={`h-8 px-3 rounded-full text-xs font-medium transition-all border ${
                   country === code
-                    ? "bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink border-transparent"
+                    ? "bg-ink text-background border-transparent"
                     : "bg-surface text-ink-muted border-border hover:text-ink"
                 }`}
               >

@@ -312,7 +312,7 @@ export function AppNav({
             {primaryAction && account && (
               <Link
                 href={primaryAction.href}
-                className="hidden md:inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white dark:bg-brand-500"
+                className="hidden md:inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white"
               >
                 <Icon name={primaryAction.icon} size={16} />
                 {primaryAction.label}
@@ -487,7 +487,7 @@ export function Breadcrumbs({
             <li key={i} className="inline-flex items-center gap-1 min-w-0">
               {i > 0 && <Icon name="chevronRight" size={14} className="shrink-0" />}
               {it.href && !last ? (
-                <Link href={it.href} className="hover:text-ink underline-offset-2 hover:underline truncate max-w-[16rem]">
+                <Link href={it.href} className="text-brand-700 dark:text-brand-300 hover:text-ink underline-offset-2 hover:underline truncate max-w-[16rem]">
                   {it.label}
                 </Link>
               ) : (

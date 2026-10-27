@@ -25,6 +25,10 @@
   a {
     @apply text-brand-600 hover:text-brand-700;
   }
+  /* Texte indicatif des champs : le gris par défaut (gray-400) tombe à 2,5:1. */
+  input::placeholder, textarea::placeholder {
+    color: rgb(var(--rgb-ink-subtle, 102 112 105));
+  }
 
   ::selection {
     background: rgba(111, 208, 167, 0.4);
@@ -58,6 +62,11 @@
      sombre s'applique par ordre de cascade mais CÈDE toujours devant un
      utilitaire (text-*). `.dark a` nu battait les utilitaires et rendait
      des CTA illisibles. */
+  /* Rouge et vert des états (texte) : les teintes du mode clair tombent à
+     ~3:1 sur les fonds sombres → variantes claires (≥ 6:1). Fonds pleins
+     (bg-danger / bg-success + texte blanc) inchangés. */
+  .dark .text-danger, .dark .hover\:text-danger:hover { color: #f07a6a; }
+  .dark .text-success { color: #4cc38a; }
   :where(.dark) a { color: #6fd0a7; }
   :where(.dark) a:hover { color: #a7e4c8; }
   .dark ::selection {

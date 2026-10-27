@@ -183,7 +183,7 @@ export function AppNavbar() {
               {/* Téléphone étroit : « Créer un compte » passe dans le tiroir (pas de débordement à 375 px). */}
               <Link
                 href={withNext("/register")}
-                className="sm:hidden inline-flex items-center h-8 px-3 rounded-md text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white dark:bg-brand-500"
+                className="sm:hidden inline-flex items-center h-8 px-3 rounded-md text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white"
               >
                 {t("nav.signup")}
               </Link>
@@ -202,7 +202,7 @@ export function AppNavbar() {
               </Link>
               <Link
                 href={withNext("/register")}
-                className="hidden sm:inline-flex items-center h-8 px-3 rounded-md text-sm font-medium whitespace-nowrap bg-brand-600 text-white hover:bg-brand-700 hover:text-white dark:bg-brand-500"
+                className="hidden sm:inline-flex items-center h-8 px-3 rounded-md text-sm font-medium whitespace-nowrap bg-brand-600 text-white hover:bg-brand-700 hover:text-white"
               >
                 {t("nav.signup")}
               </Link>

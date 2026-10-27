@@ -143,7 +143,7 @@ export function AppNavbar() {
       </Link>
       <Link
         href="/register"
-        className="hidden sm:inline-flex items-center h-9 px-3.5 rounded-full text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white dark:bg-brand-500"
+        className="hidden sm:inline-flex items-center h-9 px-3.5 rounded-full text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white"
       >
         {t("nav.signup")}
       </Link>

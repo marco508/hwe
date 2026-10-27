@@ -26,7 +26,7 @@ import type {
   PropertyType,
   PropertyStatus,
 } from "@hwe/types";
-import { COUNTRY_CODES, COUNTRY_CURRENCY, COUNTRY_NAMES_FR, ENERGY_CLASS_COLORS, SELECTABLE_CURRENCIES } from "@hwe/types";
+import { COUNTRY_CODES, COUNTRY_CURRENCY, COUNTRY_NAMES_FR, ENERGY_CLASS_COLORS, ENERGY_CLASS_TEXT, SELECTABLE_CURRENCIES } from "@hwe/types";
 import { t } from "../lib/i18n";
 import { ImageUploader } from "./ImageUploader";
 import type { CreatePropertyBody } from "../lib/api";
@@ -622,12 +622,12 @@ export function PropertyForm({
                         set("energyClass", active ? null : c)
                       }
                       aria-pressed={active}
-                      className={`h-10 w-10 rounded-lg font-semibold text-white transition-transform ${
+                      className={`h-10 w-10 rounded-lg font-semibold transition-transform ${
                         active
                           ? "ring-2 ring-offset-2 ring-ink scale-110"
-                          : "opacity-70 hover:opacity-100 hover:scale-105"
+                          : "opacity-80 hover:opacity-100 hover:scale-105"
                       }`}
-                      style={{ backgroundColor: ENERGY_CLASS_COLORS[c] }}
+                      style={{ backgroundColor: ENERGY_CLASS_COLORS[c], color: ENERGY_CLASS_TEXT[c] }}
                       aria-label={t("pf.dpe.classAria", { c })}
                     >
                       {c}

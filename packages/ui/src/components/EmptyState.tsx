@@ -40,7 +40,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {illustration ? (
         <IlloEmpty kind={illustration} className="mx-auto mb-4 w-40 sm:w-48 h-auto" />
       ) : (
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-100 to-accent-100 dark:from-brand-900/50 dark:to-accent-900/30 text-brand-700 dark:text-brand-300 animate-float-slow">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-100 to-accent-100 dark:from-brand-900/50 dark:to-accent-700/30 text-brand-700 dark:text-brand-300 animate-float-slow">
           {icon ?? (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z" />

@@ -219,7 +219,7 @@ export function MessagesView({
             <button
               type="button"
               onClick={request}
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-full bg-ink text-background text-sm font-medium hover:opacity-90"
             >
               {tUi("ui.msg.enableNotifs")}
             </button>

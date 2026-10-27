@@ -445,7 +445,7 @@ function NextSteps({ steps, loading }: { steps: Step[]; loading: boolean }) {
         <ul className="divide-y divide-border/70" data-next-steps={steps.length}>
           {steps.map((s) => {
             const cls =
-              "inline-flex items-center justify-center gap-1 h-8 px-3 rounded-full text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white dark:bg-brand-500 shrink-0";
+              "inline-flex items-center justify-center gap-1 h-8 px-3 rounded-full text-sm font-medium bg-brand-600 text-white hover:bg-brand-700 hover:text-white shrink-0";
             return (
               <li key={s.key} className="py-3 first:pt-0 last:pb-0 flex flex-wrap items-center gap-3" data-step={s.key}>
                 <IconBadge name={s.icon} size="sm" />

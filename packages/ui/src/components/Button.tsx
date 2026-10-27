@@ -18,7 +18,7 @@ export interface ButtonProps
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-brand-600 text-white hover:bg-brand-700 focus-visible:shadow-focus disabled:bg-brand-300 dark:bg-brand-500 dark:hover:bg-brand-400 shadow-sm hover:shadow-glow",
+    "bg-brand-600 text-white hover:bg-brand-700 focus-visible:shadow-focus disabled:bg-brand-300 dark:hover:bg-brand-700 dark:disabled:bg-brand-800 shadow-sm hover:shadow-glow",
   secondary:
     "bg-surface text-ink border border-border hover:border-ink/30 focus-visible:shadow-focus hover:shadow-card",
   ghost: "bg-transparent text-ink hover:bg-brand-50 dark:hover:bg-brand-900/40",

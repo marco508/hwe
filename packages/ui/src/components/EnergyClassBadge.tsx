@@ -12,6 +12,8 @@ const COLORS: Record<EnergyClassLetter, string> = {
   F: "#e95e0f",
   G: "#d31f23",
 };
+// Texte lisible sur chaque couleur (le blanc n'atteint 4,5:1 que sur G).
+const TEXT: Record<EnergyClassLetter, string> = { A: "#101815", B: "#101815", C: "#101815", D: "#101815", E: "#101815", F: "#101815", G: "#ffffff" };
 
 export interface EnergyClassBadgeProps {
   value: EnergyClassLetter;
@@ -33,10 +35,10 @@ export const EnergyClassBadge: React.FC<EnergyClassBadgeProps> = ({
     return (
       <span
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-bold text-white",
+          "inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-bold",
           className,
         )}
-        style={{ backgroundColor: COLORS[value] }}
+        style={{ backgroundColor: COLORS[value], color: TEXT[value] }}
       >
         {value}
       </span>
@@ -53,11 +55,12 @@ export const EnergyClassBadge: React.FC<EnergyClassBadgeProps> = ({
             <span
               key={letter}
               className={cn(
-                "rounded-sm flex items-center justify-center text-[10px] font-bold text-white transition-transform",
+                "rounded-sm flex items-center justify-center text-[10px] font-bold transition-transform",
                 isActive ? "scale-110 ring-2 ring-offset-1 ring-ink/60" : "opacity-60",
               )}
               style={{
                 backgroundColor: COLORS[letter],
+                color: TEXT[letter],
                 height: `${baseHeight}px`,
                 width: isActive ? "28px" : "18px",
               }}

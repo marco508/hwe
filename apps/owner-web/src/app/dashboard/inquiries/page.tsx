@@ -560,7 +560,7 @@ function InquiryDetailModal({
               <div className="flex flex-wrap gap-2">
                 <Link
                   href={chatHref(inquiry)}
-                  className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-xs font-medium hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-1.5 px-4 h-9 rounded-full bg-ink text-background text-xs font-medium hover:opacity-90 transition-opacity"
                 >
                   <Icon name="message" size={14} />
                   {t("com.openDiscussion")}

@@ -99,6 +99,17 @@ export const ENERGY_CLASS_COLORS: Record<EnergyClass, string> = {
   G: "#d31f23",
 };
 
+/** Couleur du texte posé sur ENERGY_CLASS_COLORS (contraste ≥ 4,5:1 ; le blanc n'est lisible que sur G). */
+export const ENERGY_CLASS_TEXT: Record<EnergyClass, string> = {
+  A: "#101815",
+  B: "#101815",
+  C: "#101815",
+  D: "#101815",
+  E: "#101815",
+  F: "#101815",
+  G: "#ffffff",
+};
+
 export interface Property {
   id: string;
   title: string;

@@ -352,7 +352,7 @@ export function LangMenu({
                 }`}
               >
                 <span>{LANG_INFO[l].native}</span>
-                <span className="text-[10px] uppercase opacity-60">{l}</span>
+                <span className="text-[10px] uppercase opacity-75">{l}</span>
               </button>
             </li>
           ))}

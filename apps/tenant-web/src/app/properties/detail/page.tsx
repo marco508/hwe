@@ -460,7 +460,7 @@ function PropertyDetailInner({
           <a
             // F3 : URL publique de l'espace propriétaire (repli prod, jamais localhost).
             href={`${OWNER_URL}/dashboard/${p.id}/edit`}
-            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full bg-ink text-cream-50 dark:bg-cream-50 dark:text-ink text-sm font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-1.5 h-10 px-4 rounded-full bg-ink text-background text-sm font-medium hover:opacity-90 transition-opacity"
           >
             {t("prop.owner.edit")}
           </a>
@@ -1208,7 +1208,7 @@ function StepLocation({ property: p }: { property: Property }) {
       {hasGeo ? (
         <Card>
           <CardBody className="p-0 overflow-hidden">
-            <div className="aspect-[16/9] relative bg-gradient-to-br from-ocean-200 via-brand-100 to-sand-100 dark:from-ocean-900 dark:via-brand-900 dark:to-sand-900">
+            <div className="aspect-[16/9] relative bg-gradient-to-br from-ocean-200 via-brand-100 to-sand-100 dark:from-ocean-700/40 dark:via-brand-900 dark:to-background">
               <div className="absolute inset-0 bg-grid opacity-50" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">

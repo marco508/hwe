@@ -72,7 +72,7 @@ function GridLayer() {
 function SoftLayer() {
   return (
     <div
-      className="absolute inset-0 -z-0 bg-gradient-to-br from-brand-50/60 via-transparent to-accent-50/40 dark:from-brand-900/30 dark:to-accent-900/10"
+      className="absolute inset-0 -z-0 bg-gradient-to-br from-brand-50/60 via-transparent to-accent-50/40 dark:from-brand-900/30 dark:to-accent-700/10"
       aria-hidden="true"
     />
   );

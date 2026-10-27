@@ -28,7 +28,7 @@ const tones: Record<Tone, string> = {
   danger:
     "bg-red-50 text-danger border border-red-100 dark:bg-red-900/30 dark:text-red-300 dark:border-red-900/50",
   ocean:
-    "bg-ocean-50 text-ocean-700 border border-ocean-100 dark:bg-ocean-900/30 dark:text-ocean-300 dark:border-ocean-700/40",
+    "bg-ocean-50 text-ocean-700 border border-ocean-100 dark:bg-ocean-700/25 dark:text-ocean-300 dark:border-ocean-700/40",
   plum:
     "bg-purple-50 text-plum-600 border border-purple-100 dark:bg-purple-900/30 dark:text-plum-400 dark:border-purple-900/50",
 };

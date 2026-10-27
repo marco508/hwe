@@ -14,7 +14,7 @@ module.exports = {
         ink: {
           DEFAULT: "rgb(var(--rgb-ink, 16 24 21) / <alpha-value>)",
           muted: "rgb(var(--rgb-ink-muted, 87 99 93) / <alpha-value>)",
-          subtle: "rgb(var(--rgb-ink-subtle, 118 128 122) / <alpha-value>)",
+          subtle: "rgb(var(--rgb-ink-subtle, 102 112 105) / <alpha-value>)",
         },
         // Ivoire propre (moins jaune que l'ancien crème) — fond éditorial net.
         cream: {
