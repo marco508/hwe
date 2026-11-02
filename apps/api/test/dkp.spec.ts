@@ -483,11 +483,15 @@ test("GestiPro : clé jamais renvoyée, envoi du relevé avec Bearer, clé refus
       assert.equal(st.hint, "gp_…5678");
       assert.equal(st.tenantName, "Agence Lumière");
       assert.ok(!JSON.stringify(st).includes("gp_cle_secrete"), "la clé ne ressort jamais");
-      const r = await svc.send("M", "2026-11");
+      // Mois en cours (ou à venir) : refusé, le relevé ne part qu'une fois le mois terminé.
+      const next = new Date(); next.setUTCMonth(next.getUTCMonth() + 1);
+      const future = `${next.getUTCFullYear()}-${String(next.getUTCMonth() + 1).padStart(2, "0")}`;
+      assert.equal((await httpStatus(svc.send("M", future))).status, 400);
+      const r = await svc.send("M", "2026-10");
       assert.equal(r.sent, 1);
       const post = calls.find((c) => c.url === "http://gestipro.test/api/integrations/v1/invoices");
       assert.equal(post.auth, "Bearer gp_cle_secrete_12345678");
-      assert.equal(post.body.reference, "HWE-AG1-2026-11-o1-XOF");
+      assert.equal(post.body.reference, "HWE-AG1-2026-10-o1-XOF");
       assert.equal(post.body.customer.name, "Koffi A");
       refuse = true;
       assert.equal((await httpStatus(svc.test("M"))).status, 400);

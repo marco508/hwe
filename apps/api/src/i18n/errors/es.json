@@ -342,5 +342,6 @@
   "Seul le locataire partage son loyer.": "Solo el inquilino puede compartir su alquiler.",
   "Seul un responsable de l'agence gère la connexion GestiPro.": "Solo un responsable de la agencia gestiona la conexión con GestiPro.",
   "Sources : adresses invalides (https://…).": "Fuentes: direcciones no válidas (https://…).",
-  "Trop de codes de partage actifs : révoquez-en un d'abord.": "Demasiados códigos para compartir activos: revoque uno primero."
+  "Trop de codes de partage actifs : révoquez-en un d'abord.": "Demasiados códigos para compartir activos: revoque uno primero.",
+  "Le relevé d'un mois s'envoie une fois le mois terminé.": "El extracto de un mes se envía una vez terminado el mes."
 }

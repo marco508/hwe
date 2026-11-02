@@ -342,5 +342,6 @@
   "Seul le locataire partage son loyer.": "Only the tenant can share their rent.",
   "Seul un responsable de l'agence gère la connexion GestiPro.": "Only an agency manager can manage the GestiPro connection.",
   "Sources : adresses invalides (https://…).": "Sources: invalid addresses (https://…).",
-  "Trop de codes de partage actifs : révoquez-en un d'abord.": "Too many active sharing codes: revoke one first."
+  "Trop de codes de partage actifs : révoquez-en un d'abord.": "Too many active sharing codes: revoke one first.",
+  "Le relevé d'un mois s'envoie une fois le mois terminé.": "A month's statement can be sent once the month is over."
 }

@@ -36,15 +36,18 @@ const gp = {
   send: (month: string) => request<GpSendResult>("/agencies/me/gestipro/send", { method: "POST", auth: true, body: json({ month }) }),
 };
 
-function thisMonth(): string {
+/** Dernier mois terminé : c'est celui qu'on envoie (le mois en cours est refusé). */
+function lastMonth(): string {
   const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - 1);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
 export function GestiproSection() {
   const [st, setSt] = React.useState<GpStatus | null>(null);
   const [key, setKey] = React.useState("");
-  const [month, setMonth] = React.useState(thisMonth);
+  const [month, setMonth] = React.useState(lastMonth);
   const [busy, setBusy] = React.useState<null | "connect" | "test" | "send" | "disconnect">(null);
   const [result, setResult] = React.useState<GpSendResult | null>(null);
 
@@ -105,7 +108,7 @@ export function GestiproSection() {
           >
             <div className="space-y-1">
               <Label htmlFor="gp-month">{t("dkp.gp.month")}</Label>
-              <Input id="gp-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} required className="w-44" />
+              <Input id="gp-month" type="month" value={month} max={lastMonth()} onChange={(e) => setMonth(e.target.value)} required className="w-44" />
             </div>
             <Button type="submit" disabled={!!busy || !/^\d{4}-\d{2}$/.test(month)}>
               {busy === "send" ? t("dkp.gp.sending") : t("dkp.gp.send")}

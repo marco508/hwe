@@ -342,5 +342,6 @@
   "Seul le locataire partage son loyer.": "وحده المستأجر يمكنه مشاركة إيجاره.",
   "Seul un responsable de l'agence gère la connexion GestiPro.": "وحده مسؤول الوكالة يدير الربط مع GestiPro.",
   "Sources : adresses invalides (https://…).": "المصادر: عناوين غير صالحة (https://…).",
-  "Trop de codes de partage actifs : révoquez-en un d'abord.": "عدد رموز المشاركة النشطة كبير جدًا: ألغِ أحدها أولًا."
+  "Trop de codes de partage actifs : révoquez-en un d'abord.": "عدد رموز المشاركة النشطة كبير جدًا: ألغِ أحدها أولًا.",
+  "Le relevé d'un mois s'envoie une fois le mois terminé.": "يُرسل كشف الشهر بعد انتهاء الشهر."
 }

@@ -165,6 +165,11 @@ export class GestiproService {
     if (!p) throw new BadRequestException({ statusCode: 400, code: "INVALID_MONTH", message: "Mois invalide (format AAAA-MM)." });
     const from = monthStart(p.year, p.month);
     const to = monthEnd(p.year, p.month);
+    // Un mois n'est envoyé qu'une fois terminé : l'envoi est définitif (une facture par
+    // propriétaire et par mois), des honoraires ajoutés après ne seraient jamais facturés.
+    if (today().getTime() <= to.getTime()) {
+      throw new BadRequestException({ statusCode: 400, code: "MONTH_NOT_CLOSED", message: "Le relevé d'un mois s'envoie une fois le mois terminé." });
+    }
     const rows = await this.prisma.feeEntry.findMany({
       where: { mandate: { agencyId: m.agencyId }, status: { not: "CANCELLED" }, dueDate: { gte: from, lte: to } },
       select: {
