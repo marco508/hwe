@@ -25,6 +25,7 @@ import { MandatesModule } from "./mandates/mandates.module";
 import { SubscriptionsModule } from "./subscriptions/subscriptions.module";
 import { FxModule } from "./fx/fx.module";
 import { VoyageModule } from "./voyage/voyage.module";
+import { DkpModule } from "./dkp/dkp.module";
 import { HealthController } from "./health/health.controller";
 import { AllExceptionsFilter } from "./common/all-exceptions.filter";
 import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interceptor";
@@ -56,6 +57,7 @@ import { ResponseSanitizerInterceptor } from "./common/response-sanitizer.interc
     SubscriptionsModule,
     FxModule,
     VoyageModule,
+    DkpModule,
   ],
   controllers: [HealthController],
   providers: [

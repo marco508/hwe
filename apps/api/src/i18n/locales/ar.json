@@ -382,5 +382,8 @@
   "mail.booking.cancelledByHost.l2": "حجزك:",
   "mail.booking.reviewed.subject": "تقييم جديد لمسكنك ({ref})",
   "mail.booking.reviewed.l1": "ترك مسافر تقييمًا ({rating}/5) عن إقامته في «{title}». يمكنك الرد عليه علنًا.",
-  "mail.booking.reviewed.l2": "العرض والرد:"
+  "mail.booking.reviewed.l2": "العرض والرد:",
+  "pdf.method.KKIAPAY": "دفع إلكتروني (KkiaPay)",
+  "dkp.gestipro.item": "{label} — {property} ({mandate})",
+  "dkp.gestipro.notes": "كشف الأتعاب لشهر {month} مُرسل من hwe — التفويضات {refs}"
 }

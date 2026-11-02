@@ -334,5 +334,8 @@
   "mail.booking.cancelledByHost.l2": "A sua reserva:",
   "mail.booking.reviewed.subject": "nova avaliação do seu alojamento ({ref})",
   "mail.booking.reviewed.l1": "Um viajante deixou uma avaliação ({rating}/5) sobre a estadia em «{title}». Pode responder-lhe publicamente.",
-  "mail.booking.reviewed.l2": "Ver e responder:"
+  "mail.booking.reviewed.l2": "Ver e responder:",
+  "pdf.method.KKIAPAY": "Pagamento online (KkiaPay)",
+  "dkp.gestipro.item": "{label} — {property} ({mandate})",
+  "dkp.gestipro.notes": "Extrato de honorários de {month} enviado a partir do hwe — mandatos {refs}"
 }

@@ -28,7 +28,8 @@ export interface FileRefSlot {
   key: string;
   ref: string;
 }
-const SECRET_KEYS = new Set(["password", "tokenVersion"]);
+// + clé GestiPro des agences et empreintes des codes de partage (écosystème DKP).
+const SECRET_KEYS = new Set(["password", "tokenVersion", "gestiproKey", "codeHash"]);
 
 export function sanitizeResponse(value: unknown, depth = 0, refs?: FileRefSlot[]): unknown {
   if (value === null || typeof value !== "object" || depth > 32) return value;

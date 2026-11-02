@@ -334,5 +334,8 @@
   "mail.booking.cancelledByHost.l2": "Your booking:",
   "mail.booking.reviewed.subject": "new review of your place ({ref})",
   "mail.booking.reviewed.l1": "A guest left a review ({rating}/5) of their stay at “{title}”. You can reply publicly.",
-  "mail.booking.reviewed.l2": "View and reply:"
+  "mail.booking.reviewed.l2": "View and reply:",
+  "pdf.method.KKIAPAY": "Online payment (KkiaPay)",
+  "dkp.gestipro.item": "{label} — {property} ({mandate})",
+  "dkp.gestipro.notes": "Fee statement for {month} sent from hwe — mandates {refs}"
 }

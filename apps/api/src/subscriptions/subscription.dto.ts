@@ -33,6 +33,18 @@ export class CreateSubscriptionRequestDto {
   @IsOptional() @Trim() @IsString() @MaxLength(1000) note?: string;
 }
 
+/** Paiement en ligne : ouverture du widget (offre + durée). */
+export class OnlineStartDto {
+  @Trim() @IsString() @MinLength(2) @MaxLength(30) planCode!: string;
+  @Type(() => Number) @IsIn(DURATIONS as unknown as number[]) months!: number;
+}
+
+/** Paiement en ligne : retour du widget (identifiant de transaction KkiaPay). */
+export class OnlineConfirmDto {
+  @Trim() @IsString() @Matches(/^HWE-SUB-[0-9A-F]{18}$/) reference!: string;
+  @Trim() @IsString() @MinLength(1) @MaxLength(120) transactionId!: string;
+}
+
 export class RejectSubscriptionRequestDto {
   @Trim() @IsString() @MinLength(3) @MaxLength(1000) reason!: string;
 }

@@ -39,7 +39,9 @@ export class AdminService {
       activeMandates,
       usersNotActivated,
       // Sans SMTP, aucun e-mail ne part (vérification, réinitialisation, relances).
+      // Vrai aussi quand les e-mails partent par le hub DKP (mailChannel).
       smtpConfigured: this.mailer.isConfigured,
+      mailChannel: this.mailer.channel,
     };
   }
 

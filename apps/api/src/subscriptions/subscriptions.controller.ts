@@ -10,6 +10,8 @@ import {
   AdminAgencySubscriptionDto,
   AdminPaymentDto,
   CreateSubscriptionRequestDto,
+  OnlineConfirmDto,
+  OnlineStartDto,
   PlanDto,
   PlanPricesDto,
   PlatformSettingsDto,
@@ -54,6 +56,22 @@ export class AgencySubscriptionController {
   @Post("requests")
   request(@CurrentUser() user: JwtPayload, @Body() dto: CreateSubscriptionRequestDto) {
     return this.subs.createRequest(user.sub, dto);
+  }
+
+  /** Paiement en ligne (KkiaPay via le hub DKP) : disponibilité + clé publique du widget. */
+  @Get("online")
+  onlineConfig(@CurrentUser() user: JwtPayload) {
+    return this.subs.onlineConfig(user.sub);
+  }
+
+  @Post("online")
+  onlineStart(@CurrentUser() user: JwtPayload, @Body() dto: OnlineStartDto) {
+    return this.subs.onlineStart(user.sub, dto);
+  }
+
+  @Post("online/confirm")
+  onlineConfirm(@CurrentUser() user: JwtPayload, @Body() dto: OnlineConfirmDto) {
+    return this.subs.onlineConfirm(user.sub, dto);
   }
 
   @Delete("requests/:id")

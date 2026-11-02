@@ -32,11 +32,16 @@ import {
 } from "../common/subscription";
 import { renderPdf } from "../common/pdf-render";
 import { FxService } from "../fx/fx.service";
+import { dkpPaymentsEnabled } from "../dkp/dkp-env";
+import { HubError, hubPaymentsConfig, hubVerifyPayment } from "../dkp/hub";
+import { ONLINE_CURRENCY, isRetryableStatus, onlineReference, xofAmount } from "./online";
 import { basePrice, billingCurrencyOf, normalizePrices, planOffer, type PriceRow } from "./pricing";
 import {
   AdminAgencySubscriptionDto,
   AdminPaymentDto,
   CreateSubscriptionRequestDto,
+  OnlineConfirmDto,
+  OnlineStartDto,
   PlanDto,
   PlatformSettingsDto,
   UpdatePlanDto,
@@ -612,6 +617,132 @@ export class SubscriptionsService {
     });
     const request = await this.prisma.subscriptionRequest.findUniqueOrThrow({ where: { id }, include: REQUEST_INCLUDE });
     return { request: this.shapeRequest(request), payment: this.shapePayment(payment), subscription: await this.summary(payment.agencyId) };
+  }
+
+  // ─────────────── Paiement en ligne (KkiaPay via le hub DKP) ───────────────
+  // Réservé à l'abonnement (somme due à la plateforme) : jamais pour un loyer.
+
+  /** Le paiement en ligne est-il proposé ? (clé publique du widget) */
+  async onlineConfig(userId: string) {
+    await this.managerOf(userId);
+    if (!dkpPaymentsEnabled()) return { enabled: false, publicKey: null, sandbox: false, currency: ONLINE_CURRENCY };
+    try {
+      const c = await hubPaymentsConfig();
+      const enabled = !!(c?.ready && c.publicKey);
+      return { enabled, publicKey: enabled ? c.publicKey : null, sandbox: !!c?.sandbox, currency: ONLINE_CURRENCY };
+    } catch (e) {
+      this.logger.warn(`Configuration de paiement du hub indisponible : ${(e as Error).message}`);
+      return { enabled: false, publicKey: null, sandbox: false, currency: ONLINE_CURRENCY };
+    }
+  }
+
+  /** Ouverture du widget : montant attendu figé côté serveur + référence unique. */
+  async onlineStart(userId: string, dto: OnlineStartDto) {
+    const m = await this.managerOf(userId);
+    const cfg = await this.onlineConfig(userId);
+    if (!cfg.enabled) {
+      throw new BadRequestException({ statusCode: 400, code: "ONLINE_PAYMENT_UNAVAILABLE", message: "Le paiement en ligne n'est pas disponible pour le moment : utilisez le paiement manuel." });
+    }
+    const row = await this.prisma.plan.findUnique({ where: { code: dto.planCode.toUpperCase() }, select: PLAN_SELECT });
+    if (!row || !row.active || row.code === FREE_PLAN_CODE) {
+      throw new BadRequestException({ statusCode: 400, code: "PLAN_NOT_FOUND", message: "Offre inconnue ou indisponible." });
+    }
+    const plan = shapePlan(row);
+    const amount = await xofAmount(plan, dto.months, (a, f, to) => this.fx.convert(a, f, to));
+    if (amount === null) {
+      throw new BadRequestException({ statusCode: 400, code: "ONLINE_PAYMENT_UNAVAILABLE", message: "Le paiement en ligne n'est pas disponible pour le moment : utilisez le paiement manuel." });
+    }
+    const pending = await this.prisma.onlineSubscriptionPayment.create({
+      data: { reference: onlineReference(), agencyId: m.agencyId, planId: plan.id, months: dto.months, amount, currency: ONLINE_CURRENCY, createdById: userId },
+    });
+    const payer = await this.prisma.user.findUnique({ where: { id: userId }, select: { firstName: true, lastName: true, email: true, phone: true } });
+    return {
+      id: pending.id,
+      reference: pending.reference,
+      amount,
+      currency: ONLINE_CURRENCY,
+      months: dto.months,
+      plan: { code: plan.code, name: plan.name },
+      publicKey: cfg.publicKey,
+      sandbox: cfg.sandbox,
+      payer: payer ? { name: `${payer.firstName} ${payer.lastName}`.trim(), email: payer.email, phone: payer.phone } : null,
+    };
+  }
+
+  /**
+   * Retour du widget : la transaction est VÉRIFIÉE par le hub (réussie,
+   * montant ≥ attendu, jamais utilisée pour une autre référence) avant
+   * d'enregistrer le paiement exactement comme une validation manuelle.
+   */
+  async onlineConfirm(userId: string, dto: OnlineConfirmDto) {
+    const m = await this.managerOf(userId);
+    const row = await this.prisma.onlineSubscriptionPayment.findUnique({ where: { reference: dto.reference } });
+    if (!row || row.agencyId !== m.agencyId) {
+      throw new NotFoundException({ statusCode: 404, code: "ONLINE_PAYMENT_NOT_FOUND", message: "Paiement en ligne introuvable." });
+    }
+    if (row.status === "PAID") {
+      return { status: "PAID" as const, paymentId: row.paymentId, subscription: await this.summary(m.agencyId) };
+    }
+    if (row.status === "FAILED") {
+      throw new ConflictException({ statusCode: 409, code: "ONLINE_PAYMENT_FAILED", message: "Ce paiement a été refusé. Recommencez ou utilisez le paiement manuel." });
+    }
+    let check: { ok: boolean; status: string; amount?: number | null };
+    try {
+      check = await hubVerifyPayment(dto.transactionId, row.amount, row.reference);
+    } catch (e) {
+      this.logger.warn(`Vérification KkiaPay impossible (${row.reference}) : ${(e as Error).message}`);
+      const status = e instanceof HubError ? e.status : 0;
+      throw new BadRequestException({
+        statusCode: 400,
+        code: status === 401 ? "ONLINE_PAYMENT_UNAVAILABLE" : "ONLINE_PAYMENT_UNVERIFIED",
+        message: "Paiement non vérifié pour le moment. Réessayez dans un instant ; s'il a bien été débité, il sera validé.",
+      });
+    }
+    if (!check?.ok) {
+      if (isRetryableStatus(check?.status)) {
+        throw new BadRequestException({ statusCode: 400, code: "ONLINE_PAYMENT_UNVERIFIED", message: "Paiement non vérifié pour le moment. Réessayez dans un instant ; s'il a bien été débité, il sera validé." });
+      }
+      await this.prisma.onlineSubscriptionPayment.updateMany({
+        where: { id: row.id, status: "PENDING" },
+        data: { status: "FAILED", providerStatus: String(check?.status ?? "UNKNOWN").slice(0, 40) },
+      });
+      throw new ConflictException({ statusCode: 409, code: "ONLINE_PAYMENT_FAILED", message: "Ce paiement a été refusé. Recommencez ou utilisez le paiement manuel." });
+    }
+    let paymentId: string | null = null;
+    try {
+      paymentId = await this.prisma.$transaction(async (tx) => {
+        const { count } = await tx.onlineSubscriptionPayment.updateMany({
+          where: { id: row.id, status: "PENDING" },
+          data: { status: "PAID", transactionId: dto.transactionId, providerStatus: check.status, paidAt: new Date() },
+        });
+        if (count === 0) return null; // déjà traité par un appel concurrent
+        const plan = await tx.plan.findUniqueOrThrow({ where: { id: row.planId } });
+        const p = await this.recordPayment(
+          tx, row.agencyId, { ...plan, currency: ONLINE_CURRENCY }, row.months, "KKIAPAY", dto.transactionId, userId, null, new Prisma.Decimal(row.amount),
+        );
+        await tx.onlineSubscriptionPayment.update({ where: { id: row.id }, data: { paymentId: p.id } });
+        return p.id;
+      });
+    } catch (e) {
+      // Transaction déjà rattachée à un autre paiement hwe (index unique).
+      if ((e as Prisma.PrismaClientKnownRequestError)?.code === "P2002") {
+        throw new ConflictException({ statusCode: 409, code: "ONLINE_PAYMENT_FAILED", message: "Ce paiement a été refusé. Recommencez ou utilisez le paiement manuel." });
+      }
+      throw e;
+    }
+    if (paymentId) {
+      const payment = await this.prisma.agencyPayment.findUniqueOrThrow({ where: { id: paymentId }, include: PAYMENT_INCLUDE });
+      this.logger.log(`Abonnement payé en ligne : agence ${payment.agencyId}, facture ${payment.number}.`);
+      await this.notifyManagers(payment.agencyId, "approved", {
+        number: payment.number,
+        plan: payment.plan.name,
+        planCode: payment.plan.code,
+        months: payment.months,
+        end: payment.periodEnd,
+      });
+    }
+    const fresh = await this.prisma.onlineSubscriptionPayment.findUniqueOrThrow({ where: { id: row.id } });
+    return { status: "PAID" as const, paymentId: fresh.paymentId, subscription: await this.summary(m.agencyId) };
   }
 
   async rejectRequest(adminId: string, id: string, reason: string) {

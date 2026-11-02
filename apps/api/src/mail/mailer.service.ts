@@ -5,6 +5,8 @@ import { maskEmail } from "../common/email.util";
 import { PrismaService } from "../prisma/prisma.service";
 import { asLang, type Lang } from "../i18n/i18n";
 import * as tpl from "./templates";
+import { hubConfigured } from "../dkp/dkp-env";
+import { hubSendEmail } from "../dkp/hub";
 import type { MailContent, NoticeParams, Period } from "./templates";
 
 /**
@@ -15,6 +17,10 @@ import type { MailContent, NoticeParams, Period } from "./templates";
  * de réinitialisation et de vérification (quiconque lisait les logs pouvait
  * prendre la main sur un compte). En production, un avertissement clair est
  * émis au démarrage et l'état est visible dans GET /admin/overview.
+ *
+ * Sans SMTP mais avec le hub DKP configuré (DKP_HUB_URL, DKP_CLIENT_ID,
+ * DKP_CLIENT_SECRET, portée « email »), les e-mails partent par le hub
+ * (contrat DKP §1.2 : le SMTP de l'app d'abord, sinon le hub).
  *
  * Tous les envois sont « best effort » : un e-mail qui échoue ne doit jamais
  * faire échouer l'opération métier qui l'a déclenché.
@@ -55,6 +61,10 @@ export class MailerService implements OnModuleInit {
   }
 
   onModuleInit() {
+    if (!this.transporter && hubConfigured()) {
+      this.logger.log("SMTP non configuré : e-mails envoyés par le hub DKP.");
+      return;
+    }
     if (!this.transporter && process.env.NODE_ENV === "production") {
       this.logger.warn(
         "⚠️  SMTP NON CONFIGURÉ (SMTP_HOST absent) : AUCUN e-mail ne part — vérification de compte, " +
@@ -63,9 +73,14 @@ export class MailerService implements OnModuleInit {
     }
   }
 
-  /** Vrai si un relais SMTP est configuré (exposé dans GET /admin/overview). */
+  /** Vrai si un relais SMTP ou le hub DKP est configuré (exposé dans GET /admin/overview). */
   get isConfigured(): boolean {
-    return this.transporter !== null;
+    return this.transporter !== null || hubConfigured();
+  }
+
+  /** Canal d'envoi effectif : « smtp », « dkp-hub » ou null (aucun). */
+  get channel(): "smtp" | "dkp-hub" | null {
+    return this.transporter ? "smtp" : hubConfigured() ? "dkp-hub" : null;
   }
 
   private get from(): string {
@@ -74,6 +89,15 @@ export class MailerService implements OnModuleInit {
 
   async send(to: string, subject: string, text: string): Promise<void> {
     if (!to) return;
+    if (!this.transporter && hubConfigured()) {
+      try {
+        await hubSendEmail({ to, subject, text });
+        this.logger.log(`E-mail envoyé (hub DKP) à ${maskEmail(to)} : ${subject}`);
+      } catch (e) {
+        this.logger.error(`Échec d'envoi (hub DKP) à ${maskEmail(to)} : ${(e as Error).message}`);
+      }
+      return;
+    }
     if (!this.transporter) {
       // Jamais le corps : il peut contenir un lien de réinitialisation.
       void text;

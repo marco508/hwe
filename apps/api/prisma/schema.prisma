@@ -92,6 +92,9 @@ model User {
   /// Langue préférée (fr, en, es, pt, ar) : e-mails, PDF, libellés générés.
   /// null = jamais choisie → fr.
   locale            String?  @db.VarChar(5)
+  /// Identifiant du Compte DKP lié (connexion « Continuer avec un compte DKP »).
+  /// null = jamais lié.
+  dkpSub            String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -509,6 +512,7 @@ model LeaseContract {
   coTenants   LeaseCoTenant[]
   insurances  InsuranceCertificate[]
   chargeRegularizations ChargeRegularization[]
+  rentShareCodes RentShareCode[]
 
   @@index([propertyId])
   @@index([status])
@@ -856,9 +860,16 @@ model Agency {
   lastReminderKey    String?
   /// Devise de facturation choisie par l'agence (ISO 4217) ; null = celle de son pays.
   billingCurrency    String?  @db.VarChar(3)
+  /// Clé d'intégration GestiPro (gp_…) collée par un responsable : jamais
+  /// renvoyée au front (seulement `gestiproKeyHint`, ex. « gp_…a1b2 »).
+  gestiproKey         String?
+  gestiproKeyHint     String?  @db.VarChar(40)
+  gestiproTenantName  String?  @db.VarChar(160)
+  gestiproConnectedAt DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  onlinePayments       OnlineSubscriptionPayment[]
   subscriptionRequests SubscriptionRequest[]
   payments             AgencyPayment[]
   members        AgencyMember[]
@@ -1129,6 +1140,8 @@ enum PaymentMethod {
   MOBILE_MONEY
   CASH
   OTHER
+  /// Paiement en ligne KkiaPay (via le hub DKP), vérifié côté serveur.
+  KKIAPAY
 }
 
 enum SubscriptionRequestStatus {
@@ -1184,6 +1197,57 @@ model AgencyPayment {
   createdAt   DateTime      @default(now())
 
   @@index([agencyId, createdAt])
+}
+
+enum OnlinePaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+/// Paiement en ligne d'un abonnement (KkiaPay via le hub DKP) : créé à
+/// l'ouverture du widget avec un montant attendu figé, payé après
+/// vérification serveur de la transaction (jamais sur la seule parole du front).
+model OnlineSubscriptionPayment {
+  id            String              @id @default(cuid())
+  /// Référence unique envoyée au hub (HWE-SUB-…).
+  reference     String              @unique
+  agencyId      String
+  agency        Agency              @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  planId        String
+  months        Int
+  /// Montant attendu en XOF (entier) et prix de l'offre dans la devise facturée.
+  amount        Int
+  currency      String              @default("XOF")
+  status        OnlinePaymentStatus @default(PENDING)
+  transactionId String?             @unique
+  providerStatus String?
+  paymentId     String?             @unique
+  createdById   String
+  paidAt        DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([agencyId, createdAt])
+}
+
+/// Code de partage du loyer (FamiLyfe) : créé par le locataire pour un bail,
+/// valable 30 jours, révocable. Seule l'empreinte du code est gardée.
+model RentShareCode {
+  id         String    @id @default(cuid())
+  leaseId    String
+  lease      LeaseContract @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  createdById String
+  codeHash   String    @unique
+  /// Fin du code affichée (« …K7Q2 »), pour reconnaître le code dans la liste.
+  hint       String    @db.VarChar(12)
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastUsedAt DateTime?
+  useCount   Int       @default(0)
+  createdAt  DateTime  @default(now())
+
+  @@index([leaseId, createdAt])
 }
 
 /// Numérotation des factures d'abonnement (FAC-<année>-<n>).

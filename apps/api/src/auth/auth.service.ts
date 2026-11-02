@@ -364,6 +364,15 @@ export class AuthService {
     return this.signToken(user);
   }
 
+  /**
+   * Session pour un compte déjà authentifié par ailleurs (Compte DKP) :
+   * même jeton et même réponse qu'après la connexion habituelle.
+   */
+  async sessionFor(userId: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    return this.signToken(user);
+  }
+
   /** Profil courant (mêmes champs que la réponse de login). */
   async me(userId: string) {
     const user = await this.prisma.user.findUnique({
