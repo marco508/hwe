@@ -51,6 +51,8 @@ const PROPERTY_CARD = {
   city: true,
   country: true,
   addressLine: true,
+  latitude: true,
+  longitude: true,
   propertyType: true,
   bedrooms: true,
   bathrooms: true,
@@ -269,7 +271,7 @@ export class StaysService {
         const rates: StayRates = { nightly: s.nightlyPrice ?? of("DAYS"), weekly: of("WEEKS"), monthly: of("MONTHS"), cleaningFee: s.cleaningFee };
         const nightly = baseNightly(rates);
         if (nightly === null) return null;
-        const { staySettings: _s, pricingRates: _r, ownerId: _o, addressLine: _a, ...card } = p;
+        const { staySettings: _s, pricingRates: _r, ownerId: _o, addressLine: _a, latitude: _la, longitude: _lo, ...card } = p;
         const r = ratings.get(p.id);
         return {
           ...shapeProperty(card),
@@ -627,7 +629,7 @@ export class StaysService {
         : null;
     const revealAddress = as === "HOST" || b.status === "CONFIRMED" || b.status === "COMPLETED";
     const needsPayment = b.status === "ACCEPTED" && b.paymentMode === "BEFORE_ARRIVAL";
-    const { ownerId: _o, addressLine, ...card } = property;
+    const { ownerId: _o, addressLine, latitude, longitude, ...card } = property;
     const commission = Math.round(b.total * b.commissionPct) / 100;
     return {
       ...rest,
@@ -635,7 +637,14 @@ export class StaysService {
       commissionPct: as === "HOST" ? b.commissionPct : undefined,
       commissionAmount: as === "HOST" ? commission : undefined,
       hostPayout: as === "HOST" ? Math.round((b.total - commission) * 100) / 100 : undefined,
-      property: { ...shapeProperty(card), addressLine: revealAddress ? addressLine : undefined },
+      // Adresse et position exactes : seulement une fois la réservation confirmée
+      // (livraison au logement — Zémi Market — pré-remplie avec).
+      property: {
+        ...shapeProperty(card),
+        addressLine: revealAddress ? addressLine : undefined,
+        latitude: revealAddress ? latitude : undefined,
+        longitude: revealAddress ? longitude : undefined,
+      },
       arrivalInstructions: revealAddress ? settings?.arrivalInstructions ?? null : undefined,
       checkInFrom: settings?.checkInFrom,
       checkOutBefore: settings?.checkOutBefore,

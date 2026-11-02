@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext, AuthSplit } from "@hwe/ui";
+import { Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext, AuthSplit, DkpLoginButton } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 
@@ -108,6 +108,7 @@ function RegisterInner() {
               </Link>
             </p>
           </form>
+          <DkpLoginButton space="tenant" next={next !== "/" ? next : null} className="mt-4" />
         </CardBody>
       </Card>
     </AuthSplit>

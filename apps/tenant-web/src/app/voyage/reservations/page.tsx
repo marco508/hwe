@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button, EmptyState, ErrorState, Icon, Input, Label, Select, Textarea, intlLocale, toast, useAsync, useLoginRedirect } from "@hwe/ui";
+import { Button, EmptyState, ErrorState, Icon, Input, Label, Select, Textarea, ZemiDeliveryLink, intlLocale, toast, useAsync, useLoginRedirect } from "@hwe/ui";
 import type { Booking } from "@hwe/types";
 import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
@@ -72,6 +72,7 @@ export default function ReservationsPage() {
 }
 
 function BookingCard({ b, onUpdate }: { b: Booking; onUpdate: (b: Booking) => void }) {
+  const { user } = useAuth();
   const { format } = useCurrency();
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
@@ -169,6 +170,19 @@ function BookingCard({ b, onUpdate }: { b: Booking; onUpdate: (b: Booking) => vo
               )}
               {b.paymentMode === "ON_ARRIVAL" && b.status === "CONFIRMED" && <p className="text-ink-muted">{t("voy.bookings.payOnArrival", { total: money(b.total) })}</p>}
             </div>
+          )}
+
+          {/* Zémi Market : courses livrées au logement (réservation confirmée, Bénin) */}
+          {b.status === "CONFIRMED" && b.property.addressLine && (
+            <ZemiDeliveryLink
+              country={b.property.country}
+              address={`${b.property.addressLine}, ${b.property.city}`}
+              lat={b.property.latitude ?? null}
+              lng={b.property.longitude ?? null}
+              name={user ? `${user.firstName} ${user.lastName}`.trim() : null}
+              phone={user?.phone ?? null}
+              note={`${b.property.title} — ${b.reference}`}
+            />
           )}
 
           {b.houseRules && ["ACCEPTED", "CONFIRMED"].includes(b.status) && (

@@ -149,6 +149,20 @@ export { AgencyLogo, ManagedByBadge, InviteLinkBox } from "./components/ProKit";
 // Client API, session, formatteurs, fichiers (partagés owner/tenant/landing).
 export * from "./client";
 export {
+  useDkpConfig,
+  dkpStartUrl,
+  dkpErrorText,
+  DkpLoginButton,
+  DkpCallback,
+  DkpServices,
+  zemiDeliveryUrl,
+  ZemiDeliveryLink,
+  afrochinaUrl,
+  AfroChinaEquipLink,
+  type DkpConfig,
+  type ZemiPrefill,
+} from "./components/DkpKit";
+export {
   IlloSkyline,
   IlloKeys,
   IlloSearchHome,

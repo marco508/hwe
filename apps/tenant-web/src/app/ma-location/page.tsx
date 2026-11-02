@@ -27,6 +27,7 @@ import { api } from "../../lib/api";
 import { t, useLang } from "../../lib/i18n";
 import { payDayText } from "../../lib/rent-format";
 import { LeaseTenantExtras } from "../../components/LeaseTenantExtras";
+import { DkpLeaseBridges } from "../../components/DkpLeaseBridges";
 import { useLandlordChat } from "../../lib/landlord-chat";
 import type { LeaseContract, LeaseStatus } from "@hwe/types";
 
@@ -545,6 +546,9 @@ function LeaseCard({
         )}
 
         <LeaseTenantExtras lease={lease} onLeaseUpdate={onUpdate} isPrimary={isPrimary} />
+
+        {/* Services DKP : livraison au logement (Zémi Market), partage du loyer (FamiLyfe) */}
+        <DkpLeaseBridges lease={lease} />
 
       </CardBody>
     </Card>

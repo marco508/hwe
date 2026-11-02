@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useShellParams } from "../../../lib/route-params";
 import type { Inquiry, LeaseContract, Mandate, Property } from "@hwe/types";
 import {
+  AfroChinaEquipLink,
   Badge,
   Button,
   EmptyState,
@@ -211,6 +212,9 @@ export default function PropertyHubPage() {
             </Link>
           ))}
       </div>
+
+      {/* Services DKP : meubler / équiper un logement loué (AfroChina), masqué sans configuration */}
+      {p.listingType === "RENT" && p.status !== "SOLD" && <AfroChinaEquipLink property={p} />}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {pro && item?.owner && (

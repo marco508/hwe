@@ -1085,5 +1085,21 @@
   "voy.ev.indicative": "Información orientativa: compruebe las fechas con los organizadores o la oficina de turismo antes de viajar.",
   "voy.ev.sameTime": "Al mismo tiempo",
   "voy.home.eventsTitle": "Fiestas y eventos",
-  "voy.home.eventsText": "Festivos, fiestas, festivales y noches: ¿qué pasa durante su estancia?"
+  "voy.home.eventsText": "Festivos, fiestas, festivales y noches: ¿qué pasa durante su estancia?",
+  "dkp.share.title": "Compartir el alquiler con FamiLyfe",
+  "dkp.share.lead": "Cree un código para introducir en FamiLyfe: el alquiler del mes se convierte en un gasto del hogar repartido entre sus miembros. El código es válido 30 días y revocable en cualquier momento. FamiLyfe solo lee la vivienda, la dirección, el alquiler, los gastos y el día de vencimiento.",
+  "dkp.share.create": "Crear un código para compartir",
+  "dkp.share.newCode": "Su código (se muestra una sola vez):",
+  "dkp.share.copy": "Copiar",
+  "dkp.share.copied": "Código copiado",
+  "dkp.share.open": "Abrir FamiLyfe",
+  "dkp.share.listTitle": "Códigos para compartir creados",
+  "dkp.share.expires": "válido hasta el {date}",
+  "dkp.share.uses": "usos: {count}",
+  "dkp.share.state.ACTIVE": "Activo",
+  "dkp.share.state.EXPIRED": "Caducado",
+  "dkp.share.state.REVOKED": "Revocado",
+  "dkp.share.revoke": "Revocar",
+  "dkp.share.revokeConfirm": "¿Revocar este código? FamiLyfe ya no podrá leer el alquiler con él.",
+  "dkp.share.revoked": "Código revocado"
 }

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext, AuthSplit, OWNER_URL } from "@hwe/ui";
+import { Button, Card, CardBody, Input, Label, errorText, isApiError, safeNext, AuthSplit, OWNER_URL, DkpLoginButton, dkpErrorText } from "@hwe/ui";
 import { useAuth, WRONG_ROLE } from "../../lib/auth-context";
 import { t } from "../../lib/i18n";
 
@@ -24,7 +24,8 @@ function LoginInner() {
   const { login } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
+  // Retour du Compte DKP en échec (?dkp_error=…) : message lisible.
+  const [error, setError] = React.useState<string | null>(() => dkpErrorText(params.get("dkp_error")));
   // Compte professionnel (agence) : il se connecte dans l'espace pro.
   const [proAccount, setProAccount] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -119,6 +120,7 @@ function LoginInner() {
               </Link>
             </p>
           </form>
+          <DkpLoginButton space="tenant" next={next !== "/" ? next : null} className="mt-4" />
         </CardBody>
       </Card>
     </AuthSplit>

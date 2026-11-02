@@ -284,6 +284,9 @@ export interface Booking {
     city: string;
     country: string;
     addressLine?: string;
+    /** Position exacte : seulement une fois la réservation confirmée. */
+    latitude?: number | null;
+    longitude?: number | null;
     propertyType: string;
     currency: string;
     media: Array<{ id: string; url: string; alt?: string | null }>;

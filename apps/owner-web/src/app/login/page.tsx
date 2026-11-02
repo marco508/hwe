@@ -12,7 +12,7 @@ import {
   AuthSplit,
 } from "@hwe/ui";
 import { useAuth, WRONG_ROLE } from "../../lib/auth-context";
-import { Icon, TENANT_URL, errorText, isApiError, safeNext } from "@hwe/ui";
+import { Icon, TENANT_URL, errorText, isApiError, safeNext, DkpLoginButton, dkpErrorText } from "@hwe/ui";
 import { t } from "../../lib/i18n";
 
 export default function LoginPage() {
@@ -30,7 +30,8 @@ function LoginInner() {
   const { login } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
+  // Retour du Compte DKP en échec (?dkp_error=…) : message lisible.
+  const [error, setError] = React.useState<string | null>(() => dkpErrorText(params.get("dkp_error")));
   // Compte locataire : bouton vers l'espace locataire sous le message.
   const [wrongRole, setWrongRole] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -146,6 +147,7 @@ function LoginInner() {
                 </span>
               </p>
             </form>
+            <DkpLoginButton space="owner" next={safeNext(params.get("next"), "") || null} className="mt-4" />
           </CardBody>
         </Card>
       </div>

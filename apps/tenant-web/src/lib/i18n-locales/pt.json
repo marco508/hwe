@@ -1085,5 +1085,21 @@
   "voy.ev.indicative": "Informação indicativa: confirme as datas com os organizadores ou o posto de turismo antes de partir.",
   "voy.ev.sameTime": "Na mesma altura",
   "voy.home.eventsTitle": "Festas e eventos",
-  "voy.home.eventsText": "Feriados, festas, festivais e noites: o que acontece durante a sua estadia?"
+  "voy.home.eventsText": "Feriados, festas, festivais e noites: o que acontece durante a sua estadia?",
+  "dkp.share.title": "Partilhar a renda com o FamiLyfe",
+  "dkp.share.lead": "Crie um código para introduzir no FamiLyfe: a renda do mês passa a ser uma despesa da casa, repartida entre os membros. O código é válido durante 30 dias e pode ser revogado a qualquer momento. O FamiLyfe só lê o alojamento, a morada, a renda, os encargos e o dia de vencimento.",
+  "dkp.share.create": "Criar um código de partilha",
+  "dkp.share.newCode": "O seu código (apresentado uma única vez):",
+  "dkp.share.copy": "Copiar",
+  "dkp.share.copied": "Código copiado",
+  "dkp.share.open": "Abrir o FamiLyfe",
+  "dkp.share.listTitle": "Códigos de partilha criados",
+  "dkp.share.expires": "válido até {date}",
+  "dkp.share.uses": "utilizações: {count}",
+  "dkp.share.state.ACTIVE": "Ativo",
+  "dkp.share.state.EXPIRED": "Expirado",
+  "dkp.share.state.REVOKED": "Revogado",
+  "dkp.share.revoke": "Revogar",
+  "dkp.share.revokeConfirm": "Revogar este código? O FamiLyfe deixará de poder ler a renda com ele.",
+  "dkp.share.revoked": "Código revogado"
 }

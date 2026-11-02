@@ -1085,5 +1085,21 @@
   "voy.ev.indicative": "For guidance only: check dates with the organisers or the tourist office before you travel.",
   "voy.ev.sameTime": "Around the same time",
   "voy.home.eventsTitle": "Festivals & events",
-  "voy.home.eventsText": "Holidays, festivals and nights out: what's on during your stay?"
+  "voy.home.eventsText": "Holidays, festivals and nights out: what's on during your stay?",
+  "dkp.share.title": "Share the rent with FamiLyfe",
+  "dkp.share.lead": "Create a code to enter in FamiLyfe: the month's rent becomes a household expense split between its members. The code is valid for 30 days and can be revoked at any time. FamiLyfe only reads the home, address, rent, charges and due day.",
+  "dkp.share.create": "Create a sharing code",
+  "dkp.share.newCode": "Your code (shown only once):",
+  "dkp.share.copy": "Copy",
+  "dkp.share.copied": "Code copied",
+  "dkp.share.open": "Open FamiLyfe",
+  "dkp.share.listTitle": "Sharing codes created",
+  "dkp.share.expires": "valid until {date}",
+  "dkp.share.uses": "uses: {count}",
+  "dkp.share.state.ACTIVE": "Active",
+  "dkp.share.state.EXPIRED": "Expired",
+  "dkp.share.state.REVOKED": "Revoked",
+  "dkp.share.revoke": "Revoke",
+  "dkp.share.revokeConfirm": "Revoke this code? FamiLyfe will no longer be able to read the rent with it.",
+  "dkp.share.revoked": "Code revoked"
 }

@@ -26,6 +26,7 @@ import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
 import { KV, ProHero, SectionCard, StatTile } from "../../../components/pro/ProUi";
 import { useSubscription } from "../../../components/pro/SubscriptionKit";
+import { OnlinePayment } from "../../../components/pro/OnlinePayment";
 
 const METHODS: PaymentMethod[] = ["TRANSFER", "MOBILE_MONEY", "CASH", "OTHER"];
 
@@ -343,6 +344,8 @@ export default function SubscriptionPage() {
                     </Select>
                   </div>
                 </div>
+                {/* Paiement en ligne (KkiaPay via le hub DKP) ; sinon déclaration manuelle ci-dessous. */}
+                <OnlinePayment plan={chosen} months={months} onPaid={refresh} />
                 <div>
                   <Label htmlFor="sub-ref">{t("sub.reference")}</Label>
                   <Input id="sub-ref" required minLength={2} maxLength={120} value={reference} onChange={(e) => setReference(e.target.value)} />

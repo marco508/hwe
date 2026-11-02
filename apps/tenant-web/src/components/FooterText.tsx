@@ -1,6 +1,6 @@
 "use client";
 
-import { LANDING_URL } from "@hwe/ui";
+import { DkpServices, LANDING_URL } from "@hwe/ui";
 import { t } from "../lib/i18n";
 
 /**
@@ -10,6 +10,7 @@ import { t } from "../lib/i18n";
  */
 export function FooterText() {
   return (
+    <>
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <span>
         © {new Date().getFullYear()} hwe — {t("acc.footer")}
@@ -26,5 +27,8 @@ export function FooterText() {
         </a>
       </nav>
     </div>
+    {/* Services DKP (masqué sans DKP_PUBLIC_URL côté API) */}
+    <DkpServices className="mt-3" />
+    </>
   );
 }

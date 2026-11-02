@@ -1,7 +1,8 @@
 // Abonnement des professionnels (voir ABONNEMENT.md, « Contrat final »).
 
 export type SubscriptionStatus = "TRIAL" | "ACTIVE" | "GRACE" | "FREE" | "SUSPENDED";
-export type PaymentMethod = "TRANSFER" | "MOBILE_MONEY" | "CASH" | "OTHER";
+/** KKIAPAY : paiement en ligne vérifié (écosystème DKP), jamais saisi à la main. */
+export type PaymentMethod = "TRANSFER" | "MOBILE_MONEY" | "CASH" | "OTHER" | "KKIAPAY";
 export type SubscriptionRequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
 export type ReminderKind = "D15" | "D7" | "D1" | "GRACE" | "FREE" | "SUSPENDED";
 

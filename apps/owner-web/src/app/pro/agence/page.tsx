@@ -29,6 +29,7 @@ import { api } from "../../../lib/api";
 import { t } from "../../../lib/i18n";
 import { invalidatePortfolio } from "../../../lib/pro";
 import { ConfirmDialog, KV, MandateTypeBadge, ProHero, SectionCard } from "../../../components/pro/ProUi";
+import { GestiproSection } from "../../../components/pro/GestiproSection";
 
 export default function AgencyPage() {
   const { user, refresh } = useAuth();
@@ -61,6 +62,8 @@ export default function AgencyPage() {
       <ProfileSection mine={data} canManage={canManage} onSaved={onSaved} />
       <TeamSection mine={data} canManage={canManage} onChanged={setData} />
       {canManage && <AssignmentSection members={data.members} />}
+      {/* Services DKP : factures des honoraires dans GestiPro (masqué sans configuration) */}
+      {canManage && <GestiproSection />}
     </section>
   );
 }

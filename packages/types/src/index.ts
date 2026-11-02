@@ -481,7 +481,7 @@ export interface LeaseContract {
   createdAt: string;
   updatedAt: string;
   property?: Pick<Property, "id" | "title" | "addressLine" | "city" | "postalCode" | "country" | "surface" | "rooms"> &
-    Partial<Pick<Property, "propertyType" | "currency" | "listingType">> & {
+    Partial<Pick<Property, "propertyType" | "currency" | "listingType" | "latitude" | "longitude">> & {
       owner?: Pick<User, "id" | "firstName" | "lastName"> & { email?: string; phone?: string | null };
     };
 }

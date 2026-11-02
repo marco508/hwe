@@ -1213,5 +1213,21 @@
   "voy.ev.indicative": "معلومات إرشادية: تحقق من التواريخ لدى المنظمين أو مكتب السياحة قبل السفر.",
   "voy.ev.sameTime": "في الفترة نفسها",
   "voy.home.eventsTitle": "الأعياد والفعاليات",
-  "voy.home.eventsText": "العطل والأعياد والمهرجانات والسهرات: ماذا يجري خلال إقامتك؟"
+  "voy.home.eventsText": "العطل والأعياد والمهرجانات والسهرات: ماذا يجري خلال إقامتك؟",
+  "dkp.share.title": "مشاركة الإيجار عبر FamiLyfe",
+  "dkp.share.lead": "أنشئ رمزًا لإدخاله في FamiLyfe: يصبح إيجار الشهر نفقة منزلية تُقسَّم بين أفراد البيت. الرمز صالح 30 يومًا ويمكن إلغاؤه في أي وقت. لا يقرأ FamiLyfe سوى السكن والعنوان والإيجار والرسوم ويوم الاستحقاق.",
+  "dkp.share.create": "إنشاء رمز مشاركة",
+  "dkp.share.newCode": "رمزك (يُعرض مرة واحدة فقط):",
+  "dkp.share.copy": "نسخ",
+  "dkp.share.copied": "تم نسخ الرمز",
+  "dkp.share.open": "فتح FamiLyfe",
+  "dkp.share.listTitle": "رموز المشاركة المُنشأة",
+  "dkp.share.expires": "صالح حتى {date}",
+  "dkp.share.uses": "مرات الاستخدام: {count}",
+  "dkp.share.state.ACTIVE": "نشط",
+  "dkp.share.state.EXPIRED": "منتهي الصلاحية",
+  "dkp.share.state.REVOKED": "ملغى",
+  "dkp.share.revoke": "إلغاء",
+  "dkp.share.revokeConfirm": "إلغاء هذا الرمز؟ لن يتمكن FamiLyfe بعد الآن من قراءة الإيجار به.",
+  "dkp.share.revoked": "تم إلغاء الرمز"
 }

@@ -44,6 +44,22 @@ services:
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASS: ${SMTP_PASS:-}
       SMTP_FROM: ${SMTP_FROM:-}
+      # Écosystème DKP (docs/ECOSYSTEME-DKP.md) : vides = fonctions masquées.
+      # Sans SMTP_HOST, les e-mails partent par le hub DKP s'il est configuré.
+      DKP_HUB_URL: ${DKP_HUB_URL:-}
+      DKP_PUBLIC_URL: ${DKP_PUBLIC_URL:-}
+      DKP_CLIENT_ID: ${DKP_CLIENT_ID:-}
+      DKP_CLIENT_SECRET: ${DKP_CLIENT_SECRET:-}
+      DKP_LOGIN: ${DKP_LOGIN:-}
+      DKP_PAYMENTS: ${DKP_PAYMENTS:-}
+      DKP_REDIRECT_URI: ${DKP_REDIRECT_URI:-}
+      DKP_PARTNER_KEYS: ${DKP_PARTNER_KEYS:-}
+      ZEMI_PUBLIC_URL: ${ZEMI_PUBLIC_URL:-}
+      AFROCHINA_PUBLIC_URL: ${AFROCHINA_PUBLIC_URL:-}
+      AFROCHINA_REQUEST_PATH: ${AFROCHINA_REQUEST_PATH:-}
+      GESTIPRO_PUBLIC_URL: ${GESTIPRO_PUBLIC_URL:-}
+      GESTIPRO_PARTNER_URL: ${GESTIPRO_PARTNER_URL:-}
+      FAMILYFE_PUBLIC_URL: ${FAMILYFE_PUBLIC_URL:-}
     ports: !override
       - "127.0.0.1:4005:4000"
     labels:

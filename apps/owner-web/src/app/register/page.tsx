@@ -15,7 +15,7 @@ import {
   usePlatformTexts,
 } from "@hwe/ui";
 import { useAuth } from "../../lib/auth-context";
-import { errorText, isApiError } from "@hwe/ui";
+import { errorText, isApiError, DkpLoginButton } from "@hwe/ui";
 import { t } from "../../lib/i18n";
 
 export default function RegisterPage() {
@@ -207,6 +207,8 @@ function RegisterInner() {
                 </Link>
               </p>
             </form>
+            {/* Compte DKP : crée un compte propriétaire (jamais pro) — inscription pro par le formulaire. */}
+            {kind === "OWNER" && <DkpLoginButton space="owner" className="mt-4" />}
           </CardBody>
         </Card>
       </div>

@@ -9,6 +9,7 @@ import {
   Toaster,
   TENANT_URL,
   OWNER_URL,
+  DkpServices,
 } from "@hwe/ui";
 import { t, LangProvider, LangSwitch } from "../lib/i18n";
 import { LocalizedTitle } from "./LocalizedTitle";
@@ -264,6 +265,8 @@ export function SiteFooter({ exploreLinks }: { exploreLinks?: NavLink[] }) {
         </div>
         <div className="border-t border-cream-50/10 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream-200/60">
           <span>{t("footer.tagline", { year: year ?? "" }).replace("©  ", "© ")}</span>
+          {/* Services DKP (masqué sans DKP_PUBLIC_URL côté API) */}
+          <DkpServices tone="inverted" className="sm:justify-end" />
         </div>
       </div>
     </footer>

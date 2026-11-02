@@ -44,6 +44,8 @@ export type AuthCtx = {
   }) => Promise<User>;
   /** Ouvre la session à partir d'une réponse { accessToken, user } (activation d'un compte invité). */
   adopt: (accessToken: string, user: User) => Promise<User>;
+  /** Ouvre la session à partir du seul jeton (retour « Continuer avec un compte DKP »). */
+  adoptToken: (accessToken: string) => Promise<User>;
   logout: () => void;
   refresh: () => Promise<void>;
   /** Fusionne des champs dans l'utilisateur courant (après PATCH /users/me…). */
@@ -222,6 +224,17 @@ export function createAuth(options: {
       [establish],
     );
 
+    const adoptToken = React.useCallback<AuthCtx["adoptToken"]>(
+      async (accessToken) => {
+        // Rôle vérifié AVANT tout stockage du jeton (F4), comme à la connexion.
+        const me = await commonApi.meWith(accessToken);
+        const u = await establish(accessToken, me);
+        syncLocaleOnLogin(u);
+        return u;
+      },
+      [establish, syncLocaleOnLogin],
+    );
+
     const logout = React.useCallback(() => {
       tokenStore.clear();
       setUser(null);
@@ -240,12 +253,13 @@ export function createAuth(options: {
         login,
         register,
         adopt: establish,
+        adoptToken,
         logout,
         refresh,
         patchUser,
         emailVerified: !!user?.emailVerifiedAt,
       }),
-      [user, loading, sessionError, login, register, establish, logout, refresh, patchUser],
+      [user, loading, sessionError, login, register, establish, adoptToken, logout, refresh, patchUser],
     );
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -39,6 +39,9 @@ export const commonApi = {
   resetPassword: (token: string, password: string) =>
     request<{ ok: true }>("/auth/reset-password", { method: "POST", body: json({ token, password }) }),
   me: () => request<User>("/auth/me", { auth: true }),
+  /** Profil lu avec un jeton pas encore enregistré (retour du Compte DKP). */
+  meWith: (accessToken: string) =>
+    request<User>("/auth/me", { headers: { Authorization: `Bearer ${accessToken}` } }),
   verifyEmail: (token: string) =>
     request<{ ok: true }>("/auth/verify-email", { method: "POST", body: json({ token }) }),
   sendVerification: () =>
