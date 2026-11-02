@@ -101,7 +101,9 @@ export class DkpAuthController {
   ) {}
 
   private cookie(res: Response, value: string, maxAgeMs: number) {
-    const secure = (process.env.PUBLIC_API_URL ?? "").startsWith("https:") || process.env.NODE_ENV === "production";
+    // Secure dès que l'API est servie en HTTPS (adresse publique) ; à défaut d'adresse, en production.
+    const api = (process.env.PUBLIC_API_URL ?? "").trim();
+    const secure = api ? api.startsWith("https:") : process.env.NODE_ENV === "production";
     res.setHeader(
       "Set-Cookie",
       `${DKP_STATE_COOKIE}=${encodeURIComponent(value)}; Path=/api/auth/dkp; HttpOnly; SameSite=Lax; Max-Age=${Math.floor(maxAgeMs / 1000)}${secure ? "; Secure" : ""}`,
