@@ -4,7 +4,7 @@
  * exactement comme avant (boutons et liens masqués, e-mails par SMTP seul).
  *
  * Variables (noms seulement ; valeurs dans le .env, jamais dans le dépôt) :
- *   DKP_HUB_URL            URL serveur du hub (ex. http://dkp-hub:3020)
+ *   DKP_HUB_URL            URL serveur du hub (prod : https://dkpsolution.tech)
  *   DKP_PUBLIC_URL         URL du hub vue par le navigateur (ex. https://dkpsolution.tech)
  *   DKP_CLIENT_ID          identifiant de hwe sur le hub (« hwe »)
  *   DKP_CLIENT_SECRET      secret de hwe sur le hub
@@ -15,7 +15,7 @@
  *   ZEMI_PUBLIC_URL        lien « Faire livrer… — Zémi Market » (ex. https://bjdrive.dkpsolution.tech)
  *   AFROCHINA_PUBLIC_URL   lien « Équiper ce logement depuis la Chine » (ex. https://afrochina.dkpsolution.tech)
  *   AFROCHINA_REQUEST_PATH (facultatif) chemin du formulaire de demande AfroChina
- *   GESTIPRO_PARTNER_URL   API GestiPro (ex. http://gestipro-api:3000) : « Connecter GestiPro »
+ *   GESTIPRO_PARTNER_URL   API GestiPro (prod : son URL publique HTTPS) : « Connecter GestiPro »
  *   GESTIPRO_PUBLIC_URL    (facultatif) lien GestiPro dans « Services DKP »
  *   FAMILYFE_PUBLIC_URL    (facultatif) lien FamiLyfe (partage du loyer, « Services DKP »)
  */
@@ -39,7 +39,7 @@ export function dkpEnv() {
     redirectUri: (e.DKP_REDIRECT_URI ?? "").trim(),
     zemiUrl: clean(e.ZEMI_PUBLIC_URL),
     afrochinaUrl: clean(e.AFROCHINA_PUBLIC_URL),
-    afrochinaPath: (e.AFROCHINA_REQUEST_PATH ?? "").trim() || "/client/demandes/nouvelle",
+    afrochinaPath: (e.AFROCHINA_REQUEST_PATH ?? "").trim() || "/client/request/new",
     gestiproApi: clean(e.GESTIPRO_PARTNER_URL),
     gestiproPublic: clean(e.GESTIPRO_PUBLIC_URL),
     familyfeUrl: clean(e.FAMILYFE_PUBLIC_URL),

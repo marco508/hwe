@@ -10,7 +10,7 @@ reconstruction des fronts n'est nécessaire pour activer ou couper une fonction.
 
 | Variable | Rôle |
 |---|---|
-| `DKP_HUB_URL` | URL serveur du hub (prod : `http://dkp-hub:3020`, l'API doit alors être sur le réseau docker `dkp`) |
+| `DKP_HUB_URL` | URL serveur du hub (prod : `https://dkpsolution.tech` — les apps se joignent par leurs URL publiques HTTPS, sans réseau docker partagé) |
 | `DKP_PUBLIC_URL` | URL du hub vue par le navigateur (`https://dkpsolution.tech`) ; active aussi « Services DKP » dans les pieds de page |
 | `DKP_CLIENT_ID` / `DKP_CLIENT_SECRET` | identifiants de hwe sur le hub (portées `login,email,payments`) |
 | `DKP_LOGIN` | `0` = masquer « Continuer avec un compte DKP » (défaut : actif si hub configuré) |
@@ -18,14 +18,14 @@ reconstruction des fronts n'est nécessaire pour activer ou couper une fonction.
 | `DKP_REDIRECT_URI` | (facultatif) adresse de retour OAuth ; défaut `PUBLIC_API_URL` + `/auth/dkp/callback` — à déclarer telle quelle sur le hub |
 | `DKP_PARTNER_KEYS` | clés des apps qui appellent hwe : `familyfe:<clé>` (16 caractères min.) |
 | `ZEMI_PUBLIC_URL` | lien « Faire livrer des courses à ce logement — Zémi Market » (biens au Bénin) |
-| `AFROCHINA_PUBLIC_URL` / `AFROCHINA_REQUEST_PATH` | lien « Équiper ce logement depuis la Chine » (chemin par défaut `/client/demandes/nouvelle`) |
+| `AFROCHINA_PUBLIC_URL` / `AFROCHINA_REQUEST_PATH` | lien « Équiper ce logement depuis la Chine » (chemin par défaut `/client/request/new`) |
 | `GESTIPRO_PARTNER_URL` | API GestiPro : active « Facturation GestiPro » dans l'espace pro |
 | `GESTIPRO_PUBLIC_URL` / `FAMILYFE_PUBLIC_URL` | (facultatif) liens affichés ; sinon URL de l'annuaire DKP |
 
 Enregistrer hwe sur le hub (secret écrit dans un fichier chmod 600, jamais affiché) :
 
 ```
-docker exec -e SECRET_OUT=/tmp/c.env dkp-hub node src/cli.js client hwe "hwe" login,email,payments https://hwe.dkpsolution.tech/api/auth/dkp/callback
+docker exec -e SECRET_OUT=/tmp/c.env <conteneur du hub> node src/cli.js client hwe "hwe" login,email,payments https://hwe.dkpsolution.tech/api/auth/dkp/callback
 ```
 
 ## Fonctions
